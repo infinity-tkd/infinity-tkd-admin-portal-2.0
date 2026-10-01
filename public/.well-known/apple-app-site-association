@@ -1,0 +1,23 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TEAMID.com.infinitytkd.admin",
+        "paths": [
+          "/dashboard*",
+          "/students*",
+          "/attendance*",
+          "/financials*",
+          "/members*",
+          "/lms*"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "TEAMID.com.infinitytkd.admin"
+    ]
+  }
+}

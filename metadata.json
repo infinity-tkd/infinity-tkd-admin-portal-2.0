@@ -1,0 +1,6 @@
+{
+  "name": "Infinity TKD Admin",
+  "description": "Infinity Taekwondo Progress Web App (PWA) Admin Portal, handling unified attendance, financial ledgers, student directory, and RBAC multi-user login.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
