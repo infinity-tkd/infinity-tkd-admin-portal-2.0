@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { List, GraduationCap, Users, CheckSquare, CreditCard, VideoCamera, Calendar, Gear, SignOut, UserCircle, BookOpen, ShoppingBag, Handshake } from '@phosphor-icons/react';
+import { List, GraduationCap, Users, CheckSquare, CreditCard, VideoCamera, Calendar, Gear, SignOut, UserCircle, BookOpen, ShoppingBag, Handshake, CaretUp } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { useT } from '@/hooks/useTranslation';
 import { usePathname, useRouter } from 'next/navigation';
@@ -31,14 +31,18 @@ export function PortalLayout({ children }: PortalLayoutProps) {
   const [showStatusToast, setShowStatusToast] = useState<'none' | 'online' | 'offline'>('none');
   const [showDiagnostics, setShowDiagnostics] = useState(false);
 
-  // Scroll direction detection for auto-hiding mobile & tablet header / bottom footer menu
+  // Scroll direction and progress detection for tactile scroll experience
   const [isNavVisible, setIsNavVisible] = useState(true);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const lastScrollTopRef = React.useRef(0);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
   // Automatically reveal navigation and reset scroll position when route changes
   useEffect(() => {
     setIsNavVisible(true);
+    setScrollProgress(0);
+    setShowScrollTop(false);
     lastScrollTopRef.current = 0;
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = 0;
@@ -53,33 +57,32 @@ export function PortalLayout({ children }: PortalLayoutProps) {
   }, [sidebarOpen]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    // Only auto-hide navigation on mobile screens (< 768px). Tablets & desktops have ample space.
-    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-      if (!isNavVisible) setIsNavVisible(true);
-      return;
-    }
-
     const currentScrollTop = e.currentTarget.scrollTop;
-    const lastScrollTop = lastScrollTopRef.current;
-    const delta = currentScrollTop - lastScrollTop;
     const scrollHeight = e.currentTarget.scrollHeight;
     const clientHeight = e.currentTarget.clientHeight;
+    const totalScrollable = scrollHeight - clientHeight;
 
-    // 1. Always reveal navigation when at or near top
-    if (currentScrollTop <= 60) {
-      setIsNavVisible(true);
-    }
-    // 2. Always reveal navigation when reaching the bottom of scroll content
-    else if (scrollHeight - currentScrollTop - clientHeight <= 60) {
-      setIsNavVisible(true);
-    }
-    // 3. Deliberate scrolling down past threshold (> 40px delta and > 100px from top)
-    else if (delta > 40 && currentScrollTop > 100) {
-      setIsNavVisible(false);
-    }
-    // 4. Scrolling up past threshold (<-25px delta) -> smoothly reveal
-    else if (delta < -25) {
-      setIsNavVisible(true);
+    // Calculate tactile scroll progress (0 - 100%)
+    const progress = totalScrollable > 0 
+      ? Math.min(100, Math.max(0, (currentScrollTop / totalScrollable) * 100)) 
+      : 0;
+    setScrollProgress(progress);
+    setShowScrollTop(currentScrollTop > 320);
+
+    // Auto-hide mobile navigation on deliberate downward momentum
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      const lastScrollTop = lastScrollTopRef.current;
+      const delta = currentScrollTop - lastScrollTop;
+
+      if (currentScrollTop <= 60 || scrollHeight - currentScrollTop - clientHeight <= 60) {
+        setIsNavVisible(true);
+      } else if (delta > 35 && currentScrollTop > 100) {
+        setIsNavVisible(false);
+      } else if (delta < -20) {
+        setIsNavVisible(true);
+      }
+    } else {
+      if (!isNavVisible) setIsNavVisible(true);
     }
 
     lastScrollTopRef.current = currentScrollTop;
@@ -379,6 +382,14 @@ export function PortalLayout({ children }: PortalLayoutProps) {
               </button>
             )}
           </div>
+
+          {/* Subtle Hairline Scroll Progress Indicator */}
+          <div className="absolute bottom-0 inset-x-0 h-[2px] bg-neutral-200/40 dark:bg-white/5 pointer-events-none overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-red-600 via-[#EF2F38] to-red-400 transition-[width] duration-75 ease-out shadow-[0_0_8px_rgba(239,47,56,0.6)]"
+              style={{ width: `${scrollProgress}%` }}
+            />
+          </div>
         </header>
 
         <div 
@@ -451,6 +462,31 @@ export function PortalLayout({ children }: PortalLayoutProps) {
           </button>
         </div>
       </main>
+
+      {/* Tactile Quick-Elevate (Scroll to Top) Floating Controller */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.75, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.75, y: 16 }}
+            whileTap={{ scale: 0.88 }}
+            onClick={() => {
+              scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={cn(
+              "fixed right-4 sm:right-6 z-40 p-2.5 rounded-full bg-white/95 dark:bg-[#141414]/95 border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-white shadow-xl hover:bg-[#EF2F38] hover:text-white hover:border-[#EF2F38] dark:hover:bg-[#EF2F38] dark:hover:text-white dark:hover:border-[#EF2F38] transition-all cursor-pointer backdrop-blur-md flex items-center justify-center active:scale-90 touch-manipulation group",
+              isNavVisible
+                ? "bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:bottom-6"
+                : "bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] lg:bottom-6"
+            )}
+            title="Scroll to Top"
+            aria-label="Scroll to top of page"
+          >
+            <CaretUp className="w-4 h-4 font-bold group-hover:-translate-y-0.5 transition-transform" weight="bold" />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Global Modals */}
       <BirthdayWishModal />
