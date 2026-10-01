@@ -13,10 +13,14 @@
     "standalone",
     "minimal-ui"
   ],
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "background_color": "#0A0A0A",
+  "theme_color": "#0A0A0A",
   "orientation": "any",
   "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "handle_links": "preferred",
   "categories": [
     "sports",
     "productivity",
