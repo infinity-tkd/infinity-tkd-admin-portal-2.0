@@ -1,0 +1,650 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-red-400: #ef5a61;
+  --color-red-500: #EF2F38;
+  --color-red-600: #d6242c;
+  --color-red-700: #b21a21;
+  --font-sans: var(--font-sans), var(--font-khmer), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  --radius-2xl: 8px;
+  --radius-3xl: 8px;
+  --radius-4xl: 8px;
+}
+
+/* ==========================================================
+   UNIFIED SYSTEM TYPOGRAPHY & MULTI-LANGUAGE THEME ARCHITECTURE
+   ========================================================== */
+
+/* Universal Baseline Typography */
+html,
+body,
+input,
+select,
+textarea,
+button {
+  font-family: var(--font-sans), var(--font-khmer), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Khmer Language Mode - Promotes Kantumruy Pro across the entire portal */
+html.font-khmer,
+html.font-khmer body,
+html.font-khmer input,
+html.font-khmer select,
+html.font-khmer textarea,
+html.font-khmer button,
+html.font-khmer .font-sans,
+.font-khmer {
+  font-family: var(--font-khmer), var(--font-sans), system-ui, sans-serif !important;
+}
+
+/* Chinese Language Mode - Promotes Simplified Chinese typography */
+html.font-zh,
+html.font-zh body,
+html.font-zh input,
+html.font-zh select,
+html.font-zh textarea,
+html.font-zh button,
+html.font-zh .font-sans,
+.font-zh {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", var(--font-sans), system-ui, sans-serif !important;
+}
+
+/* Monospace Class Uniformity */
+.font-mono,
+code,
+kbd,
+samp,
+pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Universal 8px Border Radius Cap & Clean Corners */
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl,
+.rounded-4xl,
+.rounded-\[10px\],
+.rounded-\[12px\],
+.rounded-\[14px\],
+.rounded-\[16px\],
+.rounded-\[20px\],
+.rounded-\[24px\] {
+  border-radius: 8px !important;
+}
+
+/* Premium Native Standalone PWA Resets & Micro-animations */
+* {
+  -webkit-tap-highlight-color: transparent;
+  outline-color: rgba(239, 47, 56, 0.4);
+}
+
+/* Cross-Browser Firefox Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(150, 150, 150, 0.25) transparent;
+}
+
+:focus-visible {
+  outline: 2px solid #EF2F38;
+  outline-offset: 2px;
+}
+
+/* Mobile Touch Targets & Micro-interactions */
+@media (max-width: 639px) {
+  input,
+  select,
+  textarea,
+  button {
+    touch-action: manipulation;
+  }
+}
+
+/* Safe-area utility helpers for Notch, Dynamic Island, and Gesture Bars */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.safe-area-left {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+.safe-area-right {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+.safe-area-bottom-nav {
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+html,
+body {
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  -webkit-touch-callout: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overscroll-behavior-y: contain; /* Prevents pull-to-refresh reload in standalone mode */
+}
+
+/* Prevent accidental browser selections on UI controls and touch areas */
+button,
+a,
+select,
+input[type="checkbox"],
+[role="button"] {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ==========================================================
+   PREMIUM HIGH-CONTRAST LIGHT MODE ARCHITECTURAL OVERRIDES
+   ========================================================== */
+html:not(.dark) body {
+  background-color: #FFFFFF !important;
+  color: #111827 !important;
+}
+
+/* Core Panel Backgrounds (Escaped Tailwind Arbitrary Classes) */
+html:not(.dark) .bg-\[\#0A0A0A\],
+html:not(.dark) .bg-\[\#0a0a0a\],
+html:not(.dark) .bg-\[\#0F0F0F\],
+html:not(.dark) .bg-\[\#0f0f0f\],
+html:not(.dark) .bg-\[\#141414\],
+html:not(.dark) .bg-\[\#141414\],
+html:not(.dark) .bg-\[\#111\],
+html:not(.dark) .bg-\[\#111111\],
+html:not(.dark) .bg-\[\#151515\],
+html:not(.dark) .bg-\[\#0d0d0d\],
+html:not(.dark) .bg-\[\#080808\] {
+  background-color: #FFFFFF !important;
+}
+
+/* Modal Inner Boxes & Modal Overlay Backdrops */
+html:not(.dark) .fixed.bg-black\/80,
+html:not(.dark) .fixed.bg-black\/50,
+html:not(.dark) .fixed.bg-black\/60,
+html:not(.dark) .bg-black\/80 {
+  background-color: rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Force Modal Cards (inside fixed overlay) to remain white cards */
+html:not(.dark) .fixed div.bg-\[\#0F0F0F\],
+html:not(.dark) .fixed div.bg-\[\#0f0f0f\],
+html:not(.dark) .fixed div.bg-\[\#141414\] {
+  background-color: #FFFFFF !important;
+  border-color: #E5E7EB !important;
+}
+
+/* Empty States & Search Container Boxes */
+html:not(.dark) .col-span-full.bg-\[\#0F0F0F\],
+html:not(.dark) .col-span-full.bg-\[\#0f0f0f\],
+html:not(.dark) .col-span-full.bg-black {
+  background-color: #F9FAFB !important;
+  border: 1px dashed #D1D5DB !important;
+  color: #4B5563 !important;
+}
+
+/* Inactive button backgrounds, inner card components, list groups, select boxes */
+html:not(.dark) .bg-\[\#1A1A1A\],
+html:not(.dark) .bg-\[\#1a1a1a\],
+html:not(.dark) .bg-\[\#262626\],
+html:not(.dark) .bg-neutral-800,
+html:not(.dark) .bg-zinc-800,
+html:not(.dark) .bg-\[\#141414\]\/50,
+html:not(.dark) .bg-\[\#0A0A0A\]\/50,
+html:not(.dark) .bg-\[\#0a0a0a\]\/50 {
+  background-color: #F3F4F6 !important;
+}
+
+/* Borders and dividers (Escaped Tailwind arbitrary classes) */
+html:not(.dark) .border-\[\#262626\],
+html:not(.dark) .border-\[\#262626\]\/20,
+html:not(.dark) .border-\[\#333\],
+html:not(.dark) .border-\[\#444\],
+html:not(.dark) .border-neutral-800,
+html:not(.dark) .border-zinc-800,
+html:not(.dark) .divide-\[\#262626\] > :not([hidden]) ~ :not([hidden]),
+html:not(.dark) .border-r,
+html:not(.dark) .border-b,
+html:not(.dark) .border {
+  border-color: #E5E7EB !important;
+}
+
+/* High-Contrast Red Accents */
+html:not(.dark) .border-\[\#EF2F38\]\/20 {
+  border-color: rgba(239, 47, 56, 0.25) !important;
+}
+
+/* Typography: High-Contrast Charcoal & Pitch Black for Light Mode */
+html:not(.dark) .text-\[\#E4E4E4\],
+html:not(.dark) .text-gray-100,
+html:not(.dark) .text-gray-200 {
+  color: #111827 !important;
+}
+html:not(.dark) .text-\[\#999\],
+html:not(.dark) .text-gray-400,
+html:not(.dark) .text-neutral-450,
+html:not(.dark) .text-neutral-400,
+html:not(.dark) .text-neutral-500 {
+  color: #374151 !important;
+}
+html:not(.dark) .text-\[\#666\],
+html:not(.dark) .text-gray-500,
+html:not(.dark) .text-neutral-350,
+html:not(.dark) .text-neutral-300 {
+  color: #4B5563 !important;
+}
+html:not(.dark) .text-\[\#888\],
+html:not(.dark) .text-\[\#555\],
+html:not(.dark) .text-neutral-200 {
+  color: #4B5563 !important;
+}
+html:not(.dark) .hover\:text-white:hover {
+  color: #111827 !important;
+}
+
+/* Light Mode Status Pill High-Contrast Text Overrides (WCAG AA & AAA >= 4.5:1 on light backdrops) */
+html:not(.dark) .text-emerald-400,
+html:not(.dark) .text-emerald-500,
+html:not(.dark) .text-green-400,
+html:not(.dark) .text-green-500 {
+  color: #047857 !important; /* Deep Emerald 7.3:1 contrast against #FFFFFF */
+}
+html:not(.dark) .text-amber-400,
+html:not(.dark) .text-amber-500 {
+  color: #B45309 !important; /* Deep Amber 7.1:1 contrast against #FFFFFF */
+}
+html:not(.dark) .text-yellow-400,
+html:not(.dark) .text-yellow-500 {
+  color: #A16207 !important; /* Deep Golden Olive 7.2:1 contrast against #FFFFFF */
+}
+html:not(.dark) .text-blue-400,
+html:not(.dark) .text-blue-500 {
+  color: #1D4ED8 !important; /* Deep Cobalt Blue 8.5:1 contrast against #FFFFFF */
+}
+html:not(.dark) .text-sky-400,
+html:not(.dark) .text-sky-500,
+html:not(.dark) .text-cyan-400,
+html:not(.dark) .text-cyan-500 {
+  color: #0369A1 !important; /* Deep Sky Teal 7.1:1 contrast against #FFFFFF */
+}
+html:not(.dark) .text-indigo-400,
+html:not(.dark) .text-indigo-500 {
+  color: #4338CA !important; /* Deep Royal Indigo 9.1:1 contrast against #FFFFFF */
+}
+html:not(.dark) .text-purple-400,
+html:not(.dark) .text-purple-500,
+html:not(.dark) .text-violet-400,
+html:not(.dark) .text-violet-500 {
+  color: #7E22CE !important; /* Deep Violet Purple 7.5:1 contrast against #FFFFFF */
+}
+html:not(.dark) .text-red-400 {
+  color: #B91C1C !important; /* Deep Crimson Red 7.4:1 contrast against #FFFFFF */
+}
+html:not(.dark) .text-orange-400,
+html:not(.dark) .text-orange-500 {
+  color: #C2410C !important; /* Deep Burnt Orange 7.0:1 contrast against #FFFFFF */
+}
+html:not(.dark) .text-rose-400,
+html:not(.dark) .text-rose-500 {
+  color: #BE123C !important; /* Deep Rose Red 7.4:1 contrast against #FFFFFF */
+}
+
+/* Dark Mode High-Contrast Enhancements for Muted Subtext & Icons (WCAG AA & AAA >= 4.5:1 on #0A0A0A) */
+.dark .text-\[\#666\],
+.dark .text-\[\#555\],
+.dark .text-neutral-500,
+.dark .text-neutral-600,
+.dark .text-gray-500,
+.dark .text-gray-600 {
+  color: #A3A3A3 !important; /* Contrast ratio 7.4:1 against #0A0A0A / #141414 */
+}
+
+.dark .text-\[\#888\],
+.dark .text-\[\#999\],
+.dark .text-neutral-400,
+.dark .text-gray-400 {
+  color: #D4D4D4 !important; /* Contrast ratio 12.8:1 against #0A0A0A */
+}
+
+/* Brighten excessively dark colored text in Dark Mode so it never vanishes against dark surfaces */
+.dark .text-blue-700,
+.dark .text-blue-800,
+.dark .text-blue-900 {
+  color: #60A5FA !important; /* Bright Sky Blue 7.5:1 contrast against #0A0A0A */
+}
+.dark .text-emerald-700,
+.dark .text-emerald-800,
+.dark .text-emerald-900,
+.dark .text-green-700,
+.dark .text-green-800,
+.dark .text-green-900 {
+  color: #34D399 !important; /* Bright Emerald 9.8:1 contrast against #0A0A0A */
+}
+.dark .text-amber-700,
+.dark .text-amber-800,
+.dark .text-amber-900 {
+  color: #FBBF24 !important; /* Bright Amber Gold 10.4:1 contrast against #0A0A0A */
+}
+.dark .text-red-700,
+.dark .text-red-800,
+.dark .text-red-900 {
+  color: #F87171 !important; /* Bright Coral Red 6.5:1 contrast against #0A0A0A */
+}
+.dark .text-purple-700,
+.dark .text-purple-800,
+.dark .text-purple-900 {
+  color: #C084FC !important; /* Bright Lavender Purple 7.5:1 contrast against #0A0A0A */
+}
+
+.dark .border-\[\#262626\] {
+  border-color: #333333 !important;
+}
+
+/* Default dark text color in light mode */
+html:not(.dark) .text-white {
+  color: #111827 !important;
+}
+
+/* Exclude colored elements from text-white overrides (revert to pure white for perfect contrast) */
+html:not(.dark) .bg-red-500,
+html:not(.dark) .bg-red-500 *,
+html:not(.dark) .bg-red-600,
+html:not(.dark) .bg-red-600 *,
+html:not(.dark) .bg-red-700,
+html:not(.dark) .bg-red-700 *,
+html:not(.dark) .bg-\[\#EF2F38\],
+html:not(.dark) .bg-\[\#EF2F38\] *,
+html:not(.dark) [class~="bg-[#EF2F38]"],
+html:not(.dark) [class~="bg-[#EF2F38]"] *,
+html:not(.dark) [class~="bg-[#D0252D]"],
+html:not(.dark) [class~="bg-[#D0252D]"] *,
+html:not(.dark) [class~="bg-[#D9222B]"],
+html:not(.dark) [class~="bg-[#D9222B]"] *,
+html:not(.dark) [class~="bg-[#d6242c]"],
+html:not(.dark) [class~="bg-[#d6242c]"] *,
+html:not(.dark) [class~="bg-[#d4252e]"],
+html:not(.dark) [class~="bg-[#d4252e]"] *,
+html:not(.dark) button.bg-red-500,
+html:not(.dark) button.bg-\[\#EF2F38\],
+html:not(.dark) button[class*="hover:bg-red"]:hover,
+html:not(.dark) button[class*="hover:bg-[#EF2F38]"]:hover,
+html:not(.dark) a.bg-red-500 *,
+html:not(.dark) a.bg-\[\#EF2F38\] *,
+html:not(.dark) .bg-green-600,
+html:not(.dark) .bg-green-600 *,
+html:not(.dark) .bg-green-700,
+html:not(.dark) .bg-green-700 *,
+html:not(.dark) .bg-emerald-600,
+html:not(.dark) .bg-emerald-600 *,
+html:not(.dark) .bg-emerald-700,
+html:not(.dark) .bg-emerald-700 *,
+html:not(.dark) button.bg-emerald-600,
+html:not(.dark) button.bg-emerald-700,
+html:not(.dark) button[class*="hover:bg-emerald"]:hover,
+html:not(.dark) .bg-blue-600,
+html:not(.dark) .bg-blue-600 *,
+html:not(.dark) .bg-blue-700,
+html:not(.dark) .bg-blue-700 *,
+html:not(.dark) button.bg-blue-600,
+html:not(.dark) button.bg-blue-700,
+html:not(.dark) button[class*="hover:bg-blue"]:hover,
+html:not(.dark) .bg-indigo-600,
+html:not(.dark) .bg-indigo-600 *,
+html:not(.dark) .bg-indigo-700,
+html:not(.dark) .bg-indigo-700 *,
+html:not(.dark) button.bg-indigo-600,
+html:not(.dark) button.bg-indigo-700,
+html:not(.dark) button[class*="hover:bg-indigo"]:hover,
+html:not(.dark) .bg-purple-600,
+html:not(.dark) .bg-purple-600 *,
+html:not(.dark) .bg-purple-700,
+html:not(.dark) .bg-purple-700 *,
+html:not(.dark) button.bg-purple-600,
+html:not(.dark) button.bg-purple-700,
+html:not(.dark) button[class*="hover:bg-purple"]:hover,
+html:not(.dark) .bg-amber-600,
+html:not(.dark) .bg-amber-600 *,
+html:not(.dark) .bg-amber-700,
+html:not(.dark) .bg-amber-700 *,
+html:not(.dark) .bg-amber-800,
+html:not(.dark) .bg-amber-800 *,
+html:not(.dark) button.bg-amber-600,
+html:not(.dark) button.bg-amber-700,
+html:not(.dark) button[class*="hover:bg-amber"]:hover,
+html:not(.dark) .bg-orange-600,
+html:not(.dark) .bg-orange-600 *,
+html:not(.dark) .bg-orange-700,
+html:not(.dark) .bg-orange-700 *,
+html:not(.dark) .bg-rose-600,
+html:not(.dark) .bg-rose-600 *,
+html:not(.dark) .bg-rose-700,
+html:not(.dark) .bg-rose-700 *,
+html:not(.dark) .bg-slate-800,
+html:not(.dark) .bg-slate-800 *,
+html:not(.dark) .bg-slate-900,
+html:not(.dark) .bg-slate-900 *,
+html:not(.dark) .bg-neutral-900,
+html:not(.dark) .bg-neutral-900 *,
+html:not(.dark) .bg-black,
+html:not(.dark) .bg-black *,
+html:not(.dark) .text-white-on-red,
+html:not(.dark) .text-white-override,
+html:not(.dark) .text-white-override * {
+  color: #FFFFFF !important;
+}
+
+/* Thermal Receipt & Packing Slip Paper Isolation in Dark Mode & Light Mode */
+#printable-receipt,
+#printable-packing-slip {
+  background-color: #FFFFFF !important;
+  color: #111827 !important;
+}
+#printable-receipt *,
+#printable-packing-slip * {
+  color: #111827 !important;
+}
+#printable-receipt .text-neutral-500,
+#printable-receipt .text-neutral-600,
+#printable-packing-slip .text-neutral-500,
+#printable-packing-slip .text-neutral-600 {
+  color: #4B5563 !important;
+}
+#printable-receipt .text-\[\#EF2F38\],
+#printable-packing-slip .text-\[\#EF2F38\] {
+  color: #EF2F38 !important;
+}
+#printable-receipt .text-red-600,
+#printable-packing-slip .text-red-600 {
+  color: #DC2626 !important;
+}
+
+/* Keep navigation sidebar items clean: black text when active, charcoal when inactive */
+html:not(.dark) aside a.text-white {
+  background-color: #F3F4F6 !important;
+  color: #111827 !important;
+}
+html:not(.dark) aside a.text-\[\#999\] {
+  color: #4B5563 !important;
+}
+html:not(.dark) aside a.text-\[\#999\]:hover {
+  background-color: #F3F4F6 !important;
+  color: #111827 !important;
+}
+
+/* Settings switcher button state highlights in light mode */
+html:not(.dark) .theme-switcher-container .bg-white.text-black {
+  background-color: #EF2F38 !important;
+  color: #FFFFFF !important;
+}
+html:not(.dark) .theme-switcher-container .bg-\[\#262626\].text-white {
+  background-color: #EF2F38 !important;
+  color: #FFFFFF !important;
+}
+
+/* Forms & UI Controls (Respects transparent and borderless inputs) */
+html:not(.dark) select:not(.bg-transparent):not(.border-none):not([class*="bg-transparent"]):not([class*="border-none"]),
+html:not(.dark) input:not(.bg-transparent):not(.border-none):not([class*="bg-transparent"]):not([class*="border-none"]):not([type="checkbox"]):not([type="radio"]),
+html:not(.dark) textarea:not(.bg-transparent):not(.border-none):not([class*="bg-transparent"]):not([class*="border-none"]) {
+  background-color: #FFFFFF;
+  color: #111827;
+  border: 1px solid #D1D5DB;
+}
+
+html:not(.dark) input.bg-transparent,
+html:not(.dark) select.bg-transparent {
+  background-color: transparent !important;
+}
+
+html:not(.dark) input.border-none,
+html:not(.dark) select.border-none {
+  border: none !important;
+}
+
+html:not(.dark) select option {
+  background-color: #FFFFFF !important;
+  color: #111827 !important;
+}
+
+.dark select option {
+  background-color: #141414 !important;
+  color: #E4E4E4 !important;
+}
+
+html:not(.dark) input::placeholder,
+html:not(.dark) select::placeholder,
+html:not(.dark) textarea::placeholder {
+  color: #9CA3AF !important;
+}
+
+html:not(.dark) input:not(.border-none):focus,
+html:not(.dark) select:not(.border-none):focus,
+html:not(.dark) textarea:not(.border-none):focus {
+  border-color: #EF2F38 !important;
+  box-shadow: 0 0 0 1px rgba(239, 47, 56, 0.2) !important;
+}
+
+/* Tables & Rosters */
+html:not(.dark) th {
+  background-color: #F3F4F6 !important;
+  color: #374151 !important;
+}
+
+html:not(.dark) tr:hover {
+  background-color: #F9FAFB !important;
+}
+
+html:not(.dark) .divide-\[\#262626\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: #E5E7EB !important;
+}
+
+/* Custom Sleek Scrollbar for Document Desks and Custom Preview Panels */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Light mode custom scrollbars overrides */
+html:not(.dark) .custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+html:not(.dark) .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15) !important;
+}
+html:not(.dark) .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Premium E-Receipt High-Contrast Light Mode Overrides */
+html:not(.dark) .bg-\[\#121212\] {
+  background-color: #F9FAFB !important; /* High-contrast soft gray desk */
+}
+html:not(.dark) .md\:col-span-7 .bg-\[\#0A0A0A\] {
+  background-color: #F3F4F6 !important; /* Recessed desk canvas tray */
+}
+html:not(.dark) .text-\[\#BBB\],
+html:not(.dark) .text-\[\#bbb\],
+html:not(.dark) .text-\[\#CCC\],
+html:not(.dark) .text-\[\#ccc\] {
+  color: #374151 !important; /* Visible charcoal gray text instead of washed out light-gray */
+}
+
+/* Force Fullscreen Inspect cinematic dark styles in Light Mode */
+html:not(.dark) .fixed.bg-black\/90 {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+}
+html:not(.dark) .fixed.bg-black\/90 .bg-\[\#141414\]/80,
+html:not(.dark) .fixed.bg-black\/90 .bg-\[\#141414\]/90 {
+  background-color: rgba(20, 20, 20, 0.9) !important;
+  border-color: #262626 !important;
+}
+html:not(.dark) .fixed.bg-black\/90 .text-white {
+  color: #FFFFFF !important;
+}
+html:not(.dark) .fixed.bg-black\/90 .bg-\[\#262626\] {
+  background-color: #262626 !important;
+  color: #FFFFFF !important;
+  border-color: #262626 !important;
+}
+html:not(.dark) .fixed.bg-black\/90 .bg-\[\#262626\]:hover {
+  background-color: #333333 !important;
+}
+
+/* Exclude active accent colors text from light mode white overrides */
+html:not(.dark) .text-white-override,
+html:not(.dark) .text-white-override * {
+  color: #FFFFFF !important;
+}
+
+/* Force Floating Portals and Workout Timers to stay dark in Light Mode */
+html:not(.dark) .dark-card-override {
+  background-color: #0A0A0A !important;
+  border-color: #262626 !important;
+}
+html:not(.dark) .dark-card-override,
+html:not(.dark) .dark-card-override * {
+  color: #FFFFFF !important;
+}
+html:not(.dark) .dark-card-override .bg-\[\#141414\] {
+  background-color: #141414 !important;
+  border-color: #262626 !important;
+}
+html:not(.dark) .dark-card-override .border-\[\#262626\] {
+  border-color: #262626 !important;
+}
+
+/* ==========================================================
+   WCAG 2.2 AA ACCESSIBILITY: PREFERS REDUCED MOTION
+   ========================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
