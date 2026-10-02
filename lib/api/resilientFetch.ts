@@ -64,8 +64,13 @@ export async function resilientFetch(
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     // Merge external abort signal if provided
+    const onAbort = () => controller.abort();
     if (fetchOptions.signal) {
-      fetchOptions.signal.addEventListener('abort', () => controller.abort());
+      if (fetchOptions.signal.aborted) {
+        controller.abort();
+      } else {
+        fetchOptions.signal.addEventListener('abort', onAbort);
+      }
     }
 
     try {
@@ -73,7 +78,6 @@ export async function resilientFetch(
         ...fetchOptions,
         signal: controller.signal,
       });
-      clearTimeout(timeoutId);
 
       if (response.ok) {
         return response;
@@ -89,8 +93,6 @@ export async function resilientFetch(
 
       return response;
     } catch (err: any) {
-      clearTimeout(timeoutId);
-
       if (attempt < maxRetries && retryCondition(0, err)) {
         attempt++;
         await new Promise((resolve) => setTimeout(resolve, delay));
@@ -99,6 +101,11 @@ export async function resilientFetch(
       }
 
       throw err;
+    } finally {
+      clearTimeout(timeoutId);
+      if (fetchOptions.signal) {
+        fetchOptions.signal.removeEventListener('abort', onAbort);
+      }
     }
   }
 
