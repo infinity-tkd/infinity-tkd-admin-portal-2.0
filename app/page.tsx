@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import Image from 'next/image';
 import { useAppStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import { LoginView } from '@/components/LoginView';
@@ -27,9 +28,12 @@ export default function RootPage() {
         
         <div className="flex flex-col items-center space-y-6 relative z-10">
           <div className="w-14 h-14 relative flex items-center justify-center">
-            <img 
+            <Image 
               src="/icons/logo.svg" 
-              alt="Infinity Logo" 
+              alt="Infinity Logo"
+              width={56}
+              height={56}
+              priority
               className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(239,47,56,0.35)] animate-pulse" 
             />
           </div>
@@ -41,17 +45,9 @@ export default function RootPage() {
 
           {/* Premium Linear Shimmer Loading Tracker */}
           <div className="w-32 bg-[#141414] h-[2px] rounded-full overflow-hidden border border-[#262626] relative">
-            <div className="bg-[#EF2F38] h-full rounded-full w-1/2 absolute left-0 top-0 animate-[shimmer_1.4s_infinite_ease-in-out]" />
+            <div className="bg-[#EF2F38] h-full rounded-full w-1/2 absolute left-0 top-0 animate-shimmer" />
           </div>
         </div>
-        
-        <style dangerouslySetInnerHTML={{ __html: `
-          @keyframes shimmer {
-            0% { left: -50%; }
-            50% { left: 100%; }
-            100% { left: -50%; }
-          }
-        `}} />
       </div>
     );
   }
@@ -67,9 +63,12 @@ export default function RootPage() {
       
       <div className="flex flex-col items-center space-y-6 relative z-10">
         <div className="w-14 h-14 relative flex items-center justify-center">
-          <img 
+          <Image 
             src="/icons/logo.svg" 
-            alt="Infinity Logo" 
+            alt="Infinity Logo"
+            width={56}
+            height={56}
+            priority
             className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(239,47,56,0.35)] animate-pulse" 
           />
         </div>
@@ -81,17 +80,9 @@ export default function RootPage() {
 
         {/* Premium Linear Shimmer Loading Tracker */}
         <div className="w-32 bg-[#141414] h-[2px] rounded-full overflow-hidden border border-[#262626] relative">
-          <div className="bg-green-500 h-full rounded-full w-1/2 absolute left-0 top-0 animate-[shimmer_1.4s_infinite_ease-in-out]" />
+          <div className="bg-green-500 h-full rounded-full w-1/2 absolute left-0 top-0 animate-shimmer" />
         </div>
       </div>
-      
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes shimmer {
-          0% { left: -50%; }
-          50% { left: 100%; }
-          100% { left: -50%; }
-        }
-      `}} />
     </div>
   );
 }

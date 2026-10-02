@@ -36,7 +36,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  compress: true,
   transpilePackages: ['motion'],
+  experimental: {
+    optimizePackageImports: ['@phosphor-icons/react', 'lucide-react'],
+  },
   async headers() {
     return [
       {

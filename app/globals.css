@@ -704,6 +704,20 @@ html:not(.dark) .dark-card-override .border-\[\#262626\] {
 }
 
 /* ==========================================================
+   PERFORMANCE & GPU ANIMATION KEYFRAMES
+   ========================================================== */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.4s infinite ease-in-out;
+  will-change: transform;
+}
+
+/* ==========================================================
    WCAG 2.2 AA ACCESSIBILITY: PREFERS REDUCED MOTION
    ========================================================== */
 @media (prefers-reduced-motion: reduce) {
@@ -716,4 +730,5 @@ html:not(.dark) .dark-card-override .border-\[\#262626\] {
     scroll-behavior: auto !important;
   }
 }
+
 
