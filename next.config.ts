@@ -110,8 +110,8 @@ const nextConfig: NextConfig = {
     ];
   },
   webpack: (config, { isServer, dev }) => {
-    // Only attach Serwist service worker compiler on client build in production or when dev PWA enabled
-    if (!isServer && (process.env.NODE_ENV === 'production' || process.env.ENABLE_PWA_DEV === 'true')) {
+    // Only attach Serwist service worker compiler when PWA compilation flag is explicitly set
+    if (!isServer && process.env.BUILD_PWA_SW === 'true') {
       try {
         const { InjectManifest } = require('@serwist/webpack-plugin');
         config.plugins.push(

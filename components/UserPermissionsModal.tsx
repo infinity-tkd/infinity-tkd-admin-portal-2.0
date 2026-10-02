@@ -274,7 +274,8 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
             <button 
               type="button"
               onClick={onClose} 
-              className="p-1.5 min-w-[38px] min-h-[38px] flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] cursor-pointer active:scale-95 touch-manipulation"
+              aria-label="Close modal"
+              className="p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] cursor-pointer active:scale-95 touch-manipulation transition-colors"
             >
               <X className="w-5 h-5" />
             </button>

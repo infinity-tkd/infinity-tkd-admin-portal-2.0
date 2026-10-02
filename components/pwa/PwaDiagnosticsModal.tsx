@@ -145,7 +145,7 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
         aria-labelledby="pwa-diag-title"
       >
         <div 
-          className="w-full max-w-xl bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[10px] shadow-2xl p-5 sm:p-6 space-y-5 text-neutral-900 dark:text-white max-h-[90dvh] overflow-y-auto"
+          className="w-full max-w-xl bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl p-5 sm:p-6 space-y-5 text-neutral-900 dark:text-white max-h-[90dvh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -163,9 +163,11 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
                 </p>
               </div>
             </div>
+
             <button
+              type="button"
               onClick={onClose}
-              className="p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-[#202020] text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer"
+              className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[8px] hover:bg-neutral-100 dark:hover:bg-[#202020] text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation"
               aria-label="Close Diagnostics"
             >
               <X className="w-4 h-4" />

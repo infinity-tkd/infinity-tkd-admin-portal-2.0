@@ -3775,8 +3775,10 @@ export function FinancialsView() {
                   </div>
 
                   <button 
+                    type="button"
                     onClick={() => setSelectedCalendarDay(null)}
-                    className="p-1.5 bg-neutral-200 hover:bg-neutral-300 dark:bg-[#1F1F1F] dark:hover:bg-[#2A2A2A] text-neutral-700 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white rounded-[8px] transition-colors cursor-pointer"
+                    aria-label="Close renewal cohort modal"
+                    className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center bg-neutral-200 hover:bg-neutral-300 dark:bg-[#1F1F1F] dark:hover:bg-[#2A2A2A] text-neutral-700 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -3956,7 +3958,12 @@ export function FinancialsView() {
                         <p className="text-[10px] text-neutral-500 dark:text-[#888] uppercase font-bold tracking-widest mt-1">Financial Dossier • FY {filterYear}</p>
                       </div>
                     </div>
-                    <button onClick={() => setStudentDetailsId(null)} className="w-8 h-8 rounded-full flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:text-[#666] dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-[#262626] transition-colors">
+                    <button 
+                      type="button"
+                      onClick={() => setStudentDetailsId(null)} 
+                      aria-label="Close student dossier"
+                      className="min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:text-[#666] dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-[#262626] transition-colors cursor-pointer active:scale-95 touch-manipulation"
+                    >
                       <X className="w-4 h-4"/>
                     </button>
                   </div>
@@ -4288,7 +4295,12 @@ export function FinancialsView() {
                       <p className="text-[9px] text-[#666] font-mono mt-0.5">Customize, preview, and generate official student invoices</p>
                     </div>
                   </div>
-                  <button onClick={() => setShowReceipt(null)} className="w-8 h-8 rounded-full flex items-center justify-center text-[#666] hover:bg-[#262626] hover:text-white transition-colors cursor-pointer">
+                  <button 
+                    type="button"
+                    onClick={() => setShowReceipt(null)} 
+                    aria-label="Close interactive receipt designer"
+                    className="min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-[#666] hover:bg-[#262626] hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation"
+                  >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
@@ -4507,8 +4519,10 @@ export function FinancialsView() {
                   <span className="text-[10px] font-bold uppercase tracking-widest text-white">Fullscreen Inspect Mode</span>
                 </div>
                 <button 
+                  type="button"
                   onClick={() => setReceiptFullscreen(false)}
-                  className="px-3 py-1 bg-[#262626] hover:bg-[#333] text-white hover:text-red-400 text-[9px] font-black uppercase tracking-widest rounded-[8px] transition-colors cursor-pointer"
+                  aria-label="Exit Inspect Mode"
+                  className="min-h-[44px] px-4 py-2 bg-[#262626] hover:bg-[#333] text-white hover:text-red-400 text-[9px] font-black uppercase tracking-widest rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
                 >
                   Exit Inspect
                 </button>

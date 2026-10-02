@@ -722,7 +722,12 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
               >
                 <Question className="w-3.5 h-3.5" /> {t('bulk_tutorial_btn')}
               </button>
-              <button onClick={onClose} className="p-1.5 text-neutral-400 hover:text-neutral-800 dark:text-[#666] dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] rounded-[8px] transition-colors">
+              <button 
+                type="button"
+                onClick={onClose} 
+                aria-label="Close modal"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center text-neutral-400 hover:text-neutral-800 dark:text-[#666] dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>

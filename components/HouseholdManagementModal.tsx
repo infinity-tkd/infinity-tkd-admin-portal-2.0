@@ -207,7 +207,12 @@ export function HouseholdManagementModal({
             </div>
           </div>
 
-          <button onClick={onClose} className="p-1.5 rounded-[8px] hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-400 hover:text-neutral-900 dark:hover:text-white cursor-pointer">
+          <button 
+            type="button"
+            onClick={onClose} 
+            aria-label="Close modal"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[8px] hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-400 hover:text-neutral-900 dark:hover:text-white cursor-pointer active:scale-95 touch-manipulation transition-colors"
+          >
             <X size={18} />
           </button>
         </div>

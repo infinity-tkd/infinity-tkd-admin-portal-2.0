@@ -2765,8 +2765,9 @@ export function DirectoryView() {
                     <h3 className="text-xs font-black uppercase tracking-widest text-neutral-900 dark:text-white">{t('dir_bulk_promotion_title')}</h3>
                   </div>
                   <button 
+                    type="button"
                     onClick={() => setShowPromotionModal(false)}
-                    className="text-neutral-500 hover:text-neutral-900 dark:text-[#666] dark:hover:text-white cursor-pointer"
+                    className="px-3 py-1.5 min-h-[40px] text-xs font-bold rounded-[8px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
                   >
                     {t('act_cancel')}
                   </button>
@@ -2970,8 +2971,9 @@ export function DirectoryView() {
                     <h3 className="text-xs font-black uppercase tracking-widest text-neutral-900 dark:text-white">{t('dir_edit_log_title')}</h3>
                   </div>
                   <button 
+                    type="button"
                     onClick={() => setEditingHistory(null)}
-                    className="text-neutral-500 hover:text-neutral-900 dark:text-[#666] dark:hover:text-white cursor-pointer"
+                    className="px-3 py-1.5 min-h-[40px] text-xs font-bold rounded-[8px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
                   >
                     {t('act_cancel')}
                   </button>
@@ -3087,7 +3089,14 @@ export function DirectoryView() {
                   <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white">Manage Membership Status</h3>
                   <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono mt-0.5">{selectedStudentForStatus.englishName} ({selectedStudentForStatus.id})</p>
                 </div>
-                <button onClick={() => setSelectedStudentForStatus(null)} className="text-neutral-400 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white text-sm font-bold cursor-pointer">✕</button>
+                <button 
+                  type="button"
+                  onClick={() => setSelectedStudentForStatus(null)} 
+                  aria-label="Close status modal"
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[8px] text-neutral-400 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors text-sm font-bold cursor-pointer active:scale-95 touch-manipulation"
+                >
+                  ✕
+                </button>
               </div>
 
               <div className="space-y-3">

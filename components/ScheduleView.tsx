@@ -1384,7 +1384,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                    </div>
                 </div>
             </div>
-            <button onClick={onClose} className="self-end sm:self-center min-w-[36px] min-h-[36px] flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1C1C1C] rounded-[8px] transition-colors cursor-pointer active:scale-90 touch-manipulation" aria-label="Close modal"><X className="w-5 h-5"/></button>
+            <button type="button" onClick={onClose} className="self-end sm:self-center min-w-[44px] min-h-[44px] flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1C1C1C] rounded-[8px] transition-colors cursor-pointer active:scale-90 touch-manipulation" aria-label="Close modal"><X className="w-5 h-5"/></button>
          </div>
 
          {/* Navigation Tabs */}
