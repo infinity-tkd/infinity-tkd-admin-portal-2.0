@@ -888,8 +888,8 @@ export function DashboardView() {
 
       {dashboardTab === 'overview' ? (
         <>
-          {/* Row 1 - High-Value Core KPIs (2-col executive grid on mobile) */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+          {/* Row 1 - High-Value Core KPIs (2-col on mobile, 4-col on iPad & desktop) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3.5">
             {/* KPI 1: Active Roster */}
             <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 relative overflow-hidden group shadow-sm hover:border-neutral-300 dark:hover:border-[#383838] transition-all">
               <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 text-neutral-400 dark:text-neutral-500 group-hover:text-[#EF2F38] transition-colors">
@@ -2602,7 +2602,12 @@ function BirthdayWishActionModal({ student, onClose, onMarkSent }: { student: St
               <span className="text-[8px] font-bold uppercase tracking-widest text-[#EF2F38] font-mono">{t('dash_birthday_wizard')}</span>
               <h3 className="text-sm font-bold text-neutral-800 dark:text-white mt-1">{t('dash_send_birthday_greeting')}</h3>
             </div>
-            <button onClick={onClose} className="p-1.5 text-neutral-400 hover:text-neutral-900 dark:text-neutral-500 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1C1C1C] rounded-full transition-colors">
+            <button 
+              type="button"
+              onClick={onClose} 
+              aria-label="Close Birthday Wizard"
+              className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:text-neutral-500 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1C1C1C] rounded-full transition-colors cursor-pointer active:scale-95 touch-manipulation"
+            >
               <X className="w-4 h-4" />
             </button>
           </div>

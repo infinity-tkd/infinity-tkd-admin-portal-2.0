@@ -69,8 +69,8 @@ export function PortalLayout({ children }: PortalLayoutProps) {
     setScrollProgress(progress);
     setShowScrollTop(currentScrollTop > 320);
 
-    // Auto-hide mobile navigation on deliberate downward momentum
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+    // Auto-hide navigation on deliberate downward momentum on mobile & tablets (< 1024px)
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
       const lastScrollTop = lastScrollTopRef.current;
       const delta = currentScrollTop - lastScrollTop;
 
@@ -266,7 +266,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
       </AnimatePresence>
 
       {/* Sidebar Drawer */}
-      <motion.aside className={cn("fixed lg:static inset-y-0 left-0 z-50 lg:z-auto w-60 bg-white dark:bg-[#0f0f0f] border-r border-neutral-200 dark:border-[#262626] flex flex-col transition-transform duration-300 pt-[env(safe-area-inset-top,0px)] pb-[calc(1rem+env(safe-area-inset-bottom,0px))]", !sidebarOpen && "-translate-x-full lg:translate-x-0" )}>
+      <motion.aside className={cn("fixed lg:static inset-y-0 left-0 z-50 lg:z-auto w-60 bg-white dark:bg-[#0f0f0f] border-r border-neutral-200 dark:border-[#262626] flex flex-col transition-transform duration-300 pt-[env(safe-area-inset-top,0px)] pb-[calc(1rem+env(safe-area-inset-bottom,0px))] pl-[env(safe-area-inset-left,0px)]", !sidebarOpen && "-translate-x-full lg:translate-x-0" )}>
         <div className="p-6 border-b border-neutral-200 dark:border-[#262626] flex items-center gap-3">
           <div className="w-10 h-10 bg-transparent flex items-center justify-center shrink-0">
             <img 
@@ -326,7 +326,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         <header className={cn(
-          "fixed lg:static top-0 inset-x-0 h-[calc(3.5rem+env(safe-area-inset-top,0px))] lg:h-14 pt-[env(safe-area-inset-top,0px)] lg:pt-0 border-b border-neutral-200 dark:border-[#262626] bg-white/95 dark:bg-[#0F0F0F]/95 backdrop-blur-md flex items-center justify-between px-3.5 sm:px-6 shrink-0 z-30 transition-transform duration-300 ease-in-out will-change-transform",
+          "fixed lg:static top-0 inset-x-0 h-[calc(3.5rem+env(safe-area-inset-top,0px))] lg:h-14 pt-[env(safe-area-inset-top,0px)] lg:pt-0 border-b border-neutral-200 dark:border-[#262626] bg-white/95 dark:bg-[#0F0F0F]/95 backdrop-blur-md flex items-center justify-between pl-[max(0.875rem,env(safe-area-inset-left,0px))] pr-[max(0.875rem,env(safe-area-inset-right,0px))] sm:pl-[max(1.5rem,env(safe-area-inset-left,0px))] sm:pr-[max(1.5rem,env(safe-area-inset-right,0px))] lg:px-6 shrink-0 z-30 transition-transform duration-300 ease-in-out will-change-transform",
           !isNavVisible ? "-translate-y-full lg:translate-y-0 pointer-events-none lg:pointer-events-auto" : "translate-y-0"
         )}>
           <div className="flex items-center gap-3 sm:gap-4 flex-1">
@@ -395,7 +395,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
         <div 
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto overscroll-contain px-3.5 sm:px-5 md:px-6 lg:px-8 pt-[calc(4.375rem+env(safe-area-inset-top,0px))] sm:pt-[calc(4.75rem+env(safe-area-inset-top,0px))] md:pt-[calc(5rem+env(safe-area-inset-top,0px))] lg:pt-8 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-8 space-y-6"
+          className="flex-1 overflow-y-auto overscroll-contain pl-[max(0.875rem,env(safe-area-inset-left,0px))] pr-[max(0.875rem,env(safe-area-inset-right,0px))] sm:pl-[max(1.25rem,env(safe-area-inset-left,0px))] sm:pr-[max(1.25rem,env(safe-area-inset-right,0px))] md:pl-[max(1.5rem,env(safe-area-inset-left,0px))] md:pr-[max(1.5rem,env(safe-area-inset-right,0px))] lg:px-8 pt-[calc(4.375rem+env(safe-area-inset-top,0px))] sm:pt-[calc(4.75rem+env(safe-area-inset-top,0px))] md:pt-[calc(5rem+env(safe-area-inset-top,0px))] lg:pt-8 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-8 space-y-6"
         >
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="w-full max-w-[1600px] mx-auto h-full">
             {isAuthorized ? (
@@ -428,7 +428,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
 
         {/* Mobile & Tablet Native Bottom Navigation Bar */}
         <div className={cn(
-          "lg:hidden fixed bottom-0 inset-x-0 bg-white/95 dark:bg-[#0F0F0F]/95 backdrop-blur-xl border-t border-neutral-200 dark:border-[#262626] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.5)] z-30 px-2 pt-1.5 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] flex items-center justify-around transition-transform duration-300 ease-in-out will-change-transform",
+          "lg:hidden fixed bottom-0 inset-x-0 bg-white/95 dark:bg-[#0F0F0F]/95 backdrop-blur-xl border-t border-neutral-200 dark:border-[#262626] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.5)] z-30 px-2 pl-[max(0.5rem,env(safe-area-inset-left,0px))] pr-[max(0.5rem,env(safe-area-inset-right,0px))] pt-1.5 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] flex items-center justify-around transition-transform duration-300 ease-in-out will-change-transform",
           !isNavVisible ? "translate-y-full pointer-events-none" : "translate-y-0"
         )}>
           {visibleTabs.slice(0, 5).map(tItem => {
@@ -475,7 +475,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
               scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             className={cn(
-              "fixed right-4 sm:right-6 z-40 p-2.5 rounded-full bg-white/95 dark:bg-[#141414]/95 border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-white shadow-xl hover:bg-[#EF2F38] hover:text-white hover:border-[#EF2F38] dark:hover:bg-[#EF2F38] dark:hover:text-white dark:hover:border-[#EF2F38] transition-all cursor-pointer backdrop-blur-md flex items-center justify-center active:scale-90 touch-manipulation group",
+              "fixed right-4 sm:right-6 z-40 p-2.5 min-h-[44px] min-w-[44px] rounded-full bg-white/95 dark:bg-[#141414]/95 border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-white shadow-xl hover:bg-[#EF2F38] hover:text-white hover:border-[#EF2F38] dark:hover:bg-[#EF2F38] dark:hover:text-white dark:hover:border-[#EF2F38] transition-all cursor-pointer backdrop-blur-md flex items-center justify-center active:scale-90 touch-manipulation group",
               isNavVisible
                 ? "bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:bottom-6"
                 : "bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] lg:bottom-6"

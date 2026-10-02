@@ -1190,8 +1190,9 @@ export function PartnersView() {
                     <button
                       type="button"
                       onClick={() => setDetailPartner(null)}
-                      className="min-w-[36px] min-h-[36px] p-2 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1C1C1C] rounded-[8px] flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer"
+                      className="min-w-[44px] min-h-[44px] p-2 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1C1C1C] rounded-[8px] flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer"
                       title="Close"
+                      aria-label="Close Partner Details"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -1406,8 +1407,9 @@ export function PartnersView() {
                   <button
                     type="button"
                     onClick={() => setIsAddModalOpen(false)}
-                    className="min-w-[36px] min-h-[36px] p-2 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1C1C1C] rounded-[8px] flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer"
+                    className="min-w-[44px] min-h-[44px] p-2 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1C1C1C] rounded-[8px] flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer"
                     title="Close"
+                    aria-label="Close Partner Form"
                   >
                     <X className="w-5 h-5" />
                   </button>

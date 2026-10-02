@@ -3495,7 +3495,12 @@ function WorkoutTimerModal({ workout, onClose }: { workout: any, onClose: () => 
               <span className="text-[8px] font-bold uppercase tracking-widest text-neutral-400">{t('lib_difficulty_workout').replace('{difficulty}', diffTrans)}</span>
               <h3 className="text-sm font-bold text-white mt-0.5">{workout.title}</h3>
             </div>
-            <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1A1A1A] border border-[#262626] text-neutral-400 hover:text-white transition-colors">
+            <button 
+              type="button"
+              onClick={onClose} 
+              aria-label="Close workout timer"
+              className="min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center bg-[#1A1A1A] border border-[#262626] text-neutral-400 hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation"
+            >
               <X className="w-4 h-4"/>
             </button>
           </div>

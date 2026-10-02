@@ -187,7 +187,14 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
          <div className="w-full max-w-2xl bg-white dark:bg-[#0F0F0F] sm:border border-neutral-200 dark:border-[#262626] sm:rounded-[8px] shadow-2xl flex flex-col sm:my-8 max-h-full sm:max-h-[90dvh] absolute sm:relative inset-0 sm:inset-auto overflow-hidden text-neutral-900 dark:text-white">
             <div className="p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#0F0F0F] z-10 shrink-0">
              <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-white">{t('dir_add_student')}</h2>
-             <button type="button" onClick={onClose} className="p-1 text-neutral-500 hover:text-neutral-900 dark:text-[#666] dark:hover:text-white"><X className="w-5 h-5"/></button>
+             <button 
+               type="button" 
+               onClick={onClose} 
+               aria-label="Close modal"
+               className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[8px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation"
+             >
+               <X className="w-5 h-5"/>
+             </button>
           </div>
           <form onSubmit={submit} className="p-6 space-y-6 overflow-y-auto flex-1 bg-white dark:bg-[#0A0A0A]">
              {error && (

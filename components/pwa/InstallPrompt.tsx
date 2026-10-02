@@ -101,7 +101,7 @@ export function InstallPrompt() {
       {showDesktopGuide && (
         <Portal>
           <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-            <div className="w-full max-w-md bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[10px] p-5 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 text-neutral-900 dark:text-white">
+            <div className="w-full max-w-md bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-5 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 text-neutral-900 dark:text-white">
               {/* Header */}
               <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-[#262626]">
                 <div className="flex items-center gap-2.5">
@@ -118,8 +118,9 @@ export function InstallPrompt() {
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setShowDesktopGuide(false)}
-                  className="p-1.5 rounded-[6px] text-neutral-400 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#222] transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center cursor-pointer"
+                  className="p-1.5 rounded-[8px] text-neutral-400 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#222] transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation"
                   aria-label="Close installation dialog"
                 >
                   <X className="w-4 h-4" />
@@ -157,8 +158,9 @@ export function InstallPrompt() {
 
               {/* Modal Action Footer */}
               <button
+                type="button"
                 onClick={() => setShowDesktopGuide(false)}
-                className="w-full min-h-[42px] px-4 py-2.5 bg-[#EF2F38] hover:bg-red-600 text-white font-bold uppercase tracking-wider text-xs rounded-[8px] transition-colors cursor-pointer shadow-sm active:scale-95 touch-manipulation"
+                className="w-full min-h-[44px] px-4 py-2.5 bg-[#EF2F38] hover:bg-red-600 text-white font-bold uppercase tracking-wider text-xs rounded-[8px] transition-colors cursor-pointer shadow-sm active:scale-95 touch-manipulation flex items-center justify-center"
               >
                 Close
               </button>
@@ -171,7 +173,7 @@ export function InstallPrompt() {
       {showIosGuide && (
         <Portal>
           <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-            <div className="w-full sm:max-w-md bg-white dark:bg-[#141414] border-t sm:border border-neutral-200 dark:border-[#262626] rounded-t-[12px] sm:rounded-[10px] p-5 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 text-neutral-900 dark:text-white pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
+            <div className="w-full sm:max-w-md bg-white dark:bg-[#141414] border-t sm:border border-neutral-200 dark:border-[#262626] rounded-t-[8px] sm:rounded-[8px] p-5 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 text-neutral-900 dark:text-white pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
               {/* Header */}
               <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-[#262626]">
                 <div className="flex items-center gap-2.5">
@@ -186,8 +188,9 @@ export function InstallPrompt() {
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setShowIosGuide(false)}
-                  className="p-1.5 rounded-[6px] text-neutral-400 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#222] transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center cursor-pointer"
+                  className="p-1.5 rounded-[8px] text-neutral-400 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#222] transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation"
                   aria-label="Close installation guide"
                 >
                   <X className="w-4 h-4" />
@@ -244,8 +247,9 @@ export function InstallPrompt() {
 
               {/* Action Footer */}
               <button
+                type="button"
                 onClick={() => setShowIosGuide(false)}
-                className="w-full min-h-[42px] px-4 py-2.5 bg-[#EF2F38] hover:bg-red-600 text-white font-bold uppercase tracking-wider text-xs rounded-[8px] transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center shadow-sm"
+                className="w-full min-h-[44px] px-4 py-2.5 bg-[#EF2F38] hover:bg-red-600 text-white font-bold uppercase tracking-wider text-xs rounded-[8px] transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center shadow-sm"
               >
                 Got It
               </button>

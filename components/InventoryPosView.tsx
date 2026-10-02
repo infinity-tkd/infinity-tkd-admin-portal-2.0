@@ -2568,7 +2568,7 @@ export function InventoryPosView() {
 
             {/* Mobile/Tablet Fixed Cart Quick Bar */}
             {cart.length > 0 && (
-              <div className="lg:hidden fixed left-3 right-3 sm:left-auto sm:right-6 sm:w-80 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] z-40 p-2.5 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-md border border-neutral-200 dark:border-[#262626] rounded-[10px] shadow-2xl flex items-center justify-between animate-in slide-in-from-bottom-2">
+              <div className="lg:hidden fixed left-3 right-3 sm:left-auto sm:right-6 sm:w-80 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] z-40 p-2.5 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-md border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex items-center justify-between animate-in slide-in-from-bottom-2">
                 <div className="flex items-center gap-2.5 pl-2">
                   <ShoppingCart size={18} className="text-[#EF2F38]" />
                   <div>
@@ -4116,7 +4116,7 @@ export function InventoryPosView() {
                 <button
                   type="button"
                   onClick={() => setIsKhqrModalOpen(false)}
-                  className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer active:scale-90 touch-manipulation"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-[8px] text-neutral-400 hover:text-neutral-700 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer active:scale-90 touch-manipulation transition-colors"
                   aria-label="Close modal"
                 >
                   <X size={16} />
@@ -4401,7 +4401,7 @@ export function InventoryPosView() {
                 <button
                   type="button"
                   onClick={() => setIsAddItemOpen(false)}
-                  className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer active:scale-90 touch-manipulation"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-[8px] text-neutral-400 hover:text-neutral-700 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer active:scale-90 touch-manipulation transition-colors"
                   aria-label="Close modal"
                 >
                   <X size={16} />
@@ -5006,7 +5006,7 @@ export function InventoryPosView() {
                     setAdjustingProduct(null);
                     setAdjustingVariant(null);
                   }}
-                  className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer active:scale-90 touch-manipulation"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-[8px] text-neutral-400 hover:text-neutral-700 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer active:scale-90 touch-manipulation transition-colors"
                   aria-label="Close modal"
                 >
                   <X size={16} />
@@ -5128,7 +5128,7 @@ export function InventoryPosView() {
                     setIsEditItemOpen(false);
                     setEditingProduct(null);
                   }}
-                  className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer active:scale-90 touch-manipulation"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-[8px] text-neutral-400 hover:text-neutral-700 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer active:scale-90 touch-manipulation transition-colors"
                   aria-label="Close modal"
                 >
                   <X size={16} />
@@ -5339,7 +5339,7 @@ export function InventoryPosView() {
                     <button
                       type="button"
                       onClick={() => setSelectedVariantModalProduct(null)}
-                      className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer active:scale-90 touch-manipulation"
+                      className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-[8px] text-neutral-400 hover:text-neutral-700 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer active:scale-90 touch-manipulation transition-colors"
                       aria-label="Close modal"
                     >
                       <X size={16} />

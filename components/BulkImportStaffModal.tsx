@@ -496,7 +496,12 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
               <UploadSimple className="w-5 h-5 text-[#EF2F38]" weight="bold" />
               <h2 className="text-xs sm:text-sm font-black uppercase tracking-widest text-neutral-900 dark:text-white font-mono">Bulk Account Importer</h2>
             </div>
-            <button onClick={onClose} className="p-1.5 text-neutral-400 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer">
+            <button 
+              type="button"
+              onClick={onClose} 
+              aria-label="Close modal"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation"
+            >
               <X className="w-5 h-5" />
             </button>
           </div>

@@ -129,8 +129,9 @@ export function AnatomyStudioModal({
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-[8px] bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-400 hover:text-white transition-colors cursor-pointer"
+              className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[8px] bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-400 hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation"
               title="Close 3D Anatomy Studio (Esc)"
+              aria-label="Close 3D Anatomy Studio"
             >
               <X className="w-4 h-4" />
             </button>

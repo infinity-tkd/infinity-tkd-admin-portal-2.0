@@ -1030,8 +1030,9 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
             <button 
               type="button"
               onClick={() => setIsExpanded(!isExpanded)} 
-              className="hidden md:flex p-2 min-h-[40px] min-w-[40px] items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] text-neutral-600 dark:text-neutral-300 rounded-[8px] border border-neutral-200 dark:border-[#262626] transition-colors cursor-pointer active:scale-95"
+              className="hidden md:flex p-2 min-h-[44px] min-w-[44px] items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] text-neutral-600 dark:text-neutral-300 rounded-[8px] border border-neutral-200 dark:border-[#262626] transition-colors cursor-pointer active:scale-95 touch-manipulation"
               title={isExpanded ? "Collapse Panel" : "Expand Panel"}
+              aria-label={isExpanded ? "Collapse Panel" : "Expand Panel"}
             >
               {isExpanded ? <ArrowsIn className="w-4 h-4" /> : <ArrowsOut className="w-4 h-4" />}
             </button>
@@ -1040,8 +1041,9 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
             <button 
               type="button"
               onClick={onClose} 
-              className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] text-neutral-600 dark:text-neutral-300 rounded-[8px] border border-neutral-200 dark:border-[#262626] transition-colors cursor-pointer active:scale-95 touch-manipulation"
+              className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] text-neutral-600 dark:text-neutral-300 rounded-[8px] border border-neutral-200 dark:border-[#262626] transition-colors cursor-pointer active:scale-95 touch-manipulation"
               title="Close"
+              aria-label="Close Panel"
             >
               <X className="w-4 h-4" />
             </button>

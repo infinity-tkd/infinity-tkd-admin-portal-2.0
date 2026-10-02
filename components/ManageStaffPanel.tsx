@@ -397,8 +397,10 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                 </button>
               )}
               <button 
+                type="button"
                 onClick={onClose} 
-                className="p-2 text-neutral-400 dark:text-[#666] hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626] rounded-[8px] transition-colors cursor-pointer"
+                aria-label="Close Staff Panel"
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-neutral-400 dark:text-[#666] hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626] rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation"
               >
                 <X className="w-5 h-5" />
               </button>
