@@ -22,6 +22,19 @@ interface RateLimitRecord {
 }
 
 const apiRateLimitStore = new Map<string, RateLimitRecord>();
+const MAX_RATE_LIMIT_STORE_ENTRIES = 5000;
+
+/**
+ * Prunes expired rate limit records to prevent memory exhaustion
+ */
+function pruneExpiredRateLimits() {
+  const now = Date.now();
+  for (const [key, record] of apiRateLimitStore.entries()) {
+    if (now > record.resetTime) {
+      apiRateLimitStore.delete(key);
+    }
+  }
+}
 
 /**
  * Enforces sliding-window rate limiting on API endpoints per client IP / identifier.
@@ -32,6 +45,12 @@ export function checkApiRateLimit(
   windowMs: number = 60000
 ): { allowed: boolean; remaining: number; resetMs: number } {
   const now = Date.now();
+
+  // Periodic eviction if store grows large
+  if (apiRateLimitStore.size > MAX_RATE_LIMIT_STORE_ENTRIES) {
+    pruneExpiredRateLimits();
+  }
+
   const record = apiRateLimitStore.get(identifier);
 
   if (!record || now > record.resetTime) {
@@ -49,6 +68,34 @@ export function checkApiRateLimit(
   record.count += 1;
   apiRateLimitStore.set(identifier, record);
   return { allowed: true, remaining: maxRequests - record.count, resetMs: record.resetTime - now };
+}
+
+/**
+ * Validates request Origin and Host headers for state-mutating requests to mitigate CSRF
+ */
+export function validateRequestOrigin(req: Request): boolean {
+  const origin = req.headers.get('origin');
+  const host = req.headers.get('host');
+
+  if (!origin || !host) {
+    // If no origin header (same-origin standard GET/direct), allow if sec-fetch-site is not cross-site
+    const secFetchSite = req.headers.get('sec-fetch-site');
+    return secFetchSite !== 'cross-site';
+  }
+
+  try {
+    const originUrl = new URL(origin);
+    const hostDomain = host.split(':')[0];
+    const isLocalhost =
+      originUrl.hostname === 'localhost' ||
+      originUrl.hostname === '127.0.0.1' ||
+      originUrl.hostname === '0.0.0.0';
+
+    if (isLocalhost) return true;
+    return originUrl.hostname === hostDomain;
+  } catch {
+    return false;
+  }
 }
 
 // --- 2. Admin Auth & RBAC Caller Verification ---
