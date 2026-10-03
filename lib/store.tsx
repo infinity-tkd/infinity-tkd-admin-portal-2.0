@@ -1795,62 +1795,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!email.includes('@')) {
       let resolvedEmail = '';
 
-      // 1. Try client-side lookup (username, dash/underscore normalization, student_id)
+      // Authoritative, rate-limited server API route to resolve username / student ID
       try {
-        const usernameVal = email.trim();
-        const underscoreVal = usernameVal.toLowerCase().replace(/-/g, '_');
-        const dashVal = usernameVal.toLowerCase().replace(/_/g, '-');
-
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('email, username')
-          .or(`username.ilike.${usernameVal},username.ilike.${underscoreVal},username.ilike.${dashVal}`)
-          .limit(1)
-          .maybeSingle();
-
-        if (profileData?.email) {
-          resolvedEmail = profileData.email;
-        } else {
-          // Check students table by ID
-          const { data: studentData } = await supabase
-            .from('students')
-            .select('email, profile_id')
-            .or(`id.ilike.${usernameVal},id.ilike.${dashVal},id.ilike.${underscoreVal}`)
-            .limit(1)
-            .maybeSingle();
-
-          if (studentData?.profile_id) {
-            const { data: pData } = await supabase
-              .from('profiles')
-              .select('email')
-              .eq('id', studentData.profile_id)
-              .maybeSingle();
-            if (pData?.email) resolvedEmail = pData.email;
-          } else if (studentData?.email) {
-            resolvedEmail = studentData.email;
-          }
+        const res = await fetch('/api/auth/username-to-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: email })
+        });
+        const resData = await res.json();
+        if (res.ok && resData?.data?.email) {
+          resolvedEmail = resData.data.email;
+        } else if (!res.ok && resData?.error?.message) {
+          return { success: false, error: resData.error.message };
         }
-      } catch (err) {
-        console.warn('Client username lookup error:', err);
-      }
-
-      // 2. Fallback to authoritative server API route
-      if (!resolvedEmail) {
-        try {
-          const res = await fetch('/api/auth/username-to-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: email })
-          });
-          const resData = await res.json();
-          if (res.ok && resData?.data?.email) {
-            resolvedEmail = resData.data.email;
-          } else if (!res.ok && resData?.error?.message) {
-            return { success: false, error: resData.error.message };
-          }
-        } catch (e: any) {
-          console.warn('Server username lookup error:', e);
-        }
+      } catch (e: any) {
+        console.warn('Server username lookup error:', e);
       }
 
       if (resolvedEmail) {

@@ -99,6 +99,39 @@ export async function POST(req: Request) {
       );
     }
 
+    // Guard against non-admin BOLA/IDOR: non-privileged users updating self cannot mutate administrative or martial credentials
+    if (!isPrivilegedAdmin) {
+      const hasPrivilegedField =
+        data.role !== undefined ||
+        data.isActive !== undefined ||
+        data.studentId !== undefined ||
+        data.kukkiwonId !== undefined ||
+        data.currentDan !== undefined ||
+        data.danIssueDate !== undefined ||
+        data.danCertificateUrl !== undefined;
+
+      if (hasPrivilegedField) {
+        await logSecurityAuditEvent({
+          action: 'PRIVILEGE_VIOLATION_BLOCKED',
+          performedBy: context.userId,
+          targetId: id,
+          details: { attemptedFields: Object.keys(data) },
+          status: 'BLOCKED',
+        });
+        return NextResponse.json(
+          {
+            success: false,
+            data: null,
+            error: {
+              code: 'AUTH_FORBIDDEN_FIELD_MUTATION',
+              message: 'Forbidden: You do not have permission to modify administrative fields (role, active status, student ID, or martial credentials).',
+            },
+          },
+          { status: 403 }
+        );
+      }
+    }
+
     // Role Escalation Check: Admin cannot elevate any user to Root or Super Root
     if (context.role === 'Admin' && (data.role === 'Root' || data.role === 'Super Root')) {
       await logSecurityAuditEvent({
@@ -152,7 +185,7 @@ export async function POST(req: Request) {
         action: 'USER_PASSWORD_RESET_BY_ADMIN',
         performedBy: context.userId,
         targetId: id,
-        details: { reason: 'Direct admin password update' },
+        details: { reason: isSelf ? 'User self password reset' : 'Direct admin password update' },
         status: 'SUCCESS',
       });
     }
@@ -168,27 +201,31 @@ export async function POST(req: Request) {
     if (data.displayName !== undefined) profilePayload.display_name = sanitizeString(data.displayName || '');
     if (data.email !== undefined) profilePayload.email = sanitizeString(data.email);
     if (data.username !== undefined) profilePayload.username = sanitizeString(data.username);
-    if (data.studentId !== undefined) {
-      profilePayload.student_id = data.studentId ? sanitizeString(data.studentId) : null;
-      if (data.studentId) {
-        await adminSupabase.from('students').update({ profile_id: id }).eq('id', sanitizeString(data.studentId));
-      }
-    }
-    if (data.kukkiwonId !== undefined) profilePayload.kukkiwon_id = data.kukkiwonId ? sanitizeString(data.kukkiwonId) : null;
-    if (data.currentDan !== undefined) profilePayload.current_dan = data.currentDan !== null ? Number(data.currentDan) : null;
-    if (data.danIssueDate !== undefined) profilePayload.dan_issue_date = data.danIssueDate ? sanitizeString(data.danIssueDate) : null;
-    if (data.danCertificateUrl !== undefined) profilePayload.dan_certificate_url = data.danCertificateUrl ? sanitizeString(data.danCertificateUrl) : null;
+
     const appMetadataUpdates: Record<string, any> = {};
-    if (data.role !== undefined && (context.role === 'Root' || context.role === 'Super Root' || context.role === 'Admin')) {
-      profilePayload.role = data.role;
-      appMetadataUpdates.role = data.role;
-    }
-    if (data.isActive !== undefined) {
-      profilePayload.is_active = Boolean(data.isActive);
-      appMetadataUpdates.is_active = Boolean(data.isActive);
-    }
-    if (data.studentId !== undefined) {
-      appMetadataUpdates.student_id = data.studentId ? sanitizeString(data.studentId) : null;
+
+    // Administrative fields: only privileged admins can mutate these
+    if (isPrivilegedAdmin) {
+      if (data.studentId !== undefined) {
+        profilePayload.student_id = data.studentId ? sanitizeString(data.studentId) : null;
+        appMetadataUpdates.student_id = data.studentId ? sanitizeString(data.studentId) : null;
+        if (data.studentId) {
+          await adminSupabase.from('students').update({ profile_id: id }).eq('id', sanitizeString(data.studentId));
+        }
+      }
+      if (data.kukkiwonId !== undefined) profilePayload.kukkiwon_id = data.kukkiwonId ? sanitizeString(data.kukkiwonId) : null;
+      if (data.currentDan !== undefined) profilePayload.current_dan = data.currentDan !== null ? Number(data.currentDan) : null;
+      if (data.danIssueDate !== undefined) profilePayload.dan_issue_date = data.danIssueDate ? sanitizeString(data.danIssueDate) : null;
+      if (data.danCertificateUrl !== undefined) profilePayload.dan_certificate_url = data.danCertificateUrl ? sanitizeString(data.danCertificateUrl) : null;
+
+      if (data.role !== undefined) {
+        profilePayload.role = data.role;
+        appMetadataUpdates.role = data.role;
+      }
+      if (data.isActive !== undefined) {
+        profilePayload.is_active = Boolean(data.isActive);
+        appMetadataUpdates.is_active = Boolean(data.isActive);
+      }
     }
 
     if (Object.keys(appMetadataUpdates).length > 0) {
