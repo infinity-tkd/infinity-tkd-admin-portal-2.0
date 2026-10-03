@@ -8,6 +8,8 @@ import {
 } from '@/lib/backend-security';
 
 const STAFF_ROLES = ['Root', 'Super Root', 'Admin', 'Head Coach', 'Coach', 'Assistant Coach'];
+const CATALOG_ADMIN_ROLES = ['Root', 'Super Root', 'Admin', 'Head Coach'];
+const CATALOG_DESTRUCTIVE_ROLES = ['Root', 'Super Root', 'Admin'];
 
 const AdjustStockSchema = z.object({
   action: z.literal('ADJUST_STOCK'),
@@ -226,6 +228,19 @@ export async function POST(req: Request) {
     }
 
     if (body.action === 'CREATE_PRODUCT') {
+      if (!CATALOG_ADMIN_ROLES.includes(context.role)) {
+        return NextResponse.json(
+          {
+            success: false,
+            data: null,
+            error: {
+              code: 'AUTH_FORBIDDEN_ROLE',
+              message: 'Forbidden: Product creation requires Head Coach or Administrator privileges.',
+            },
+          },
+          { status: 403 }
+        );
+      }
       const hasVariants = Boolean(body.variants && body.variants.length > 0) || body.hasVariants;
       let calculatedStock = body.stock;
       let finalSizes = body.sizes || [];
@@ -308,6 +323,19 @@ export async function POST(req: Request) {
     }
 
     if (body.action === 'UPDATE_PRODUCT') {
+      if (!CATALOG_ADMIN_ROLES.includes(context.role)) {
+        return NextResponse.json(
+          {
+            success: false,
+            data: null,
+            error: {
+              code: 'AUTH_FORBIDDEN_ROLE',
+              message: 'Forbidden: Product catalog updates require Head Coach or Administrator privileges.',
+            },
+          },
+          { status: 403 }
+        );
+      }
       const updateFields: Record<string, any> = {
         updated_at: new Date().toISOString(),
       };
@@ -408,6 +436,19 @@ export async function POST(req: Request) {
     }
 
     if (body.action === 'DELETE_PRODUCT') {
+      if (!CATALOG_DESTRUCTIVE_ROLES.includes(context.role)) {
+        return NextResponse.json(
+          {
+            success: false,
+            data: null,
+            error: {
+              code: 'AUTH_FORBIDDEN_ROLE',
+              message: 'Forbidden: Product deletion is strictly restricted to Administrators.',
+            },
+          },
+          { status: 403 }
+        );
+      }
       const { error: deleteError } = await adminSupabase
         .from('products')
         .update({ is_active: false, updated_at: new Date().toISOString() })
@@ -444,7 +485,7 @@ export async function POST(req: Request) {
  */
 export async function PUT(req: Request) {
   try {
-    const { errorResponse: authErr, context, adminSupabase } = await verifyCaller(req, STAFF_ROLES);
+    const { errorResponse: authErr, context, adminSupabase } = await verifyCaller(req, CATALOG_ADMIN_ROLES);
     if (authErr || !adminSupabase || !context) return authErr!;
 
     const PutSchema = UpdateProductSchema.omit({ action: true });
@@ -504,7 +545,7 @@ export async function PUT(req: Request) {
  */
 export async function DELETE(req: Request) {
   try {
-    const { errorResponse: authErr, context, adminSupabase } = await verifyCaller(req, STAFF_ROLES);
+    const { errorResponse: authErr, context, adminSupabase } = await verifyCaller(req, CATALOG_DESTRUCTIVE_ROLES);
     if (authErr || !adminSupabase || !context) return authErr!;
 
     const { searchParams } = new URL(req.url);

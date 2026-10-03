@@ -231,10 +231,21 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
       .map(style => style.outerHTML)
       .join('\n');
 
+    const safeTitle = (student.englishName || 'STUDENT').replace(/[<>&"']/g, (c) => {
+      switch (c) {
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '&': return '&amp;';
+        case '"': return '&quot;';
+        case "'": return '&#39;';
+        default: return c;
+      }
+    });
+
     printWindow.document.write(`
       <html>
         <head>
-          <title>INFINITY TKD STUDENT DOSSIER - ${student.englishName}</title>
+          <title>INFINITY TKD STUDENT DOSSIER - ${safeTitle}</title>
           ${styles}
           <style>
             @page {

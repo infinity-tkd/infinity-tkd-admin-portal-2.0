@@ -1,13 +1,24 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Sliding window rate limit map for middleware
+// Sliding window rate limit map for middleware with memory leak protection
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const MAX_MIDDLEWARE_RATE_LIMIT_STORE = 5000;
+
+function pruneExpiredMiddlewareLimits() {
+  const now = Date.now();
+  for (const [key, record] of rateLimitMap.entries()) {
+    if (now > record.resetTime) {
+      rateLimitMap.delete(key);
+    }
+  }
+}
 
 export function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   // --- 1. Hardened Enterprise HTTP Security Headers ---
+  // Note: Wildcard 'https: wss:' removed from connect-src to eliminate exfiltration channels
   const cspHeader = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
@@ -15,7 +26,7 @@ export function middleware(request: NextRequest) {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: blob: https://picsum.photos https://*.supabase.co https://*.supabase.com https://lh3.googleusercontent.com https://drive.google.com",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.supabase.com wss://*.supabase.com https: wss:",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.supabase.com wss://*.supabase.com https://lh3.googleusercontent.com https://drive.google.com",
     "object-src 'none'",
     "frame-ancestors 'none'",
     "base-uri 'self'",
@@ -33,8 +44,16 @@ export function middleware(request: NextRequest) {
 
   // --- 2. API Security, CSRF & Edge Rate Limiting ---
   if (request.nextUrl.pathname.startsWith('/api/')) {
-    // A. CSRF & State Integrity: Origin verification on mutating requests
+    // A. CSRF & State Integrity: Origin and Sec-Fetch-Site verification on mutating requests
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)) {
+      const secFetchSite = request.headers.get('sec-fetch-site');
+      if (secFetchSite === 'cross-site') {
+        return new NextResponse(
+          JSON.stringify({ error: 'Forbidden: Cross-site request rejected by Sec-Fetch-Site policy.' }),
+          { status: 403, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
       const origin = request.headers.get('origin');
       const host = request.headers.get('host');
 
@@ -68,6 +87,10 @@ export function middleware(request: NextRequest) {
     const isAuthRoute = request.nextUrl.pathname.startsWith('/api/auth/');
     const maxRequests = isAuthRoute ? 15 : 60; // 15 req/min for auth routes, 60 for general API
     const limitWindow = 60000; // 1 minute window
+
+    if (rateLimitMap.size > MAX_MIDDLEWARE_RATE_LIMIT_STORE) {
+      pruneExpiredMiddlewareLimits();
+    }
 
     const key = `${ip}:${isAuthRoute ? 'auth' : request.nextUrl.pathname}`;
     const now = Date.now();

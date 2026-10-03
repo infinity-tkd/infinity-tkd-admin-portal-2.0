@@ -3,7 +3,7 @@ import dns from 'node:dns';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import { env } from '@/lib/env';
-import { checkApiRateLimit, sanitizeString, validateRequestBody } from '@/lib/backend-security';
+import { checkApiRateLimit, sanitizeString, validateRequestBody, validateRequestOrigin } from '@/lib/backend-security';
 
 // Force Node.js to resolve IPv4 addresses first on Windows
 try {
@@ -23,7 +23,30 @@ const UsernameLookupSchema = z
   .strict();
 
 export async function POST(req: Request) {
+  const startTs = Date.now();
+  const normalizeDelay = async (minMs = 120) => {
+    const elapsed = Date.now() - startTs;
+    if (elapsed < minMs) {
+      await new Promise((r) => setTimeout(r, minMs - elapsed));
+    }
+  };
+
   try {
+    // 0. CSRF & Origin Validation
+    if (!validateRequestOrigin(req)) {
+      return NextResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'FORBIDDEN_ORIGIN',
+            message: 'Forbidden: Request origin rejected.',
+          },
+        },
+        { status: 403 }
+      );
+    }
+
     // 1. Rate Limiting Protection (Anti-Brute Force / Enumeration)
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || '127.0.0.1';
     const rateLimit = checkApiRateLimit(`auth-lookup:${ip}`, 20, 60000); // 20 attempts per minute
@@ -150,6 +173,7 @@ export async function POST(req: Request) {
       }
 
       // C. Student exists in roster, but portal account is not yet provisioned
+      await normalizeDelay();
       return NextResponse.json(
         {
           success: false,
@@ -164,6 +188,7 @@ export async function POST(req: Request) {
     }
 
     // 6. User not found anywhere
+    await normalizeDelay();
     return NextResponse.json(
       {
         success: false,
