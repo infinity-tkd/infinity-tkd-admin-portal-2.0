@@ -2,7 +2,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { WifiSlash, ArrowClockwise, House, Users, CalendarCheck, Calendar } from '@phosphor-icons/react';
+import { WifiSlash } from '@phosphor-icons/react/dist/csr/WifiSlash';
+import { ArrowClockwise } from '@phosphor-icons/react/dist/csr/ArrowClockwise';
+import { House } from '@phosphor-icons/react/dist/csr/House';
+import { Users } from '@phosphor-icons/react/dist/csr/Users';
+import { CalendarCheck } from '@phosphor-icons/react/dist/csr/CalendarCheck';
+import { Calendar } from '@phosphor-icons/react/dist/csr/Calendar';
 
 export default function OfflineFallbackPage() {
   const [isChecking, setIsChecking] = useState(false);

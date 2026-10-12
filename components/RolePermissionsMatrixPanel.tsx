@@ -11,21 +11,19 @@ import {
   MODULE_DEFINITIONS,
   ModuleDefinition
 } from '@/lib/security';
-import { 
-  ShieldCheck, 
-  Check, 
-  X, 
-  ArrowCounterClockwise, 
-  FloppyDisk, 
-  MagnifyingGlass, 
-  Sliders, 
-  Sparkle, 
-  Info,
-  LockKey,
-  UsersThree,
-  Eye,
-  PencilSimple
-} from '@phosphor-icons/react';
+import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { ArrowCounterClockwise } from '@phosphor-icons/react/dist/csr/ArrowCounterClockwise';
+import { FloppyDisk } from '@phosphor-icons/react/dist/csr/FloppyDisk';
+import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { Sliders } from '@phosphor-icons/react/dist/csr/Sliders';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { Info } from '@phosphor-icons/react/dist/csr/Info';
+import { LockKey } from '@phosphor-icons/react/dist/csr/LockKey';
+import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
+import { Eye } from '@phosphor-icons/react/dist/csr/Eye';
+import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
 import { cn } from '@/lib/utils';
 import { playChime } from '@/lib/soundEffects';
 import { UserPermissionsModal } from './UserPermissionsModal';

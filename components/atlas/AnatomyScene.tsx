@@ -23,8 +23,10 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
   const host = useRef<HTMLDivElement>(null);
   const latest = useRef(state);
   const select = useRef(onSelect);
+  const callbacks = useRef({ onProgress, onError });
   latest.current = state;
   select.current = onSelect;
+  callbacks.current = { onProgress, onError };
 
   useEffect(() => {
     const el = host.current;
@@ -55,7 +57,7 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
     }
 
     if (!glContext) {
-      onError('WebGL hardware acceleration is unavailable on this device. Switching to 2D Biomechanical Scanner.');
+      callbacks.current.onError('WebGL hardware acceleration is unavailable on this device. Switching to 2D Biomechanical Scanner.');
       return;
     }
 
@@ -69,7 +71,7 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
         failIfMajorPerformanceCaveat: false,
       });
     } catch {
-      onError('This browser could not start the 3D viewer. Switching to 2D Biomechanical Scanner.');
+      callbacks.current.onError('This browser could not start the 3D viewer. Switching to 2D Biomechanical Scanner.');
       return;
     }
 
@@ -293,7 +295,7 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
 
       lastState = null;
       loaded++;
-      onProgress(Math.round((loaded / atlas.chunks.length) * 100));
+      callbacks.current.onProgress(Math.round((loaded / atlas.chunks.length) * 100));
       dirty = true;
     };
 
@@ -313,7 +315,7 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
           dirty = true;
         }
       } catch (e) {
-        if (!disposed) onError(e instanceof Error ? e.message : 'Could not load the anatomy.');
+        if (!disposed) callbacks.current.onError(e instanceof Error ? e.message : 'Could not load the anatomy.');
       }
     })();
 
@@ -422,6 +424,7 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
     renderer.domElement.addEventListener('pointercancel', cancel);
 
     const clock = new T.Clock();
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
     let lastExtent = -1;
 
     const animate = () => {
@@ -432,7 +435,7 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
       const changed = lastState?.visible !== s.visible || lastState?.selected !== s.selected || lastState?.isolate !== s.isolate;
       const moving = Math.abs(amount - s.explode) > 0.0001;
       if (moving) {
-        amount = T.MathUtils.damp(amount, s.explode, 8, dt);
+        amount = motionPreference.matches ? s.explode : T.MathUtils.damp(amount, s.explode, 8, dt);
         dirty = true;
       }
       if (changed || moving || lastExtent < 0) {
@@ -560,7 +563,8 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
       controls.touches.ONE = amount < 0.8 ? T.TOUCH.ROTATE : T.TOUCH.PAN;
       ground.visible = platform.visible = ring.visible = innerRing.visible = amount < 0.5 && !s.isolate;
       markers.visible = amount > 0.75;
-      controls.autoRotate = s.rotate && !s.isolate && amount < 0.4;
+      controls.autoRotate = s.rotate && !motionPreference.matches && !s.isolate && amount < 0.4;
+      controls.enableDamping = !motionPreference.matches;
       controls.autoRotateSpeed = 0.65;
       controls.update();
       if (controls.autoRotate) dirty = true;
@@ -602,7 +606,7 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
 
     const contextLost = (e: Event) => {
       e.preventDefault();
-      onError('The 3D session was paused by your device. Reload to continue.');
+      callbacks.current.onError('The 3D session was paused by your device. Reload to continue.');
     };
     renderer.domElement.addEventListener('webglcontextlost', contextLost);
 

@@ -13,6 +13,7 @@ const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY;
 
 const adminSupabase = createClient(supabaseUrl, serviceRoleKey, {
+  db: { retry: false },
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
@@ -23,7 +24,7 @@ const UpdateSinglePermissionSchema = z.object({
 }).strict();
 
 const BatchUpdatePermissionsSchema = z.object({
-  permissions: z.array(UpdateSinglePermissionSchema).min(1),
+  permissions: z.array(UpdateSinglePermissionSchema).min(1).max(500),
 }).strict();
 
 /**
@@ -48,8 +49,7 @@ export async function GET(req: Request) {
       .select('role, permission_key, is_granted, updated_at');
 
     if (error) {
-      // Table might not be migrated yet; return empty list gracefully
-      return NextResponse.json({ success: true, data: [] });
+      return formatServerErrorResponse(error);
     }
 
     return NextResponse.json({ success: true, data: data || [] });

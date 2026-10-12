@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { Warning, ArrowClockwise, House } from '@phosphor-icons/react';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { ArrowClockwise } from '@phosphor-icons/react/dist/csr/ArrowClockwise';
+import { House } from '@phosphor-icons/react/dist/csr/House';
+import { reportClientError } from '@/lib/client-telemetry';
 
 export default function GlobalError({
   error,
@@ -13,6 +16,7 @@ export default function GlobalError({
   useEffect(() => {
     // Log the error for tracking
     console.error('System captured exception:', error);
+    reportClientError(error, 'Application view');
   }, [error]);
 
   return (

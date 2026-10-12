@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { ArrowClockwise, Sparkle } from '@phosphor-icons/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ArrowClockwise } from '@phosphor-icons/react/dist/csr/ArrowClockwise';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
 
 export function PwaUpdater() {
+  const applyRequested = useRef(false);
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
 
@@ -38,15 +40,19 @@ export function PwaUpdater() {
     });
 
     let refreshing = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) {
+    const handleControllerChange = () => {
+      if (!refreshing && applyRequested.current) {
         refreshing = true;
         window.location.reload();
       }
-    });
+    };
+    navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
+    return () => navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
   }, []);
 
   const handleApplyUpdate = () => {
+    if (!window.confirm('Save your work before applying the update. Reload now?')) return;
+    applyRequested.current = true;
     if (waitingWorker) {
       waitingWorker.postMessage({ type: 'SKIP_WAITING' });
     } else {
@@ -63,7 +69,7 @@ export function PwaUpdater() {
       role="status"
       aria-live="polite"
       aria-label="Application update available"
-      className="fixed bottom-20 lg:bottom-6 right-4 sm:right-6 z-60 animate-in slide-in-from-bottom-5 fade-in duration-300 max-w-sm w-[calc(100vw-2rem)] sm:w-auto"
+      className="portal-global-toast fixed right-4 sm:right-6 z-[35] animate-in fade-in max-w-sm w-[calc(100vw-2rem)] sm:w-auto"
     >
       <div className="bg-[#141414]/95 backdrop-blur-md border border-red-500/40 rounded-[8px] p-4 shadow-2xl flex items-center justify-between gap-3 text-white">
         <div className="flex items-center gap-3 min-w-0">
@@ -72,7 +78,7 @@ export function PwaUpdater() {
           </div>
           <div className="min-w-0">
             <p className="text-xs font-bold text-white tracking-wide">Update Ready</p>
-            <p className="text-[10px] text-[#888] truncate">New features are available</p>
+            <p className="text-[10px] text-[#888] truncate">Save your work before applying</p>
           </div>
         </div>
 

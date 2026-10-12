@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./motion.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -84,27 +85,6 @@ pre {
 * {
   -webkit-tap-highlight-color: transparent;
   outline-color: rgba(239, 47, 56, 0.4);
-}
-
-/* Universal Smooth Scrolling & Reduced Motion Compliance */
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto !important;
-  }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
 }
 
 /* Cross-Browser Sleek Scrollbars (Firefox & WebKit/Blink) */
@@ -702,33 +682,3 @@ html:not(.dark) .dark-card-override .bg-\[\#141414\] {
 html:not(.dark) .dark-card-override .border-\[\#262626\] {
   border-color: #262626 !important;
 }
-
-/* ==========================================================
-   PERFORMANCE & GPU ANIMATION KEYFRAMES
-   ========================================================== */
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  50% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-
-.animate-shimmer {
-  animation: shimmer 1.4s infinite ease-in-out;
-  will-change: transform;
-}
-
-/* ==========================================================
-   WCAG 2.2 AA ACCESSIBILITY: PREFERS REDUCED MOTION
-   ========================================================== */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-

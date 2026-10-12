@@ -1,9 +1,14 @@
 'use client';
 
+import { academyDate } from '@/lib/dates';
+
 import React, { useState, useEffect } from 'react';
 import { useAppStore, Student } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, MapPin, Check, Users } from '@phosphor-icons/react';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { Users } from '@phosphor-icons/react/dist/csr/Users';
 import { cn, sanitizeStringInput, isValidEmail, isValidPhone, isValidDate } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
 import { CAMBODIA_LOCATIONS } from './DataLists';
@@ -49,7 +54,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
     profilePicturePath: '', nationality: '', kukkiwonId: '',
     addressLine1: '', addressLine2: '', city: '', stateProvince: '', postalCode: '', country: 'Cambodia',
     classId: '',
-    registrationDate: new Date().toISOString().split('T')[0],
+    registrationDate: academyDate(),
     notes: ''
   });
   const [error, setError] = useState('');

@@ -1,40 +1,41 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
+import { academyDate } from '@/lib/dates';
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppStore, Student } from '@/lib/store';
 import { useT } from '@/hooks/useTranslation';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Cake, 
-  Users, 
-  Coins, 
-  CheckCircle, 
-  ArrowRight, 
-  Sparkle, 
-  CalendarBlank, 
-  Clock, 
-  Warning,
-  PaperPlaneTilt,
-  Student as StudentIcon,
-  Crown,
-  Play,
-  MagnifyingGlass,
-  ArrowsCounterClockwise,
-  TrendUp,
-  Flame,
-  ArrowUpRight,
-  ChartBar,
-  ListNumbers,
-  Sparkle as SparkleIcon,
-  X,
-  Question,
-  Sliders,
-  Info,
-  ShieldCheck,
-  UserMinus,
-  ListChecks,
-  Phone
-} from '@phosphor-icons/react';
+import { Cake } from '@phosphor-icons/react/dist/csr/Cake';
+import { Users } from '@phosphor-icons/react/dist/csr/Users';
+import { Coins } from '@phosphor-icons/react/dist/csr/Coins';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { ArrowRight } from '@phosphor-icons/react/dist/csr/ArrowRight';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { CalendarBlank } from '@phosphor-icons/react/dist/csr/CalendarBlank';
+import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { PaperPlaneTilt } from '@phosphor-icons/react/dist/csr/PaperPlaneTilt';
+import { Student as StudentIcon } from '@phosphor-icons/react/dist/csr/Student';
+import { Crown } from '@phosphor-icons/react/dist/csr/Crown';
+import { Play } from '@phosphor-icons/react/dist/csr/Play';
+import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { ArrowsCounterClockwise } from '@phosphor-icons/react/dist/csr/ArrowsCounterClockwise';
+import { TrendUp } from '@phosphor-icons/react/dist/csr/TrendUp';
+import { Flame } from '@phosphor-icons/react/dist/csr/Flame';
+import { ArrowUpRight } from '@phosphor-icons/react/dist/csr/ArrowUpRight';
+import { ChartBar } from '@phosphor-icons/react/dist/csr/ChartBar';
+import { ListNumbers } from '@phosphor-icons/react/dist/csr/ListNumbers';
+import { Sparkle as SparkleIcon } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { Question } from '@phosphor-icons/react/dist/csr/Question';
+import { Sliders } from '@phosphor-icons/react/dist/csr/Sliders';
+import { Info } from '@phosphor-icons/react/dist/csr/Info';
+import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { UserMinus } from '@phosphor-icons/react/dist/csr/UserMinus';
+import { ListChecks } from '@phosphor-icons/react/dist/csr/ListChecks';
+import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
 import { cn, formatBelt, isBeltMatch, calculatePromotionReadiness, calculateChurnRisk, getBeltKey } from '@/lib/utils';
 import { SafeImage } from '@/components/SafeImage';
 import { Portal } from '@/components/Portal';
@@ -52,18 +53,18 @@ const isMonthBeforeEnrollment = (monthStr: string, year: number, enrollmentDateS
   if (!enrollmentDateStr) return true;
   const parts = enrollmentDateStr.split('-');
   if (parts.length < 2) return false;
-  
+
   const enrollYear = parseInt(parts[0], 10);
   const enrollMonthIdx = parseInt(parts[1], 10) - 1; // 0-11
-  
+
   // Format short month names comparison (handles both full and short formats)
   const shortMonthStr = monthStr.substring(0, 3);
   const targetMonthIdx = monthsListGlobal.findIndex(m => m.toLowerCase() === shortMonthStr.toLowerCase());
   if (targetMonthIdx === -1) return false;
-  
+
   if (year < enrollYear) return true;
   if (year === enrollYear && targetMonthIdx < enrollMonthIdx) return true;
-  
+
   return false;
 };
 
@@ -90,20 +91,25 @@ export function DashboardView() {
     return translated && translated !== key ? translated : formatted;
   };
 
-  const getStudentEnrollDate = (st: Student) => {
+  const getStudentEnrollDate = React.useCallback((st: Student) => {
     const enrollments = state.classEnrollments.filter(e => e.studentId === st.id);
-    if (enrollments.length === 0) return undefined;
+    if (enrollments.length === 0) return st.registrationDate;
     const dates = enrollments.map(e => e.enrollmentDate).filter(Boolean) as string[];
     if (dates.length === 0) return st.registrationDate;
     return dates.sort()[0];
-  };
+  }, [state.classEnrollments]);
 
-  const currentLocalTime = new Date();
-  const currentMonthIdx = currentLocalTime.getMonth(); // 0-11
+  const [currentLocalTime, setCurrentLocalTime] = useState(() => new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentLocalTime(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+  const academyToday = academyDate(currentLocalTime);
+  const currentMonthIdx = Number(academyToday.slice(5,7))-1;
   const currentMonthName = MONTH_NAMES[currentMonthIdx];
-  const todayDateStr = String(currentLocalTime.getDate()).padStart(2, '0');
-  const todayMonthStr = String(currentLocalTime.getMonth() + 1).padStart(2, '0');
-  const currentYear = currentLocalTime.getFullYear();
+  const todayDateStr = academyToday.slice(8,10);
+  const todayMonthStr = academyToday.slice(5,7);
+  const currentYear = Number(academyToday.slice(0,4));
 
   const [selectedMonth, setSelectedMonth] = useState<number>(currentMonthIdx);
   const [wishState, setWishState] = useState<Record<string, 'sending' | 'sent'>>({});
@@ -127,8 +133,8 @@ export function DashboardView() {
 
   // Active Session states
   const weekdays = WEEKDAY_NAMES_EN;
-  const todayDayName = weekdays[currentLocalTime.getDay()];
-  const todayDate = currentLocalTime.toISOString().split('T')[0];
+  const todayDayName = weekdays[new Date(academyToday+'T00:00:00Z').getUTCDay()];
+  const todayDate = academyToday;
 
   const todayClasses = useMemo(() => {
     return state.classSessions.filter(c => {
@@ -140,9 +146,7 @@ export function DashboardView() {
   const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
 
   useEffect(() => {
-    if (todayClasses.length > 0 && selectedClassId === null) {
-      setSelectedClassId(todayClasses[0].id);
-    }
+    if (!todayClasses.some(session => session.id === selectedClassId)) setSelectedClassId(todayClasses[0]?.id ?? null);
   }, [todayClasses, selectedClassId]);
 
   // Active Session Hub Controls
@@ -172,7 +176,7 @@ export function DashboardView() {
   const attendanceDensityStats = useMemo(() => {
     const records = state.attendanceRecords;
     if (records.length === 0) {
-      return { optimalDay: 'Saturday', optimalRate: 89, lowDay: 'Monday', lowRate: 64 };
+      return { optimalDay: 'No data', optimalRate: 0, lowDay: 'No data', lowRate: 0 };
     }
 
     const dayCounts = Array(7).fill(0);
@@ -197,7 +201,7 @@ export function DashboardView() {
     }).filter(d => d.count > 0);
 
     if (weekdayAverages.length === 0) {
-      return { optimalDay: 'Saturday', optimalRate: 89, lowDay: 'Monday', lowRate: 64 };
+      return { optimalDay: 'No data', optimalRate: 0, lowDay: 'No data', lowRate: 0 };
     }
 
     const sortedByTurnout = [...weekdayAverages].sort((a, b) => b.rate - a.rate);
@@ -227,10 +231,10 @@ export function DashboardView() {
 
       const scholarship = state.scholarships.find(s => s.id === student.scholarshipId);
       const isStudentEarlyGroup = scholarship?.typeName === 'Early Group Student';
-      const baseFee = isStudentEarlyGroup ? 25.00 : 45.00;
+      const baseFee = isStudentEarlyGroup ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
       const discountPct = isStudentEarlyGroup ? 0 : (scholarship?.discountPercentage || 0);
       const fee = baseFee * (1 - discountPct / 100);
-      
+
       expectedMonthlyRevenue += fee;
       const payment = state.payments.find(p => p.studentId === student.id && p.year === currentYear && p.month === currentMonthName);
       if (payment?.status === 'Paid') {
@@ -253,7 +257,7 @@ export function DashboardView() {
       historicalEfficiencyRate: Math.round(historicalEfficiency * 100),
       churnRatioPct: Math.round((1 - activeRatio) * 100)
     };
-  }, [state.students, state.payments, state.scholarships, currentMonthIdx, currentYear]);
+  }, [currentMonthIdx, state.students, state.payments, state.scholarships, state.academyProfile.earlyGroupTuitionUsd, state.academyProfile.standardTuitionUsd, currentYear, getStudentEnrollDate]);
 
   const expectedMonthlyRevenue = financialForecast.expected;
 
@@ -270,10 +274,10 @@ export function DashboardView() {
     const p3 = expectedMonthlyRevenue * 0.85;
     const p4 = financialForecast.actual > 0 ? financialForecast.actual : expectedMonthlyRevenue * 0.88;
     const p5 = predictedRevenueDynamic;
-    
+
     const points = [p1, p2, p3, p4, p5];
     const maxVal = Math.max(...points, 1) * 1.15;
-    
+
     const svgCoords = points.map((p, idx) => {
       const x = 10 + idx * 52;
       const y = 70 - (p / maxVal) * 55;
@@ -329,7 +333,7 @@ export function DashboardView() {
 
   const churnHazardRoster = useMemo(() => {
     const activeStudents = state.students.filter(s => s.studentStatus === 'Active');
-    
+
     return activeStudents.map(student => {
       const riskReport = calculateChurnRisk(
         student,
@@ -338,7 +342,7 @@ export function DashboardView() {
         state.classSessions,
         currentLocalTime
       );
-      
+
       return {
         student,
         daysSinceLastClass: riskReport.daysSinceLastClass,
@@ -416,7 +420,7 @@ export function DashboardView() {
   // 3. Promotion Readiness Index (PRI) dynamic analysis
   const promotionReadinessRoster = useMemo(() => {
     const activeStudents = state.students.filter(s => s.studentStatus === 'Active');
-    
+
     const candidates = activeStudents.map(student => {
       const report = calculatePromotionReadiness(
         student,
@@ -427,7 +431,7 @@ export function DashboardView() {
         state.physicalEvaluations,
         state.beltTechniques
       );
-      
+
       return {
         student,
         attendanceRate: report.attendanceProgress,
@@ -452,7 +456,7 @@ export function DashboardView() {
   // Today's Attendance Snapshot
   const todayAttendance = state.attendanceRecords.filter(a => a.date === todayDate);
   const presentToday = todayAttendance.filter(a => a.status === 'Present' || a.status === 'Late').length;
-  
+
   let attendanceRate = 0;
   let isClassLoggedToday = true;
 
@@ -658,7 +662,7 @@ export function DashboardView() {
   // Outstanding Payments List (Respects scholarship discounts and filters out 100% waivers)
   const unpaidTuition = state.students.filter(student => {
     if (student.studentStatus !== 'Active') return false;
-    
+
     // Check if current month is before enrollment!
     const currentMonthNameShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][currentMonthIdx];
     if (isMonthBeforeEnrollment(currentMonthNameShort, currentYear, getStudentEnrollDate(student))) {
@@ -667,10 +671,10 @@ export function DashboardView() {
 
     const scholarship = state.scholarships.find(s => s.id === student.scholarshipId);
     const isStudentEarlyGroup = scholarship?.typeName === 'Early Group Student';
-    const baseFee = isStudentEarlyGroup ? 25.00 : 45.00;
+    const baseFee = isStudentEarlyGroup ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
     const discountPct = isStudentEarlyGroup ? 0 : (scholarship?.discountPercentage || 0);
     const requiredAmt = baseFee * (1 - discountPct / 100);
-    
+
     if (requiredAmt <= 0) return false;
     const hasPaid = state.payments.some(p => p.studentId === student.id && p.month === ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][currentMonthIdx] && p.year === currentYear && p.status === 'Paid');
     return !hasPaid;
@@ -680,13 +684,13 @@ export function DashboardView() {
     return unpaidTuition.filter(student => {
       const matchesSearch = student.englishName.toLowerCase().includes(tuitionSearch.toLowerCase()) || 
                             (student.khmerName && student.khmerName.toLowerCase().includes(tuitionSearch.toLowerCase()));
-      
+
       const scholarship = state.scholarships.find(s => s.id === student.scholarshipId);
       const isEarly = scholarship?.typeName === 'Early Group Student';
       const matchesGroup = tuitionGroupFilter === 'all' || 
                             (tuitionGroupFilter === 'early' && isEarly) || 
                             (tuitionGroupFilter === 'standard' && !isEarly);
-      
+
       return matchesSearch && matchesGroup;
     });
   }, [unpaidTuition, tuitionSearch, tuitionGroupFilter, state.scholarships]);
@@ -695,12 +699,12 @@ export function DashboardView() {
     return filteredUnpaidTuition.reduce((sum, student) => {
       const scholarship = state.scholarships.find(s => s.id === student.scholarshipId);
       const isStudentEarlyGroup = scholarship?.typeName === 'Early Group Student';
-      const baseFee = isStudentEarlyGroup ? 25.00 : 45.00;
+      const baseFee = isStudentEarlyGroup ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
       const discountPct = isStudentEarlyGroup ? 0 : (scholarship?.discountPercentage || 0);
       const studentOwed = baseFee * (1 - discountPct / 100);
       return sum + studentOwed;
     }, 0);
-  }, [filteredUnpaidTuition, state.scholarships]);
+  }, [filteredUnpaidTuition, state.academyProfile.earlyGroupTuitionUsd, state.academyProfile.standardTuitionUsd, state.scholarships]);
 
   // Student Birthday List Logic
   const getBirthdayMonth = (dob: string | undefined): number | null => {
@@ -769,19 +773,19 @@ export function DashboardView() {
   const classStudents = state.students.filter(s => enrolledStudentIds.includes(s.id) && s.studentStatus === 'Active');
 
   const presentCount = classStudents.filter(s => {
-    const att = state.attendanceRecords.find(a => a.studentId === s.id && a.date === todayDate);
+    const att = state.attendanceRecords.find(a => a.studentId === s.id && a.date === todayDate && a.classId === selectedClassId);
     return att?.status === 'Present';
   }).length;
   const lateCount = classStudents.filter(s => {
-    const att = state.attendanceRecords.find(a => a.studentId === s.id && a.date === todayDate);
+    const att = state.attendanceRecords.find(a => a.studentId === s.id && a.date === todayDate && a.classId === selectedClassId);
     return att?.status === 'Late';
   }).length;
   const absentCount = classStudents.filter(s => {
-    const att = state.attendanceRecords.find(a => a.studentId === s.id && a.date === todayDate);
+    const att = state.attendanceRecords.find(a => a.studentId === s.id && a.date === todayDate && a.classId === selectedClassId);
     return att?.status === 'Absent';
   }).length;
   const unmarkedCount = classStudents.filter(s => {
-    const att = state.attendanceRecords.find(a => a.studentId === s.id && a.date === todayDate);
+    const att = state.attendanceRecords.find(a => a.studentId === s.id && a.date === todayDate && a.classId === selectedClassId);
     return !att || !att.status;
   }).length;
   const attendedCount = presentCount + lateCount;
@@ -798,14 +802,14 @@ export function DashboardView() {
 
       if (!matchesSearch) return false;
 
-      const att = state.attendanceRecords.find(a => a.studentId === s.id && a.date === todayDate);
+      const att = state.attendanceRecords.find(a => a.studentId === s.id && a.date === todayDate && a.classId === selectedClassId);
       const status = att?.status || 'Unmarked';
 
       if (rosterStatusFilter === 'all') return true;
       if (rosterStatusFilter === 'Unmarked') return status === 'Unmarked';
       return status === rosterStatusFilter;
     });
-  }, [classStudents, rosterSearch, rosterStatusFilter, state.attendanceRecords, todayDate]);
+  }, [classStudents, rosterSearch, rosterStatusFilter, state.attendanceRecords, todayDate, selectedClassId]);
 
   const handleMarkAllClassPresent = async () => {
     if (!classStudents.length) return;
@@ -820,7 +824,7 @@ export function DashboardView() {
     }
 
     try {
-      await Promise.all(eligibleStudents.map(s => markAttendance(s.id, todayDate, 'Present')));
+      await Promise.all(eligibleStudents.map(s => markAttendance(s.id, todayDate, 'Present', selectedClassId ?? undefined)));
       showNotification(`Marked all ${eligibleStudents.length} eligible students as Present.`, 'success');
     } catch (e) {
       console.error(e);
@@ -830,7 +834,7 @@ export function DashboardView() {
 
   const handleUnmarkStudent = async (studentId: string) => {
     try {
-      await deleteAttendanceRecords(todayDate, [studentId]);
+      await deleteAttendanceRecords(todayDate, [studentId], selectedClassId ?? undefined);
       showNotification('Attendance status reset to Unmarked.', 'info');
     } catch (e) {
       console.error(e);
@@ -990,7 +994,7 @@ export function DashboardView() {
           {/* Live Session Command Hub & Active Roster */}
           <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] py-4 px-4 sm:px-5 relative overflow-hidden shadow-sm">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(239,47,56,0.03)_0%,transparent_60%)] pointer-events-none" />
-            
+
             {/* Header bar */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-neutral-200 dark:border-[#262626] pb-3 mb-4 gap-3">
               <div>
@@ -1047,12 +1051,13 @@ export function DashboardView() {
                 <div className="space-y-2 max-h-[190px] lg:max-h-[360px] overflow-y-auto pr-1">
                   {todayClasses.map(cls => {
                     const isSelected = cls.id === selectedClassId;
-                    const enrolled = state.classEnrollments.filter(e => e.classId === cls.id).length;
-                    
+                    const activeIds = new Set(state.students.filter(student => student.studentStatus === 'Active').map(student => student.id));
+                    const enrolled = state.classEnrollments.filter(e => e.classId === cls.id && activeIds.has(e.studentId)).length;
+
                     // Turnout for this specific class
-                    const clsStudentIds = state.classEnrollments.filter(e => e.classId === cls.id).map(e => e.studentId);
+                    const clsStudentIds = state.classEnrollments.filter(e => e.classId === cls.id && activeIds.has(e.studentId)).map(e => e.studentId);
                     const presentForCls = state.students.filter(s => clsStudentIds.includes(s.id) && s.studentStatus === 'Active').filter(s => {
-                      const att = state.attendanceRecords.find(a => a.studentId === s.id && a.date === todayDate);
+                      const att = state.attendanceRecords.find(a => a.studentId === s.id && a.date === todayDate && a.classId === cls.id);
                       return att?.status === 'Present' || att?.status === 'Late';
                     }).length;
                     const clsTurnoutPct = clsStudentIds.length > 0 ? Math.round((presentForCls / clsStudentIds.length) * 100) : 0;
@@ -1236,7 +1241,7 @@ export function DashboardView() {
                 {/* Student Roster List */}
                 <div className="max-h-[300px] overflow-y-auto space-y-1.5 pr-1">
                   {filteredClassStudents.map(student => {
-                    const att = state.attendanceRecords.find(a => a.studentId === student.id && a.date === todayDate);
+                    const att = state.attendanceRecords.find(a => a.studentId === student.id && a.date === todayDate && a.classId === selectedClassId);
                     const currentStatus = att?.status || 'Unmarked';
                     const enrollDate = getStudentEnrollDate(student)?.split('T')[0];
                     const isNotYetEnrolled = enrollDate ? (todayDate < enrollDate) : false;
@@ -1291,7 +1296,7 @@ export function DashboardView() {
                         <div className="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-start pt-1.5 sm:pt-0 border-t sm:border-t-0 border-neutral-100 dark:border-[#202020] shrink-0">
                           <button
                             disabled={isNotYetEnrolled}
-                            onClick={() => markAttendance(student.id, todayDate, 'Present')}
+                            onClick={() => markAttendance(student.id, todayDate, 'Present', selectedClassId ?? undefined)}
                             className={cn(
                               "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[8.5px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation",
                               isNotYetEnrolled
@@ -1305,7 +1310,7 @@ export function DashboardView() {
                           </button>
                           <button
                             disabled={isNotYetEnrolled}
-                            onClick={() => markAttendance(student.id, todayDate, 'Late')}
+                            onClick={() => markAttendance(student.id, todayDate, 'Late', selectedClassId ?? undefined)}
                             className={cn(
                               "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[8.5px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation",
                               isNotYetEnrolled
@@ -1319,7 +1324,7 @@ export function DashboardView() {
                           </button>
                           <button
                             disabled={isNotYetEnrolled}
-                            onClick={() => markAttendance(student.id, todayDate, 'Absent')}
+                            onClick={() => markAttendance(student.id, todayDate, 'Absent', selectedClassId ?? undefined)}
                             className={cn(
                               "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[8.5px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation",
                               isNotYetEnrolled
@@ -1385,7 +1390,7 @@ export function DashboardView() {
                         {pendingIntake.length} {t('dash_waiting')}
                       </span>
                     </div>
-                    
+
                     <div className="divide-y divide-neutral-200 dark:divide-[#262626] bg-white dark:bg-transparent">
                       {pendingIntake.slice(0, 4).map(student => (
                         <div key={student.id} className="p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-neutral-50 dark:hover:bg-[#1A1A1A] transition-colors">
@@ -1433,7 +1438,7 @@ export function DashboardView() {
                           <p className="text-[8px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">{t('dash_ledger_sync')}</p>
                         </div>
                       </div>
-                      
+
                       {/* Summary Counter badge */}
                       <span className="px-1.5 py-0.5 bg-[#EF2F38]/5 border border-[#EF2F38]/15 text-[#EF2F38] text-[8px] font-bold rounded-full font-mono tracking-wide w-fit">
                         {filteredUnpaidTuition.length} Pending • ${totalOutstandingAmount.toFixed(2)} Outstanding
@@ -1476,7 +1481,7 @@ export function DashboardView() {
                       {filteredUnpaidTuition.map(student => {
                         const scholarship = state.scholarships.find(s => s.id === student.scholarshipId);
                         const isStudentEarlyGroup = scholarship?.typeName === 'Early Group Student';
-                        const baseFee = isStudentEarlyGroup ? 25.00 : 45.00;
+                        const baseFee = isStudentEarlyGroup ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
                         const discountPct = isStudentEarlyGroup ? 0 : (scholarship?.discountPercentage || 0);
                         const studentOwed = baseFee * (1 - discountPct / 100);
 
@@ -1514,16 +1519,16 @@ export function DashboardView() {
                           </div>
                           <div className="space-y-0.5 min-w-0 flex-1">
                             <h4 className="text-[11px] font-bold text-neutral-800 dark:text-neutral-300 leading-none truncate">{student.englishName}</h4>
-                            
+
                             <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[8.5px] text-neutral-500 font-mono font-medium">
                               {/* Belt Rank with dot indicator */}
                               <span className="flex items-center gap-0.5">
                                 <span className={cn("text-[8px] leading-none", getBeltColor(student.currentBelt))}>●</span>
                                 <span>{translateBeltFormatted(student.currentBelt, student.dob)}</span>
                               </span>
-                              
+
                               <span className="text-neutral-300 dark:text-neutral-800">•</span>
-                              
+
                               {/* Billing Group */}
                               <span>
                                 {isStudentEarlyGroup ? 'Early Group' : 'Standard'}
@@ -1542,7 +1547,7 @@ export function DashboardView() {
                                       <Phone className="w-2 h-2" />
                                       <span>Call {student.emergencyContactName}</span>
                                     </a>
-                                    
+
                                     <a 
                                       href={`https://api.whatsapp.com/send?phone=${student.emergencyContactPhone.replace(/\D/g, '')}&text=${encodeURIComponent(remindMessageText)}`}
                                       target="_blank"
@@ -1613,13 +1618,13 @@ export function DashboardView() {
               {/* THE BIRTHDAY CARD BOX */}
               <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] flex flex-col relative overflow-hidden shadow-sm">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_top_right,rgba(239,47,56,0.06)_0%,transparent_70%)] pointer-events-none" />
-                
+
                 <div className="py-2.5 px-3 border-b border-neutral-200 dark:border-[#262626] bg-white dark:bg-[#0F0F0F] rounded-t-[8px] flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <Cake className="w-3.5 h-3.5 text-[#EF2F38] animate-bounce" />
                     <h2 className="text-xs font-bold uppercase tracking-widest">{t('dash_student_birthdays')}</h2>
                   </div>
-                  
+
                   {/* Dynamic Month Selector Toggles */}
                   <select 
                     value={selectedMonth} 
@@ -1759,7 +1764,7 @@ export function DashboardView() {
                             {translateBeltFormatted(candidate.student.currentBelt, candidate.student.dob)}
                           </span>
                         </div>
-                        
+
                         <div className="grid grid-cols-2 gap-1 text-[8px] font-mono border-t border-neutral-100 dark:border-[#1A1A1A] pt-1.5">
                           <div className="flex items-center gap-1">
                             <Clock className={cn("w-3 h-3 shrink-0", report?.daysEligible ? "text-green-500" : "text-neutral-400")} />
@@ -1927,7 +1932,7 @@ export function DashboardView() {
 
           {/* Row 1 - Top Analytics & Controls */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            
+
             {/* Module 1: Revenue Forecast Slider & Chart */}
             {canViewFinancials && (
               <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 shadow-sm space-y-3 relative overflow-hidden flex flex-col justify-between">
@@ -2118,7 +2123,7 @@ export function DashboardView() {
 
           {/* Row 2 - Advanced analysis lists (Readiness candidates + Churn hazard list) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            
+
             {/* Module 3: Promotion Readiness candidates list */}
             <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 shadow-sm space-y-3 relative overflow-hidden flex flex-col justify-between">
               <div className="flex flex-col gap-2 border-b border-neutral-200 dark:border-[#262626] pb-2.5">
@@ -2380,7 +2385,7 @@ export function DashboardView() {
                             CPI: {hazard.cpi}% ({hazard.riskLevel})
                           </span>
                         </div>
-                        
+
                         {/* Action buttons: WhatsApp & Call */}
                         <div className="flex items-center gap-1.5 sm:gap-2">
                           {whatsAppUrl && (
@@ -2480,9 +2485,7 @@ export function DashboardView() {
         <Portal>
           <div className="fixed inset-0 bg-neutral-950/75 backdrop-blur-sm z-[120] flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setActiveHelpSection(null)}>
             <motion.div 
-              initial={{ opacity: 0, scale: 0.96 }} 
-              animate={{ opacity: 1, scale: 1 }} 
-              exit={{ opacity: 0, scale: 0.96 }}
+              {...dialogMotion}
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-lg bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl p-6 relative overflow-hidden flex flex-col space-y-5 text-neutral-900 dark:text-white max-h-[90dvh] overflow-y-auto"
             >
@@ -2535,7 +2538,7 @@ export function DashboardView() {
               <div className="space-y-2">
                 <h4 className="text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider font-mono">{t('dash_operational_story')}</h4>
                 <p className="text-xs text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] p-3.5 rounded-[8px] leading-relaxed font-medium italic">
-                  "{helpContent[activeHelpSection].story}"
+                  &quot;{helpContent[activeHelpSection].story}&quot;
                 </p>
               </div>
 
@@ -2591,9 +2594,7 @@ function BirthdayWishActionModal({ student, onClose, onMarkSent }: { student: St
     <Portal>
       <div className="fixed inset-0 bg-neutral-950/75 backdrop-blur-sm z-[110] flex items-center justify-center p-4 animate-in fade-in duration-200">
         <motion.div 
-          initial={{ opacity: 0, scale: 0.96 }} 
-          animate={{ opacity: 1, scale: 1 }} 
-          exit={{ opacity: 0, scale: 0.96 }}
+          {...dialogMotion}
           className="w-full max-w-md bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl p-6 relative overflow-hidden flex flex-col space-y-6 text-neutral-900 dark:text-white max-h-[90dvh] overflow-y-auto"
         >
           {/* Header */}

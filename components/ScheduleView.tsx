@@ -1,13 +1,30 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
+import { academyDate } from '@/lib/dates';
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppStore, ClassCategory } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Plus, MapPin, Calendar, Clock, PencilSimple, Trash, 
-  Users, WarningCircle, Check, X, ShieldWarning, MagnifyingGlass, ChartLine,
-  CalendarCheck, CopySimple, CheckSquare, ArrowsDownUp, Funnel, UserPlus
-} from '@phosphor-icons/react';
+import { Plus } from '@phosphor-icons/react/dist/csr/Plus';
+import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
+import { Calendar } from '@phosphor-icons/react/dist/csr/Calendar';
+import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
+import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
+import { Users } from '@phosphor-icons/react/dist/csr/Users';
+import { WarningCircle } from '@phosphor-icons/react/dist/csr/WarningCircle';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { ShieldWarning } from '@phosphor-icons/react/dist/csr/ShieldWarning';
+import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { ChartLine } from '@phosphor-icons/react/dist/csr/ChartLine';
+import { CalendarCheck } from '@phosphor-icons/react/dist/csr/CalendarCheck';
+import { CopySimple } from '@phosphor-icons/react/dist/csr/CopySimple';
+import { CheckSquare } from '@phosphor-icons/react/dist/csr/CheckSquare';
+import { ArrowsDownUp } from '@phosphor-icons/react/dist/csr/ArrowsDownUp';
+import { Funnel } from '@phosphor-icons/react/dist/csr/Funnel';
+import { UserPlus } from '@phosphor-icons/react/dist/csr/UserPlus';
 import { cn, formatBelt } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
 import { useT } from '@/hooks/useTranslation';
@@ -69,6 +86,16 @@ export function ScheduleView() {
   const isAdminOrHead = role === 'Root' || role === 'Super Root' || role === 'Admin' || role === 'Head Coach';
 
   const [activeBranchId, setActiveBranchId] = useState<number>(state.branches[0]?.id || 0);
+  useEffect(() => {
+    if (state.branches.length && !state.branches.some(branch => branch.id === activeBranchId)) setActiveBranchId(state.branches[0].id);
+  }, [state.branches, activeBranchId]);
+  const overCapacityClasses = useMemo(() => {
+    const activeStudents = new Set(state.students.filter(student => student.studentStatus === 'Active').map(student => student.id));
+    return state.classSessions.flatMap(session => {
+      const enrolled = state.classEnrollments.filter(enrollment => enrollment.classId === session.id && activeStudents.has(enrollment.studentId)).length;
+      return enrolled > session.capacity ? [{ ...session, enrolled }] : [];
+    });
+  }, [state.students, state.classSessions, state.classEnrollments]);
   const [showClassModal, setShowClassModal] = useState<number | 'new' | null>(null);
   const [showEnrollModal, setShowEnrollModal] = useState<number | null>(null);
   const [enrollModalTab, setEnrollModalTab] = useState<'unenrolled' | 'enrolled'>('unenrolled');
@@ -98,6 +125,19 @@ export function ScheduleView() {
 
   const [newBranchName, setNewBranchName] = useState('');
   const [showBranchInput, setShowBranchInput] = useState(false);
+  const branchSaveInFlight = React.useRef(false);
+  const [isSavingBranch, setIsSavingBranch] = useState(false);
+  const handleSaveBranch = async () => {
+    if (!newBranchName.trim() || branchSaveInFlight.current) return;
+    branchSaveInFlight.current = true;
+    setIsSavingBranch(true);
+    try {
+      await addBranch(newBranchName.trim());
+      setNewBranchName('');
+      setShowBranchInput(false);
+    } catch { /* The store displays the error; retain the draft for retry. */ }
+    finally { branchSaveInFlight.current = false; setIsSavingBranch(false); }
+  };
 
   const coaches = useMemo(() => 
     state.users.filter(u => u.role === 'Coach' || u.role === 'Head Coach' || u.role === 'Assistant Coach' || u.role === 'Root'),
@@ -151,7 +191,7 @@ export function ScheduleView() {
     }
 
     const durationMins = calculateDurationMins(classForm.startTime, classForm.endTime);
-    
+
     const payload = {
       branchId: activeBranchId,
       name: classForm.name.trim(),
@@ -245,10 +285,10 @@ export function ScheduleView() {
   }, [state.classSessions, activeBranchId, categoryFilter, searchQuery, coaches]);
 
   const activeBranchName = state.branches.find(b => b.id === activeBranchId)?.name || t('sch_fallback_branch_name');
-  
+
   // Total capacity calculations
   const totalBranchCapacity = branchClasses.reduce((acc, c) => acc + c.capacity, 0);
-  
+
   const branchClassIds = useMemo(() => new Set(branchClasses.map(c => c.id)), [branchClasses]);
   const totalBranchEnrollments = useMemo(() => {
     return state.classEnrollments.filter(e => 
@@ -256,7 +296,7 @@ export function ScheduleView() {
       state.students.find(s => s.id === e.studentId)?.studentStatus === 'Active'
     ).length;
   }, [state.classEnrollments, branchClassIds, state.students]);
-  
+
   const branchUtilizationRate = totalBranchCapacity > 0 
     ? Math.round((totalBranchEnrollments / totalBranchCapacity) * 100) 
     : 0;
@@ -330,7 +370,7 @@ export function ScheduleView() {
         state.students.find(s => s.id === e.studentId)?.studentStatus === 'Active'
       ).length;
       const util = c.capacity > 0 ? Math.round((enrollCount / c.capacity) * 100) : 0;
-      
+
       if (capacityStatusFilter === 'Overcrowded') return util >= 90;
       if (capacityStatusFilter === 'Optimal') return util >= 60 && util < 90;
       if (capacityStatusFilter === 'Low') return util < 60;
@@ -372,6 +412,12 @@ export function ScheduleView() {
 
   return (
     <div className="w-full max-w-[1600px] mx-auto space-y-4 pb-12">
+      {overCapacityClasses.length > 0 && (
+        <div role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+          <p className="font-semibold">Roster review required</p>
+          {overCapacityClasses.map(session => <p key={session.id}>{session.name}: {session.enrolled} active students / capacity {session.capacity}. New active enrollment remains blocked; review the existing roster.</p>)}
+        </div>
+      )}
       {/* Top Header & Tab Switcher */}
       <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-3.5">
@@ -459,24 +505,17 @@ export function ScheduleView() {
                    {showBranchInput ? (
                       <div className="flex items-center gap-2 animate-in slide-in-from-top-1 duration-150 shrink-0 min-w-[240px] lg:min-w-0 bg-white dark:bg-[#141414] p-1.5 rounded-[8px] border border-neutral-300 dark:border-[#262626] shadow-sm">
                         <input type="text" autoFocus value={newBranchName} onChange={(e) => setNewBranchName(e.target.value)}
-                          onKeyDown={e => {
+                          disabled={isSavingBranch} onKeyDown={e => {
                             if(e.key === 'Enter' && newBranchName.trim()) {
-                              addBranch(newBranchName.trim());
-                              setNewBranchName('');
-                              setShowBranchInput(false);
+                              e.preventDefault();
+                              void handleSaveBranch();
                             }
                           }}
                           placeholder={t('sch_placeholder_branch_name')}
                           className="flex-1 bg-transparent px-2.5 py-1.5 min-h-[38px] text-xs text-neutral-900 dark:text-white focus:outline-none placeholder:text-neutral-400"
                         />
                         <button 
-                          onClick={() => {
-                            if (newBranchName.trim()) {
-                              addBranch(newBranchName.trim());
-                              setNewBranchName('');
-                              setShowBranchInput(false);
-                            }
-                          }}
+                          disabled={isSavingBranch} onClick={handleSaveBranch}
                           className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center bg-[#EF2F38] hover:bg-[#d4252e] text-white rounded-[6px] cursor-pointer active:scale-90 touch-manipulation shadow-sm"
                           title="Save branch"
                         >
@@ -896,7 +935,7 @@ export function ScheduleView() {
                                         util >= 90 ? 'from-red-500 to-rose-600' : util >= 70 ? 'from-amber-500 to-orange-500' : 'from-emerald-500 to-teal-500'
                                       )} style={{ width: `${util}%` }} />
                                    </div>
-                                   
+
                                    {/* Quick Capacity Stepper & Roster Action */}
                                    <div className="flex items-center gap-1.5 shrink-0">
                                       {isAdminOrHead && (
@@ -1040,14 +1079,14 @@ export function ScheduleView() {
         {showClassModal && (
           <Portal>
             <div className="fixed inset-0 bg-neutral-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200 overflow-y-auto">
-                <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} className="w-full max-w-md bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col my-auto max-h-[92dvh] overflow-hidden">
+                <motion.div {...dialogMotion} className="w-full max-w-md bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col my-auto max-h-[92dvh] overflow-hidden">
                   <div className="p-3.5 sm:p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#0F0F0F] shrink-0">
                      <h2 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-neutral-800 dark:text-white">
                        {showClassModal === 'new' ? t('sch_new_course') : t('sch_edit_course')}
                      </h2>
                      <button onClick={() => setShowClassModal(null)} className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-[8px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors cursor-pointer active:scale-90 touch-manipulation" aria-label="Close modal"><X className="w-5 h-5"/></button>
                   </div>
-                  
+
                   <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto bg-white dark:bg-[#0A0A0A] text-neutral-900 dark:text-white">
                      <div>
                        <label className="block text-[10px] uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('sch_session_name')}</label>
@@ -1145,7 +1184,7 @@ export function ScheduleView() {
                         </div>
                      </div>
                   </div>
-                  
+
                   <div className="p-3.5 sm:p-4 border-t border-neutral-200 dark:border-[#262626] flex justify-end gap-2.5 sm:gap-3 bg-neutral-50 dark:bg-[#0A0A0A] shrink-0">
                      <button 
                        disabled={isSaving} 
@@ -1189,32 +1228,32 @@ export function ScheduleView() {
 function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, initialTab: 'unenrolled' | 'enrolled', onClose: () => void }) {
   const { state, enrollStudent, unenrollStudent, batchEnrollStudents, markAttendance, deleteAttendanceRecords, showConfirm, showNotification } = useAppStore();
   const t = useT();
-  
+
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'unenrolled' | 'enrolled' | 'all'>(initialTab);
   const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>('All');
   const [selectedBeltFilter, setSelectedBeltFilter] = useState<string>('All');
   const [isProcessingId, setIsProcessingId] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(() => academyDate());
   const [selectedStudentIds, setSelectedStudentIds] = useState<Set<string>>(new Set());
   const [isBatchEnrolling, setIsBatchEnrolling] = useState(false);
   const [turnoutSort, setTurnoutSort] = useState<'default' | 'turnout-asc' | 'turnout-desc'>('default');
 
-  const getStudentAttendanceStats = (studentId: string) => {
-    const studentRecords = state.attendanceRecords.filter(r => r.studentId === studentId);
+  const getStudentAttendanceStats = React.useCallback((studentId: string) => {
+    const studentRecords = state.attendanceRecords.filter(r => r.studentId === studentId && r.classId === classId);
     const total = studentRecords.length;
     if (total === 0) return null;
     const attended = studentRecords.filter(r => r.status === 'Present' || r.status === 'Late').length;
     const pct = Math.round((attended / total) * 100);
     return { count: attended, total, pct };
-  };
+  }, [state.attendanceRecords, classId]);
 
   const handleQuickAttendance = async (studentId: string, status: 'Present' | 'Absent' | 'Late') => {
-    const existing = state.attendanceRecords.find(r => r.studentId === studentId && r.date === selectedDate);
+    const existing = state.attendanceRecords.find(r => r.studentId === studentId && r.date === selectedDate && r.classId === classId);
     if (existing?.status === status) {
-      await deleteAttendanceRecords(selectedDate, [studentId]);
+      await deleteAttendanceRecords(selectedDate, [studentId], classId);
     } else {
-      await markAttendance(studentId, selectedDate, status);
+      await markAttendance(studentId, selectedDate, status, classId);
     }
   };
 
@@ -1239,20 +1278,20 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
     otherEnrollments.forEach(e => {
       const oc = state.classSessions.find(c => c.id === e.classId);
       if (!oc) return;
-      
+
       const dayOverlap = oc.daysOfWeek.some(d => classObj.daysOfWeek.includes(d));
       if (!dayOverlap) return;
-      
+
       const parseTime = (tStr: string) => {
         const [h, m] = tStr.split(':').map(Number);
         return h * 60 + m;
       };
-      
+
       const start1 = parseTime(classObj.startTime);
       const end1 = parseTime(classObj.endTime);
       const start2 = parseTime(oc.startTime);
       const end2 = parseTime(oc.endTime);
-      
+
       if (start1 < end2 && start2 < end1) {
         conflicts.push(`${oc.name} (${oc.daysOfWeek.map(d => d.substring(0,3)).join('/')} ${oc.startTime}-${oc.endTime})`);
       }
@@ -1265,7 +1304,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
     return state.students
       .filter(s => {
         if (s.studentStatus !== 'Active') return false;
-        
+
         const matchesSearch = s.englishName.toLowerCase().includes(search.toLowerCase()) ||
                               s.khmerName.toLowerCase().includes(search.toLowerCase()) ||
                               s.id.toLowerCase().includes(search.toLowerCase());
@@ -1298,7 +1337,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
         if (!aMatchesBranch && bMatchesBranch) return 1;
         return a.englishName.localeCompare(b.englishName);
       });
-  }, [state.students, search, enrolledStudentIds, activeTab, selectedBranchFilter, selectedBeltFilter, classObj, turnoutSort]);
+  }, [state.students, search, enrolledStudentIds, activeTab, selectedBranchFilter, selectedBeltFilter, classObj?.branchId, turnoutSort, getStudentAttendanceStats]);
 
   const handleToggleEnroll = async (studentId: string, isEnrolled: boolean) => {
     setIsProcessingId(studentId);
@@ -1359,9 +1398,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
   return (
     <div className="fixed inset-0 bg-neutral-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200 overflow-y-auto">
       <motion.div 
-        initial={{ opacity: 0, scale: 0.96 }} 
-        animate={{ opacity: 1, scale: 1 }} 
-        exit={{ opacity: 0, scale: 0.96 }} 
+        {...dialogMotion}
         className="w-full max-w-2xl bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col my-auto max-h-[92dvh] overflow-hidden text-neutral-900 dark:text-white"
       >
          {/* Top Header Panel */}
@@ -1440,7 +1477,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                      className="w-full pl-9 pr-3 py-2 min-h-[40px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] text-xs focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                    />
                 </div>
-                
+
                 <div className="md:col-span-3">
                    <select 
                      value={selectedBranchFilter} 
@@ -1482,7 +1519,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                   </div>
                 )}
              </div>
-             
+
              <div className="flex flex-wrap items-center justify-between text-[10px] text-neutral-600 dark:text-neutral-400 gap-2 font-medium">
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                    {/* Multi-Select Select All in Unenrolled tab */}
@@ -1526,7 +1563,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                              `Mark all ${filteredStudents.length} enrolled students as Present for ${selectedDate}?`,
                              async () => {
                                 for (const student of filteredStudents) {
-                                   await markAttendance(student.id, selectedDate, 'Present');
+                                   await markAttendance(student.id, selectedDate, 'Present', classId);
                                 }
                                 showNotification(`Marked ${filteredStudents.length} students as Present.`, 'success');
                              },
@@ -1542,7 +1579,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                 </div>
              </div>
          </div>
-         
+
          {/* Students list */}
          <div className="flex-grow overflow-y-auto p-3 sm:p-4 space-y-2.5 sm:space-y-3 bg-neutral-50 dark:bg-[#0A0A0A]">
             <AnimatePresence mode="popLayout">
@@ -1552,7 +1589,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                   const conflicts = getConflicts(student.id);
                   const studentBranch = state.branches.find(b => b.id === student.homeBranchId);
                   const isSelected = selectedStudentIds.has(student.id);
-                  
+
                   return (
                     <motion.div 
                       layout
@@ -1602,7 +1639,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                                    {formatBelt(student.currentBelt, student.dob)}
                                 </span>
                              </div>
-                             
+
                              <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-[10px] text-neutral-600 dark:text-neutral-400 font-mono">
                                 <span>ID: {student.id}</span>
                                 <span className="flex items-center gap-1">
@@ -1649,11 +1686,11 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                              )}
                           </div>
                        </div>
-                       
+
                        <div className="shrink-0 flex items-center justify-end sm:justify-start gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-neutral-100 dark:border-[#262626]">
                           {/* Quick Attendance Check-in Toolbar */}
                           {isEnrolled && (() => {
-                             const record = state.attendanceRecords.find(r => r.studentId === student.id && r.date === selectedDate);
+                             const record = state.attendanceRecords.find(r => r.studentId === student.id && r.date === selectedDate && r.classId === classId);
                              const currentStatus = record?.status;
                              return (
                                 <div className="flex items-center gap-1 bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-neutral-800 rounded-[8px] p-1 shadow-sm shrink-0 select-none">
@@ -1729,7 +1766,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                   )
                })}
             </AnimatePresence>
-            
+
             {filteredStudents.length === 0 && (
               <div className="text-center py-12 text-neutral-600 dark:text-neutral-400 text-xs font-mono bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-sm flex flex-col items-center justify-center gap-2">
                  <MagnifyingGlass className="w-8 h-8 text-neutral-400 dark:text-neutral-600" />

@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { isCalendarDate } from '@/lib/dates';
+import { fetchAllRows } from '@/lib/data-access';
+import { partnerField } from '@/lib/partners';
 import { 
   verifyCaller, 
   validateRequestBody, 
   sanitizeString, 
   logSecurityAuditEvent, 
-  formatServerErrorResponse,
-  checkApiRateLimit
+  formatServerErrorResponse
 } from '@/lib/backend-security';
 
 const PartnerSchema = z.object({
@@ -50,17 +52,17 @@ const PartnerSchema = z.object({
   websiteUrl: z.string().max(500).optional().nullable(),
   address: z.string().max(500).optional().nullable(),
   country: z.string().max(100).default('Cambodia'),
-  mouSignedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Signed date must be YYYY-MM-DD').optional().nullable().or(z.literal('')),
-  mouExpiryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expiry date must be YYYY-MM-DD').optional().nullable().or(z.literal('')),
+  mouSignedDate: z.string().refine(isCalendarDate, 'Invalid signed date').optional().nullable().or(z.literal('')),
+  mouExpiryDate: z.string().refine(isCalendarDate, 'Invalid expiry date').optional().nullable().or(z.literal('')),
   contractDocumentUrl: z.string().max(500).optional().nullable(),
   notes: z.string().max(3000).optional().nullable(),
-  tags: z.array(z.string().max(50)).optional().default([])
+  tags: z.array(z.string().max(50)).max(50).optional().default([])
 });
 
 const IS_UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const UpdatePartnerSchema = PartnerSchema.partial().extend({
-  id: z.string().min(1, 'Partner ID is required')
+  id: z.string().uuid('Invalid partner ID')
 });
 
 function formatTelegram(username?: string | null, link?: string | null): { cleanUsername?: string; cleanLink?: string } {
@@ -83,29 +85,6 @@ function formatTelegram(username?: string | null, link?: string | null): { clean
     cleanUsername: cleanUser || undefined,
     cleanLink: cleanUrl || undefined
   };
-}
-
-function normalizePartnerTypeToLegacy(type?: string): string {
-  switch (type) {
-    case 'MOU': return 'mou';
-    case 'Sponsor': return 'sponsor';
-    case 'Educational': return 'university';
-    case 'Supplier': return 'vendor';
-    case 'Affiliated Dojang': return 'other';
-    case 'Media & Marketing': return 'media';
-    case 'Federation': return 'federation';
-    case 'Healthcare': return 'medical';
-    case 'Government/NGO': return 'ngo';
-    default: return 'other';
-  }
-}
-
-function normalizeStatusToLegacy(status?: string): string {
-  switch (status) {
-    case 'Expired': return 'expired';
-    case 'Terminated': return 'terminated';
-    default: return 'active';
-  }
 }
 
 function normalizePartnerTypeFromDb(type?: string | null): string {
@@ -168,410 +147,93 @@ function normalizePartnerRecord(row: any) {
     benefits_summary: row.benefits_summary || null,
     founder_name: row.founder_name || null,
     founder_contact: row.founder_contact || null,
-    contact_name: row.contact_name || row.contact_person || null,
+    contact_name: partnerField(row,'contactName','contact_name',row.contact_person) || null,
     contact_role: row.contact_role || null,
     email: row.email || null,
     phone: row.phone || null,
     telegram_username: row.telegram_username || null,
-    telegram_link: row.telegram_link || row.telegram_url || null,
-    secondary_contact_name: row.secondary_contact_name || firstSecondary.name || null,
-    secondary_contact_phone: row.secondary_contact_phone || firstSecondary.phone || null,
-    secondary_contact_telegram: row.secondary_contact_telegram || firstSecondary.telegram || null,
-    website_url: row.website_url || row.website || null,
-    address: row.address || row.city || null,
+    telegram_link: partnerField(row,'telegramLink','telegram_link',row.telegram_url) || null,
+    secondary_contact_name: partnerField(row,'secondaryContactName','secondary_contact_name',firstSecondary.name) || null,
+    secondary_contact_phone: partnerField(row,'secondaryContactPhone','secondary_contact_phone',firstSecondary.phone) || null,
+    secondary_contact_telegram: partnerField(row,'secondaryContactTelegram','secondary_contact_telegram',firstSecondary.telegram) || null,
+    website_url: partnerField(row,'websiteUrl','website_url',row.website) || null,
+    address: partnerField(row,'address','address',row.city) || null,
     country: row.country || 'Cambodia',
     mou_signed_date: row.mou_signed_date || null,
     mou_expiry_date: row.mou_expiry_date || null,
-    contract_document_url: row.contract_document_url || row.document_url || null,
-    notes: row.notes || row.internal_notes || null,
+    contract_document_url: partnerField(row,'contractDocumentUrl','contract_document_url',row.document_url) || null,
+    notes: partnerField(row,'notes','notes',row.internal_notes) || null,
     tags: Array.isArray(row.tags) ? row.tags : [],
     created_at: row.created_at,
     updated_at: row.updated_at
   };
 }
 
-/**
- * GET: Fetch all partners / MOUs
- */
+
+const partnerFields: Record<string,string> = {
+ name:'name',brandName:'brand_name',logoUrl:'logo_url',partnerType:'partner_type',status:'status',
+ description:'description',collaborationScope:'collaboration_scope',benefitsSummary:'benefits_summary',
+ founderName:'founder_name',founderContact:'founder_contact',contactName:'contact_name',contactRole:'contact_role',
+ email:'email',phone:'phone',secondaryContactName:'secondary_contact_name',secondaryContactPhone:'secondary_contact_phone',
+ secondaryContactTelegram:'secondary_contact_telegram',websiteUrl:'website_url',address:'address',country:'country',
+ mouSignedDate:'mou_signed_date',mouExpiryDate:'mou_expiry_date',contractDocumentUrl:'contract_document_url',notes:'notes',tags:'tags'
+};
+function partnerPayload(body: Record<string,unknown>) {
+ const payload: Record<string,unknown> = {};
+ for (const [field,column] of Object.entries(partnerFields)) {
+  if (body[field] === undefined) continue;
+  const value=body[field];
+  payload[column]=typeof value==='string' ? sanitizeString(value) || null : value;
+ }
+ if (body.telegramUsername !== undefined || body.telegramLink !== undefined) {
+  const telegram=formatTelegram(body.telegramUsername as string|null,body.telegramLink as string|null);
+  payload.telegram_username=telegram.cleanUsername || null;
+  payload.telegram_link=telegram.cleanLink || null;
+ }
+ return payload;
+}
 export async function GET(req: Request) {
-  try {
-    const { errorResponse, context, adminSupabase } = await verifyCaller(req, [
-      'Root', 'Super Root', 'Admin', 'Head Coach', 'Coach', 'Assistant Coach'
-    ]);
-    if (errorResponse || !adminSupabase || !context) return errorResponse!;
-
-    const { data: partners, error } = await adminSupabase
-      .from('partners')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      if (error.code === '42P01') {
-        return NextResponse.json({ success: true, data: [], error: null });
-      }
-      return NextResponse.json(
-        { success: false, data: null, error: { code: error.code || 'DB_ERROR', message: error.message } },
-        { status: 500 }
-      );
-    }
-
-    const normalized = (partners || []).map(normalizePartnerRecord);
-    return NextResponse.json({ success: true, data: normalized, error: null });
-  } catch (err: any) {
-    return formatServerErrorResponse(err);
-  }
+ try {
+  const {errorResponse,context,adminSupabase}=await verifyCaller(req,['Root','Super Root','Admin','Head Coach','Coach','Assistant Coach']);
+  if(errorResponse || !context || !adminSupabase)return errorResponse!;
+  const {data,error}=await fetchAllRows(adminSupabase.from('partners').select('*').order('created_at',{ascending:false}));
+  if(error) return formatServerErrorResponse(error);
+  return NextResponse.json({success:true,data:(data || []).map(normalizePartnerRecord),error:null});
+ } catch(error) { return formatServerErrorResponse(error); }
 }
-
-/**
- * POST: Create a new partner / MOU entry
- */
 export async function POST(req: Request) {
-  try {
-    const { errorResponse, context, adminSupabase } = await verifyCaller(req, [
-      'Root', 'Super Root', 'Admin', 'Head Coach'
-    ]);
-    if (errorResponse || !adminSupabase || !context) return errorResponse!;
-
-    const rateLimit = checkApiRateLimit(`partner_post_${context.userId}`, 20, 60000);
-    if (!rateLimit.allowed) {
-      return NextResponse.json(
-        { success: false, data: null, error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Too many requests. Please slow down.' } },
-        { status: 429 }
-      );
-    }
-
-    const { data: body, errorResponse: parseError } = await validateRequestBody(PartnerSchema, req);
-    if (parseError || !body) return parseError!;
-
-    const { cleanUsername, cleanLink } = formatTelegram(body.telegramUsername, body.telegramLink);
-
-    const modernPayload = {
-      name: sanitizeString(body.name),
-      brand_name: body.brandName ? sanitizeString(body.brandName) : null,
-      logo_url: body.logoUrl ? body.logoUrl.trim() : null,
-      partner_type: body.partnerType,
-      status: body.status,
-      description: body.description ? sanitizeString(body.description) : null,
-      collaboration_scope: body.collaborationScope ? sanitizeString(body.collaborationScope) : null,
-      benefits_summary: body.benefitsSummary ? sanitizeString(body.benefitsSummary) : null,
-      founder_name: body.founderName ? sanitizeString(body.founderName) : null,
-      founder_contact: body.founderContact ? sanitizeString(body.founderContact) : null,
-      contact_name: body.contactName ? sanitizeString(body.contactName) : null,
-      contact_role: body.contactRole ? sanitizeString(body.contactRole) : null,
-      email: body.email ? body.email.trim() : null,
-      phone: body.phone ? sanitizeString(body.phone) : null,
-      telegram_username: cleanUsername || null,
-      telegram_link: cleanLink || null,
-      secondary_contact_name: body.secondaryContactName ? sanitizeString(body.secondaryContactName) : null,
-      secondary_contact_phone: body.secondaryContactPhone ? sanitizeString(body.secondaryContactPhone) : null,
-      secondary_contact_telegram: body.secondaryContactTelegram ? sanitizeString(body.secondaryContactTelegram) : null,
-      website_url: body.websiteUrl ? body.websiteUrl.trim() : null,
-      address: body.address ? sanitizeString(body.address) : null,
-      country: body.country ? sanitizeString(body.country) : 'Cambodia',
-      mou_signed_date: body.mouSignedDate || null,
-      mou_expiry_date: body.mouExpiryDate || null,
-      contract_document_url: body.contractDocumentUrl ? body.contractDocumentUrl.trim() : null,
-      notes: body.notes ? sanitizeString(body.notes) : null,
-      tags: body.tags || [],
-      created_by: context.userId
-    };
-
-    let inserted: any = null;
-    let insertError: any = null;
-
-    // 1. Attempt modern schema insert first
-    const modernResult = await adminSupabase
-      .from('partners')
-      .insert(modernPayload)
-      .select('*')
-      .single();
-
-    if (!modernResult.error) {
-      inserted = modernResult.data;
-    } else {
-      insertError = modernResult.error;
-
-      // 2. If table doesn't exist, provide sample fallback
-      if (insertError.code === '42P01') {
-        const fallback = {
-          id: crypto.randomUUID(),
-          ...modernPayload,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        return NextResponse.json({ success: true, data: normalizePartnerRecord(fallback), error: null }, { status: 201 });
-      }
-
-      // 3. If schema cache mismatch, check constraint, or contact_person constraint fails, fallback to legacy schema
-      const isSchemaMismatch = 
-        insertError.message?.includes('schema cache') ||
-        insertError.message?.includes('contact_person') ||
-        insertError.message?.includes('check constraint') ||
-        insertError.code === 'PGRST204' ||
-        insertError.code === '23502' ||
-        insertError.code === '23514';
-
-      if (isSchemaMismatch) {
-        const legacyPayload: Record<string, any> = {
-          name: sanitizeString(body.name),
-          brand_name: body.brandName ? sanitizeString(body.brandName) : null,
-          logo_url: body.logoUrl ? body.logoUrl.trim() : null,
-          partner_type: normalizePartnerTypeToLegacy(body.partnerType),
-          status: normalizeStatusToLegacy(body.status),
-          description: body.description ? sanitizeString(body.description) : null,
-          founder_name: body.founderName ? sanitizeString(body.founderName) : null,
-          founder_contact: body.founderContact ? sanitizeString(body.founderContact) : null,
-          contact_person: (body.contactName ? sanitizeString(body.contactName) : '') || sanitizeString(body.name),
-          contact_role: body.contactRole ? sanitizeString(body.contactRole) : null,
-          email: body.email ? body.email.trim() : null,
-          phone: body.phone ? sanitizeString(body.phone) : null,
-          telegram_username: cleanUsername || null,
-          telegram_url: cleanLink || null,
-          website: body.websiteUrl ? body.websiteUrl.trim() : null,
-          city: body.address ? sanitizeString(body.address) : null,
-          country: body.country ? sanitizeString(body.country) : 'Cambodia',
-          mou_signed_date: body.mouSignedDate || null,
-          mou_expiry_date: body.mouExpiryDate || null,
-          document_url: body.contractDocumentUrl ? body.contractDocumentUrl.trim() : null,
-          internal_notes: body.notes ? sanitizeString(body.notes) : null,
-          tags: body.tags || [],
-          secondary_contacts: body.secondaryContactName
-            ? [{
-                name: sanitizeString(body.secondaryContactName),
-                phone: body.secondaryContactPhone ? sanitizeString(body.secondaryContactPhone) : null,
-                telegram: body.secondaryContactTelegram ? sanitizeString(body.secondaryContactTelegram) : null
-              }]
-            : []
-        };
-
-        const legacyResult = await adminSupabase
-          .from('partners')
-          .insert(legacyPayload)
-          .select('*')
-          .single();
-
-        if (!legacyResult.error) {
-          inserted = legacyResult.data;
-          insertError = null;
-        } else {
-          insertError = legacyResult.error;
-        }
-      }
-    }
-
-    if (insertError || !inserted) {
-      return NextResponse.json(
-        { success: false, data: null, error: { code: insertError?.code || 'INSERT_ERROR', message: insertError?.message || 'Failed to insert partner.' } },
-        { status: 500 }
-      );
-    }
-
-    await logSecurityAuditEvent({
-      action: 'PARTNER_CREATED',
-      performedBy: context.userId,
-      targetId: inserted.id,
-      details: { name: inserted.name, partnerType: inserted.partner_type },
-      status: 'SUCCESS'
-    });
-
-    return NextResponse.json({ success: true, data: normalizePartnerRecord(inserted), error: null }, { status: 201 });
-  } catch (err: any) {
-    return formatServerErrorResponse(err);
-  }
+ try {
+  const {errorResponse,context,adminSupabase}=await verifyCaller(req,['Root','Super Root','Admin','Head Coach']);
+  if(errorResponse || !context || !adminSupabase)return errorResponse!;
+  const {data:body,errorResponse:invalid}=await validateRequestBody(PartnerSchema,req);
+  if(invalid || !body)return invalid!;
+  const {data,error}=await adminSupabase.from('partners').insert({...partnerPayload(body),created_by:context.userId}).select('*').single();
+  if(error || !data)return formatServerErrorResponse(error || new Error('Partner creation was not confirmed.'));
+  await logSecurityAuditEvent({action:'PARTNER_CREATED',performedBy:context.userId,targetId:data.id,details:{name:data.name},status:'SUCCESS'});
+  return NextResponse.json({success:true,data:normalizePartnerRecord(data),error:null},{status:201});
+ } catch(error) { return formatServerErrorResponse(error); }
 }
-
-/**
- * PUT: Update an existing partner
- */
 export async function PUT(req: Request) {
-  try {
-    const { errorResponse, context, adminSupabase } = await verifyCaller(req, [
-      'Root', 'Super Root', 'Admin', 'Head Coach'
-    ]);
-    if (errorResponse || !adminSupabase || !context) return errorResponse!;
-
-    const { data: body, errorResponse: parseError } = await validateRequestBody(UpdatePartnerSchema, req);
-    if (parseError || !body) return parseError!;
-
-    const { cleanUsername, cleanLink } = formatTelegram(body.telegramUsername, body.telegramLink);
-
-    const updatePayload: Record<string, any> = {};
-    if (body.name !== undefined) updatePayload.name = sanitizeString(body.name);
-    if (body.brandName !== undefined) updatePayload.brand_name = body.brandName ? sanitizeString(body.brandName) : null;
-    if (body.logoUrl !== undefined) updatePayload.logo_url = body.logoUrl ? body.logoUrl.trim() : null;
-    if (body.partnerType !== undefined) updatePayload.partner_type = body.partnerType;
-    if (body.status !== undefined) updatePayload.status = body.status;
-    if (body.description !== undefined) updatePayload.description = body.description ? sanitizeString(body.description) : null;
-    if (body.collaborationScope !== undefined) updatePayload.collaboration_scope = body.collaborationScope ? sanitizeString(body.collaborationScope) : null;
-    if (body.benefitsSummary !== undefined) updatePayload.benefits_summary = body.benefitsSummary ? sanitizeString(body.benefitsSummary) : null;
-    if (body.founderName !== undefined) updatePayload.founder_name = body.founderName ? sanitizeString(body.founderName) : null;
-    if (body.founderContact !== undefined) updatePayload.founder_contact = body.founderContact ? sanitizeString(body.founderContact) : null;
-    if (body.contactName !== undefined) updatePayload.contact_name = body.contactName ? sanitizeString(body.contactName) : null;
-    if (body.contactRole !== undefined) updatePayload.contact_role = body.contactRole ? sanitizeString(body.contactRole) : null;
-    if (body.email !== undefined) updatePayload.email = body.email ? body.email.trim() : null;
-    if (body.phone !== undefined) updatePayload.phone = body.phone ? sanitizeString(body.phone) : null;
-    if (body.telegramUsername !== undefined) updatePayload.telegram_username = cleanUsername || null;
-    if (body.telegramLink !== undefined || body.telegramUsername !== undefined) updatePayload.telegram_link = cleanLink || null;
-    if (body.secondaryContactName !== undefined) updatePayload.secondary_contact_name = body.secondaryContactName ? sanitizeString(body.secondaryContactName) : null;
-    if (body.secondaryContactPhone !== undefined) updatePayload.secondary_contact_phone = body.secondaryContactPhone ? sanitizeString(body.secondaryContactPhone) : null;
-    if (body.secondaryContactTelegram !== undefined) updatePayload.secondary_contact_telegram = body.secondaryContactTelegram ? sanitizeString(body.secondaryContactTelegram) : null;
-    if (body.websiteUrl !== undefined) updatePayload.website_url = body.websiteUrl ? body.websiteUrl.trim() : null;
-    if (body.address !== undefined) updatePayload.address = body.address ? sanitizeString(body.address) : null;
-    if (body.country !== undefined) updatePayload.country = body.country ? sanitizeString(body.country) : 'Cambodia';
-    if (body.mouSignedDate !== undefined) updatePayload.mou_signed_date = body.mouSignedDate || null;
-    if (body.mouExpiryDate !== undefined) updatePayload.mou_expiry_date = body.mouExpiryDate || null;
-    if (body.contractDocumentUrl !== undefined) updatePayload.contract_document_url = body.contractDocumentUrl ? body.contractDocumentUrl.trim() : null;
-    if (body.notes !== undefined) updatePayload.notes = body.notes ? sanitizeString(body.notes) : null;
-    if (body.tags !== undefined) updatePayload.tags = body.tags;
-
-    if (!IS_UUID_REGEX.test(body.id)) {
-      return NextResponse.json({ success: true, data: normalizePartnerRecord({ ...body, id: body.id, sample: true }), error: null });
-    }
-
-    let updated: any = null;
-    let updateError: any = null;
-
-    // 1. Try modern update first
-    const modernResult = await adminSupabase
-      .from('partners')
-      .update(updatePayload)
-      .eq('id', body.id)
-      .select('*')
-      .single();
-
-    if (!modernResult.error) {
-      updated = modernResult.data;
-    } else {
-      updateError = modernResult.error;
-
-      if (updateError.code === '42P01' || updateError.code === '22P02') {
-        return NextResponse.json({ success: true, data: normalizePartnerRecord({ ...body, id: body.id, sample: true }), error: null });
-      }
-
-      // 2. If schema mismatch or check constraint, map to legacy columns
-      const isSchemaMismatch = 
-        updateError.message?.includes('schema cache') ||
-        updateError.message?.includes('check constraint') ||
-        updateError.code === 'PGRST204' ||
-        updateError.code === '23514';
-
-      if (isSchemaMismatch) {
-        const legacyUpdate: Record<string, any> = {};
-        if (body.name !== undefined) legacyUpdate.name = sanitizeString(body.name);
-        if (body.brandName !== undefined) legacyUpdate.brand_name = body.brandName ? sanitizeString(body.brandName) : null;
-        if (body.logoUrl !== undefined) legacyUpdate.logo_url = body.logoUrl ? body.logoUrl.trim() : null;
-        if (body.partnerType !== undefined) legacyUpdate.partner_type = normalizePartnerTypeToLegacy(body.partnerType);
-        if (body.status !== undefined) legacyUpdate.status = normalizeStatusToLegacy(body.status);
-        if (body.description !== undefined) legacyUpdate.description = body.description ? sanitizeString(body.description) : null;
-        if (body.founderName !== undefined) legacyUpdate.founder_name = body.founderName ? sanitizeString(body.founderName) : null;
-        if (body.founderContact !== undefined) legacyUpdate.founder_contact = body.founderContact ? sanitizeString(body.founderContact) : null;
-        if (body.contactName !== undefined) legacyUpdate.contact_person = sanitizeString(body.contactName) || sanitizeString(body.name || 'Admin');
-        if (body.contactRole !== undefined) legacyUpdate.contact_role = body.contactRole ? sanitizeString(body.contactRole) : null;
-        if (body.email !== undefined) legacyUpdate.email = body.email ? body.email.trim() : null;
-        if (body.phone !== undefined) legacyUpdate.phone = body.phone ? sanitizeString(body.phone) : null;
-        if (body.telegramUsername !== undefined) legacyUpdate.telegram_username = cleanUsername || null;
-        if (body.telegramLink !== undefined || body.telegramUsername !== undefined) legacyUpdate.telegram_url = cleanLink || null;
-        if (body.websiteUrl !== undefined) legacyUpdate.website = body.websiteUrl ? body.websiteUrl.trim() : null;
-        if (body.address !== undefined) legacyUpdate.city = body.address ? sanitizeString(body.address) : null;
-        if (body.country !== undefined) legacyUpdate.country = body.country ? sanitizeString(body.country) : 'Cambodia';
-        if (body.mouSignedDate !== undefined) legacyUpdate.mou_signed_date = body.mouSignedDate || null;
-        if (body.mouExpiryDate !== undefined) legacyUpdate.mou_expiry_date = body.mouExpiryDate || null;
-        if (body.contractDocumentUrl !== undefined) legacyUpdate.document_url = body.contractDocumentUrl ? body.contractDocumentUrl.trim() : null;
-        if (body.notes !== undefined) legacyUpdate.internal_notes = body.notes ? sanitizeString(body.notes) : null;
-        if (body.tags !== undefined) legacyUpdate.tags = body.tags;
-        if (body.secondaryContactName !== undefined || body.secondaryContactPhone !== undefined || body.secondaryContactTelegram !== undefined) {
-          legacyUpdate.secondary_contacts = body.secondaryContactName ? [{
-            name: sanitizeString(body.secondaryContactName),
-            phone: body.secondaryContactPhone ? sanitizeString(body.secondaryContactPhone) : null,
-            telegram: body.secondaryContactTelegram ? sanitizeString(body.secondaryContactTelegram) : null
-          }] : [];
-        }
-
-        const legacyResult = await adminSupabase
-          .from('partners')
-          .update(legacyUpdate)
-          .eq('id', body.id)
-          .select('*')
-          .single();
-
-        if (!legacyResult.error) {
-          updated = legacyResult.data;
-          updateError = null;
-        } else {
-          updateError = legacyResult.error;
-        }
-      }
-    }
-
-    if (updateError || !updated) {
-      return NextResponse.json(
-        { success: false, data: null, error: { code: updateError?.code || 'UPDATE_ERROR', message: updateError?.message || 'Failed to update partner.' } },
-        { status: 500 }
-      );
-    }
-
-    await logSecurityAuditEvent({
-      action: 'PARTNER_UPDATED',
-      performedBy: context.userId,
-      targetId: body.id,
-      details: { updatedFields: Object.keys(updatePayload) },
-      status: 'SUCCESS'
-    });
-
-    return NextResponse.json({ success: true, data: normalizePartnerRecord(updated), error: null });
-  } catch (err: any) {
-    return formatServerErrorResponse(err);
-  }
+ try {
+  const {errorResponse,context,adminSupabase}=await verifyCaller(req,['Root','Super Root','Admin','Head Coach']);
+  if(errorResponse || !context || !adminSupabase)return errorResponse!;
+  const {data:body,errorResponse:invalid}=await validateRequestBody(UpdatePartnerSchema,req);
+  if(invalid || !body)return invalid!;
+  const {data,error}=await adminSupabase.from('partners').update(partnerPayload(body)).eq('id',body.id).select('*').single();
+  if(error || !data)return formatServerErrorResponse(error || new Error('Partner update was not confirmed.'));
+  await logSecurityAuditEvent({action:'PARTNER_UPDATED',performedBy:context.userId,targetId:data.id,details:{fields:Object.keys(body)},status:'SUCCESS'});
+  return NextResponse.json({success:true,data:normalizePartnerRecord(data),error:null});
+ } catch(error) { return formatServerErrorResponse(error); }
 }
-
-/**
- * DELETE: Remove a partner
- */
 export async function DELETE(req: Request) {
-  try {
-    const { errorResponse, context, adminSupabase } = await verifyCaller(req, [
-      'Root', 'Super Root', 'Admin', 'Head Coach'
-    ]);
-    if (errorResponse || !adminSupabase || !context) return errorResponse!;
-
-    const url = new URL(req.url);
-    const id = url.searchParams.get('id');
-
-    if (!id) {
-      return NextResponse.json(
-        { success: false, data: null, error: { code: 'MISSING_PARAM', message: 'Partner ID is required.' } },
-        { status: 400 }
-      );
-    }
-
-    if (!IS_UUID_REGEX.test(id)) {
-      return NextResponse.json({ success: true, data: { id, sample: true }, error: null });
-    }
-
-    const { error } = await adminSupabase
-      .from('partners')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      if (error.code === '42P01' || error.code === '22P02') {
-        return NextResponse.json({ success: true, data: { id, sample: true }, error: null });
-      }
-      return NextResponse.json(
-        { success: false, data: null, error: { code: error.code || 'DELETE_ERROR', message: error.message } },
-        { status: 500 }
-      );
-    }
-
-    await logSecurityAuditEvent({
-      action: 'PARTNER_DELETED',
-      performedBy: context.userId,
-      targetId: id,
-      status: 'SUCCESS'
-    });
-
-    return NextResponse.json({ success: true, data: { id }, error: null });
-  } catch (err: any) {
-    return formatServerErrorResponse(err);
-  }
+ try {
+  const {errorResponse,context,adminSupabase}=await verifyCaller(req,['Root','Super Root','Admin','Head Coach']);
+  if(errorResponse || !context || !adminSupabase)return errorResponse!;
+  const id=new URL(req.url).searchParams.get('id');
+  if(!id || !IS_UUID_REGEX.test(id))return NextResponse.json({success:false,error:{message:'A valid partner ID is required.'}},{status:400});
+  const {data,error}=await adminSupabase.from('partners').delete().eq('id',id).select('id').single();
+  if(error || !data)return formatServerErrorResponse(error || new Error('Partner deletion was not confirmed.'));
+  await logSecurityAuditEvent({action:'PARTNER_DELETED',performedBy:context.userId,targetId:id,status:'SUCCESS'});
+  return NextResponse.json({success:true,data:{id},error:null});
+ } catch(error) { return formatServerErrorResponse(error); }
 }

@@ -1,0 +1,38 @@
+name: Portal quality checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://fixture.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: fixture-public-key-for-build-only
+      SUPABASE_SERVICE_ROLE_KEY: fixture-service-key-for-build-only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm audit --omit=dev --audit-level=moderate
+      - run: node scripts/build-sql-upgrade.mjs
+      - run: git diff --exit-code -- supabase/production-upgrade-20261009.sql
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Production HTTP smoke checks
+        shell: bash
+        run: |
+          npm run start -- --hostname 127.0.0.1 --port 3100 > production-smoke.log 2>&1 &
+          portal_pid=$!
+          trap 'kill "$portal_pid" 2>/dev/null || true' EXIT
+          node scripts/smoke-production.mjs http://127.0.0.1:3100
+          node scripts/check-hydration.mjs http://127.0.0.1:3100
+          node scripts/check-auth-browser.mjs http://127.0.0.1:3100
+          node scripts/check-settings-browser.mjs http://127.0.0.1:3100
+          node scripts/check-data-load-browser.mjs http://127.0.0.1:3100
+          node scripts/check-pos-recovery-browser.mjs http://127.0.0.1:3100
+          node scripts/check-motion-browser.mjs http://127.0.0.1:3100
+          node scripts/check-business-browser.mjs http://127.0.0.1:3100

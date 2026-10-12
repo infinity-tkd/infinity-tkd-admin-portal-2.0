@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getDirectImageUrl } from '@/lib/utils';
-import { UserCircle } from '@phosphor-icons/react';
+import { UserCircle } from '@phosphor-icons/react/dist/csr/UserCircle';
 
 interface SafeImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src?: string;

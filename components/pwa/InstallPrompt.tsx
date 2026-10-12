@@ -1,7 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { DownloadSimple, ShareNetwork, PlusSquare, X, Desktop } from '@phosphor-icons/react';
+import { DownloadSimple } from '@phosphor-icons/react/dist/csr/DownloadSimple';
+import { ShareNetwork } from '@phosphor-icons/react/dist/csr/ShareNetwork';
+import { PlusSquare } from '@phosphor-icons/react/dist/csr/PlusSquare';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { Desktop } from '@phosphor-icons/react/dist/csr/Desktop';
 import { Portal } from '@/components/Portal';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -209,7 +213,7 @@ export function InstallPrompt() {
                   </div>
                   <div className="min-w-0 flex-1 pt-0.5">
                     <p className="text-neutral-700 dark:text-[#E4E4E4] leading-relaxed">
-                      Tap the <strong className="text-neutral-900 dark:text-white font-semibold">Share</strong> button in Safari's bottom toolbar:
+                      Tap the <strong className="text-neutral-900 dark:text-white font-semibold">Share</strong> button in Safari&apos;s bottom toolbar:
                     </p>
                     <div className="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-blue-600 dark:text-blue-400 font-mono text-[10px] font-bold">
                       <ShareNetwork className="w-3.5 h-3.5" />

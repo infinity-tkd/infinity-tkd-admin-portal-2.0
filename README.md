@@ -1,218 +1,245 @@
-# 🥋 Infinity TKD Admin Portal 2.0
+# Infinity Taekwondo Admin Portal
 
-> Enterprise-grade Martial Arts Academy Management Operating System, Attendance Kiosk, Pro Shop POS, and Interactive 3D Anatomy Studio. Built with Next.js 15 App Router, React 19, Supabase, Tailwind CSS v4, and Serwist PWA.
+Infinity Taekwondo Admin Portal brings the academy's daily operations into one place. Staff can manage student records, attendance, classes, tuition, shop orders and academy settings through a shared interface.
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.4.9-black?logo=next.js)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19.2.1-blue?logo=react)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6?logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4.1-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
-[![Supabase](https://img.shields.io/badge/Supabase-Database%20%26%20Auth-3ECF8E?logo=supabase)](https://supabase.com/)
-[![PWA](https://img.shields.io/badge/PWA-Serwist%20Ready-orange?logo=pwa)](https://serwist.pages.dev/)
+The portal supports desktop, tablet and mobile layouts. Access depends on the signed-in staff member's role and permissions, with account and database checks protecting administrative operations.
 
----
+## Features
 
-## 📋 System Architecture
+| Area | What it covers |
+| --- | --- |
+| Dashboard | Academy overview, activity and quick access to daily tasks |
+| Students | Registration, contact details, household links, medical information, belt history and achievements |
+| Staff | Instructor records, staff accounts, permissions and Dan history |
+| Attendance | Class attendance, student check-in and attendance history |
+| Schedule | Branches, class times, coaches, enrollment and capacity |
+| Financials | Monthly tuition, payment records, household payments, receipts and reporting |
+| Shop and POS | Products, variants, stock, counter sales and student order management |
+| Learning resources | Curriculum, training materials, progress tracking and an interactive anatomy viewer |
+| Partners | Partner contacts, collaboration details, agreements and supporting documents |
+| Settings | Academy information, preferences, account access and security controls |
+| My profile | Personal account details and password changes |
 
-```mermaid
-flowchart TD
-    subgraph ClientLayer["Client Layer (Desktop / iPad / Mobile)"]
-        UI["Portal UI & Responsive Shell (Next.js 15 + React 19)"]
-        SW["Serwist Service Worker (Cache-First Assets, Offline Fallbacks)"]
-        Canvas3D["Interactive 3D Anatomy Studio (Three.js + R3F)"]
-    end
+On phones and touch tablets, the header and bottom navigation hide while scrolling down and return when scrolling up. The layout accounts for device safe areas and reserves room for the bottom menu. Shared transitions are brief, and reduced-motion preferences are respected.
 
-    subgraph CoreEngine["Application & State Engine"]
-        Store["Unified Store & State Context (lib/store.tsx)"]
-        ErrEngine["Auto-Healing Error Engine (lib/error-handler.ts)"]
-        RBAC["Multi-tier Role Permissions Guard (components/PermissionGuard.tsx)"]
-        ResilientFetch["Resilient API Client (lib/api/resilientFetch.ts)"]
-    end
+## Technology
 
-    subgraph BackendLayer["Next.js Route Handlers & Edge API"]
-        AdminAPI["/api/admin/users (Service Role Account Creation & Deletion)"]
-        SyncAPI["/api/admin/sync (Bulk Staff & Student Ingestion)"]
-        AuditAPI["/api/audit-logs (Security & Action Traceability)"]
-    end
+| Layer | Technology |
+| --- | --- |
+| Application | Next.js 15 App Router, React 19 and TypeScript |
+| Database and accounts | Supabase PostgreSQL, Auth, Storage and Realtime |
+| Styling and interaction | Tailwind CSS 4 and Motion |
+| Anatomy viewer | Three.js and React Three Fiber |
+| Installable web app | Serwist service worker and web app manifest |
+| Verification | Node.js tests, PGlite and Playwright |
 
-    subgraph DataLayer["Supabase Backend (PostgreSQL + Auth)"]
-        SupaAuth["Supabase Auth (JWT, Session Management & Refresh)"]
-        Postgres["PostgreSQL Database (RLS Policies, Triggers & Constraints)"]
-        Storage["Supabase Storage (Student Avatars, Belt Certificates, Documents)"]
-    end
+The browser renders the interface and reads data permitted by database policies. Next.js API routes handle protected administrative workflows. Database functions keep related operations, such as payment recording and inventory changes, within transactions.
 
-    UI --> SW
-    UI --> Canvas3D
-    UI --> Store
-    Store --> ErrEngine
-    Store --> RBAC
-    Store --> ResilientFetch
-    ResilientFetch --> BackendLayer
-    ResilientFetch --> DataLayer
-    BackendLayer --> Postgres
-    DataLayer --> Postgres
-    DataLayer --> SupaAuth
-    DataLayer --> Storage
+## Getting started
+
+### Requirements
+
+- Node.js 22, 64-bit, and npm
+- Access to the repository
+- A Supabase project with the existing Infinity TKD schema and required upgrades
+- An active staff account linked to its database profile
+
+### 1. Install dependencies
+
+Open a terminal in the repository folder and run:
+
+```sh
+npm ci
 ```
 
----
+This installs the versions recorded in `package-lock.json`.
 
-## ✨ Key Features & Modules
+### 2. Configure the environment
 
-### 1. 📊 Executive Dashboard (`/dashboard`)
-- High-level studio KPI tracking: Active Students, Monthly Recurring Revenue (MRR), Mat Attendance Velocity, and Belt Promotion Eligibility.
-- Responsive 4-column KPI grid optimized across Mobile, iPad portrait/landscape, and 4K desktop screens.
-- Recent activities feed, upcoming belt test rosters, and quick-action drawers.
+For the first setup, copy `.env.example` to `.env.local`. If `.env.local` already exists, update it rather than replacing it.
 
-### 2. 🥋 Student & Member Dossier (`/students`)
-- Granular student profiles: Kukkiwon Dan/Gup rank, belt stripes, promotion history, contact info, and medical alerts.
-- **Household Management**: Group siblings and family accounts under a single primary guardian for streamlined invoicing and communications.
-- **Bulk Import Engine**: Multi-record CSV import for students and instructors with automated validation and duplicate conflict resolution.
+On Windows PowerShell:
 
-### 3. 🕒 Attendance Kiosk Terminal (`/attendance`)
-- Rapid check-in terminal with support for Barcode / QR scanning, student ID entry, or one-tap roster check-in.
-- Real-time mat capacity indicators, class attendance trends, and automated absent notifications.
-
-### 4. 💳 Financials & Billing Operations (`/financials`)
-- Automated monthly tuition tracking, belt testing fee collection, and merchandise sales auditing.
-- Invoice generation, payment method management, and transaction export.
-
-### 5. 🛒 Pro Shop & Inventory POS (`/pos`, `/pro-shop`)
-- Full retail POS terminal for uniforms (doboks), sparring gear, belts, and academy merchandise.
-- Real-time stock decrement, low-inventory alerts, and automated SKU generation (`lib/sku-generator.ts`).
-
-### 6. 🧬 3D Taekwondo Anatomy Studio (`/atlas`, Canvas)
-- Integrated WebGL / Three.js / React Three Fiber interactive anatomical model (`components/Anatomical3DModel.tsx`).
-- Visualizes musculoskeletal strain zones, martial arts striking targets, and injury prevention education.
-
-### 7. 🛡️ Multi-Tier RBAC & Security (`/settings`, `/members`)
-- Granular role-based permissions matrix: **Master / Owner**, **Head Instructor**, **Assistant Instructor**, **Front Desk Staff**, and **Student/Parent**.
-- Automated session timeout detection with return-path preservation (`components/SessionTimeoutModal.tsx`).
-- Security event logging, brute-force mitigation, and input sanitization (`lib/security.ts`).
-
-### 8. 🚨 Self-Healing Auto Error Handling Engine (`lib/error-handler.ts`, `lib/errors/`)
-- Intercepts and normalizes PostgreSQL constraints (e.g., `23505` duplicate key, duplicate email role conflicts).
-- Auto-recovers from expired Supabase JWT sessions via silent background refresh.
-- Non-blocking human-friendly error notifications with actionable resolution tips.
-
-### 9. 📱 Progressive Web App (PWA) & Native Device Ergonomics
-- Powered by `@serwist/next` with offline fallback page (`/offline`).
-- Native touch target ergonomics ($\ge 44\times 44\text{px}$) across all interactive elements, modal dismissal buttons, and navigation tabs.
-- Hardware safe-area inset adaptation (`env(safe-area-inset-*)`) for iPhone 15/16 Pro Dynamic Island and iPad Stage Manager.
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- [Node.js](https://nodejs.org/) v18.18+ or v20+
-- [npm](https://www.npmjs.com/) or [pnpm](https://pnpm.io/)
-- A [Supabase](https://supabase.com/) project (PostgreSQL database + Auth)
-
-### 1. Clone & Install Dependencies
-```bash
-git clone https://github.com/infinity-tkd/infinity-tkd-admin-portal-2.0.git
-cd "infinitytkd admin portal 2.0"
-npm install
+```powershell
+Copy-Item .env.example .env.local
 ```
 
-### 2. Environment Variables Configuration
-Create a `.env.local` file in the root directory:
-```env
-# Supabase Configuration
+Set the following values:
+
+```dotenv
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
-
-# Next.js Application URL
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-# Optional: Google Gemini AI Features
-GEMINI_API_KEY=your-gemini-api-key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-server-service-role-key
+APP_URL=http://localhost:3000
+TRUST_PROXY_HEADERS=false
 ```
 
-### 3. Database Schema Setup
-Execute the SQL migrations found in the `supabase/` directory within your Supabase SQL Editor:
-- `supabase/schema.sql` (Tables: `students`, `staff`, `attendance`, `inventory`, `transactions`, `households`, `audit_logs`)
-- Row-Level Security (RLS) policies and triggers.
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public key used by the browser client |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server credential for protected administrative operations and repository diagnostics |
+| `APP_URL` | Configured application URL; use the deployed HTTPS address for production |
+| `TRUST_PROXY_HEADERS` | Enable only when the hosting proxy replaces incoming forwarded IP headers |
 
-### 4. Run Development Server
-```bash
+Keep `.env.local` and server credentials out of version control. The service-role key must stay on the server and must never use a `NEXT_PUBLIC_` prefix.
+
+### 3. Check the database
+
+```sh
+npm run db:readiness
+```
+
+This checks required database functions, columns and startup query shapes without changing records. Resolve any missing requirements using the database setup guidance below.
+
+### 4. Start the portal
+
+```sh
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
 
----
+Open [localhost:3000](http://localhost:3000) and sign in with an approved staff account using its username or email and password. Student accounts use the separate student portal.
 
-## 🛠️ Build & Production Deployment
+The development launcher applies a memory budget suited to the machine. Development output is stored in `.next-dev`, separately from production output in `.next`.
 
-To generate a fully optimized production build with compiled PWA service workers and static route optimization:
+To use another port:
 
-```bash
-# Type check without emitting files
-npx tsc --noEmit
+```sh
+npm run dev -- --port 3002
+```
 
-# Compile production bundle
+Restart the server after changing environment values. For development crash troubleshooting, see [Development setup and memory notes](DEVELOPMENT_CRASH_FIX_2026-10-12.md).
+
+## Database setup and upgrades
+
+This repository contains upgrades for an existing Infinity TKD database. It does not include a complete schema for a new database. The simplified database fixtures under `tests/` are for isolated tests.
+
+For an existing installation, check its migration history before applying SQL. Back up the database and rehearse missing upgrades on a staging copy with the same schema, Auth configuration and Storage policies.
+
+The main upgrade files are:
+
+| File | Purpose |
+| --- | --- |
+| `supabase/preflight-20261009.sql` | Checks the existing database before the baseline upgrade |
+| `supabase/production-upgrade-20261009.sql` | Combined baseline of nine upgrade migrations through 11 October 2026 |
+| `supabase/migrations/20261011215930_portal_realtime_sync.sql` | Separate follow-up for realtime publication |
+| `supabase/migrations/20261012065927_portal_achievement_integrity.sql` | Separate follow-up for achievement transactions and validation |
+| `supabase/postflight-20261009.sql` | Verification queries after the baseline upgrade |
+
+Apply the baseline bundle **or** its individual migrations, then the missing follow-ups in chronological order. Do not apply both versions of the baseline. The connected Infinity TKD database already has these upgrades; the full bundle should not be reapplied there.
+
+The [database review](DATABASE_REVIEW_2026-10-11.md) and [release preparation guide](PRODUCTION_READINESS.md) explain prerequisites, migration order and reconciliation work.
+
+## Development and verification
+
+Run the standard checks before submitting or releasing changes:
+
+```sh
+npm run check
 npm run build
+```
 
-# Start production server
+`check` runs TypeScript validation, linting and automated tests. The production build also enforces type and lint checks.
+
+Useful commands:
+
+| Command | Purpose |
+| --- | --- |
+| `npm run typecheck` | Check TypeScript without generating application output |
+| `npm run lint` | Review application code with ESLint |
+| `npm test` | Run isolated regression tests |
+| `npm run db:readiness` | Check database requirements without changing records |
+| `npm run db:readiness -- --startup-only` | Check startup query schemas without downloading records |
+| `npm run db:check-data` | Read and validate actual startup records; print aggregate diagnostics |
+| `npm audit --omit=dev` | Check runtime dependencies for reported vulnerabilities |
+
+### Browser checks
+
+Install the test browser once:
+
+```sh
+npx playwright install chromium
+```
+
+Start a local development or production server, then run the relevant checks in a second terminal. These examples use the development server:
+
+```sh
+node scripts/check-hydration.mjs http://127.0.0.1:3000
+npm run test:auth-browser -- http://127.0.0.1:3000
+npm run test:settings-browser -- http://127.0.0.1:3000
+npm run test:data-load-browser -- http://127.0.0.1:3000
+npm run test:pos-recovery-browser -- http://127.0.0.1:3000
+npm run test:motion-browser -- http://127.0.0.1:3000
+npm run test:business-browser -- http://127.0.0.1:3000
+```
+
+These browser regressions use fictional accounts and mocked provider responses. They cover account sessions, failed reads and saves, permissions, draft retention, reporting, navigation and reduced motion.
+
+`npm run test:live-render -- http://127.0.0.1:3000` checks rendering with actual database records read into an isolated browser session. It requires server-side database credentials and blocks administrative writes. Real-account staging tests are still needed to verify sign-in and complete transaction workflows.
+
+The quality workflow in `.github/workflows/quality.yml` runs the standard checks, production build, dependency audit and browser regressions.
+
+## Data handling and recovery
+
+When a read fails, the portal shows an incomplete-data notice and offers a retry. Previously confirmed records remain available where supported. Resolve the notice before relying on financial reports or totals.
+
+Interrupted saves need special care: check whether the operation completed before submitting it again. Automatic retries are limited to safe reads; supported transaction workflows use request identifiers to recognize repeat submissions.
+
+The installable web app provides an offline fallback and update prompts. It does not guarantee that every page or save will work without a connection. Keep an internet connection for administrative writes.
+
+Application exports are useful for reviewing records, but they do not replace a complete database backup with Auth and Storage recovery.
+
+## Preparing a release
+
+The portal has been verified locally as a release candidate and has not yet been deployed. Before releasing it:
+
+1. Confirm the target database has the required migrations and a tested backup and restore process.
+2. Configure production secrets, the application URL, HTTPS and trusted proxy behavior.
+3. Check provider password, redirect and session settings.
+4. Test real staff accounts, permission restrictions and representative payment, enrollment and stock workflows on staging.
+5. Check the separate student portal against shared database and workflow changes.
+6. Verify mobile, tablet, accessibility and installed-app behavior on actual devices.
+7. Set up error monitoring and review any outstanding historical record reconciliation.
+
+Build and start the production application with:
+
+```sh
+npm run check
+npm run build
 npm run start
 ```
 
----
+For deployment requirements and recorded test results, see [Production readiness](PRODUCTION_READINESS.md), [the system audit](DEEP_AUDIT_2026-10-12.md) and [responsive navigation verification](NAVIGATION_MOTION_2026-10-12.md).
 
-## 📁 Repository Structure
+## Project structure
 
-```
-├── app/                           # Next.js 15 App Router pages & API routes
-│   ├── (auth)/                    # Login & authentication routes
-│   ├── attendance/                # Kiosk & attendance terminal
-│   ├── dashboard/                 # Executive dashboard
-│   ├── financials/                # Tuition & transaction ledgers
-│   ├── lms/ & library/            # Curriculum & video syllabus
-│   ├── members/                   # Staff & coach directory
-│   ├── offline/                   # PWA offline fallback route
-│   ├── pos/ & pro-shop/           # Pro shop retail POS
-│   ├── schedule/                  # Class timetables & calendar
-│   ├── settings/                  # System, RBAC, & academy settings
-│   ├── students/                  # Student dossiers & records
-│   ├── api/                       # Secure Edge API Route Handlers
-│   ├── globals.css                # Tailwind CSS v4 design tokens & ergonomics
-│   ├── layout.tsx                 # Root layout with PWA providers
-│   └── page.tsx                   # Main portal entry point
-├── components/                    # Modular UI components
-│   ├── 2d/ & atlas/ & canvas/     # 3D Anatomy viewer & Canvas modules
-│   ├── errors/                    # Global & segment error fallbacks
-│   ├── pwa/                       # Install prompt & PWA updater
-│   ├── ui/                        # Reusable primitives (Toast, modals, buttons)
-│   ├── DashboardView.tsx          # Dashboard view with responsive KPI grid
-│   ├── PortalLayout.tsx           # Responsive shell with drawer & bottom nav
-│   └── ...                        # Modals, slide-overs, and views
-├── lib/                           # Core utilities & services
-│   ├── actions/                   # Safe server actions & validations
-│   ├── api/                       # Resilient fetch & API clients
-│   ├── errors/                    # PostgreSQL error translator & auth recovery
-│   ├── error-handler.ts           # Centralized auto-healing error engine
-│   ├── kukkiwon.ts                # Kukkiwon Dan/Poom/Gup belt rank logic
-│   ├── security.ts                # Sanitization & RBAC policies
-│   ├── store.tsx                  # Global state management & Supabase sync
-│   └── supabase.ts                # Supabase client instantiation
-├── public/                        # Static assets, icons, manifest.json, sw.js
-└── scripts/                       # Asset & PWA icon generation scripts
+```text
+app/                    Pages, API routes, layouts and global styles
+components/             Views, forms, dialogs and shared interface components
+components/atlas/       Anatomy viewer
+components/providers/   Application providers
+components/pwa/         Installation and update controls
+components/settings/    Settings panels and styles
+hooks/                  Shared React hooks
+lib/                    Data access, business rules, security and utilities
+public/                 Icons, models, manifest and static assets
+scripts/                Development, diagnostics and browser checks
+supabase/migrations/    Database upgrade migrations
+tests/                  Regression tests and isolated database fixtures
+.github/workflows/      Continuous verification workflow
 ```
 
----
+## Further documentation
 
-## 📱 Supported Devices & Browsers
+| Guide | Covers |
+| --- | --- |
+| [Production readiness](PRODUCTION_READINESS.md) | Deployment requirements, database upgrades and operational checks |
+| [System audit](DEEP_AUDIT_2026-10-12.md) | Business-rule fixes, database verification and remaining release work |
+| [Database review](DATABASE_REVIEW_2026-10-11.md) | Schema, access policies, integrity and historical reconciliation |
+| [Settings guide](SETTINGS_REVIEW_2026-10-11.md) | Settings behavior, permissions and validation |
+| [Data-loading guide](DATA_LOAD_WARNING_2026-10-11.md) | Incomplete-data notices, diagnostics and recovery |
+| [Navigation and motion](NAVIGATION_MOTION_2026-10-12.md) | Phone/tablet navigation, spacing, accessibility and performance observations |
 
-| Device / Platform | Primary Interface | Tested Formats |
-| :--- | :--- | :--- |
-| **Desktop / Laptop** | Full Collapsible Sidebar + Sticky Command Bar | Chrome, Safari, Firefox, Edge |
-| **iPad / Tablet** | Adaptive Drawer + Fluid 4-column Grid | iPad Pro 11"/12.9", iPad Air, Galaxy Tab |
-| **Mobile (iOS & Android)** | Bottom Quick Navigation + Hardware Inset Padding | iPhone 12–16 (Dynamic Island), Android |
-| **PWA Standalone** | Native App Window, Zero URL Bar, Offline Ready | iOS Safari Add to Home, Chrome PWA |
+## License
 
----
-
-## 📄 License
-
-Proprietary © Infinity Taekwondo Academy. All rights reserved.
+Proprietary. © Infinity Taekwondo Academy. All rights reserved. Third-party code and assets remain subject to their respective licenses.

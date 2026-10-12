@@ -1,5 +1,11 @@
 'use client';
 
+import { toCsv } from '@/lib/csv';
+import { fetchApiRows } from '@/lib/data-access';
+import { createReadRecovery } from '@/lib/read-recovery';
+import { isCollectedSale } from '@/lib/pos-reporting';
+import { academyDate } from '@/lib/dates';
+
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useAppStore } from '@/lib/store';
 import { useT } from '@/hooks/useTranslation';
@@ -10,43 +16,41 @@ import {
   generateUniqueSku,
   validateSkuFormat,
 } from '@/lib/sku-generator';
-import {
-  ShoppingBag,
-  ShoppingCart,
-  Plus,
-  Minus,
-  Trash,
-  QrCode,
-  Money,
-  Receipt,
-  CheckCircle,
-  Warning,
-  Tag,
-  Package,
-  User,
-  MagnifyingGlass,
-  Printer,
-  X,
-  Percent,
-  ClockCounterClockwise,
-  Storefront,
-  ArrowsClockwise,
-  FileArrowDown,
-  Funnel,
-  SortAscending,
-  CaretDown,
-  Check,
-  Barcode,
-  ClipboardText,
-  PencilSimple,
-  GridFour,
-  List,
-  Pause,
-  Play,
-  ChatCenteredText,
-  CaretRight,
-  Sparkle
-} from '@phosphor-icons/react';
+import { ShoppingBag } from '@phosphor-icons/react/dist/csr/ShoppingBag';
+import { ShoppingCart } from '@phosphor-icons/react/dist/csr/ShoppingCart';
+import { Plus } from '@phosphor-icons/react/dist/csr/Plus';
+import { Minus } from '@phosphor-icons/react/dist/csr/Minus';
+import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
+import { QrCode } from '@phosphor-icons/react/dist/csr/QrCode';
+import { Money } from '@phosphor-icons/react/dist/csr/Money';
+import { Receipt } from '@phosphor-icons/react/dist/csr/Receipt';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { Tag } from '@phosphor-icons/react/dist/csr/Tag';
+import { Package } from '@phosphor-icons/react/dist/csr/Package';
+import { User } from '@phosphor-icons/react/dist/csr/User';
+import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { Printer } from '@phosphor-icons/react/dist/csr/Printer';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { Percent } from '@phosphor-icons/react/dist/csr/Percent';
+import { ClockCounterClockwise } from '@phosphor-icons/react/dist/csr/ClockCounterClockwise';
+import { Storefront } from '@phosphor-icons/react/dist/csr/Storefront';
+import { ArrowsClockwise } from '@phosphor-icons/react/dist/csr/ArrowsClockwise';
+import { FileArrowDown } from '@phosphor-icons/react/dist/csr/FileArrowDown';
+import { Funnel } from '@phosphor-icons/react/dist/csr/Funnel';
+import { SortAscending } from '@phosphor-icons/react/dist/csr/SortAscending';
+import { CaretDown } from '@phosphor-icons/react/dist/csr/CaretDown';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { Barcode } from '@phosphor-icons/react/dist/csr/Barcode';
+import { ClipboardText } from '@phosphor-icons/react/dist/csr/ClipboardText';
+import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { GridFour } from '@phosphor-icons/react/dist/csr/GridFour';
+import { List } from '@phosphor-icons/react/dist/csr/List';
+import { Pause } from '@phosphor-icons/react/dist/csr/Pause';
+import { Play } from '@phosphor-icons/react/dist/csr/Play';
+import { ChatCenteredText } from '@phosphor-icons/react/dist/csr/ChatCenteredText';
+import { CaretRight } from '@phosphor-icons/react/dist/csr/CaretRight';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
 
 export interface ProductVariantItem {
   id?: string;
@@ -80,6 +84,8 @@ export interface CartItem {
 }
 
 export interface PosSaleTransaction {
+  paymentStatus?: string;
+  orderStatus?: string;
   txId: string;
   studentName: string;
   items: { name: string; qty: number; price: number }[];
@@ -103,7 +109,7 @@ export interface StudentOrderRecord {
   discount_usd: number;
   total_usd: number;
   payment_method: string;
-  payment_status: 'PENDING' | 'PAID' | 'REFUNDED' | 'VOID';
+  payment_status: 'PENDING' | 'PAID' | 'REFUND_PENDING' | 'REFUNDED' | 'VOID';
   order_status: 'PENDING_CONFIRMATION' | 'CONFIRMED' | 'PREPARING' | 'READY_FOR_PICKUP' | 'COMPLETED' | 'CANCELLED';
   student_notes?: string;
   admin_notes?: string;
@@ -155,6 +161,7 @@ export function InventoryPosView() {
   const { state, showNotification, showConfirm, can } = useAppStore();
   const t = useT();
 
+  const pendingCheckout = React.useRef<{signature:string;key:string}|null>(null);
   const canCreateOrder = can('action:pos_create_order');
   const canManageInventory = can('action:pos_manage_inventory');
   const isPosReadOnly = !canCreateOrder;
@@ -168,6 +175,13 @@ export function InventoryPosView() {
   const [salesHistory, setSalesHistory] = useState<PosSaleTransaction[]>([]);
   const [studentOrders, setStudentOrders] = useState<StudentOrderRecord[]>([]);
   const [isOrdersLoading, setIsOrdersLoading] = useState(false);
+  const [isCheckoutPending, setIsCheckoutPending] = useState(false);
+  const checkoutInFlight = useRef(false);
+  const [dataErrors, setDataErrors] = useState<Record<string, string>>({});
+  const clearDataError = useCallback((dataset: string) => setDataErrors(previous => {
+    if (!previous[dataset]) return previous;
+    const next = { ...previous }; delete next[dataset]; return next;
+  }), []);
 
   // Terminal Catalog Filters & Sort
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -601,21 +615,20 @@ export function InventoryPosView() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-      if (!token) return;
+      if (!token) throw new Error('Session unavailable');
 
-      const res = await fetch('/api/admin/pos/orders?channel=STUDENT_PORTAL', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const json = await res.json();
+      const json = {success:true,data:await fetchApiRows('/api/admin/pos/orders?channel=STUDENT_PORTAL', token)};
       if (json.success && Array.isArray(json.data)) {
         setStudentOrders(json.data);
+        clearDataError('orders');
       }
     } catch (err) {
       console.error('Failed to fetch student orders:', err);
+      setDataErrors(previous => ({ ...previous, orders: 'Incoming orders could not be refreshed.' }));
     } finally {
       setIsOrdersLoading(false);
     }
-  }, []);
+  }, [clearDataError]);
 
   // Fetch live product catalog from database
   const fetchCatalog = useCallback(async () => {
@@ -624,14 +637,14 @@ export function InventoryPosView() {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       if (!token) {
-        setIsCatalogLoading(false);
-        return;
+        throw new Error('Session unavailable');
       }
 
       const res = await fetch('/api/admin/pos/products', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}` }, signal: AbortSignal.timeout(15000), cache: 'no-store'
       });
       const json = await res.json();
+      if (!res.ok || json.success !== true || !Array.isArray(json.data)) throw new Error('Catalog unavailable');
       if (json.success && Array.isArray(json.data)) {
         const mapped: ProductItem[] = json.data.map((p: any) => ({
           id: p.id,
@@ -656,33 +669,31 @@ export function InventoryPosView() {
           })) : []
         }));
         setCatalog(mapped);
+        clearDataError('catalog');
         try {
-          localStorage.setItem(STORAGE_CATALOG_KEY, JSON.stringify(mapped));
         } catch (e) {
           console.error('Failed to save POS catalog:', e);
         }
       }
     } catch (err) {
       console.error('Failed to fetch products from Supabase:', err);
+      setDataErrors(previous => ({ ...previous, catalog: 'Product prices and stock could not be refreshed.' }));
     } finally {
       setIsCatalogLoading(false);
     }
-  }, []);
+  }, [clearDataError]);
 
   // Fetch live historical sales transactions from database
   const fetchSalesHistory = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-      if (!token) return;
+      if (!token) throw new Error('Session unavailable');
 
-      const res = await fetch('/api/admin/pos/orders?limit=100', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const json = await res.json();
+      const json = {success:true,data:await fetchApiRows('/api/admin/pos/orders', token)};
       if (json.success && Array.isArray(json.data)) {
         const mappedSales: PosSaleTransaction[] = json.data
-          .filter((o: any) => o.payment_status === 'PAID' || o.order_status === 'COMPLETED' || o.order_channel === 'ADMIN_POS')
+          .filter((o: any) => ['PAID', 'REFUND_PENDING', 'REFUNDED'].includes(o.payment_status) || o.order_status === 'COMPLETED' || o.order_channel === 'ADMIN_POS')
           .map((o: any) => {
             const studentObj = o.students;
             let custName = o.customer_name || 'Walk-in Customer';
@@ -691,6 +702,8 @@ export function InventoryPosView() {
             }
             return {
               txId: o.order_number || o.id,
+              paymentStatus: o.payment_status,
+              orderStatus: o.order_status,
               studentName: custName,
               items: Array.isArray(o.items) ? o.items.map((it: any) => ({
                 name: it.product_name,
@@ -706,10 +719,10 @@ export function InventoryPosView() {
             };
           });
 
-        if (mappedSales.length > 0) {
+        {
           setSalesHistory(mappedSales);
+          clearDataError('sales');
           try {
-            localStorage.setItem(STORAGE_SALES_KEY, JSON.stringify(mappedSales));
           } catch (e) {
             console.error('Failed to save POS sales history:', e);
           }
@@ -717,79 +730,52 @@ export function InventoryPosView() {
       }
     } catch (err) {
       console.error('Failed to fetch sales history from database:', err);
+      setDataErrors(previous => ({ ...previous, sales: 'Sales history could not be refreshed. Totals may be incomplete.' }));
     }
-  }, []);
+  }, [clearDataError]);
 
-  // Real-time synchronization and local storage init
+  // Reconcile complete order/catalog reads after bursts and missed events.
   useEffect(() => {
     try {
-      // Actively purge legacy mock data caches
-      localStorage.removeItem('infinity_pos_catalog_v1');
-
-      const savedCat = localStorage.getItem(STORAGE_CATALOG_KEY);
-      if (savedCat) {
-        const parsed = JSON.parse(savedCat);
-        const hasLegacyMock = Array.isArray(parsed) && parsed.some((p: any) => typeof p.id === 'string' && (p.id.startsWith('prod-') || p.sku === 'DOBOK-01'));
-        if (hasLegacyMock) {
-          localStorage.removeItem(STORAGE_CATALOG_KEY);
-        } else if (Array.isArray(parsed) && parsed.length > 0) {
-          setCatalog(parsed);
-          setIsCatalogLoading(false);
-        }
-      }
-      const savedSales = localStorage.getItem(STORAGE_SALES_KEY);
-      if (savedSales) {
-        const parsedSales = JSON.parse(savedSales);
-        if (Array.isArray(parsedSales)) setSalesHistory(parsedSales);
-      }
-    } catch (e) {
-      console.error('Failed to load POS local data:', e);
+      localStorage.removeItem(STORAGE_CATALOG_KEY);
+      localStorage.removeItem(STORAGE_SALES_KEY);
+    } catch { /* Disabled browser storage must not break POS initialization. */ }
+    let active = true;
+    let reconnecting = false;
+    const refresh = async () => { await Promise.all([fetchStudentOrders(), fetchCatalog(), fetchSalesHistory()]); };
+    const recovery = createReadRecovery(refresh,
+      () => active && navigator.onLine !== false && document.visibilityState !== 'hidden');
+    recovery.request();
+    const channel = supabase.channel('admin-pos-realtime-channel');
+    for (const table of ['pos_orders', 'products', 'product_variants', 'product_categories']) {
+      channel.on('postgres_changes', { event: '*', schema: 'public', table }, recovery.request);
     }
-
-    fetchStudentOrders();
-    fetchCatalog();
-    fetchSalesHistory();
-
-    let pollInterval: NodeJS.Timeout | null = null;
-    const channel = supabase
-      .channel('admin-pos-realtime-channel')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'pos_orders' },
-        () => {
-          fetchStudentOrders();
-          fetchSalesHistory();
-          fetchCatalog();
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'products' },
-        () => {
-          fetchCatalog();
-        }
-      )
-      .subscribe((status) => {
-        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          if (!pollInterval) {
-            pollInterval = setInterval(() => {
-              fetchStudentOrders();
-              fetchSalesHistory();
-            }, 20000);
-          }
-        }
-      });
-
+    channel.subscribe(status => {
+      if (!active) return;
+      if (status === 'SUBSCRIBED') {
+        if (reconnecting) recovery.request();
+        reconnecting = false;
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        reconnecting = true;
+      }
+    });
+    const visible = () => {
+      if (document.visibilityState !== 'hidden') recovery.request();
+    };
+    const interval = setInterval(recovery.request, 60000);
+    window.addEventListener('online', recovery.request);
+    document.addEventListener('visibilitychange', visible);
     return () => {
-      if (pollInterval) clearInterval(pollInterval);
-      supabase.removeChannel(channel);
+      active = false; recovery.dispose(); clearInterval(interval);
+      window.removeEventListener('online', recovery.request);
+      document.removeEventListener('visibilitychange', visible);
+      void supabase.removeChannel(channel).catch(() => {});
     };
   }, [fetchStudentOrders, fetchCatalog, fetchSalesHistory]);
 
   const saveCatalogToStorage = (newCatalog: ProductItem[]) => {
     setCatalog(newCatalog);
     try {
-      localStorage.setItem(STORAGE_CATALOG_KEY, JSON.stringify(newCatalog));
     } catch (e) {
       console.error('Failed to save POS catalog:', e);
     }
@@ -798,7 +784,6 @@ export function InventoryPosView() {
   const saveSalesToStorage = (newSales: PosSaleTransaction[]) => {
     setSalesHistory(newSales);
     try {
-      localStorage.setItem(STORAGE_SALES_KEY, JSON.stringify(newSales));
     } catch (e) {
       console.error('Failed to save POS sales history:', e);
     }
@@ -838,7 +823,7 @@ export function InventoryPosView() {
 
   // Terminal Filtered & Sorted Products
   const filteredProducts = useMemo(() => {
-    let list = catalog.filter(p => {
+    const list = catalog.filter(p => {
       const matchCat = selectedCategory === 'All' || p.category === selectedCategory;
       const q = searchQuery.trim().toLowerCase();
       const matchSearch = !q ||
@@ -1171,6 +1156,14 @@ export function InventoryPosView() {
 
   // Finalize Sale
   const executeCompleteSale = async () => {
+    if (checkoutInFlight.current) return;
+    checkoutInFlight.current = true;
+    setIsCheckoutPending(true);
+    try {
+    if (dataErrors.catalog || isCatalogLoading) {
+      showNotification('Refresh product prices and stock before completing this sale.', 'warning');
+      return;
+    }
     if (!canCreateOrder) {
       showNotification('Read-Only mode: You do not have permission to execute sales.', 'warning');
       return;
@@ -1193,6 +1186,7 @@ export function InventoryPosView() {
 
     let txId = `POS-${Date.now().toString().slice(-6)}`;
 
+    let savedTotals: any;
     // Sync with backend API
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -1214,6 +1208,8 @@ export function InventoryPosView() {
         qty: c.quantity
       }));
 
+      const signature = JSON.stringify({items:mappedItems, studentId:selectedStudentId, discount:clampedDiscount, paymentMethod, notes:orderNotes});
+      if (pendingCheckout.current?.signature !== signature) pendingCheckout.current = {signature,key:crypto.randomUUID()};
       const res = await fetch('/api/admin/pos/orders', {
         method: 'POST',
         headers: {
@@ -1228,6 +1224,7 @@ export function InventoryPosView() {
           discountPercentage: clampedDiscount,
           paymentMethod,
           adminNotes: orderNotes.trim() || undefined,
+          requestKey: pendingCheckout.current.key,
           items: mappedItems
         })
       });
@@ -1237,6 +1234,8 @@ export function InventoryPosView() {
         throw new Error(json.error?.message || 'Transaction failed to record on server');
       }
 
+      savedTotals = json.data;
+      pendingCheckout.current = null;
       if (json.data?.order_number) {
         txId = json.data.order_number;
       }
@@ -1270,18 +1269,14 @@ export function InventoryPosView() {
 
     // Save transaction
     const newTx: PosSaleTransaction = {
+      paymentStatus: savedTotals.payment_status,
+      orderStatus: savedTotals.order_status,
       txId,
       studentName,
-      items: cart.map(c => ({
-        name: c.variant
-          ? `${c.product.name} (${[c.variant.color, c.variant.size].filter(Boolean).join(' - ')})`
-          : c.product.name,
-        qty: c.quantity,
-        price: c.variant?.price_override ?? c.product.price
-      })),
-      subtotal,
-      discount: discountAmount,
-      total: grandTotal,
+      items: savedTotals.items.map((i:any) => ({name:i.product_name,qty:i.quantity,price:Number(i.unit_price_usd)})),
+      subtotal: Number(savedTotals.subtotal_usd),
+      discount: Number(savedTotals.discount_usd),
+      total: Number(savedTotals.total_usd),
       method: paymentMethod,
       date: new Date().toLocaleString(),
       timestamp: Date.now()
@@ -1301,6 +1296,10 @@ export function InventoryPosView() {
     fetchStudentOrders();
     fetchCatalog();
     fetchSalesHistory();
+    } finally {
+      checkoutInFlight.current = false;
+      setIsCheckoutPending(false);
+    }
   };
 
   // Add Item to Inventory
@@ -1557,37 +1556,22 @@ export function InventoryPosView() {
     );
   };
 
-  const handleVoidSale = (txId: string) => {
-    showConfirm(
-      `Void transaction ${txId}? This will remove it from the historical sales records.`,
-      async () => {
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          const token = session?.access_token;
-          if (token) {
-            await fetch('/api/admin/pos/orders/cancel', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                orderId: txId,
-                reason: 'Voided from admin sales records'
-              })
-            });
-            fetchCatalog();
-            fetchStudentOrders();
-          }
-        } catch (e) {
-          console.warn('Supabase void sync failed:', e);
-        }
-
-        saveSalesToStorage(salesHistory.filter(tx => tx.txId !== txId));
-        showNotification(`Transaction ${txId} voided.`, 'info');
-      },
-      'Void Transaction'
-    );
+  const handleVoidSale = async (txId:string) => {
+    if(!can('action:pos_cancel_order'))return;
+    const reference=window.prompt('First complete the actual cash/bank refund. Enter its verified reference to record it:');
+    if(!reference?.trim())return;
+    const reason=window.prompt('Reason for the reviewed return/refund:');
+    if(!reason?.trim())return;
+    const restock=window.confirm('Have the physical items been returned and checked as sellable? Choose OK to restock them, Cancel to leave inventory unchanged.');
+    try{
+      const {data:{session}}=await supabase.auth.getSession();if(!session)throw new Error('Please sign in again.');
+      const found=await fetch('/api/admin/pos/orders?search='+encodeURIComponent(txId),{headers:{Authorization:'Bearer '+session.access_token}});
+      const list=await found.json();const order=list.data?.find((o:any)=>o.order_number===txId || o.id===txId);if(!order)throw new Error('Order not found. Refresh the sales history.');
+      const response=await fetch('/api/admin/pos/orders/refund',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({orderId:order.id,reference:reference.trim(),reason:reason.trim(),restock})});
+      const result=await response.json();if(!response.ok)throw new Error(result.error?.message || 'Refund was not recorded.');
+      await Promise.all([fetchCatalog(),fetchStudentOrders(),fetchSalesHistory()]);
+      showNotification('Verified refund recorded. The order remains in the audit history.','success');
+    }catch(e){showNotification(e instanceof Error ? e.message : 'Refund was not recorded.','error');}
   };
 
   // CSV Export: Inventory
@@ -1598,25 +1582,26 @@ export function InventoryPosView() {
     }
     const headers = ['SKU', 'Product Name', 'Category', 'Size / Variation', 'Unit Price ($)', 'Current Stock', 'Min Threshold', 'Total Valuation ($)'];
     const rows = catalog.map(p => [
-      `"${p.sku.replace(/"/g, '""')}"`,
-      `"${p.name.replace(/"/g, '""')}"`,
-      `"${p.category}"`,
-      `"${p.size || 'Standard'}"`,
+      p.sku,
+      p.name,
+      p.category,
+      p.size || 'Standard',
       p.price.toFixed(2),
       p.stock,
       p.minStockThreshold,
       (p.price * p.stock).toFixed(2)
     ]);
 
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const csvContent = toCsv(headers, rows);
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `infinity_tkd_inventory_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `infinity_tkd_inventory_${academyDate()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
     showNotification('Inventory CSV downloaded successfully!', 'success');
   };
 
@@ -1626,27 +1611,28 @@ export function InventoryPosView() {
       showNotification('Sales history is empty.', 'warning');
       return;
     }
-    const headers = ['Transaction ID', 'Date & Time', 'Customer', 'Items Summary', 'Payment Method', 'Subtotal ($)', 'Discount ($)', 'Grand Total ($)'];
+    const headers = ['Transaction ID', 'Date & Time', 'Customer', 'Items Summary', 'Payment Method', 'Subtotal ($)', 'Discount ($)', 'Grand Total ($)', 'Payment Status', 'Order Status'];
     const rows = filteredSales.map(tx => [
-      `"${tx.txId}"`,
-      `"${tx.date}"`,
-      `"${tx.studentName.replace(/"/g, '""')}"`,
-      `"${tx.items.map(it => `${it.qty}x ${it.name}`).join('; ').replace(/"/g, '""')}"`,
-      `"${tx.method}"`,
+      tx.txId,
+      tx.date,
+      tx.studentName,
+      tx.items.map(it => `${it.qty}x ${it.name}`).join('; '),
+      tx.method,
       tx.subtotal.toFixed(2),
       tx.discount.toFixed(2),
-      tx.total.toFixed(2)
+      tx.total.toFixed(2), tx.paymentStatus || 'UNKNOWN', tx.orderStatus || 'UNKNOWN'
     ]);
 
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const csvContent = toCsv(headers, rows);
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `infinity_tkd_sales_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `infinity_tkd_sales_${academyDate()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
     showNotification('Sales records CSV downloaded successfully!', 'success');
   };
 
@@ -1733,7 +1719,7 @@ export function InventoryPosView() {
   // Sales Records Filtered & Metrics
   const filteredSales = useMemo(() => {
     const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
+    const todayStr = academyDate(now);
 
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(now.getDate() - 7);
@@ -1753,7 +1739,7 @@ export function InventoryPosView() {
       if (salesPeriodFilter !== 'ALL') {
         const txTime = tx.timestamp || new Date(tx.date).getTime();
         if (salesPeriodFilter === 'TODAY') {
-          const txDateStr = new Date(txTime).toISOString().split('T')[0];
+          const txDateStr = academyDate(new Date(txTime));
           matchPeriod = txDateStr === todayStr;
         } else if (salesPeriodFilter === 'WEEK') {
           matchPeriod = txTime >= oneWeekAgo.getTime();
@@ -1766,18 +1752,19 @@ export function InventoryPosView() {
     });
   }, [salesHistory, salesMethodFilter, salesSearch, salesPeriodFilter]);
 
+  const collectedSales = useMemo(() => filteredSales.filter(isCollectedSale), [filteredSales]);
   const totalSalesRevenue = useMemo(() => {
-    return filteredSales.reduce((sum, tx) => sum + tx.total, 0);
-  }, [filteredSales]);
+    return collectedSales.reduce((sum, tx) => sum + tx.total, 0);
+  }, [collectedSales]);
 
   const totalItemsSold = useMemo(() => {
-    return filteredSales.reduce((sum, tx) => sum + tx.items.reduce((s, it) => s + it.qty, 0), 0);
-  }, [filteredSales]);
+    return collectedSales.reduce((sum, tx) => sum + tx.items.reduce((s, it) => s + it.qty, 0), 0);
+  }, [collectedSales]);
 
   const averageOrderValue = useMemo(() => {
-    if (filteredSales.length === 0) return 0;
-    return totalSalesRevenue / filteredSales.length;
-  }, [filteredSales, totalSalesRevenue]);
+    if (collectedSales.length === 0) return 0;
+    return totalSalesRevenue / collectedSales.length;
+  }, [collectedSales, totalSalesRevenue]);
 
   // High-Contrast Belt Badges (Fully optimized for Light Mode & Dark Mode)
   const getBeltColorClass = (belt: string) => {
@@ -1811,6 +1798,17 @@ export function InventoryPosView() {
 
   return (
     <div className="w-full max-w-[1600px] mx-auto space-y-4 pb-16 text-neutral-900 dark:text-[#E4E4E4] font-sans antialiased">
+      {Object.keys(dataErrors).length > 0 && (
+        <div role="alert" className="rounded-lg border border-amber-400 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
+          <p className="font-semibold">Some POS records are unavailable</p>
+          {Object.values(dataErrors).map(message => <p key={message} className="mt-1">{message}</p>)}
+          <button type="button" disabled={isCatalogLoading || isOrdersLoading}
+            onClick={() => { void Promise.all([fetchCatalog(), fetchStudentOrders(), fetchSalesHistory()]); }}
+            className="mt-2 min-h-11 rounded-lg border border-amber-500 px-4 py-2 font-semibold disabled:opacity-60">
+            Retry POS records
+          </button>
+        </div>
+      )}
 
       {/* Top Header & 4 Tab Switcher */}
       <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 flex flex-col xl:flex-row xl:items-center justify-between gap-3 sm:gap-4 shadow-sm">
@@ -1830,7 +1828,7 @@ export function InventoryPosView() {
             )}
           </div>
           <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono tracking-wider sm:tracking-widest mt-0.5 truncate">
-            EQUIPMENT INVENTORY // CHECKOUT TERMINAL & STUDENT ORDER FULFILLMENT
+            EQUIPMENT INVENTORY {"// CHECKOUT TERMINAL & STUDENT ORDER FULFILLMENT"}
           </p>
         </div>
 
@@ -2762,7 +2760,7 @@ export function InventoryPosView() {
 
                       {filteredStudents.length === 0 ? (
                         <div className="p-4 text-center text-xs font-mono text-neutral-500 dark:text-neutral-400">
-                          No students found matching "{studentSearchTerm}".
+                          No students found matching &quot;{studentSearchTerm}&quot;.
                         </div>
                       ) : (
                         filteredStudents.map(s => {
@@ -3074,7 +3072,7 @@ export function InventoryPosView() {
                 <button
                   type="button"
                   onClick={executeCompleteSale}
-                  disabled={cart.length === 0 || isCashInsufficient}
+                  disabled={cart.length === 0 || isCashInsufficient || isCatalogLoading || Boolean(dataErrors.catalog) || isCheckoutPending}
                   className={cn(
                     "w-full py-3.5 min-h-[48px] text-xs sm:text-sm font-mono font-bold uppercase rounded-[8px] transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95 touch-manipulation",
                     cart.length === 0 || isCashInsufficient
@@ -3083,7 +3081,7 @@ export function InventoryPosView() {
                   )}
                 >
                   <CheckCircle size={18} weight="bold" />
-                  COMPLETE CASH SALE (${grandTotal.toFixed(2)})
+                  {isCheckoutPending ? 'Recording sale…' : `COMPLETE CASH SALE ($${grandTotal.toFixed(2)})`}
                 </button>
               )}
 
@@ -3853,9 +3851,9 @@ export function InventoryPosView() {
               </p>
             </div>
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 shadow-sm">
-              <span className="text-[10px] font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400">Completed TX</span>
+              <span className="text-[10px] font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400">Collected TX</span>
               <p className="text-lg sm:text-2xl font-black font-mono text-emerald-700 dark:text-emerald-400 mt-1">
-                {filteredSales.length}
+                {collectedSales.length}
               </p>
             </div>
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 shadow-sm">
@@ -3987,7 +3985,7 @@ export function InventoryPosView() {
                   ) : (
                     filteredSales.map(tx => (
                       <tr key={tx.txId} className="hover:bg-neutral-50 dark:hover:bg-[#1a1a1a] transition-colors">
-                        <td className="py-3 px-4 font-bold text-[#EF2F38]">{tx.txId}</td>
+                        <td className="py-3 px-4 font-bold text-[#EF2F38]">{tx.txId}<span className="mt-1 block text-[10px] font-normal text-neutral-500">{tx.paymentStatus || 'UNKNOWN'}</span></td>
                         <td className="py-3 px-4 text-neutral-600 dark:text-neutral-400">{tx.date}</td>
                         <td className="py-3 px-4 font-bold text-neutral-900 dark:text-white">{tx.studentName}</td>
                         <td className="py-3 px-4 text-neutral-700 dark:text-neutral-300 max-w-xs truncate">
@@ -4017,7 +4015,7 @@ export function InventoryPosView() {
                             </button>
                             <button
                               onClick={() => handleVoidSale(tx.txId)}
-                              title="Void Transaction"
+                              title="Record verified refund"
                               className="p-1.5 bg-neutral-100 hover:bg-red-600 hover:text-white text-neutral-600 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-red-600 dark:hover:text-white dark:text-neutral-400 dark:border-[#262626] rounded-[6px] transition cursor-pointer"
                             >
                               <Trash size={13} />
@@ -4047,6 +4045,7 @@ export function InventoryPosView() {
                   <div className="flex items-start justify-between gap-2 border-b border-neutral-100 dark:border-[#202020] pb-2">
                     <div>
                       <span className="text-xs font-bold text-[#EF2F38]">{tx.txId}</span>
+                      <p className="text-[10px] text-neutral-500">{tx.paymentStatus || 'UNKNOWN'}</p>
                       <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">{tx.date}</p>
                     </div>
                     <span className={cn(
@@ -4178,10 +4177,11 @@ export function InventoryPosView() {
                 <button
                   type="button"
                   onClick={executeCompleteSale}
+                  disabled={isCheckoutPending || isCatalogLoading || Boolean(dataErrors.catalog)}
                   className="w-full py-2.5 min-h-[46px] bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase rounded-[8px] flex items-center justify-center gap-2 cursor-pointer shadow-sm transition active:scale-95 touch-manipulation"
                 >
                   <CheckCircle size={16} weight="bold" />
-                  Confirm Payment Received
+                  {isCheckoutPending ? 'Recording sale…' : 'Confirm Payment Received'}
                 </button>
                 <button
                   type="button"
@@ -4211,7 +4211,7 @@ export function InventoryPosView() {
                     STUDENT GEAR BAG PACKING SLIP
                   </p>
                   <p className="text-[9px] text-neutral-500 mt-1">
-                    ORDER #: {packingSlipOrder.order_number} // {new Date(packingSlipOrder.created_at).toLocaleString()}
+                    ORDER #: {packingSlipOrder.order_number} {"// "}{new Date(packingSlipOrder.created_at).toLocaleString()}
                   </p>
                 </div>
 
@@ -4321,12 +4321,13 @@ export function InventoryPosView() {
                 <div className="text-center border-b border-neutral-300 pb-3 mb-3">
                   <h2 className="text-sm font-black tracking-widest text-[#EF2F38]">INFINITY TAEKWONDO ACADEMY</h2>
                   <p className="text-[9px] text-neutral-700 uppercase font-bold">PRO-SHOP OFFICIAL SALES RECEIPT</p>
-                  <p className="text-[9px] text-neutral-500 mt-1">TX #: {completedTx.txId} // {completedTx.date}</p>
+                  <p className="text-[9px] text-neutral-500 mt-1">TX #: {completedTx.txId} {"// "}{completedTx.date}</p>
                 </div>
 
                 <div className="text-[10px] space-y-1 mb-3 text-neutral-800">
                   <p><strong>Customer:</strong> {completedTx.studentName}</p>
                   <p><strong>Payment Method:</strong> {completedTx.method}</p>
+                  <p><strong>Payment Status:</strong> {completedTx.paymentStatus || 'UNKNOWN'}</p>
                 </div>
 
                 {/* Items List */}
@@ -4352,7 +4353,7 @@ export function InventoryPosView() {
                     </div>
                   )}
                   <div className="flex justify-between text-xs font-black pt-1 border-t border-neutral-400 text-neutral-900">
-                    <span>TOTAL PAID:</span>
+                    <span>{isCollectedSale(completedTx) ? 'TOTAL PAID:' : 'ORDER TOTAL:'}</span>
                     <div className="text-right">
                       <div>${completedTx.total.toFixed(2)}</div>
                       <div className="text-[9px] font-normal text-neutral-600 font-mono">≈ {formatKHR(completedTx.total)}</div>
@@ -4396,7 +4397,7 @@ export function InventoryPosView() {
               <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3">
                 <div className="flex items-center gap-2">
                   <Package size={18} className="text-[#EF2F38]" />
-                  <h3 className="text-xs font-bold tracking-wider text-[#EF2F38]">// ADD NEW INVENTORY ITEM</h3>
+                  <h3 className="text-xs font-bold tracking-wider text-[#EF2F38]">{"// ADD NEW INVENTORY ITEM"}</h3>
                 </div>
                 <button
                   type="button"
@@ -4474,7 +4475,7 @@ export function InventoryPosView() {
                       <div className="mt-1 text-[9px] font-mono flex items-center gap-1">
                         {newItemSkuConflict ? (
                           <span className="text-rose-600 dark:text-rose-400 flex items-center gap-1 font-bold">
-                            <Warning size={10} weight="fill" /> Duplicate: Used by "{newItemSkuConflict.name}"
+                            <Warning size={10} weight="fill" /> Duplicate: Used by &quot;{newItemSkuConflict.name}&quot;
                           </span>
                         ) : !newItemSkuFormatValid.isValid ? (
                           <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">
@@ -5119,7 +5120,7 @@ export function InventoryPosView() {
             <form onSubmit={handleEditProduct} className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] w-full max-w-md rounded-[10px] p-4 sm:p-5 font-mono space-y-4 shadow-2xl my-auto max-h-[92dvh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3">
                 <div>
-                  <h3 className="text-xs font-bold tracking-wider text-[#EF2F38]">// EDIT INVENTORY ITEM</h3>
+                  <h3 className="text-xs font-bold tracking-wider text-[#EF2F38]">{"// EDIT INVENTORY ITEM"}</h3>
                   <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5 truncate max-w-[260px]">{editingProduct.name}</p>
                 </div>
                 <button
@@ -5178,7 +5179,7 @@ export function InventoryPosView() {
                       <div className="mt-1 text-[9px] font-mono flex items-center gap-1">
                         {editItemSkuConflict ? (
                           <span className="text-rose-600 dark:text-rose-400 flex items-center gap-1 font-bold">
-                            <Warning size={10} weight="fill" /> Duplicate: Used by "{editItemSkuConflict.name}"
+                            <Warning size={10} weight="fill" /> Duplicate: Used by &quot;{editItemSkuConflict.name}&quot;
                           </span>
                         ) : !editItemSkuFormatValid.isValid ? (
                           <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">

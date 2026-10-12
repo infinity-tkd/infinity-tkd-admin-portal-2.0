@@ -1,10 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  X, Pulse, HardDrives, WifiHigh, WifiSlash, 
-  ArrowClockwise, Trash, ShieldCheck, CheckCircle, Warning
-} from '@phosphor-icons/react';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { Pulse } from '@phosphor-icons/react/dist/csr/Pulse';
+import { HardDrives } from '@phosphor-icons/react/dist/csr/HardDrives';
+import { WifiHigh } from '@phosphor-icons/react/dist/csr/WifiHigh';
+import { WifiSlash } from '@phosphor-icons/react/dist/csr/WifiSlash';
+import { ArrowClockwise } from '@phosphor-icons/react/dist/csr/ArrowClockwise';
+import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
+import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
 import { Portal } from '@/components/Portal';
 import { useNetworkStatus } from '@/components/providers/NetworkStatusProvider';
 

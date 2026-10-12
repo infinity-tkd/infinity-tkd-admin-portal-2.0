@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { academyDate,isCalendarDate } from '@/lib/dates';
 import {
   verifyCaller,
   validateRequestBody,
@@ -24,30 +25,32 @@ const StudentUpdatePayloadSchema = z
     englishName: z.string().min(1).max(100).optional(),
     khmerName: z.string().max(100).optional().nullable(),
     gender: z.enum(['Male', 'Female', 'Other']).optional().nullable(),
-    dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+    dob: z.string().refine(d=>isCalendarDate(d)&&d>='1900-01-01'&&d<=academyDate(),'Invalid birth date').optional(),
     phone: z.string().max(50).optional().nullable(),
-    email: z.string().max(100).optional().nullable(),
+    email: z.string().max(100).email().or(z.literal('')).optional().nullable(),
     emergencyContactName: z.string().max(100).optional().nullable(),
     emergencyContactPhone: z.string().max(50).optional().nullable(),
     emergencyContactRelation: z.string().max(50).optional().nullable(),
     medicalNotes: z.string().max(2000).optional().nullable(),
     allergies: z.string().max(1000).optional().nullable(),
     scholarshipId: z.number().int().positive().optional().nullable(),
-    heightCm: z.number().positive().optional().nullable(),
-    weightKg: z.number().positive().optional().nullable(),
+    heightCm: z.number().finite().positive().max(300).optional().nullable(),
+    weightKg: z.number().finite().positive().max(600).optional().nullable(),
     homeBranchId: z.number().int().positive().optional().nullable(),
     currentBelt: z.string().max(50).optional(),
-    studentStatus: z.string().max(30).optional(),
+    studentStatus: z.enum(['Active','Paused','Inactive','Suspended','Graduated']).optional(),
     statusReason: z.string().max(255).optional().nullable(),
     statusChangedAt: z.string().optional().nullable(),
-    pauseEndDate: z.string().optional().nullable(),
+    pauseEndDate: z.string().refine(d=>d==='' || isCalendarDate(d),'Invalid pause end date').optional().nullable(),
     profilePicturePath: z.string().max(500).optional().nullable(),
     esignPath: z.string().max(500).optional().nullable(),
     kukkiwonId: z.string().max(50).optional().nullable(),
     nationality: z.string().max(50).optional().nullable(),
-    registrationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    registrationDate: z.string().refine(d=>isCalendarDate(d)&&d>='1900-01-01'&&d<=academyDate(),'Invalid registration date').optional(),
     notes: z.string().max(2000).optional().nullable(),
     address: AddressUpdateSchema.optional().nullable(),
+    classEnrollmentDate: z.string().refine(d=>d==='' || isCalendarDate(d)&&d>='1900-01-01'&&d<=academyDate(),'Invalid enrollment date').optional(),
+    enrollmentId: z.number().int().positive().optional(),
   })
   .passthrough();
 
@@ -66,6 +69,7 @@ export async function POST(req: Request) {
       'Admin',
       'Head Coach',
       'Coach',
+      'Assistant Coach',
     ]);
     if (authErr || !adminSupabase || !context) return authErr!;
 
@@ -77,7 +81,7 @@ export async function POST(req: Request) {
     // Verify student exists and check tenancy
     const { data: currentStudent, error: fetchErr } = await adminSupabase
       .from('students')
-      .select('id, home_branch_id, english_name, profile_id')
+      .select('id, home_branch_id, english_name, profile_id, student_status')
       .eq('id', id)
       .single();
 
@@ -114,11 +118,10 @@ export async function POST(req: Request) {
     if (data.currentBelt !== undefined) memberPayload.current_belt = data.currentBelt;
     if (data.studentStatus !== undefined) {
       memberPayload.student_status = data.studentStatus;
-      memberPayload.status_changed_at = new Date().toISOString();
+      if(data.studentStatus!==currentStudent.student_status)memberPayload.status_changed_at = new Date().toISOString();
     }
     if (data.statusReason !== undefined) memberPayload.status_reason = data.statusReason;
-    if (data.statusChangedAt !== undefined) memberPayload.status_changed_at = data.statusChangedAt;
-    if (data.pauseEndDate !== undefined) memberPayload.pause_end_date = data.pauseEndDate;
+    if (data.pauseEndDate !== undefined) memberPayload.pause_end_date = data.pauseEndDate || null;
     if (data.profilePicturePath !== undefined) memberPayload.profile_picture_path = data.profilePicturePath;
     if (data.esignPath !== undefined) memberPayload.esign_path = data.esignPath;
     if (data.kukkiwonId !== undefined) memberPayload.kukkiwon_id = data.kukkiwonId;
@@ -126,49 +129,13 @@ export async function POST(req: Request) {
     if (data.registrationDate !== undefined) memberPayload.registration_date = data.registrationDate;
     if (data.notes !== undefined) memberPayload.notes = sanitizeString(data.notes);
 
-    if (Object.keys(memberPayload).length > 0) {
-      const { error } = await adminSupabase.from('students').update(memberPayload).eq('id', id);
-      if (error) return formatServerErrorResponse(error);
-    }
-
-    // Synchronize linked profile if present
-    if (currentStudent.profile_id) {
-      const profileSync: any = {};
-      if (data.englishName !== undefined) profileSync.display_name = sanitizeString(data.englishName);
-      if (data.email !== undefined) profileSync.email = sanitizeString(data.email);
-      if (data.studentStatus !== undefined) profileSync.is_active = data.studentStatus === 'Active';
-      if (Object.keys(profileSync).length > 0) {
-        await adminSupabase.from('profiles').update(profileSync).eq('id', currentStudent.profile_id);
-      }
-    }
-
-    if (data.address) {
-      const { data: existingAddr } = await adminSupabase
-        .from('student_addresses')
-        .select('address_id')
-        .eq('student_id', id)
-        .eq('is_primary', true)
-        .maybeSingle();
-
-      const addrFields = {
-        address_line1: sanitizeString(data.address.line1 || ''),
-        address_line2: sanitizeString(data.address.line2 || ''),
-        district_commune: sanitizeString(data.address.city || ''),
-        state_province_city: sanitizeString(data.address.stateProvince || ''),
-        postal_code: sanitizeString(data.address.postalCode || ''),
-        country: sanitizeString(data.address.country || 'Cambodia'),
-      };
-
-      if (existingAddr) {
-        await adminSupabase.from('student_addresses').update(addrFields).eq('address_id', existingAddr.address_id);
-      } else {
-        await adminSupabase.from('student_addresses').insert({
-          student_id: id,
-          ...addrFields,
-          is_primary: true,
-        });
-      }
-    }
+    const address = data.address;
+    const { error: updateError } = await adminSupabase.rpc('portal_update_student_with_enrollment', {
+      p_actor: context.userId, p_id: id, p_changes: memberPayload,
+      p_enrollment:data.enrollmentId || null,p_enrollment_date:data.classEnrollmentDate || null,
+      p_address: address ? { address_line1: sanitizeString(address.line1 || ''), address_line2: sanitizeString(address.line2 || ''), district_commune: sanitizeString(address.city || ''), state_province_city: sanitizeString(address.stateProvince || ''), postal_code: sanitizeString(address.postalCode || ''), country: sanitizeString(address.country || 'Cambodia') } : null,
+    });
+    if (updateError) return formatServerErrorResponse(updateError);
 
     await logSecurityAuditEvent({
       action: 'STUDENT_UPDATED',

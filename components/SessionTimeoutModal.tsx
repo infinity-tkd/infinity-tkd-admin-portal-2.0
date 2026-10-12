@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAppStore } from '@/lib/store';
 import { IDLE_TIMEOUT_MS, WARNING_DURATION_MS } from '@/lib/security';
-import { Warning, LockKey, Clock } from '@phosphor-icons/react';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { LockKey } from '@phosphor-icons/react/dist/csr/LockKey';
+import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
 
 interface IdleTimerOptions {
   idleTimeoutMs?: number;

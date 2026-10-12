@@ -1,11 +1,21 @@
 'use client';
 
+import Papa from 'papaparse';
+import {runImportRows,validateImportSize,importFailureCsv,ImportFailure,MAX_IMPORT_BYTES,MAX_IMPORT_ROWS} from '@/lib/imports';
+import { generatePassword } from '@/lib/passwords';
 import React, { useState, useRef } from 'react';
 import { useAppStore, User, Role } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  X, UploadSimple, Question, Info, Checks, Warning, Copy, Trash, Play, CheckCircle
-} from '@phosphor-icons/react';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { UploadSimple } from '@phosphor-icons/react/dist/csr/UploadSimple';
+import { Question } from '@phosphor-icons/react/dist/csr/Question';
+import { Info } from '@phosphor-icons/react/dist/csr/Info';
+import { Checks } from '@phosphor-icons/react/dist/csr/Checks';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
+import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
+import { Play } from '@phosphor-icons/react/dist/csr/Play';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
 import { cn, sanitizeStringInput, isValidEmail, isValidPhone, isValidDate } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
 import { useT } from '@/hooks/useTranslation';
@@ -40,10 +50,20 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
   const [showHelp, setShowHelp] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [credentials,setCredentials]=useState<{username:string;password:string}[]>([]);
   const [importSummary, setImportSummary] = useState<{ success: number; failed: number } | null>(null);
   const [copied, setCopied] = useState(false);
   const [fileName, setFileName] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+
+  const completedImports=useRef(new Set<string>());
+  const importRunning=useRef(false);
+  const [importFailures,setImportFailures]=useState<ImportFailure[]>([]);
+  const downloadImportFailures=()=>{
+    const errors=[...parsedRows.filter(r=>!r.isValid).map(r=>({row:r.index,message:r.errors.join('; ')})),...importFailures];
+    const url=URL.createObjectURL(new Blob([importFailureCsv(errors)],{type:'text/csv;charset=utf-8'}));
+    const link=document.createElement('a');link.href=url;link.download='import-errors.csv';link.click();URL.revokeObjectURL(url);
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -54,6 +74,8 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
   };
 
   const processFile = (file: File) => {
+    if(importRunning.current)return;
+    if(file.size>MAX_IMPORT_BYTES){showNotification('Import files must be 2 MB or smaller.','error');return;}
     setFileName(file.name);
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -193,6 +215,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
 
   const handleAddManualRow = () => {
     const nextIndex = parsedRows.length > 0 ? Math.max(...parsedRows.map(r => r.index)) + 1 : 1;
+    if(parsedRows.length>=MAX_IMPORT_ROWS){showNotification('Import at most 500 rows per batch.','warning');return;}
     setParsedRows(prev => [...prev, createDefaultRow(nextIndex)]);
   };
 
@@ -204,6 +227,8 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
     if (!rowIndexAttr || !colFieldAttr) return;
 
     const text = e.clipboardData.getData('text');
+    if(importRunning.current)return;
+    try {validateImportSize(text);}catch(error){showNotification(error instanceof Error?error.message:'Paste is too large.','error');return;}
     
     // Check if it's a spreadsheet paste (contains tabs or newlines)
     const rawLines = text.split(/\r?\n/);
@@ -236,8 +261,11 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
     if (startColIndex === -1) return;
 
     // Parse the paste grid
-    const pasteGrid = rawLines.map(line => line.split('\t'));
+    const pasted=Papa.parse<string[]>(text,{delimiter:'\t',skipEmptyLines:'greedy'});
+    if(pasted.errors.length){showNotification('Pasted cells could not be read: '+pasted.errors[0].message,'error');return;}
+    const pasteGrid=pasted.data;
 
+    if(pasteGrid.length+parsedRows.length>MAX_IMPORT_ROWS){showNotification('Paste smaller batches of at most 500 total rows.','warning');return;}
     setParsedRows(prev => {
       const rowMap = new Map<number, ParsedStaffRow>();
       prev.forEach(row => {
@@ -310,36 +338,17 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
   };
 
   const parseClipboard = (text: string) => {
-    if (!text.trim()) return;
+    if(importRunning.current)return;
+    try {validateImportSize(text);}catch(error){setParsedRows([]);showNotification(error instanceof Error?error.message:'Import is too large.','error');return;}
+    completedImports.current.clear();setImportFailures([]);setImportSummary(null);
+    if (!text.trim()) {setParsedRows([]);return;}
 
-    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-    if (lines.length === 0) return;
-
-    // Detect separator (Tab or Comma)
-    const firstLine = lines[0];
-    const separator = firstLine.includes('\t') ? '\t' : ',';
-    
-    // Simple CSV parser supporting quotes
-    const parseCSVLine = (line: string): string[] => {
-      const result: string[] = [];
-      let current = '';
-      let inQuotes = false;
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        if (char === '"') {
-          inQuotes = !inQuotes;
-        } else if (char === separator && !inQuotes) {
-          result.push(current.trim());
-          current = '';
-        } else {
-          current += char;
-        }
-      }
-      result.push(current.trim());
-      return result;
-    };
-
-    const headers = parseCSVLine(firstLine).map(h => h.toLowerCase().trim());
+    const parsed = Papa.parse<string[]>(text,{skipEmptyLines:'greedy'});
+    try {validateImportSize('',Math.max(0,parsed.data.length-1));}catch(error){setParsedRows([]);showNotification(error instanceof Error?error.message:'Too many rows.','error');return;}
+    if(parsed.errors.length){setParsedRows([]);showNotification('CSV could not be read: '+parsed.errors[0].message,'error');return;}
+    const lines=parsed.data;
+    if(!lines.length)return;
+    const headers=lines[0].map(h=>h.toLowerCase().trim());
     const matchedFields = headers.map(h => headerMap[h] || h);
 
     const newRows: ParsedStaffRow[] = [];
@@ -351,8 +360,10 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
       startIdx = 0;
     }
 
+    try {validateImportSize('',lines.length-startIdx);}catch(error){setParsedRows([]);showNotification(error instanceof Error?error.message:'Too many rows.','error');return;}
+
     for (let i = startIdx; i < lines.length; i++) {
-      const values = parseCSVLine(lines[i]);
+      const values = lines[i].map(v=>v.trim());
       if (values.length === 0 || (values.length === 1 && !values[0])) continue;
 
       const rowData: any = {
@@ -444,45 +455,19 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
   };
 
   const handleImportAll = async () => {
-    const validRows = parsedRows.filter(r => r.isValid);
-    if (validRows.length === 0) {
-      showNotification('There are no valid rows to import. Please resolve validation errors.', 'warning');
-      return;
-    }
-
-    setIsProcessing(true);
-    setCurrentIndex(0);
-    let successCount = 0;
-    let failedCount = 0;
-
-    for (let i = 0; i < validRows.length; i++) {
-      setCurrentIndex(i + 1);
-      const row = validRows[i];
-      
-      const result = await addUser({
-        username: row.data.username,
-        email: row.data.email,
-        displayName: row.data.displayName,
-        role: row.data.role,
-        isActive: row.data.isActive,
-        khmerName: row.data.khmerName || undefined,
-        englishName: row.data.displayName || undefined,
-        gender: row.data.gender,
-        dob: row.data.dob || undefined,
-        phone: row.data.phone || undefined,
-        profilePicturePath: row.data.profilePicturePath || undefined
-      } as any);
-
-      if (result && result.success) {
-        successCount++;
-      } else {
-        console.error(`Row ${row.index} import failed:`, result?.error);
-        failedCount++;
-      }
-    }
-
-    setImportSummary({ success: successCount, failed: failedCount });
-    setIsProcessing(false);
+    const validRows=parsedRows.filter(r=>r.isValid);
+    if(!validRows.length || importRunning.current)return;
+    importRunning.current=true;setIsProcessing(true);setCurrentIndex(0);
+    try {
+      const summary=await runImportRows(validRows,completedImports.current,async row=>{
+        const password=generatePassword();
+        const result=await addUser({password,username:row.data.username,email:row.data.email,displayName:row.data.displayName,role:row.data.role,isActive:row.data.isActive,khmerName:row.data.khmerName || undefined,englishName:row.data.displayName,gender:row.data.gender,dob:row.data.dob || undefined,phone:row.data.phone || undefined,profilePicturePath:row.data.profilePicturePath || undefined} as any);
+        if(result.success)setCredentials(prev=>[...prev,{username:row.data.username,password}]);
+        return result;
+      },done=>setCurrentIndex(done));
+      setImportFailures(summary.failures);setImportSummary({success:summary.success,failed:summary.failed});
+    }catch(error){showNotification(error instanceof Error?error.message:'Import failed.','error');}
+    finally {importRunning.current=false;setIsProcessing(false);}
   };
 
   return (
@@ -498,7 +483,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
             </div>
             <button 
               type="button"
-              onClick={onClose} 
+              disabled={isProcessing} onClick={onClose}
               aria-label="Close modal"
               className="min-h-[44px] min-w-[44px] flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation"
             >
@@ -802,6 +787,8 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
               </div>
             )}
 
+            {(importFailures.length>0 || parsedRows.some(r=>!r.isValid)) && <button type="button" onClick={downloadImportFailures} className="border rounded px-3 py-2 text-xs">Download row errors</button>}
+            {importSummary && importSummary.failed>0 && <button type="button" disabled={isProcessing} onClick={handleImportAll} className="border rounded px-3 py-2 text-xs">Retry failed rows (check the directory first)</button>}
             {/* Import Summary Results */}
             {importSummary && (
               <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-6 sm:p-8 text-center flex flex-col items-center gap-4 justify-center flex-grow shadow-xs">
@@ -811,7 +798,8 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                 <div className="space-y-1.5">
                   <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-white font-mono">Import Complete</h3>
                   <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-sm">
-                    Roster credentials successfully registered and parsed into our database.
+                    Review the created and failed counts below. Only confirmed accounts are included in the credential download.
+                    {credentials.length>0 && <button type="button" onClick={()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(credentials,null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='staff-sign-in-credentials.json';link.click();URL.revokeObjectURL(url);}} className="mt-3 rounded border p-2">Download new staff sign-in credentials</button>}
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-3 w-full max-w-xs font-mono text-xs mt-2">
@@ -825,7 +813,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                   </div>
                 </div>
                 <button 
-                  onClick={onClose}
+                  disabled={isProcessing} onClick={onClose}
                   className="w-full max-w-xs bg-neutral-900 hover:bg-black dark:bg-[#262626] dark:hover:bg-[#383838] text-white rounded-[8px] py-2.5 text-xs font-bold font-mono uppercase tracking-widest transition-colors shadow-md mt-4 cursor-pointer active:scale-95 touch-manipulation"
                 >
                   Close & Refresh
@@ -845,7 +833,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
               </div>
               <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                 <button 
-                  onClick={onClose}
+                  disabled={isProcessing} onClick={onClose}
                   className="px-4 py-2 bg-neutral-200 dark:bg-[#1A1A1A] hover:bg-neutral-300 dark:hover:bg-[#262626] text-neutral-700 dark:text-neutral-300 rounded-[8px] font-bold font-mono uppercase tracking-widest cursor-pointer active:scale-95 touch-manipulation"
                 >
                   Cancel

@@ -1,9 +1,11 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
 import React, { useState, useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Confetti } from '@phosphor-icons/react';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { Confetti } from '@phosphor-icons/react/dist/csr/Confetti';
 import { Portal } from '@/components/Portal';
 
 export function BirthdayWishModal() {
@@ -19,15 +21,15 @@ export function BirthdayWishModal() {
     if (dobParts.length < 3) return;
     const dobMonth = parseInt(dobParts[1], 10);
     const dobDay = parseInt(dobParts[2], 10);
-    
+
     // Check if it's their birthday today
     const isBirthday = (today.getMonth() + 1) === dobMonth && today.getDate() === dobDay;
-    
+
     if (isBirthday) {
       const year = today.getFullYear();
       const storageKey = `birthday_wish_shown_${state.currentUser.id}_${year}`;
       const hasSeenToday = localStorage.getItem(storageKey);
-      
+
       if (!hasSeenToday) {
         // Add a slight delay for better UX after login
         const timer = setTimeout(() => setShow(true), 1500);
@@ -50,10 +52,8 @@ export function BirthdayWishModal() {
         <Portal>
           <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 pt-[env(safe-area-inset-top)] pb-[calc(1rem+env(safe-area-inset-bottom))] animate-in fade-in">
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }} 
-              animate={{ opacity: 1, scale: 1, y: 0 }} 
-              exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              {...dialogMotion}
+
               className="w-full max-w-sm bg-[#0F0F0F] border border-[#262626] rounded-[8px] shadow-2xl relative overflow-hidden flex flex-col items-center text-center p-8 max-h-[90dvh] overflow-y-auto"
             >
               {/* Confetti Background effect */}

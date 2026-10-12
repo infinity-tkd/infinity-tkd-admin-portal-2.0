@@ -9,8 +9,9 @@ import { SystemConfirmModal } from '@/components/SystemConfirmModal';
 import { useAppStore } from '@/lib/store';
 import { NetworkStatusProvider } from '@/components/providers/NetworkStatusProvider';
 import { ToastProvider } from '@/components/ui/Toast';
+import { PortalMotionProvider } from '@/components/providers/PortalMotionProvider';
 
-export function RootWrapper({ children }: { children: React.ReactNode }) {
+export function RootWrapper({ children, nonce }: { children: React.ReactNode; nonce?: string }) {
   const pathname = usePathname();
   const { reportError } = useAppStore();
 
@@ -57,7 +58,8 @@ export function RootWrapper({ children }: { children: React.ReactNode }) {
   const isPlainPath = pathname === '/' || pathname === '/login';
 
   return (
-    <NetworkStatusProvider>
+    <PortalMotionProvider nonce={nonce}>
+    <NetworkStatusProvider showConnectionBanners={isPlainPath}>
       <ToastProvider>
         {isPlainPath ? <>{children}</> : <PortalLayout>{children}</PortalLayout>}
         <DataLists />
@@ -65,5 +67,6 @@ export function RootWrapper({ children }: { children: React.ReactNode }) {
         <SystemConfirmModal />
       </ToastProvider>
     </NetworkStatusProvider>
+    </PortalMotionProvider>
   );
 }

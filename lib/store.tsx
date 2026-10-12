@@ -1,9 +1,19 @@
 'use client';
+import { academyProfileChanges } from '@/lib/academy-profile';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { supabase, createSecondaryClient } from './supabase';
+import { fetchAllRows } from './data-access';
+import { dataLoadIssue, preserveUnavailableData, type DataLoadIssue } from './data-load-status';
+import { membershipBilling } from './billing';
+import { invoiceKey, indexPaymentReceipts } from './payment-receipts';
+import { academyDate } from './dates';
+import { partnerField } from './partners';
+import { supabase } from './supabase';
+import { observePortalSession } from './auth-session';
+import { createReadRecovery, settleReads, PORTAL_REALTIME_TABLES } from './read-recovery';
 import { sanitizeStringInput, mapCategoryToDbEnum, normalizeCategory } from './utils';
 import { normalizeError, NormalizedError } from './error-handler';
+import { reportClientError } from './client-telemetry';
 import { 
   hasPermission, 
   SecurityModule, 
@@ -96,6 +106,7 @@ export interface SystemConfirm {
 }
 
 export interface User {
+  mustChangePassword?: boolean;
   id: string; // UUID from auth.users
   username: string;
   email: string;
@@ -195,6 +206,7 @@ export interface Achievement {
 }
 
 export interface Attendance {
+  classId?: number;
   id: number;
   studentId: string;
   date: string; // YYYY-MM-DD
@@ -202,6 +214,9 @@ export interface Attendance {
 }
 
 export interface Payment {
+  receiptNumber?: string;
+  paymentMethod?: string;
+  paymentDate?: string;
   id: number;
   studentId: string;
   year: number;
@@ -247,6 +262,8 @@ export interface AcademyProfile {
   currency: 'USD' | 'KHR';
   currencySymbol: string;
   tuitionGracePeriodDays: number;
+  earlyGroupTuitionUsd: number;
+  standardTuitionUsd: number;
   taxRatePercentage: number;
   dateFormat: 'YYYY-MM-DD' | 'DD/MM/YYYY' | 'MM/DD/YYYY';
   defaultClassDurationMins: number;
@@ -276,6 +293,8 @@ export const DEFAULT_ACADEMY_PROFILE: AcademyProfile = {
   currency: 'USD',
   currencySymbol: '$',
   tuitionGracePeriodDays: 5,
+  earlyGroupTuitionUsd: 25,
+  standardTuitionUsd: 45,
   taxRatePercentage: 0,
   dateFormat: 'YYYY-MM-DD',
   defaultClassDurationMins: 60,
@@ -293,19 +312,21 @@ export function mapDbRowToAcademyProfile(row: any): AcademyProfile {
   return {
     id: row.id || 'default',
     academyName: row.academy_name || DEFAULT_ACADEMY_PROFILE.academyName,
-    legalName: row.legal_name || DEFAULT_ACADEMY_PROFILE.legalName,
-    tagline: row.tagline || DEFAULT_ACADEMY_PROFILE.tagline,
-    logoUrl: row.logo_url || DEFAULT_ACADEMY_PROFILE.logoUrl,
-    websiteUrl: row.website_url || DEFAULT_ACADEMY_PROFILE.websiteUrl,
-    portalUrl: row.portal_url || DEFAULT_ACADEMY_PROFILE.portalUrl,
+    legalName: row.legal_name === undefined ? DEFAULT_ACADEMY_PROFILE.legalName : (row.legal_name ?? ''),
+    tagline: row.tagline === undefined ? DEFAULT_ACADEMY_PROFILE.tagline : (row.tagline ?? ''),
+    logoUrl: row.logo_url === undefined ? DEFAULT_ACADEMY_PROFILE.logoUrl : (row.logo_url ?? ''),
+    websiteUrl: row.website_url === undefined ? DEFAULT_ACADEMY_PROFILE.websiteUrl : (row.website_url ?? ''),
+    portalUrl: row.portal_url === undefined ? DEFAULT_ACADEMY_PROFILE.portalUrl : (row.portal_url ?? ''),
     taxId: row.tax_id || '',
-    contactPhone: row.contact_phone || DEFAULT_ACADEMY_PROFILE.contactPhone,
-    supportEmail: row.support_email || DEFAULT_ACADEMY_PROFILE.supportEmail,
-    primaryAddress: row.primary_address || DEFAULT_ACADEMY_PROFILE.primaryAddress,
+    contactPhone: row.contact_phone === undefined ? DEFAULT_ACADEMY_PROFILE.contactPhone : (row.contact_phone ?? ''),
+    supportEmail: row.support_email === undefined ? DEFAULT_ACADEMY_PROFILE.supportEmail : (row.support_email ?? ''),
+    primaryAddress: row.primary_address === undefined ? DEFAULT_ACADEMY_PROFILE.primaryAddress : (row.primary_address ?? ''),
     defaultBranchId: row.default_branch_id ?? 'all',
     currency: (row.currency as 'USD' | 'KHR') || 'USD',
-    currencySymbol: row.currency_symbol || '$',
+    currencySymbol: row.currency_symbol || (row.currency === 'KHR' ? '៛' : '$'),
     tuitionGracePeriodDays: row.tuition_grace_period_days ?? 5,
+    earlyGroupTuitionUsd: Number(row.early_group_tuition_usd ?? 25),
+    standardTuitionUsd: Number(row.standard_tuition_usd ?? 45),
     taxRatePercentage: Number(row.tax_rate_percentage) || 0,
     dateFormat: (row.date_format as any) || 'YYYY-MM-DD',
     defaultClassDurationMins: row.default_class_duration_mins ?? 60,
@@ -313,9 +334,9 @@ export function mapDbRowToAcademyProfile(row: any): AcademyProfile {
     minAttendanceExamPct: row.min_attendance_exam_pct ?? 80,
     allowStudentPortalLogin: row.allow_student_portal_login ?? true,
     enableAudioChimes: row.enable_audio_chimes ?? true,
-    facebookUrl: row.facebook_url || DEFAULT_ACADEMY_PROFILE.facebookUrl,
-    telegramChannel: row.telegram_channel || DEFAULT_ACADEMY_PROFILE.telegramChannel,
-    instagramUrl: row.instagram_url || DEFAULT_ACADEMY_PROFILE.instagramUrl,
+    facebookUrl: row.facebook_url === undefined ? DEFAULT_ACADEMY_PROFILE.facebookUrl : (row.facebook_url ?? ''),
+    telegramChannel: row.telegram_channel === undefined ? DEFAULT_ACADEMY_PROFILE.telegramChannel : (row.telegram_channel ?? ''),
+    instagramUrl: row.instagram_url === undefined ? DEFAULT_ACADEMY_PROFILE.instagramUrl : (row.instagram_url ?? ''),
     updatedAt: row.updated_at
   };
 }
@@ -436,6 +457,9 @@ export const DEFAULT_SAMPLE_PARTNERS: Partner[] = [];
 // --- Context ---
 
 interface AppState {
+  dataLoadErrors?: string[];
+  dataLoadIssues?: DataLoadIssue[];
+  isRefreshingData?: boolean;
   currentUser: User | null;
   users: User[];
   theme: 'light' | 'dark';
@@ -460,6 +484,7 @@ interface AppState {
   bodyCompositions: any[];
   academyProfile: AcademyProfile;
   rolePermissions: Record<string, boolean>;
+  permissionsReady?: boolean;
   userPermissions: Record<string, boolean>;
   staffDanRecords: StaffDanRecord[];
   partners: Partner[];
@@ -486,9 +511,9 @@ interface AppContextType {
   updatePartner: (id: string, updates: Partial<Partner>) => Promise<{ success: boolean; error?: string }>;
   deletePartner: (id: string) => Promise<{ success: boolean; error?: string }>;
   fetchPartners: () => Promise<Partner[]>;
-  markAttendance: (studentId: string, date: string, status: 'Present' | 'Absent' | 'Late') => Promise<void>;
-  deleteAttendanceRecords: (date: string, studentIds: string[]) => Promise<void>;
-  payInvoice: (studentId: string, year: number, month: string, amount: number) => Promise<void>;
+  markAttendance: (studentId: string, date: string, status: 'Present' | 'Absent' | 'Late', classId?: number) => Promise<void>;
+  deleteAttendanceRecords: (date: string, studentIds: string[], classId?: number) => Promise<void>;
+  payInvoice: (studentId: string, year: number, month: string, amount: number, method?: string) => Promise<void>;
   prepayInvoiceBulk: (studentId: string, prepayments: { year: number; month: string; amount: number }[]) => Promise<void>;
   addStudent: (student: Omit<Student, 'id' | 'registrationDate'>) => Promise<{ success: boolean; error?: string }>;
   updateStudent: (id: string, data: Partial<Student>) => Promise<void>;
@@ -497,6 +522,7 @@ interface AppContextType {
   updateBeltHistory: (id: number, data: Partial<BeltHistory>) => Promise<void>;
   deleteBeltHistory: (id: number, studentId: string) => Promise<void>;
   addAchievement: (achievement: Omit<Achievement, 'id'>) => Promise<void>;
+  saveAchievements: (studentId: string, entries: Array<Omit<Achievement, 'id' | 'studentId'> & { id?: number }>, deletedIds?: number[]) => Promise<void>;
   deleteAchievement: (id: number) => Promise<void>;
   updateAchievement: (id: number, achievement: Partial<Omit<Achievement, 'id'>>) => Promise<void>;
   addBranch: (name: string) => Promise<void>;
@@ -511,7 +537,7 @@ interface AppContextType {
   deleteCurriculumVideo: (id: number) => Promise<void>;
   markVideoWatched: (studentId: string, videoId: number) => Promise<void>;
   toggleVideoProgress: (studentId: string, videoId: number, isCompleted: boolean) => Promise<void>;
-  addUser: (user: Omit<User, 'id'> & { password?: string; studentId?: string }) => Promise<{ success: boolean; error?: string }>;
+  addUser: (user: Omit<User, 'id'> & { password?: string; studentId?: string }) => Promise<{ success: boolean; error?: string; temporaryPassword?: string }>;
   updateUser: (id: string, data: Partial<User> & { password?: string }) => Promise<void>;
   deleteUser: (id: string) => Promise<void>;
   commitRoster: (date: string, branchId: number | 'all', classId: number | 'all') => Promise<{ count: number }>;
@@ -533,8 +559,9 @@ interface AppContextType {
   reportError: (error: unknown, fallbackTitle?: string, fallbackMessage?: string) => NormalizedError;
   hideNotification: () => void;
   showConfirm: (message: string, onConfirm: () => void, title?: string, onCancel?: () => void) => void;
+  refreshData: () => Promise<void>;
   hideConfirm: () => void;
-  updateAcademyProfile: (updates: Partial<AcademyProfile>) => Promise<{ success: boolean; error?: string }>;
+  updateAcademyProfile: (updates: Partial<AcademyProfile>, expectedUpdatedAt?: string) => Promise<{ success: boolean; error?: string; profile?: AcademyProfile }>;
 }
 
 export const normalizePartnerType = (t?: string): PartnerType => {
@@ -576,22 +603,22 @@ export const mapPartnerRow = (p: any): Partner => ({
   benefitsSummary: p.benefitsSummary || p.benefits_summary || undefined,
   founderName: p.founderName || p.founder_name || undefined,
   founderContact: p.founderContact || p.founder_contact || undefined,
-  contactName: p.contactName || p.contact_name || p.contact_person || undefined,
+  contactName: partnerField(p,'contactName','contact_name',p.contact_person) || undefined,
   contactRole: p.contactRole || p.contact_role || undefined,
   email: p.email || undefined,
   phone: p.phone || undefined,
   telegramUsername: p.telegramUsername || p.telegram_username || undefined,
-  telegramLink: p.telegramLink || p.telegram_link || p.telegram_url || undefined,
-  secondaryContactName: p.secondaryContactName || p.secondary_contact_name || p.secondary_contacts?.[0]?.name || undefined,
-  secondaryContactPhone: p.secondaryContactPhone || p.secondary_contact_phone || p.secondary_contacts?.[0]?.phone || undefined,
-  secondaryContactTelegram: p.secondaryContactTelegram || p.secondary_contact_telegram || p.secondary_contacts?.[0]?.telegram || undefined,
-  websiteUrl: p.websiteUrl || p.website_url || p.website || undefined,
-  address: p.address || p.city || undefined,
+  telegramLink: partnerField(p,'telegramLink','telegram_link',p.telegram_url) || undefined,
+  secondaryContactName: partnerField(p,'secondaryContactName','secondary_contact_name',p.secondary_contacts?.[0]?.name) || undefined,
+  secondaryContactPhone: partnerField(p,'secondaryContactPhone','secondary_contact_phone',p.secondary_contacts?.[0]?.phone) || undefined,
+  secondaryContactTelegram: partnerField(p,'secondaryContactTelegram','secondary_contact_telegram',p.secondary_contacts?.[0]?.telegram) || undefined,
+  websiteUrl: partnerField(p,'websiteUrl','website_url',p.website) || undefined,
+  address: partnerField(p,'address','address',p.city) || undefined,
   country: p.country || 'Cambodia',
   mouSignedDate: p.mouSignedDate || p.mou_signed_date || undefined,
   mouExpiryDate: p.mouExpiryDate || p.mou_expiry_date || undefined,
-  contractDocumentUrl: p.contractDocumentUrl || p.contract_document_url || p.document_url || undefined,
-  notes: p.notes || p.internal_notes || undefined,
+  contractDocumentUrl: partnerField(p,'contractDocumentUrl','contract_document_url',p.document_url) || undefined,
+  notes: partnerField(p,'notes','notes',p.internal_notes) || undefined,
   tags: Array.isArray(p.tags) ? p.tags : [],
   createdAt: p.createdAt || p.created_at,
   updatedAt: p.updatedAt || p.updated_at
@@ -599,8 +626,8 @@ export const mapPartnerRow = (p: any): Partner => ({
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export function AppProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AppState>({
+function initialAppState(): AppState {
+  return {
     currentUser: null,
     users: [],
     theme: 'light',
@@ -625,19 +652,51 @@ export function AppProvider({ children }: { children: ReactNode }) {
     bodyCompositions: [],
     academyProfile: DEFAULT_ACADEMY_PROFILE,
     rolePermissions: {},
+    permissionsReady: false,
     userPermissions: {},
     staffDanRecords: [],
     partners: [],
     systemNotification: null,
     systemConfirm: null
-  });
+  };
+}
 
-  const fetchInitialData = async (userId: string) => {
+export function AppProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<AppState>(initialAppState);
+  const sessionRevision = React.useRef(0);
+  const logoutInFlight = React.useRef<Promise<void> | null>(null);
+  const refreshInFlight = React.useRef<Promise<void> | null>(null);
+  const loadController = React.useRef<AbortController | null>(null);
+  const invalidateSessionLoads = useCallback(() => {
+    ++sessionRevision.current;
+    loadController.current?.abort();
+    refreshInFlight.current = null;
+  }, []);
+  const clearSessionState = useCallback((isLoading = false) => {
+    invalidateSessionLoads();
+    setState(s => ({ ...initialAppState(), theme: s.theme, language: s.language, academyProfile: s.academyProfile, isLoading }));
+    try {
+      for (const key of Object.keys(sessionStorage)) {
+        if (key.startsWith('infinity_cached_')) sessionStorage.removeItem(key);
+      }
+    } catch { /* Storage may be disabled by the browser. */ }
+  }, [invalidateSessionLoads]);
+
+  const fetchInitialData = useCallback(async (userId: string) => {
+    const revision = ++sessionRevision.current;
+    const isCurrentSession = () => revision === sessionRevision.current;
+    let failureDataset = 'profiles';
+    loadController.current?.abort();
+    const controller = new AbortController();
+    loadController.current = controller;
+    const dataSignal = AbortSignal.any([controller.signal, AbortSignal.timeout(60000)]);
+    const profileSignal = AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]);
     // Stale-While-Revalidate: Only block if we do not already have a cached session loaded in memory.
-    setState(s => ({ ...s, isLoading: s.currentUser ? false : true }));
+    setState(s => ({ ...s, isLoading: s.currentUser ? false : true, isRefreshingData: true }));
 
     // Safety Timeout Guard: prevent permanent loading hang
     const timeoutId = setTimeout(() => {
+      if (!isCurrentSession()) return;
       setState(s => {
         if (s.isLoading) {
           console.warn("Fetch initial data timed out. Forcing portal load with available cache/state.");
@@ -650,69 +709,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       // 1. Fetch Current User Profile & Member Details (independently, members 500 must not block login)
       const [profileResult, memberResult] = await Promise.allSettled([
-        supabase.from('profiles').select('*').eq('id', userId).single(),
-        supabase.from('members').select('*').eq('id', userId).maybeSingle() as any
+        supabase.from('profiles').select('*').eq('id', userId).abortSignal(profileSignal).single(),
+        supabase.from('members').select('*').eq('id', userId).abortSignal(profileSignal).maybeSingle() as any
       ]);
+
+      if (!isCurrentSession()) return;
 
       const profile = profileResult.status === 'fulfilled' ? profileResult.value.data : null;
       const memberProfile = memberResult.status === 'fulfilled' ? memberResult.value.data : null;
+      // An outage is not evidence that an account was deleted or suspended.
+      if (profileResult.status === 'rejected') throw profileResult.reason;
+      if (profileResult.value.error && profileResult.value.error.code !== 'PGRST116') throw profileResult.value.error;
 
       if (memberResult.status === 'rejected' || (memberResult.status === 'fulfilled' && memberResult.value.error)) {
         console.warn('[Store] Members fetch error (non-blocking):', 
           memberResult.status === 'rejected' ? memberResult.reason : memberResult.value.error?.message);
       }
 
-      // Explicit suspension check: only reject if profile explicitly exists AND is_active is false
-      if (profile && profile.is_active === false) {
+      if (!profile || !profile.is_active || !['Root', 'Super Root', 'Admin', 'Head Coach', 'Coach', 'Assistant Coach'].includes(profile.role)) {
         clearTimeout(timeoutId);
-        await supabase.auth.signOut({ scope: 'global' });
-        if (typeof window !== 'undefined') {
-          sessionStorage.removeItem('infinity_cached_user');
-          sessionStorage.removeItem('infinity_cached_students');
-          sessionStorage.removeItem('infinity_cached_branches');
-          sessionStorage.removeItem('infinity_cached_videos');
-          sessionStorage.removeItem('infinity_cached_techniques');
-          sessionStorage.removeItem('infinity_cached_muscles');
-          sessionStorage.removeItem('infinity_cached_asset_muscle_relations');
-          sessionStorage.removeItem('infinity_cached_body_compositions');
-
-          localStorage.removeItem('infinity_cached_user');
-          localStorage.removeItem('infinity_cached_students');
-          localStorage.removeItem('infinity_cached_branches');
-          localStorage.removeItem('infinity_cached_videos');
-          localStorage.removeItem('infinity_cached_techniques');
-          localStorage.removeItem('infinity_cached_muscles');
-          localStorage.removeItem('infinity_cached_asset_muscle_relations');
-          localStorage.removeItem('infinity_cached_body_compositions');
-        }
-        setState(s => ({ ...s, currentUser: null, isLoading: false }));
+        await supabase.auth.signOut({ scope: 'local' });
+        if (isCurrentSession()) clearSessionState();
         return;
       }
-
-      // Fetch fallback auth user info if profile query returned null/error
-      const { data: authUserData } = await supabase.auth.getUser();
-      const authUser = authUserData?.user;
-
-      // Strict portal isolation: Student accounts are restricted to the Student Portal
-      if (profile?.role === 'Student' || authUser?.user_metadata?.role === 'Student') {
-        clearTimeout(timeoutId);
-        await supabase.auth.signOut({ scope: 'global' });
-        if (typeof window !== 'undefined') {
-          sessionStorage.clear();
-          localStorage.removeItem('infinity_cached_user');
-        }
-        setState(s => ({ ...s, currentUser: null, isLoading: false }));
-        alert('Access Denied: Student accounts cannot log into the Admin Portal. Please use the Infinity TKD Student Portal.');
-        return;
-      }
-
       const mSelf = (memberProfile || {}) as any;
       const currentUser: User = {
         id: profile?.id || userId,
-        username: profile?.username || authUser?.email?.split('@')[0] || 'User',
-        email: profile?.email || authUser?.email || '',
-        displayName: profile?.display_name || authUser?.user_metadata?.display_name || profile?.username || authUser?.email?.split('@')[0] || 'User',
-        role: (profile?.role || authUser?.user_metadata?.role || 'Admin') as Role,
+        username: profile.username || profile.email?.split('@')[0] || 'User',
+        email: profile.email || '',
+        displayName: profile.display_name || profile.username || profile.email?.split('@')[0] || 'User',
+        role: profile.role as Role,
+        mustChangePassword:profile.must_change_password ?? false,
         isActive: profile?.is_active ?? true,
         studentId: profile?.student_id || undefined,
         khmerName: mSelf.khmer_name || '',
@@ -737,49 +764,51 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Set currentUser and clear loading state immediately so user is authenticated instantly without waiting for global table downloads
       setState(s => ({ ...s, currentUser, isLoading: false }));
 
-      // 2. Fetch Global Data concurrently using Promise.allSettled for resilient login
-      const globalResults = await Promise.allSettled([
-        supabase.from('profiles').select('*'),
-        supabase.from('members').select('*, member_addresses(*)'),
-        supabase.from('students').select('*, student_addresses(*)'),
-        supabase.from('branches').select('*'),
-        supabase.from('class_sessions').select('*'),
-        supabase.from('class_enrollments').select('*'),
-        supabase.from('scholarships').select('*'),
-        supabase.from('attendance').select('*'),
-        supabase.from('payments').select('*'),
-        supabase.from('belt_histories').select('*'),
-        supabase.from('achievements').select('*'),
-        supabase.from('library_assets').select('*'),
-        supabase.from('lms_progress').select('*'),
-        supabase.from('workout_templates').select('*'),
-        supabase.from('student_physical_evaluations').select('*'),
-        supabase.from('belt_techniques').select('*'),
-        supabase.from('muscles').select('*'),
-        supabase.from('library_asset_muscles').select('*'),
-        supabase.from('student_body_compositions').select('*'),
-        supabase.from('academy_profile').select('*').maybeSingle(),
-        supabase.from('role_permissions').select('*'),
-        supabase.from('user_permissions').select('*'),
-        supabase.from('staff_dan_history').select('*').order('dan_level', { ascending: true }),
-        supabase.from('partners').select('*').order('created_at', { ascending: false })
+      // 2. Bound simultaneous database requests while retaining independent failures.
+      failureDataset = 'data';
+      const globalResults = await settleReads<any>([
+        () => fetchAllRows(supabase.from('profiles').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('members').select('*, member_addresses(*)').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('students').select('*, student_addresses(*)').is('deleted_at', null).abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('branches').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('class_sessions').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('class_enrollments').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('scholarships').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('attendance').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('payments').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('belt_histories').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('achievements').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('library_assets').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('lms_progress').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('workout_templates').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('student_physical_evaluations').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('belt_techniques').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('muscles').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('library_asset_muscles').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('student_body_compositions').select('*').abortSignal(dataSignal)),
+        () => supabase.from('academy_profile').select('*').abortSignal(dataSignal).maybeSingle(),
+        () => fetchAllRows(supabase.from('role_permissions').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('user_permissions').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('staff_dan_history').select('*').order('dan_level', { ascending: true }).abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('partners').select('*').order('created_at', { ascending: false }).abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('payment_transactions').select('*').abortSignal(dataSignal))
       ]);
 
+      if (!isCurrentSession()) return;
+      const loadIssues: DataLoadIssue[] = [];
       const getVal = (res: PromiseSettledResult<any>, tableName?: string) => {
         if (res.status === 'fulfilled') {
           if (res.value.error) {
-            const msg = res.value.error.message || '';
-            const code = res.value.error.code || '';
-            if (code === 'PGRST205' || msg.includes('schema cache') || msg.includes('Could not find the table')) {
-              console.warn(`[Supabase Optional Table] ${tableName || 'table'}:`, msg);
-              return null;
-            }
-            console.error(`[Supabase Query Error] ${tableName || 'table'}:`, res.value.error.message, res.value.error);
+            const issue = dataLoadIssue(tableName || 'data', res.value.error);
+            loadIssues.push(issue);
+            console.warn('[Portal data unavailable]', issue.dataset, issue.code, issue.reason);
             return null;
           }
           return res.value.data;
         }
-        console.error(`[Supabase Query Rejected] ${tableName || 'table'}:`, res.reason);
+        const issue = dataLoadIssue(tableName || 'data', res.reason);
+        loadIssues.push(issue);
+        console.warn('[Portal data unavailable]', issue.dataset, issue.code, issue.reason);
         return null;
       };
 
@@ -807,6 +836,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const userPermissionsData = getVal(globalResults[21], 'user_permissions');
       const staffDanData = getVal(globalResults[22], 'staff_dan_history');
       const partnersData = getVal(globalResults[23], 'partners');
+      const transactionsData = getVal(globalResults[24], 'payment_transactions');
+      const receiptsByInvoice = indexPaymentReceipts(transactionsData || []);
 
       const mappedStaffDanRecords: StaffDanRecord[] = Array.isArray(staffDanData) ? staffDanData.map((d: any) => ({
         id: d.id,
@@ -835,12 +866,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.access_token) {
             const apiRes = await fetch('/api/admin/partners', {
-              headers: { Authorization: `Bearer ${session.access_token}` }
+              headers: { Authorization: `Bearer ${session.access_token}` },
+              cache: 'no-store', signal: AbortSignal.timeout(15000),
             });
             if (apiRes.ok) {
               const apiJson = await apiRes.json();
-              if (Array.isArray(apiJson.data) && apiJson.data.length > 0) {
+              if (apiJson.success === true && Array.isArray(apiJson.data)) {
                 finalPartners = apiJson.data.map(mapPartnerRow);
+                const issueIndex = loadIssues.findIndex(issue => issue.dataset === 'partners');
+                if (issueIndex !== -1) loadIssues.splice(issueIndex, 1);
               }
             }
           }
@@ -896,38 +930,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
             currentDan: u.current_dan != null ? Number(u.current_dan) : undefined,
             danIssueDate: u.dan_issue_date || undefined,
             danCertificateUrl: u.dan_certificate_url || undefined
-          };
-        });
-      } else if (membersData && (membersData as any[]).length > 0) {
-        // Fallback: if profiles table fails (e.g. RLS infinite recursion), map directly from members table
-        mappedUsers = (membersData as any[]).map((m: any) => {
-          const ma = Array.isArray(m.member_addresses) ? m.member_addresses.find((a: any) => a.is_primary) || m.member_addresses[0] : null;
-          const addressObj = ma ? { id: ma.address_id, line1: ma.address_line1, line2: ma.address_line2, city: ma.district_commune, stateProvince: ma.state_province_city, postalCode: ma.postal_code, country: ma.country } : undefined;
-          return {
-            id: m.id,
-            username: m.username || m.english_name?.toLowerCase().replace(/\s+/g, '_') || 'user',
-            email: m.email || '',
-            displayName: m.english_name || m.khmer_name || 'Staff Member',
-            role: (m.role || 'Coach') as Role,
-            isActive: m.is_active ?? true,
-            studentId: undefined,
-            khmerName: m.khmer_name || '',
-            englishName: m.english_name || '',
-            gender: m.gender,
-            dob: m.dob || '',
-            phone: m.phone || '',
-            emergencyContactName: m.emergency_contact_name || '',
-            emergencyContactPhone: m.emergency_contact_phone || '',
-            emergencyContactRelation: m.emergency_contact_relation || '',
-            medicalNotes: m.medical_notes || '',
-            allergies: m.allergies || '',
-            profilePicturePath: m.profile_picture_path || '',
-            nationality: m.nationality || '',
-            address: addressObj,
-            kukkiwonId: m.kukkiwon_id || undefined,
-            currentDan: m.current_dan != null ? Number(m.current_dan) : undefined,
-            danIssueDate: m.dan_issue_date || undefined,
-            danCertificateUrl: m.dan_certificate_url || undefined
           };
         });
       }
@@ -1044,10 +1046,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         role: r.role as 'Primary' | 'Secondary'
       }));
 
-      // State updates will automatically trigger the encrypted reactive cache effect
+      if (!isCurrentSession()) return;
+      // Commit only while the authenticated session that started this load still owns it.
 
       clearTimeout(timeoutId);
-      setState(s => ({
+      setState(s => preserveUnavailableData(s, {
         ...s,
         currentUser,
         users: mappedUsers,
@@ -1068,8 +1071,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         })),
         classEnrollments: (enrollmentsData || []).map((e: any) => ({ id: e.id, studentId: e.student_id, classId: e.class_id, enrollmentDate: e.enrollment_date })),
         scholarships: (scholarshipsData || []).map((sc: any) => ({ id: sc.id, typeName: sc.type_name, discountPercentage: sc.discount_percentage })),
-        attendanceRecords: (attendanceData || []).map((a: any) => ({ id: a.id, studentId: a.student_id, date: a.date, status: a.status })),
-        payments: (paymentsData || []).map((p: any) => ({ id: p.id, studentId: p.student_id, year: p.year, month: p.for_month, status: p.status, amountUsd: p.amount_usd })),
+        attendanceRecords: (attendanceData || []).map((a: any) => ({ id: a.id, studentId: a.student_id, date: a.date, status: a.status, classId:a.class_id ?? undefined })),
+        payments: (paymentsData || []).map((p: any) => {
+          const receipt = receiptsByInvoice.get(invoiceKey(p.student_id, p.year, p.for_month));
+          return { id: p.id, studentId: p.student_id, year: p.year, month: p.for_month, status: p.status, amountUsd: p.amount_usd, paymentDate: p.payment_date, receiptNumber: receipt?.receipt_number, paymentMethod: receipt?.payment_method };
+        }),
         beltHistories: (beltHistoryData || []).map((b: any) => ({ 
           id: b.id, 
           studentId: b.student_id, 
@@ -1127,22 +1133,49 @@ export function AppProvider({ children }: { children: ReactNode }) {
         assetMuscleRelations: mappedAssetMuscleRelations,
         academyProfile: mapDbRowToAcademyProfile(academyProfileData),
         rolePermissions: mappedRolePermissions,
+        permissionsReady: !loadIssues.some(issue => ['role_permissions', 'user_permissions'].includes(issue.dataset)),
         userPermissions: mappedUserPermissions,
         staffDanRecords: mappedStaffDanRecords,
+        dataLoadErrors: loadIssues.map(issue => issue.dataset),
+        dataLoadIssues: loadIssues,
         partners: finalPartners,
         isLoading: false
-      }));
+      }, loadIssues));
 
       if (academyProfileData && typeof window !== 'undefined') {
-        localStorage.setItem('infinity_academy_profile', JSON.stringify(mapDbRowToAcademyProfile(academyProfileData)));
+        try { localStorage.setItem('infinity_academy_profile', JSON.stringify(mapDbRowToAcademyProfile(academyProfileData))); }
+        catch { /* Disabled browser storage must not mark a successful download as failed. */ }
       }
 
     } catch (error) {
+      if (!isCurrentSession()) return;
+      const issue = dataLoadIssue(failureDataset, error);
+      console.warn('[Portal data unavailable]', issue.dataset, issue.code, issue.reason);
+      setState(s => {
+        const issues = [issue, ...(s.dataLoadIssues || []).filter(item => item.dataset !== issue.dataset)];
+        return { ...s, isLoading: false, dataLoadIssues: issues, dataLoadErrors: issues.map(item => item.dataset) };
+      });
+    } finally {
       clearTimeout(timeoutId);
-      console.error("Error fetching initial data:", error);
-      setState(s => ({ ...s, isLoading: false }));
+      if (isCurrentSession()) setState(s => ({ ...s, isRefreshingData: false }));
     }
-  };
+  }, [clearSessionState]);
+
+  const refreshData = useCallback((): Promise<void> => {
+    if (refreshInFlight.current) return refreshInFlight.current;
+    const revision = sessionRevision.current;
+    const pending = (async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (revision !== sessionRevision.current) return;
+      if (error || !session) throw new Error('Please sign in again to reload records.');
+      await fetchInitialData(session.user.id);
+    })();
+    refreshInFlight.current = pending;
+    void pending.finally(() => {
+      if (refreshInFlight.current === pending) refreshInFlight.current = null;
+    }).catch(() => {});
+    return pending;
+  }, [fetchInitialData]);
 
   useEffect(() => {
     // 1. Try to load cached user immediately from sessionStorage to skip blocking loaders
@@ -1157,558 +1190,72 @@ export function AppProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem('infinity_cached_muscles');
         localStorage.removeItem('infinity_cached_asset_muscle_relations');
         localStorage.removeItem('infinity_cached_body_compositions');
+      localStorage.removeItem('infinity_pos_sales_v2');
+      localStorage.removeItem('infinity_pos_catalog_v2');
+      localStorage.removeItem('infinity_lms_physical_grades');
 
-        const cachedUser = decryptCache(sessionStorage.getItem('infinity_cached_user'));
         const cachedTheme = (localStorage.getItem('infinity_theme') as 'light' | 'dark') || 'light';
         const cachedLang = (localStorage.getItem('infinity_lang') as 'en' | 'kh' | 'zh') || 'en';
-        const cachedProfileStr = localStorage.getItem('infinity_academy_profile');
-        let cachedAcademyProfile = DEFAULT_ACADEMY_PROFILE;
-        if (cachedProfileStr) {
-          try {
-            cachedAcademyProfile = { ...DEFAULT_ACADEMY_PROFILE, ...JSON.parse(cachedProfileStr) };
-          } catch {}
-        }
+        setState(s => ({ ...s, theme: cachedTheme, language: cachedLang, isLoading: true }));
 
-        if (cachedUser) {
-          const cachedStudents = decryptCache(sessionStorage.getItem('infinity_cached_students'));
-          const cachedBranches = decryptCache(sessionStorage.getItem('infinity_cached_branches'));
-          const cachedVideos = decryptCache(sessionStorage.getItem('infinity_cached_videos'));
-          const cachedTechniques = decryptCache(sessionStorage.getItem('infinity_cached_techniques'));
-          const cachedMuscles = decryptCache(sessionStorage.getItem('infinity_cached_muscles'));
-          const cachedAssetMuscleRelations = decryptCache(
-            sessionStorage.getItem('infinity_cached_asset_muscle_relations')
-          );
-
-          setState((s) => ({
-            ...s,
-            currentUser: cachedUser,
-            theme: cachedTheme,
-            language: cachedLang,
-            students: cachedStudents || [],
-            branches: cachedBranches || [],
-            curriculumVideos: cachedVideos || [],
-            beltTechniques: cachedTechniques || [],
-            muscles: cachedMuscles || [],
-            assetMuscleRelations: cachedAssetMuscleRelations || [],
-            bodyCompositions: decryptCache(sessionStorage.getItem('infinity_cached_body_compositions')) || [],
-            academyProfile: cachedAcademyProfile,
-            isLoading: false,
-          }));
-        } else {
-          const hasToken =
-            typeof window !== 'undefined' &&
-            Object.keys(localStorage).some((key) => key.startsWith('sb-') && key.endsWith('-auth-token'));
-          setState((s) => ({
-            ...s,
-            theme: cachedTheme,
-            language: cachedLang,
-            academyProfile: cachedAcademyProfile,
-            isLoading: hasToken,
-          }));
-        }
       } catch (e) {
         console.warn('Storage parse failed:', e);
       }
     }
 
-    // 2. Authoritative cryptographic user verification via getUser()
-    supabase.auth.getUser().then(({ data: { user }, error }) => {
-      if (user && !error) {
-        fetchInitialData(user.id);
-      } else {
-        if (typeof window !== 'undefined') {
-          sessionStorage.removeItem('infinity_cached_user');
-          sessionStorage.removeItem('infinity_cached_students');
-          sessionStorage.removeItem('infinity_cached_branches');
-          sessionStorage.removeItem('infinity_cached_videos');
-          sessionStorage.removeItem('infinity_cached_techniques');
-          sessionStorage.removeItem('infinity_cached_muscles');
-          sessionStorage.removeItem('infinity_cached_asset_muscle_relations');
-          sessionStorage.removeItem('infinity_cached_body_compositions');
-        }
-        setState((s) => ({ ...s, currentUser: null, isLoading: false }));
-      }
+    const stop = observePortalSession(supabase.auth, {
+      onIdentityChange: () => clearSessionState(true),
+      onSession: userId => { void fetchInitialData(userId); },
+      onSignedOut: clearSessionState,
+      onError: () => setState(s => ({ ...s, systemNotification: {
+        type: 'error', message: 'Your session could not be verified. Please sign in again.', timestamp: Date.now(),
+      } })),
     });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        fetchInitialData(session.user.id);
-      } else {
-        if (typeof window !== 'undefined') {
-          sessionStorage.removeItem('infinity_cached_user');
-          sessionStorage.removeItem('infinity_cached_students');
-          sessionStorage.removeItem('infinity_cached_branches');
-          sessionStorage.removeItem('infinity_cached_videos');
-          sessionStorage.removeItem('infinity_cached_techniques');
-          sessionStorage.removeItem('infinity_cached_muscles');
-          sessionStorage.removeItem('infinity_cached_asset_muscle_relations');
-          sessionStorage.removeItem('infinity_cached_body_compositions');
-        }
-        setState((s) => ({ ...s, currentUser: null, isLoading: false }));
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Encrypted Session Storage Caching Effect (Restricted strictly to ephemeral sessionStorage)
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (state.currentUser) {
-        try {
-          sessionStorage.setItem('infinity_cached_user', encryptCache(state.currentUser));
-          sessionStorage.setItem('infinity_cached_students', encryptCache(state.students));
-          sessionStorage.setItem('infinity_cached_branches', encryptCache(state.branches));
-          sessionStorage.setItem('infinity_cached_videos', encryptCache(state.curriculumVideos));
-          sessionStorage.setItem('infinity_cached_techniques', encryptCache(state.beltTechniques));
-          sessionStorage.setItem('infinity_cached_muscles', encryptCache(state.muscles));
-          sessionStorage.setItem('infinity_cached_asset_muscle_relations', encryptCache(state.assetMuscleRelations));
-          sessionStorage.setItem('infinity_cached_body_compositions', encryptCache(state.bodyCompositions));
-        } catch (e) {
-          console.warn('SessionStorage auto-update failed:', e);
-        }
-      } else {
-        sessionStorage.removeItem('infinity_cached_user');
-        sessionStorage.removeItem('infinity_cached_students');
-        sessionStorage.removeItem('infinity_cached_branches');
-        sessionStorage.removeItem('infinity_cached_videos');
-        sessionStorage.removeItem('infinity_cached_techniques');
-        sessionStorage.removeItem('infinity_cached_muscles');
-        sessionStorage.removeItem('infinity_cached_asset_muscle_relations');
-        sessionStorage.removeItem('infinity_cached_body_compositions');
-      }
-    }
-  }, [
-    state.currentUser,
-    state.students,
-    state.branches,
-    state.curriculumVideos,
-    state.beltTechniques,
-    state.muscles,
-    state.assetMuscleRelations,
-    state.bodyCompositions,
-  ]);
-
-  // Global Realtime Postgres Changes Subscription
-  useEffect(() => {
-    if (!state.currentUser) return;
-
-    const mapStudentRow = (st: any) => ({
-      id: st.id, profileId: st.profile_id || undefined, khmerName: st.khmer_name || '', englishName: st.english_name || '', gender: st.gender, dob: st.dob || '',
-      registrationDate: st.registration_date, scholarshipId: st.scholarship_id, heightCm: st.height_cm, weightKg: st.weight_kg,
-      homeBranchId: st.home_branch_id, currentBelt: st.current_belt || '', studentStatus: st.student_status || 'Active', 
-      statusReason: st.status_reason || '', statusChangedAt: st.status_changed_at || '', pauseEndDate: st.pause_end_date || '', email: st.email,
-      phone: st.phone, emergencyContactName: st.emergency_contact_name, emergencyContactPhone: st.emergency_contact_phone,
-      emergencyContactRelation: st.emergency_contact_relation, medicalNotes: st.medical_notes, allergies: st.allergies,
-      address: st.address, nationality: st.nationality, profilePicturePath: st.profile_picture_path || '', esignPath: st.esign_path, kukkiwonId: st.kukkiwon_id,
-      notes: st.notes
-    });
-
-    const realtimeChannel = supabase.channel('infinity_realtime_sync')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const mapped = mapStudentRow(payload.new);
-          setState(s => ({ ...s, students: [...s.students.filter(x => x.id !== mapped.id), mapped] }));
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, students: s.students.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const mapped = { id: payload.new.id, studentId: payload.new.student_id, date: payload.new.date, status: payload.new.status };
-          setState(s => ({ 
-            ...s, 
-            attendanceRecords: [
-              ...s.attendanceRecords.filter(x => x.id !== mapped.id && !(x.studentId === mapped.studentId && x.date === mapped.date)), 
-              mapped
-            ] 
-          }));
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, attendanceRecords: s.attendanceRecords.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const mapped = { id: payload.new.id, studentId: payload.new.student_id, year: payload.new.year, month: payload.new.for_month, status: payload.new.status, amountUsd: payload.new.amount_usd };
-          setState(s => ({ 
-            ...s, 
-            payments: [
-              ...s.payments.filter(x => x.id !== mapped.id && !(x.studentId === mapped.studentId && x.year === mapped.year && x.month === mapped.month)), 
-              mapped
-            ] 
-          }));
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, payments: s.payments.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'belt_histories' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const mapped = { 
-            id: payload.new.id, 
-            studentId: payload.new.student_id, 
-            beltLevel: payload.new.belt_level, 
-            promotionDate: payload.new.promotion_date,
-            testScore: payload.new.test_score,
-            program: payload.new.program,
-            certificateRef: payload.new.certificate_id,
-            kukkiwonDanCardId: payload.new.kukkiwon_dan_card_id
-          };
-          setState(s => ({ ...s, beltHistories: [...s.beltHistories.filter(x => x.id !== mapped.id), mapped] }));
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, beltHistories: s.beltHistories.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'achievements' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const mapped = { id: payload.new.id, studentId: payload.new.student_id, eventName: payload.new.event_name, date: payload.new.date, category: payload.new.category, division: payload.new.division, medalRank: payload.new.medal_rank, notes: payload.new.notes };
-          setState(s => ({ ...s, achievements: [...s.achievements.filter(x => x.id !== mapped.id), mapped] }));
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, achievements: s.achievements.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'branches' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const mapped = { id: payload.new.id, name: payload.new.branch_name };
-          setState(s => ({ ...s, branches: [...s.branches.filter(x => x.id !== mapped.id), mapped] }));
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, branches: s.branches.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'class_sessions' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const mapped = {
-            id: payload.new.id,
-            branchId: payload.new.branch_id,
-            name: payload.new.class_name,
-            classType: (payload.new.class_type || 'General Class') as ClassCategory,
-            daysOfWeek: (payload.new.days_of_week && payload.new.days_of_week.length > 0) ? payload.new.days_of_week : [payload.new.day_of_week || 'Monday'],
-            dayOfWeek: payload.new.day_of_week || (payload.new.days_of_week && payload.new.days_of_week[0]) || 'Monday',
-            startTime: payload.new.start_time,
-            endTime: payload.new.end_time,
-            capacity: payload.new.capacity,
-            coachId: payload.new.coach_id || undefined,
-            standardDurationMins: payload.new.standard_duration_mins || 90
-          };
-          setState(s => ({ ...s, classSessions: [...s.classSessions.filter(x => x.id !== mapped.id), mapped] }));
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, classSessions: s.classSessions.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'class_enrollments' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const mapped = { id: payload.new.id, studentId: payload.new.student_id, classId: payload.new.class_id, enrollmentDate: payload.new.enrollment_date };
-          setState(s => ({ ...s, classEnrollments: [...s.classEnrollments.filter(x => x.id !== mapped.id), mapped] }));
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, classEnrollments: s.classEnrollments.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'library_assets' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const isFitness = payload.new.library_type === 'Fitness';
-          const mapped = {
-            id: payload.new.id,
-            title: payload.new.title,
-            description: payload.new.description || '',
-            category: isFitness ? `Fitness: ${payload.new.fitness_category}` : payload.new.tkd_category,
-            minBeltLevel: isFitness ? 'Fitness' : payload.new.target_level,
-            videoUrl: payload.new.video_url || '',
-            createdAt: payload.new.created_at || new Date().toISOString()
-          };
-          setState(s => ({ ...s, curriculumVideos: [...s.curriculumVideos.filter(x => x.id !== mapped.id), mapped] }));
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, curriculumVideos: s.curriculumVideos.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'workout_templates' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const mapped = {
-            id: payload.new.id,
-            title: payload.new.title,
-            description: payload.new.description || '',
-            difficulty: payload.new.difficulty,
-            duration: payload.new.duration_mins || 15,
-            creator: payload.new.creator_name || 'Coach',
-            structure: payload.new.structure
-          };
-          setState(s => ({ ...s, workoutTemplates: [...s.workoutTemplates.filter(x => x.id !== mapped.id), mapped] }));
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, workoutTemplates: s.workoutTemplates.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'lms_progress' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const mapped = { id: payload.new.id, studentId: payload.new.student_id, videoId: payload.new.curriculum_id, status: payload.new.status, lastWatchedAt: payload.new.last_watched_at };
-          setState(s => ({ ...s, videoProgress: [...s.videoProgress.filter(x => x.id !== mapped.id), mapped] }));
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, videoProgress: s.videoProgress.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'student_body_compositions' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const mapped = {
-            id: payload.new.id,
-            studentId: payload.new.student_id,
-            recordedDate: payload.new.recorded_date,
-            heightCm: payload.new.height_cm,
-            weightKg: payload.new.weight_kg,
-            bodyFatPercentage: payload.new.body_fat_percentage,
-            skeletalMuscleMassKg: payload.new.skeletal_muscle_mass_kg,
-            neckCm: payload.new.neck_cm,
-            shoulderWidthCm: payload.new.shoulder_width_cm,
-            chestCm: payload.new.chest_cm,
-            waistCm: payload.new.waist_cm,
-            hipsCm: payload.new.hips_cm,
-            leftArmCm: payload.new.left_arm_cm,
-            rightArmCm: payload.new.right_arm_cm,
-            leftThighCm: payload.new.left_thigh_cm,
-            rightThighCm: payload.new.right_thigh_cm,
-            leftCalfCm: payload.new.left_calf_cm,
-            rightCalfCm: payload.new.right_calf_cm,
-            recordedBy: payload.new.recorded_by,
-            createdAt: payload.new.created_at
-          };
-          setState(s => ({ ...s, bodyCompositions: [...s.bodyCompositions.filter(x => x.id !== mapped.id), mapped] }));
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, bodyCompositions: s.bodyCompositions.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'student_physical_evaluations' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const mapped = {
-            id: payload.new.id,
-            studentId: payload.new.student_id,
-            skillName: payload.new.skill_name,
-            beltLevel: payload.new.belt_level,
-            grade: payload.new.grade,
-            evaluatedBy: payload.new.evaluated_by,
-            updatedAt: payload.new.updated_at
-          };
-          setState(s => {
-            const evals = s.physicalEvaluations.filter(x => x.id !== mapped.id && !(x.studentId === mapped.studentId && x.skillName === mapped.skillName));
-            return { ...s, physicalEvaluations: [...evals, mapped] };
-          });
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, physicalEvaluations: s.physicalEvaluations.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'belt_techniques' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const mapped = {
-            id: payload.new.id,
-            beltLevel: payload.new.belt_level,
-            techniqueName: payload.new.technique_name,
-            category: payload.new.category || 'Kicks (Chagi)',
-            createdAt: payload.new.created_at,
-            createdBy: payload.new.created_by
-          };
-          setState(s => {
-            const techniques = s.beltTechniques.filter(x => x.id !== mapped.id);
-            return { ...s, beltTechniques: [...techniques, mapped] };
-          });
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, beltTechniques: s.beltTechniques.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const row = payload.new;
-          setState(s => {
-            const updatedUsers = s.users.map(u => u.id === row.id ? { 
-              ...u, 
-              username: row.username, 
-              email: row.email, 
-              displayName: row.display_name, 
-              role: row.role as Role, 
-              isActive: row.is_active, 
-              studentId: row.student_id || undefined,
-              kukkiwonId: row.kukkiwon_id || undefined,
-              currentDan: row.current_dan != null ? Number(row.current_dan) : undefined,
-              danIssueDate: row.dan_issue_date || undefined,
-              danCertificateUrl: row.dan_certificate_url || undefined
-            } : u);
-            const updatedCurrentUser = (s.currentUser && s.currentUser.id === row.id)
-              ? { 
-                  ...s.currentUser, 
-                  username: row.username, 
-                  email: row.email, 
-                  displayName: row.display_name, 
-                  role: row.role as Role, 
-                  isActive: row.is_active, 
-                  studentId: row.student_id || undefined,
-                  kukkiwonId: row.kukkiwon_id || undefined,
-                  currentDan: row.current_dan != null ? Number(row.current_dan) : undefined,
-                  danIssueDate: row.dan_issue_date || undefined,
-                  danCertificateUrl: row.dan_certificate_url || undefined
-                }
-              : s.currentUser;
-            return { ...s, users: updatedUsers, currentUser: updatedCurrentUser };
-          });
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'members' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const row = payload.new;
-          setState(s => {
-            const updatedUsers = s.users.map(u => u.id === row.id ? { ...u, khmerName: row.khmer_name || '', englishName: row.english_name || '', gender: row.gender, dob: row.dob || '', phone: row.phone || '', emergencyContactName: row.emergency_contact_name || '', emergencyContactPhone: row.emergency_contact_phone || '', emergencyContactRelation: row.emergency_contact_relation || '', medicalNotes: row.medical_notes || '', allergies: row.allergies || '', profilePicturePath: row.profile_picture_path || '' } : u);
-            const updatedCurrentUser = (s.currentUser && s.currentUser.id === row.id)
-              ? { ...s.currentUser, khmerName: row.khmer_name || '', englishName: row.english_name || '', gender: row.gender, dob: row.dob || '', phone: row.phone || '', emergencyContactName: row.emergency_contact_name || '', emergencyContactPhone: row.emergency_contact_phone || '', emergencyContactRelation: row.emergency_contact_relation || '', medicalNotes: row.medical_notes || '', allergies: row.allergies || '', profilePicturePath: row.profile_picture_path || '' }
-              : s.currentUser;
-            return { ...s, users: updatedUsers, currentUser: updatedCurrentUser };
-          });
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'muscles' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const m = payload.new;
-          const mapped = {
-            id: m.id,
-            name: m.name,
-            nameKh: m.name_kh || '',
-            nameZh: m.name_zh || '',
-            muscleGroup: m.muscle_group,
-            targetFunction: m.target_function || '',
-            diagramUrl: m.diagram_url || '',
-            description: m.description || ''
-          };
-          setState(s => ({ ...s, muscles: [...s.muscles.filter(x => x.id !== mapped.id), mapped] }));
-        } else if (payload.eventType === 'DELETE') {
-          setState(s => ({ ...s, muscles: s.muscles.filter(x => x.id !== payload.old.id) }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'library_asset_muscles' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const r = payload.new;
-          const mapped = {
-            assetId: r.asset_id,
-            muscleId: r.muscle_id,
-            role: r.role as 'Primary' | 'Secondary'
-          };
-          setState(s => ({ 
-            ...s, 
-            assetMuscleRelations: [...s.assetMuscleRelations.filter(x => !(x.assetId === mapped.assetId && x.muscleId === mapped.muscleId)), mapped] 
-          }));
-        } else if (payload.eventType === 'DELETE') {
-          const r = payload.old;
-          setState(s => ({ 
-            ...s, 
-            assetMuscleRelations: s.assetMuscleRelations.filter(x => !(x.assetId === r.asset_id && x.muscleId === r.muscle_id)) 
-          }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'academy_profile' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const mapped = mapDbRowToAcademyProfile(payload.new);
-          setState(s => ({ ...s, academyProfile: mapped }));
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('infinity_academy_profile', JSON.stringify(mapped));
-          }
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'role_permissions' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const key = `${payload.new.role}:${payload.new.permission_key}`;
-          setState(s => ({
-            ...s,
-            rolePermissions: { ...s.rolePermissions, [key]: payload.new.is_granted }
-          }));
-        } else if (payload.eventType === 'DELETE') {
-          const key = `${payload.old.role}:${payload.old.permission_key}`;
-          setState(s => {
-            const next = { ...s.rolePermissions };
-            delete next[key];
-            return { ...s, rolePermissions: next };
-          });
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_permissions' }, (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const key = `${payload.new.user_id}:${payload.new.permission_key}`;
-          setState(s => ({
-            ...s,
-            userPermissions: { ...s.userPermissions, [key]: payload.new.is_granted }
-          }));
-        } else if (payload.eventType === 'DELETE') {
-          const key = `${payload.old.user_id}:${payload.old.permission_key}`;
-          setState(s => {
-            const next = { ...s.userPermissions };
-            delete next[key];
-            return { ...s, userPermissions: next };
-          });
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'staff_dan_history' }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          const d = payload.new as any;
-          const rec: StaffDanRecord = {
-            id: d.id,
-            userId: d.user_id,
-            danLevel: d.dan_level,
-            issueDate: d.issue_date,
-            certificateNo: d.certificate_no || undefined,
-            certificateUrl: d.certificate_url || undefined,
-            examinerName: d.examiner_name || undefined,
-            location: d.location || undefined,
-            notes: d.notes || undefined,
-            createdAt: d.created_at,
-            updatedAt: d.updated_at
-          };
-          setState(s => ({
-            ...s,
-            staffDanRecords: [...s.staffDanRecords.filter(x => x.id !== rec.id), rec]
-          }));
-        } else if (payload.eventType === 'UPDATE') {
-          const d = payload.new as any;
-          setState(s => ({
-            ...s,
-            staffDanRecords: s.staffDanRecords.map(x => x.id === d.id ? {
-              ...x,
-              danLevel: d.dan_level,
-              issueDate: d.issue_date,
-              certificateNo: d.certificate_no || undefined,
-              certificateUrl: d.certificate_url || undefined,
-              examinerName: d.examiner_name || undefined,
-              location: d.location || undefined,
-              notes: d.notes || undefined,
-              updatedAt: d.updated_at
-            } : x)
-          }));
-        } else if (payload.eventType === 'DELETE') {
-          const old = payload.old as any;
-          setState(s => ({
-            ...s,
-            staffDanRecords: s.staffDanRecords.filter(x => x.id !== old.id)
-          }));
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'partners' }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          const mapped = mapPartnerRow(payload.new);
-          setState(s => ({
-            ...s,
-            partners: [mapped, ...s.partners.filter(x => x.id !== mapped.id)]
-          }));
-        } else if (payload.eventType === 'UPDATE') {
-          const mapped = mapPartnerRow(payload.new);
-          setState(s => ({
-            ...s,
-            partners: s.partners.map(x => x.id === mapped.id ? mapped : x)
-          }));
-        } else if (payload.eventType === 'DELETE') {
-          const old = payload.old as any;
-          setState(s => ({
-            ...s,
-            partners: s.partners.filter(x => x.id !== old.id)
-          }));
-        }
-      })
-      .subscribe();
-
     return () => {
-      supabase.removeChannel(realtimeChannel);
+      stop();
+      invalidateSessionLoads();
     };
-  }, [state.currentUser?.id]);
+  }, [clearSessionState, fetchInitialData, invalidateSessionLoads]);
+
+  // Realtime events invalidate the canonical RLS snapshot. Partial event rows
+  // cannot safely reconstruct joined addresses, receipts or revoked visibility.
+  const realtimeUserId = state.currentUser?.id;
+  useEffect(() => {
+    if (!realtimeUserId) return;
+    let active = true;
+    let reconnecting = false;
+    const recovery = createReadRecovery(refreshData,
+      () => active && navigator.onLine !== false && document.visibilityState !== 'hidden');
+    const channel = supabase.channel('infinity_realtime_sync:' + realtimeUserId);
+    for (const table of PORTAL_REALTIME_TABLES) {
+      channel.on('postgres_changes', { event: '*', schema: 'public', table }, recovery.request);
+    }
+    channel.subscribe(status => {
+      if (!active) return;
+      if (status === 'SUBSCRIBED') {
+        if (reconnecting) recovery.request();
+        reconnecting = false;
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        reconnecting = true;
+      }
+    });
+    const onVisible = () => {
+      if (document.visibilityState !== 'hidden') recovery.request();
+    };
+    window.addEventListener('online', recovery.request);
+    document.addEventListener('visibilitychange', onVisible);
+    // Realtime delivery is not guaranteed, and an archived row may no longer
+    // pass SELECT RLS. Reconcile while visible without polling hidden tabs.
+    const interval = setInterval(recovery.request, 60000);
+    return () => {
+      active = false;
+      recovery.dispose();
+      clearInterval(interval);
+      window.removeEventListener('online', recovery.request);
+      document.removeEventListener('visibilitychange', onVisible);
+      void supabase.removeChannel(channel).catch(() => {});
+    };
+  }, [realtimeUserId, refreshData]);
 
   useEffect(() => {
     if (state.theme === 'dark') {
@@ -1738,6 +1285,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const normalized = normalizeError(error, fallbackTitle, fallbackMessage);
     if (!normalized.isOperational) {
       console.warn('[AutoError: Technical]', normalized.title, normalized.details || normalized.message);
+      reportClientError(error, fallbackTitle || 'Background operation');
     } else {
       console.info('[AutoNotice: Operational]', normalized.title, normalized.message);
     }
@@ -1768,12 +1316,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
-  const hideNotification = () => {
+  const hideNotification = useCallback(() => {
     setState(s => ({
       ...s,
       systemNotification: null
     }));
-  };
+  }, []);
 
   const showConfirm = (message: string, onConfirm: () => void, title?: string, onCancel?: () => void) => {
     setState(s => ({
@@ -1782,307 +1330,86 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  const hideConfirm = () => {
+  const hideConfirm = useCallback(() => {
     setState(s => ({
       ...s,
       systemConfirm: null
     }));
-  };
+  }, []);
 
   const login = async (identifier: string, pass: string) => {
-    let email = identifier.trim();
-
-    if (!email.includes('@')) {
-      let resolvedEmail = '';
-
-      // Authoritative, rate-limited server API route to resolve username / student ID
-      try {
-        const res = await fetch('/api/auth/username-to-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: email })
-        });
-        const resData = await res.json();
-        if (res.ok && resData?.data?.email) {
-          resolvedEmail = resData.data.email;
-        } else if (!res.ok && resData?.error?.message) {
-          return { success: false, error: resData.error.message };
-        }
-      } catch (e: any) {
-        console.warn('Server username lookup error:', e);
-      }
-
-      if (resolvedEmail) {
-        email = resolvedEmail;
-      }
-    }
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password: pass
-    });
-
-    if (error) {
-      return { success: false, error: error.message };
-    }
-
-    if (data.user) {
-      // Security guard: Student accounts are strictly restricted to the Student Portal
-      let userRole = data.user.user_metadata?.role;
-      try {
-        const { data: prof } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', data.user.id)
-          .maybeSingle();
-        if (prof?.role) userRole = prof.role;
-      } catch (err) {
-        console.warn('Role check error during login:', err);
-      }
-
-      if (userRole === 'Student') {
-        await supabase.auth.signOut({ scope: 'global' });
-        return {
-          success: false,
-          error: 'Access Denied: Student accounts are not permitted to access the Admin Portal. Please log in through the Infinity TKD Student Portal.'
-        };
-      }
-
-      await fetchInitialData(data.user.id);
+    try {
+      // An older sign-out must finish before a new session can be established.
+      await logoutInFlight.current;
+      const response = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ identifier, password: pass }), signal: AbortSignal.timeout(20000) });
+      const result = await response.json();
+      if (!response.ok || !result.success) return { success: false, error: result.error?.message || 'Unable to sign in.' };
+      const { error } = await supabase.auth.setSession(result.data);
+      if (error) return { success: false, error: 'Unable to establish a secure session.' };
       return { success: true };
-    }
-
-    return { success: false, error: 'User session could not be established.' };
+    } catch { return { success: false, error: 'The sign-in service is unavailable. Please retry.' }; }
   };
 
-  const logout = async () => {
-    try {
-      await supabase.auth.signOut({ scope: 'global' });
-    } catch (e) {
-      console.warn('SignOut error:', e);
-    }
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('infinity_cached_user');
-      sessionStorage.removeItem('infinity_cached_students');
-      sessionStorage.removeItem('infinity_cached_branches');
-      sessionStorage.removeItem('infinity_cached_videos');
-      sessionStorage.removeItem('infinity_cached_techniques');
-      sessionStorage.removeItem('infinity_cached_muscles');
-      sessionStorage.removeItem('infinity_cached_asset_muscle_relations');
-      sessionStorage.removeItem('infinity_cached_body_compositions');
-
-      localStorage.removeItem('infinity_cached_user');
-      localStorage.removeItem('infinity_cached_students');
-      localStorage.removeItem('infinity_cached_branches');
-      localStorage.removeItem('infinity_cached_videos');
-      localStorage.removeItem('infinity_cached_techniques');
-      localStorage.removeItem('infinity_cached_muscles');
-      localStorage.removeItem('infinity_cached_asset_muscle_relations');
-      localStorage.removeItem('infinity_cached_body_compositions');
-    }
-    setState((s) => ({
-      ...s,
-      currentUser: null,
-      students: [],
-      bodyCompositions: [],
-      attendanceRecords: [],
-      payments: [],
-    }));
-  };
-
-  const markAttendance = async (studentId: string, date: string, status: 'Present' | 'Absent' | 'Late') => {
-    const role = state.currentUser?.role;
-    if (role === 'Student') {
-      showNotification("Permission Denied: Students cannot mark attendance.", 'error');
-      return;
-    }
-    let rollback: Attendance[] = [];
-    setState(s => {
-      rollback = [...s.attendanceRecords];
-      const records = [...s.attendanceRecords];
-      const idx = records.findIndex(r => r.studentId === studentId && r.date === date);
-      if (idx >= 0) {
-        records[idx] = { ...records[idx], status };
-      } else {
-        records.push({ id: -Date.now(), studentId, date, status });
+  const logout = () => {
+    if (logoutInFlight.current) return logoutInFlight.current;
+    const task = (async () => {
+      invalidateSessionLoads();
+      try {
+        const { error } = await supabase.auth.signOut({ scope: 'global' });
+        if (error) throw error;
+      } catch {
+        showNotification('Could not confirm sign-out on all devices. Please sign in again and retry from Account Security.', 'error');
+        return;
       }
-      return { ...s, attendanceRecords: records };
-    });
-
-    try {
-      const { data, error } = await supabase
-        .from('attendance')
-        .upsert({
-          student_id: studentId,
-          date,
-          status,
-          marked_by: state.currentUser?.id
-        }, {
-          onConflict: 'student_id,date'
-        })
-        .select()
-        .single();
-
-      if (error) throw new Error(error.message);
-      if (data) {
-        setState(s => {
-          const records = [...s.attendanceRecords];
-          const idx = records.findIndex(r => r.studentId === studentId && r.date === date);
-          if (idx >= 0) {
-            records[idx] = { ...records[idx], id: data.id };
-          }
-          return { ...s, attendanceRecords: records };
-        });
-      }
-    } catch (e) {
-      console.error("[Store] markAttendance failed, rolling back:", e);
-      setState(s => ({ ...s, attendanceRecords: rollback }));
-      showNotification("Failed to sync attendance with server. Check your internet connection.", "error");
-    }
-  };
-
-  const deleteAttendanceRecords = async (date: string, studentIds: string[]) => {
-    const role = state.currentUser?.role;
-    if (role === 'Student' || role === 'Assistant Coach') {
-      showNotification("Permission Denied: Only Coaches or Admins can delete attendance records.", 'error');
-      return;
-    }
-    let rollback: Attendance[] = [];
-    setState(s => {
-      rollback = [...s.attendanceRecords];
-      return {
-        ...s,
-        attendanceRecords: s.attendanceRecords.filter(r => !(studentIds.includes(r.studentId) && r.date === date))
-      };
-    });
-
-    try {
-      const { error } = await supabase
-        .from('attendance')
-        .delete()
-        .eq('date', date)
-        .in('student_id', studentIds);
-
-      if (error) throw new Error(error.message);
-    } catch (e) {
-      console.error("[Store] deleteAttendanceRecords failed, rolling back:", e);
-      setState(s => ({ ...s, attendanceRecords: rollback }));
-      showNotification("Failed to delete attendance records from server.", "error");
-      throw e;
-    }
-  };
-
-  const payInvoice = async (studentId: string, year: number, month: string, amount: number) => {
-    const role = state.currentUser?.role;
-    if (role !== 'Root' && role !== 'Super Root' && role !== 'Admin') {
-      showNotification("Permission Denied: Only administrators can modify financial records.", 'error');
-      return;
-    }
-    let rollback: Payment[] = [];
-    setState(s => {
-      rollback = [...s.payments];
-      const payments = [...s.payments];
-      const idx = payments.findIndex(p => p.studentId === studentId && p.year === year && p.month === month);
-      if (idx >= 0) {
-        payments[idx] = { ...payments[idx], status: 'Paid', amountUsd: amount };
-      } else {
-        payments.push({ id: -Date.now(), studentId, year, month, status: 'Paid', amountUsd: amount });
-      }
-      return { ...s, payments };
-    });
-
-    try {
-      const { data, error } = await supabase
-        .from('payments')
-        .upsert({
-          student_id: studentId,
-          year,
-          for_month: month,
-          amount_usd: amount,
-          status: 'Paid'
-        }, {
-          onConflict: 'student_id,year,for_month'
-        })
-        .select()
-        .single();
-
-      if (error) throw new Error(error.message);
-      if (data) {
-        setState(s => {
-          const payments = [...s.payments];
-          const idx = payments.findIndex(p => p.studentId === studentId && p.year === year && p.month === month);
-          if (idx >= 0) {
-            payments[idx] = { ...payments[idx], id: data.id };
-          }
-          return { ...s, payments };
-        });
-      }
-    } catch (e) {
-      console.error("[Store] payInvoice failed, rolling back:", e);
-      setState(s => ({ ...s, payments: rollback }));
-      showNotification("Failed to update payment status on server. Check your internet connection.", "error");
-    }
-  };
-
-  const prepayInvoiceBulk = async (studentId: string, prepayments: { year: number; month: string; amount: number }[]) => {
-    const role = state.currentUser?.role;
-    if (role !== 'Root' && role !== 'Super Root' && role !== 'Admin') {
-      showNotification("Permission Denied: Only administrators can modify financial records.", 'error');
-      return;
-    }
-    let rollback: Payment[] = [];
-    setState(s => {
-      rollback = [...s.payments];
-      const payments = [...s.payments];
-      prepayments.forEach(p => {
-        const idx = payments.findIndex(x => x.studentId === studentId && x.year === p.year && x.month === p.month);
-        if (idx >= 0) {
-          payments[idx] = { ...payments[idx], status: 'Paid', amountUsd: p.amount };
-        } else {
-          payments.push({ id: -Date.now() - Math.random(), studentId, year: p.year, month: p.month, status: 'Paid', amountUsd: p.amount });
+      try {
+        for (const key of Object.keys(localStorage)) {
+          if (key.startsWith('infinity_cached_') || ['infinity_pos_sales_v2', 'infinity_pos_catalog_v2', 'infinity_lms_physical_grades'].includes(key)) localStorage.removeItem(key);
         }
-      });
-      return { ...s, payments };
-    });
-
-    try {
-      const rows = prepayments.map(p => ({
-        student_id: studentId,
-        year: p.year,
-        for_month: p.month,
-        amount_usd: p.amount,
-        status: 'Paid'
-      }));
-      const { data, error } = await supabase
-        .from('payments')
-        .upsert(rows, {
-          onConflict: 'student_id,year,for_month'
-        })
-        .select();
-
-      if (error) throw new Error(error.message);
-      if (data) {
-        setState(s => {
-          const payments = [...s.payments];
-          data.forEach((row: any) => {
-            const idx = payments.findIndex(x => x.studentId === studentId && x.year === row.year && x.month === row.for_month);
-            if (idx >= 0) {
-              payments[idx] = { ...payments[idx], id: row.id };
-            }
-          });
-          return { ...s, payments };
-        });
-      }
-    } catch (e) {
-      console.error("[Store] prepayInvoiceBulk failed, rolling back:", e);
-      setState(s => ({ ...s, payments: rollback }));
-      showNotification("Failed to save bulk prepayment on server. Check your connection.", "error");
-    }
+      } catch { /* A blocked storage API must not prevent sign-out. */ }
+      clearSessionState();
+    })();
+    logoutInFlight.current = task;
+    void task.then(() => { logoutInFlight.current = null; }, () => { logoutInFlight.current = null; });
+    return task;
   };
+
+  const markAttendance = async (studentId:string,date:string,status:'Present'|'Absent'|'Late',classId?:number) => {
+    if(!can('action:attendance_mark')) throw new Error('You do not have permission to mark attendance.');
+    const {data,error}=await supabase.from('attendance').upsert({student_id:studentId,date,status,class_id:classId || null,marked_by:state.currentUser?.id},{onConflict:'student_id,date,class_id'}).select().single();
+    if(error || !data){showNotification('Attendance was not saved. Please retry.','error');throw error || new Error('Attendance was not saved.');}
+    const record={id:data.id,studentId:data.student_id,date:data.date,status:data.status,classId:data.class_id ?? undefined};
+    setState(prev=>({...prev,attendanceRecords:[...prev.attendanceRecords.filter(r=>!(r.studentId===studentId && r.date===date && r.classId===record.classId)),record]}));
+  };
+
+  const deleteAttendanceRecords = async (date:string,studentIds:string[],classId?:number) => {
+    if(!can('action:attendance_delete'))throw new Error('Permission denied.');
+    let query=supabase.from('attendance').delete().eq('date',date).in('student_id',studentIds);
+    if(classId)query=query.eq('class_id',classId);
+    const {error}=await query;if(error)throw error;
+    setState(prev=>({...prev,attendanceRecords:prev.attendanceRecords.filter(r=>!(r.date===date&&studentIds.includes(r.studentId)&&(!classId||r.classId===classId)))}));
+  };
+
+  const pendingPaymentKeys = React.useRef(new Map<string, string>());
+  const pendingMeasurementKeys = React.useRef(new Map<string, string>());
+  const recordPayments = async (studentId: string, entries: { year: number; month: string; amount: number }[], method = 'Cash') => {
+    if (!can('action:finance_record_payment')) throw new Error('You do not have permission to record payments.');
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('Please sign in again.');
+    const signature = JSON.stringify({ studentId, entries, method });
+    const requestKey = pendingPaymentKeys.current.get(signature) || crypto.randomUUID();
+    pendingPaymentKeys.current.set(signature, requestKey);
+    const response = await fetch('/api/admin/payments', { method: 'POST', headers: { 'Content-Type':'application/json', Authorization: 'Bearer ' + session.access_token }, body: JSON.stringify({ studentId, entries, method, requestKey }) });
+    const result = await response.json();
+    if (!response.ok) throw new Error(unwrapApiError(result, 'Payment was not recorded.'));
+    pendingPaymentKeys.current.delete(signature);
+    await fetchInitialData(session.user.id);
+  };
+  const payInvoice = async (studentId: string, year: number, month: string, amount: number, method = 'Cash') => recordPayments(studentId, [{year,month,amount}], amount === 0 ? 'Waived' : method);
+  const prepayInvoiceBulk = async (studentId: string, prepayments: { year: number; month: string; amount: number }[]) => recordPayments(studentId, prepayments);
 
   const addStudent = async (student: Omit<Student, 'id' | 'registrationDate'>) => {
     const role = state.currentUser?.role;
-    if (role !== 'Root' && role !== 'Super Root' && role !== 'Admin' && role !== 'Head Coach') {
+    if (!can('action:student_create')) {
       return { success: false, error: 'Unauthorized Access: You do not have permission to provision new student accounts.' };
     }
     try {
@@ -2090,14 +1417,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const token = session?.access_token;
       if (!token) return { success: false, error: 'Authentication session expired. Please log in again.' };
 
-      const studentId = (student as any).id || `STU-${student.gender === 'Male' ? 'M' : 'F'}-${String(state.students.length + 1).padStart(3, '0')}`;
       const res = await fetch('/api/admin/create-student', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ studentData: { ...student, id: studentId } })
+        body: JSON.stringify({ studentData: { ...student } })
       });
       const resData = await res.json();
       if (!res.ok) {
@@ -2145,9 +1471,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateStudent = async (id: string, data: Partial<Student>) => {
     const role = state.currentUser?.role;
-    if (role !== 'Root' && role !== 'Super Root' && role !== 'Admin' && role !== 'Head Coach' && role !== 'Coach') {
+    if (!can('action:student_edit')) {
       showNotification('Unauthorized Access: You do not have permissions to modify student records.', 'warning');
-      return;
+      throw new Error('You do not have permission to edit student records.');
     }
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -2160,41 +1486,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ id, data })
+        body: JSON.stringify({ id, data: {...data,...((data as any).classEnrollmentDate?{enrollmentId:state.classEnrollments.find(e=>e.studentId===id)?.id}: {})} })
       });
       const resData = await res.json();
       if (!res.ok) throw new Error(unwrapApiError(resData, 'Failed to update student details.'));
 
-      const existing = state.students.find(x => x.id === id);
-      const email = existing?.email;
-      const normalizedUsername = id.toLowerCase().replace(/-/g, '_');
-      const profileUser = state.users.find(x => x.username === normalizedUsername || (email && x.email?.toLowerCase() === email.toLowerCase()));
-
-      if (profileUser) {
-        const updateObj: any = {};
-        if (data.englishName) updateObj.display_name = data.englishName;
-        if (data.email) updateObj.email = data.email;
-        if (data.studentStatus) updateObj.is_active = data.studentStatus === 'Active';
-        if (Object.keys(updateObj).length > 0) {
-          await supabase.from('profiles').update(updateObj).eq('id', profileUser.id);
-        }
-      }
-
+      const existing=state.students.find(s=>s.id===id);
+      const profileUser=state.users.find(u=>u.role==='Student' && (u.id===existing?.profileId || u.studentId===id));
       setState(s => {
         const students = s.students.map(x => x.id === id ? { ...x, ...data } : x);
         let users = s.users;
         if (profileUser) {
           users = s.users.map(u => u.id === profileUser.id ? {
             ...u,
-            displayName: data.englishName || u.displayName,
-            email: data.email || u.email,
-            isActive: data.studentStatus !== undefined ? data.studentStatus === 'Active' : u.isActive
+            displayName: data.englishName ?? u.displayName,
+            isActive: data.studentStatus==='Suspended'?false:u.isActive
           } : u);
         }
-        return { ...s, students, users };
+        const enrollmentDate=(data as any).classEnrollmentDate;
+        const enrollmentId=state.classEnrollments.find(e=>e.studentId===id)?.id;
+        return { ...s, students, users,classEnrollments:enrollmentDate?s.classEnrollments.map(e=>e.id===enrollmentId?{...e,enrollmentDate}:e):s.classEnrollments };
       });
     } catch (e: any) {
       showNotification('Failed to update student: ' + e.message, 'error');
+      throw e;
     }
   };
 
@@ -2215,11 +1530,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const resData = await res.json();
       if (!res.ok) throw new Error(unwrapApiError(resData, 'Failed to delete student record.'));
 
-      const existing = state.students.find(x => x.id === id);
-      const email = existing?.email;
-      const normalizedUsername = id.toLowerCase().replace(/-/g, '_');
-      const profileUser = state.users.find(x => x.username === normalizedUsername || (email && x.email?.toLowerCase() === email.toLowerCase()));
-
+      const existing=state.students.find(s=>s.id===id);
+      const profileUser=state.users.find(u=>u.role==='Student' && (u.id===existing?.profileId || u.studentId===id));
       setState(s => ({
         ...s,
         students: s.students.filter(x => x.id !== id),
@@ -2227,336 +1539,117 @@ export function AppProvider({ children }: { children: ReactNode }) {
         beltHistories: s.beltHistories.filter(b => b.studentId !== id),
         users: profileUser ? s.users.map(u => u.id === profileUser.id ? { ...u, isActive: false } : u) : s.users
       }));
-      showNotification("Student record deleted successfully.", 'success');
+      showNotification("Student archived successfully.", 'success');
     } catch (e: any) {
       console.error("[Store] deleteStudent error:", e);
-      showNotification("Failed to delete student: " + (e.message || e), 'error');
+      showNotification("Failed to archive student: " + (e.message || e), 'error');
+      throw e;
     }
   };
 
-  const addBeltHistory = async (history: Omit<BeltHistory, 'id'>) => {
-    try {
-      const { data, error } = await supabase
-        .from('belt_histories')
-        .insert({
-          student_id: history.studentId,
-          belt_level: history.beltLevel,
-          promotion_date: history.promotionDate,
-          test_score: history.testScore !== undefined ? Number(history.testScore) : null,
-          program: history.program || null,
-          certificate_id: history.certificateRef || null,
-          kukkiwon_dan_card_id: history.kukkiwonDanCardId || null
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      if (data) {
-        // Query the database for the true up-to-date histories list for this student to avoid parallel race conditions
-        const { data: dbHistories, error: fetchErr } = await supabase
-          .from('belt_histories')
-          .select('*')
-          .eq('student_id', history.studentId);
-
-        let latestBelt = 'White';
-        if (!fetchErr && dbHistories) {
-          const sorted = [...dbHistories].sort((a, b) => {
-            const ta = new Date(a.promotion_date).getTime();
-            const tb = new Date(b.promotion_date).getTime();
-            return ta !== tb ? tb - ta : b.id - a.id;
-          });
-          if (sorted.length > 0) {
-            latestBelt = sorted[0].belt_level;
-          }
-        } else {
-          // Fallback to state calculation if fetch fails
-          const studentHistories = [...state.beltHistories.filter(x => x.studentId === history.studentId), { ...history, id: data.id }];
-          studentHistories.sort((a, b) => {
-            const ta = new Date(a.promotionDate).getTime();
-            const tb = new Date(b.promotionDate).getTime();
-            return ta !== tb ? tb - ta : b.id - a.id;
-          });
-          latestBelt = studentHistories.length > 0 ? studentHistories[0].beltLevel : 'White';
-        }
-
-        await supabase.from('students').update({ current_belt: latestBelt }).eq('id', history.studentId);
-
-        setState(s => {
-          const students = s.students.map(st => st.id === history.studentId ? { ...st, currentBelt: latestBelt } : st);
-          const exists = s.beltHistories.some(x => x.id === data.id);
-          const nextHistories = exists ? s.beltHistories : [...s.beltHistories, { 
-            id: data.id, 
-            studentId: data.student_id, 
-            beltLevel: data.belt_level, 
-            promotionDate: data.promotion_date,
-            testScore: data.test_score,
-            program: data.program,
-            certificateRef: data.certificate_id,
-            kukkiwonDanCardId: data.kukkiwon_dan_card_id
-          }];
-          return {
-            ...s,
-            students,
-            beltHistories: nextHistories
-          };
-        });
-        showNotification("Promotion logged successfully.", 'success');
-      }
-    } catch (e: any) {
-      console.error("[Store] addBeltHistory database error:", e);
-      showNotification("Failed to log promotion: " + e.message, 'error');
-    }
+  const refreshStudentBelt = async (studentId:string) => {
+    const {data,error}=await supabase.from('students').select('current_belt').eq('id',studentId).single();
+    if(error){showNotification('Promotion was saved, but the displayed rank could not refresh. Reload the student profile.','warning');return;}
+    setState(prev=>({...prev,students:prev.students.map(student=>student.id===studentId?{...student,currentBelt:data.current_belt}:student)}));
   };
-
-  const updateBeltHistory = async (id: number, data: Partial<BeltHistory>) => {
-    try {
-      const updatePayload: any = {};
-      if (data.beltLevel !== undefined) updatePayload.belt_level = data.beltLevel;
-      if (data.promotionDate !== undefined) updatePayload.promotion_date = data.promotionDate;
-      if (data.testScore !== undefined) updatePayload.test_score = data.testScore !== null ? Number(data.testScore) : null;
-      if (data.program !== undefined) updatePayload.program = data.program;
-      if (data.certificateRef !== undefined) updatePayload.certificate_id = data.certificateRef;
-      if (data.kukkiwonDanCardId !== undefined) updatePayload.kukkiwon_dan_card_id = data.kukkiwonDanCardId;
-
-      const { data: dbData, error } = await supabase
-        .from('belt_histories')
-        .update(updatePayload)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      if (dbData) {
-        const { data: dbHistories, error: fetchErr } = await supabase
-          .from('belt_histories')
-          .select('*')
-          .eq('student_id', dbData.student_id);
-
-        let latestBelt = 'White';
-        if (!fetchErr && dbHistories) {
-          const sorted = [...dbHistories].sort((a, b) => {
-            const ta = new Date(a.promotion_date).getTime();
-            const tb = new Date(b.promotion_date).getTime();
-            return ta !== tb ? tb - ta : b.id - a.id;
-          });
-          if (sorted.length > 0) {
-            latestBelt = sorted[0].belt_level;
-          }
-        }
-
-        await supabase.from('students').update({ current_belt: latestBelt }).eq('id', dbData.student_id);
-
-        setState(s => {
-          const students = s.students.map(st => st.id === dbData.student_id ? { ...st, currentBelt: latestBelt } : st);
-          const nextHistories = s.beltHistories.map(x => x.id === id ? {
-            id: dbData.id,
-            studentId: dbData.student_id,
-            beltLevel: dbData.belt_level,
-            promotionDate: dbData.promotion_date,
-            testScore: dbData.test_score ?? undefined,
-            program: dbData.program ?? undefined,
-            certificateRef: dbData.certificate_id ?? undefined,
-            kukkiwonDanCardId: dbData.kukkiwon_dan_card_id ?? undefined
-          } : x);
-
-          return {
-            ...s,
-            students,
-            beltHistories: nextHistories
-          };
-        });
-        showNotification("Promotion record updated successfully.", 'success');
-      }
-    } catch (e: any) {
-      console.error("[Store] updateBeltHistory database error:", e);
-      showNotification("Failed to update promotion record: " + e.message, 'error');
+  const beltHistoryPayload = (history:Partial<BeltHistory>) => {
+    const row:any={};
+    const keys={studentId:'student_id',beltLevel:'belt_level',promotionDate:'promotion_date',testScore:'test_score',program:'program',certificateRef:'certificate_id',kukkiwonDanCardId:'kukkiwon_dan_card_id'};
+    for(const [key,column] of Object.entries(keys))if(history[key as keyof BeltHistory]!==undefined) {
+      const value = history[key as keyof BeltHistory];
+      row[column] = (key === 'certificateRef' || key === 'kukkiwonDanCardId') && value === '' ? null : value;
     }
+    return row;
   };
-
-  const deleteBeltHistory = async (id: number, studentId: string) => {
-    try {
-      const { error } = await supabase
-        .from('belt_histories')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      const { data: dbHistories, error: fetchErr } = await supabase
-        .from('belt_histories')
-        .select('*')
-        .eq('student_id', studentId);
-
-      let latestBelt = 'White';
-      if (!fetchErr && dbHistories) {
-        const sorted = [...dbHistories].sort((a, b) => {
-          const ta = new Date(a.promotion_date).getTime();
-          const tb = new Date(b.promotion_date).getTime();
-          return ta !== tb ? tb - ta : b.id - a.id;
-        });
-        if (sorted.length > 0) {
-          latestBelt = sorted[0].belt_level;
-        }
-      }
-
-      await supabase.from('students').update({ current_belt: latestBelt }).eq('id', studentId);
-
-      setState(s => {
-        const students = s.students.map(st => st.id === studentId ? { ...st, currentBelt: latestBelt } : st);
-        const nextHistories = s.beltHistories.filter(x => x.id !== id);
-
-        return {
-          ...s,
-          students,
-          beltHistories: nextHistories
-        };
-      });
-      showNotification("Promotion record deleted successfully.", 'success');
-    } catch (e: any) {
-      console.error("[Store] deleteBeltHistory database error:", e);
-      showNotification("Failed to delete promotion record: " + e.message, 'error');
-    }
+  const mapBeltHistory = (row:any):BeltHistory => ({id:row.id,studentId:row.student_id,beltLevel:row.belt_level,promotionDate:row.promotion_date,testScore:row.test_score,program:row.program,certificateRef:row.certificate_id,kukkiwonDanCardId:row.kukkiwon_dan_card_id});
+  const addBeltHistory = async (history:Omit<BeltHistory,'id'>) => {
+    if(!can('action:evaluations_grade'))throw new Error('Permission denied.');
+    const {data,error}=await supabase.from('belt_histories').insert(beltHistoryPayload(history)).select().single();
+    if(error || !data)throw error || new Error('Promotion was not saved.');
+    setState(prev=>({...prev,beltHistories:[...prev.beltHistories.filter(h=>h.id!==data.id),mapBeltHistory(data)]}));
+    await refreshStudentBelt(history.studentId);
+    showNotification('Promotion logged successfully.','success');
   };
-
+  const updateBeltHistory = async (id:number,history:Partial<BeltHistory>) => {
+    if(!can('action:evaluations_grade'))throw new Error('Permission denied.');
+    const {data,error}=await supabase.from('belt_histories').update(beltHistoryPayload(history)).eq('id',id).select().single();
+    if(error || !data)throw error || new Error('Promotion was not saved.');
+    setState(prev=>({...prev,beltHistories:prev.beltHistories.map(h=>h.id===id?mapBeltHistory(data):h)}));
+    await refreshStudentBelt(data.student_id);
+    showNotification('Promotion record updated successfully.','success');
+  };
+  const deleteBeltHistory = async (id:number,studentId:string) => {
+    if(!can('action:evaluations_grade'))throw new Error('Permission denied.');
+    const {data,error}=await supabase.from('belt_histories').delete().eq('id',id).eq('student_id',studentId).select('id');
+    if(error || !data?.length)throw error || new Error('Promotion was already removed or could not be deleted.');
+    setState(prev=>({...prev,beltHistories:prev.beltHistories.filter(h=>h.id!==id)}));
+    await refreshStudentBelt(studentId);
+    showNotification('Promotion record deleted successfully.','success');
+  };
   const reconcileAllStudentBelts = async () => {
-    let corrected = 0;
-    const details: string[] = [];
-    const scanned = state.students.length;
-    const updates: { studentId: string; currentBelt: string }[] = [];
-
-    for (const student of state.students) {
-      const studentHistories = state.beltHistories.filter(x => x.studentId === student.id);
-      if (studentHistories.length === 0) {
-        if (student.currentBelt !== 'White') {
-          details.push(`${student.englishName} (${student.id}): Reset ${student.currentBelt} ➔ White (No logged promotions)`);
-          updates.push({ studentId: student.id, currentBelt: 'White' });
-        }
-        continue;
-      }
-      const correctBelt = [...studentHistories].sort((a, b) => {
-        const ta = new Date(a.promotionDate).getTime();
-        const tb = new Date(b.promotionDate).getTime();
-        return ta !== tb ? tb - ta : b.id - a.id;
-      })[0].beltLevel;
-
-      if (student.currentBelt !== correctBelt) {
-        details.push(`${student.englishName} (${student.id}): Healed ${student.currentBelt} ➔ ${correctBelt}`);
-        updates.push({ studentId: student.id, currentBelt: correctBelt });
-      }
-    }
-
-    if (updates.length > 0) {
-      await Promise.all(updates.map(u => supabase.from('students').update({ current_belt: u.currentBelt }).eq('id', u.studentId)));
-      setState(s => {
-        const students = s.students.map(st => {
-          const up = updates.find(x => x.studentId === st.id);
-          return up ? { ...st, currentBelt: up.currentBelt } : st;
-        });
-        return { ...s, students };
-      });
-      corrected = updates.length;
-    }
-    return { success: true, scanned, corrected, details };
+    const {data:{session}}=await supabase.auth.getSession();
+    if(!session)throw new Error('Please sign in again.');
+    const response=await fetch('/api/admin/promotions/reconcile',{method:'POST',headers:{Authorization:'Bearer '+session.access_token}});
+    const result=await response.json();
+    if(!response.ok)throw new Error(unwrapApiError(result,'Belts could not be reconciled.'));
+    await fetchInitialData(session.user.id);
+    return result.data;
   };
 
-  const addAchievement = async (achievement: Omit<Achievement, 'id'>) => {
-    try {
-      const { data, error } = await supabase
-        .from('achievements')
-        .insert({
-          student_id: achievement.studentId,
-          event_name: achievement.eventName,
-          date: achievement.date,
-          category: achievement.category,
-          division: achievement.division,
-          medal_rank: achievement.medalRank,
-          notes: achievement.notes,
-          age_division: achievement.ageDivision,
-          belt_division: achievement.beltDivision
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      if (data) {
-        const newAchievement = { ...achievement, id: data.id };
-        setState(s => ({
-          ...s,
-          achievements: [...s.achievements.filter(x => x.id !== data.id), newAchievement]
-        }));
-        showNotification("Achievement logged successfully.", 'success');
-      }
-    } catch (e: any) {
-      console.error("[Store] addAchievement database error:", e);
-      showNotification("Failed to log achievement: " + e.message, 'error');
-    }
+  const pendingAchievementKeys = React.useRef(new Map<string, string>());
+  const saveAchievements = async (studentId: string, entries: Array<Omit<Achievement, 'id' | 'studentId'> & { id?: number }>, deletedIds: number[] = []) => {
+    if (!can('action:student_edit')) throw new Error('You do not have permission to edit achievements.');
+    const revision = sessionRevision.current;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('Please sign in again.');
+    const signature = JSON.stringify([session.user.id, studentId, entries, deletedIds]);
+    const requestKey = pendingAchievementKeys.current.get(signature) || crypto.randomUUID();
+    pendingAchievementKeys.current.set(signature, requestKey);
+    const response = await fetch('/api/admin/achievements', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token },
+      signal: AbortSignal.timeout(15000), body: JSON.stringify({ studentId, entries, deletedIds, requestKey }),
+    });
+    const result = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(unwrapApiError(result, 'Achievements were not saved.'));
+    if (result?.success !== true || !Array.isArray(result.data?.records) || result.data.records.length !== entries.length) throw new Error('Achievement save was not confirmed.');
+    pendingAchievementKeys.current.delete(signature);
+    if (revision !== sessionRevision.current) throw new Error('Your session changed. Reload to verify the saved achievements.');
+    const records: Achievement[] = result.data.records.map((row: any) => ({
+      id: row.id, studentId: row.student_id, eventName: row.event_name, date: row.date, category: row.category,
+      division: row.division, medalRank: row.medal_rank, notes: row.notes ?? undefined,
+      ageDivision: row.age_division ?? undefined, beltDivision: row.belt_division ?? undefined,
+    }));
+    const affected = new Set([...deletedIds, ...records.map(row => row.id)]);
+    setState(previous => ({ ...previous, achievements: [...previous.achievements.filter(row => !affected.has(row.id)), ...records] }));
+    showNotification('Tournament achievements saved successfully.', 'success');
   };
 
+  const addAchievement = async ({ studentId, ...entry }: Omit<Achievement, 'id'>) => saveAchievements(studentId, [entry]);
   const deleteAchievement = async (id: number) => {
-    try {
-      const { error } = await supabase.from('achievements').delete().eq('id', id);
-      if (error) throw error;
-      setState(s => ({
-        ...s,
-        achievements: s.achievements.filter(x => x.id !== id)
-      }));
-      showNotification("Achievement deleted successfully.", 'success');
-    } catch (e: any) {
-      console.error("[Store] deleteAchievement database error:", e);
-      showNotification("Failed to delete achievement: " + e.message, 'error');
-    }
+    const existing = state.achievements.find(row => row.id === id);
+    if (!existing) throw new Error('Achievement not found. Reload before retrying.');
+    await saveAchievements(existing.studentId, [], [id]);
   };
-
-  const updateAchievement = async (id: number, achievement: Partial<Omit<Achievement, 'id'>>) => {
-    try {
-      const updates: any = {};
-      if (achievement.studentId !== undefined) updates.student_id = achievement.studentId;
-      if (achievement.eventName !== undefined) updates.event_name = achievement.eventName;
-      if (achievement.date !== undefined) updates.date = achievement.date;
-      if (achievement.category !== undefined) updates.category = achievement.category;
-      if (achievement.division !== undefined) updates.division = achievement.division;
-      if (achievement.medalRank !== undefined) updates.medal_rank = achievement.medalRank;
-      if (achievement.notes !== undefined) updates.notes = achievement.notes;
-      if (achievement.ageDivision !== undefined) updates.age_division = achievement.ageDivision;
-      if (achievement.beltDivision !== undefined) updates.belt_division = achievement.beltDivision;
-
-      const { data, error } = await supabase
-        .from('achievements')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      if (data) {
-        setState(s => ({
-          ...s,
-          achievements: s.achievements.map(x => x.id === id ? { ...x, ...achievement } : x)
-        }));
-        showNotification("Achievement updated successfully.", 'success');
-      }
-    } catch (e: any) {
-      console.error("[Store] updateAchievement database error:", e);
-      showNotification("Failed to update achievement: " + e.message, 'error');
-    }
+  const updateAchievement = async (id: number, changes: Partial<Omit<Achievement, 'id'>>) => {
+    const existing = state.achievements.find(row => row.id === id);
+    if (!existing || (changes.studentId !== undefined && changes.studentId !== existing.studentId)) throw new Error('Achievement not found for this student.');
+    const { studentId, ...entry } = { ...existing, ...changes };
+    await saveAchievements(studentId, [entry]);
   };
 
   const addBranch = async (name: string) => {
-    const role = state.currentUser?.role;
-    if (role !== 'Root' && role !== 'Super Root' && role !== 'Admin' && role !== 'Head Coach') {
-      showNotification("Permission Denied: Only Head Coaches or Admins can add branches.", 'error');
-      return;
-    }
+    if (!can('action:schedule_manage')) throw new Error('You do not have permission to add branches.');
     try {
       const { data, error } = await supabase
         .from('branches')
-        .insert({ branch_name: name })
+        .insert({ branch_name: name.trim() })
         .select()
         .single();
 
       if (error) throw error;
+      if (!data) throw new Error('Branch save was not confirmed.');
       if (data) {
-        const newBranch = { id: data.id, name };
+        const newBranch = { id: data.id, name: data.branch_name };
         setState(s => ({
           ...s,
           branches: [...s.branches.filter(x => x.id !== data.id), newBranch]
@@ -2566,6 +1659,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (e: any) {
       console.error("[Store] addBranch error:", e);
       showNotification("Failed to add branch: " + e.message, 'error');
+      throw e;
     }
   };
 
@@ -2679,12 +1773,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       // Enforce capacity bounds
       const currentEnrolled = state.classEnrollments.filter(e => e.classId === classId && state.students.find(s => s.id === e.studentId)?.studentStatus === 'Active').length;
-      if (currentEnrolled >= session.capacity) {
+      if (currentEnrolled >= session.capacity && state.students.find(s => s.id === studentId)?.studentStatus === 'Active') {
         showNotification(`Cannot enroll: "${session.name}" has reached maximum capacity (${session.capacity}).`, 'error');
         return { success: false, error: 'Class is at full capacity' };
       }
 
-      const enrollmentDate = new Date().toISOString().split('T')[0];
+      const enrollmentDate = academyDate();
       const { data, error } = await supabase
         .from('class_enrollments')
         .insert({ student_id: studentId, class_id: classId, enrollment_date: enrollmentDate })
@@ -2701,7 +1795,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         showNotification("Student enrolled successfully.", 'success');
         return { success: true };
       }
-      return { success: true };
+      throw new Error('Enrollment save was not confirmed.');
     } catch (e: any) {
       console.error("[Store] enrollStudent error:", e);
       showNotification("Failed to enroll student: " + (e.message || 'Unknown error'), 'error');
@@ -2711,12 +1805,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const unenrollStudent = async (studentId: string, classId: number): Promise<{ success: boolean; error?: string }> => {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('class_enrollments')
         .delete()
-        .match({ student_id: studentId, class_id: classId });
+        .match({ student_id: studentId, class_id: classId }).select('id').single();
 
       if (error) throw error;
+      if (!data) throw new Error('Enrollment removal was not confirmed.');
       setState(s => ({
         ...s,
         classEnrollments: s.classEnrollments.filter(x => x.studentId !== studentId || x.classId !== classId)
@@ -2763,7 +1858,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         showNotification(`Enrolling only ${allowedStudentIds.length} students due to session capacity limit (${session.capacity}).`, 'warning');
       }
 
-      const enrollmentDate = new Date().toISOString().split('T')[0];
+      const enrollmentDate = academyDate();
       const recordsToInsert = allowedStudentIds.map(studentId => ({
         student_id: studentId,
         class_id: classId,
@@ -2806,285 +1901,55 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addCurriculumVideo = async (video: Omit<CurriculumVideo, 'id' | 'createdAt'> & { muscleRelations?: Omit<AssetMuscleRelation, 'assetId'>[] }) => {
-    try {
-      const isFitness = video.minBeltLevel === 'Fitness' || video.category.startsWith('Fitness:');
-      
-      let descriptionToSave = video.description || '';
-      try {
-        if (!descriptionToSave.trim().startsWith('{') || !descriptionToSave.trim().endsWith('}')) {
-          descriptionToSave = JSON.stringify({
-            text: descriptionToSave,
-            difficulty: 'Beginner',
-            instructions: [],
-            focusZones: [],
-            repsSets: '',
-            thumbnailUrl: '',
-            actualCategory: video.category
-          });
-        } else {
-          const parsed = JSON.parse(descriptionToSave);
-          if (!parsed.actualCategory) {
-            parsed.actualCategory = video.category;
-            descriptionToSave = JSON.stringify(parsed);
-          }
-        }
-      } catch (e) {
-        descriptionToSave = JSON.stringify({
-          text: descriptionToSave,
-          actualCategory: video.category
-        });
-      }
-
-      const { data, error } = await supabase
-        .from('library_assets')
-        .insert({
-          title: video.title,
-          description: descriptionToSave,
-          library_type: isFitness ? 'Fitness' : 'Taekwondo',
-          tkd_category: isFitness ? null : mapCategoryToDbEnum(video.category),
-          fitness_category: isFitness ? video.category.replace("Fitness: ", "") : null,
-          target_level: isFitness ? 'All' : video.minBeltLevel,
-          video_url: video.videoUrl || ''
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      if (data) {
-        let insertedRelations: AssetMuscleRelation[] = [];
-        if (video.muscleRelations && video.muscleRelations.length > 0) {
-          const relationRows = video.muscleRelations.map(r => ({
-            asset_id: data.id,
-            muscle_id: r.muscleId,
-            role: r.role
-          }));
-          const { data: relData, error: relError } = await supabase
-            .from('library_asset_muscles')
-            .insert(relationRows)
-            .select();
-          if (relError) throw relError;
-          if (relData) {
-            insertedRelations = relData.map((r: any) => ({
-              assetId: r.asset_id,
-              muscleId: r.muscle_id,
-              role: r.role as 'Primary' | 'Secondary'
-            }));
-          }
-        }
-
-        const newVideo = { 
-          id: data.id, 
-          title: video.title, 
-          description: descriptionToSave, 
-          category: video.category, 
-          minBeltLevel: video.minBeltLevel, 
-          videoUrl: video.videoUrl || '', 
-          createdAt: data.created_at || new Date().toISOString() 
-        };
-
-        // Mirror to curriculum table for seamless LMS progress references
-        try {
-          let currCat = 'Recognized Poomsae';
-          if (video.category === 'Demonstration' || video.category === 'Tricking') {
-            currCat = video.category;
-          }
-          await supabase.from('curriculum').upsert({
-            id: data.id,
-            title: video.title.substring(0, 150),
-            target_belt: video.minBeltLevel === 'Fitness' ? 'White' : (video.minBeltLevel || 'White'),
-            category: currCat,
-            is_active: true
-          });
-        } catch (currErr) {
-          console.warn("[Store] Mirrored curriculum upsert notice:", currErr);
-        }
-
-        setState(s => ({
-          ...s,
-          curriculumVideos: [...s.curriculumVideos.filter(x => x.id !== data.id), newVideo],
-          assetMuscleRelations: [
-            ...s.assetMuscleRelations.filter(x => x.assetId !== data.id),
-            ...insertedRelations
-          ]
-        }));
-        showNotification("Video added successfully.", 'success');
-      }
-    } catch (e: any) {
-      console.error("[Store] addCurriculumVideo error:", e);
-      showNotification("Failed to add video: " + e.message, 'error');
-    }
+  const pendingLibraryKeys = React.useRef(new Map<string,string>());
+  const libraryRequest = async (path:string,payload:unknown) => {
+    const {data:{session}}=await supabase.auth.getSession();
+    if(!session)throw new Error('Please sign in again.');
+    const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify(payload)});
+    const result=await response.json();
+    if(!response.ok)throw new Error(unwrapApiError(result,'Library update failed.'));
+    return result.data;
   };
-
-  const deleteCurriculumVideo = async (id: number) => {
-    try {
-      // Clean up linked tables first to guarantee referential integrity
-      await supabase.from('library_asset_muscles').delete().eq('asset_id', id);
-      await supabase.from('lms_progress').delete().eq('curriculum_id', id);
-      await supabase.from('curriculum').delete().eq('id', id);
-
-      const { error } = await supabase.from('library_assets').delete().eq('id', id);
-      if (error) throw error;
-      setState(s => ({
-        ...s,
-        curriculumVideos: s.curriculumVideos.filter(x => x.id !== id),
-        videoProgress: s.videoProgress.filter(x => x.videoId !== id),
-        assetMuscleRelations: s.assetMuscleRelations.filter(x => x.assetId !== id)
-      }));
-      showNotification("Video deleted successfully.", 'success');
-    } catch (e: any) {
-      console.error("[Store] deleteCurriculumVideo error:", e);
-      showNotification("Failed to delete video: " + e.message, 'error');
-    }
+  const saveLibraryVideo = async (id:number|null, video:Partial<CurriculumVideo> & {muscleRelations?:Omit<AssetMuscleRelation,'assetId'>[]}) => {
+    if(!can('action:curriculum_edit'))throw new Error('You do not have permission to edit the library.');
+    const current=id===null?undefined:state.curriculumVideos.find(v=>v.id===id);
+    if(id!==null&&!current)throw new Error('Library asset not found. Refresh and try again.');
+    const merged={...current,...video};
+    const category=merged.category || 'Forms (Poomsae)';
+    const fitness=merged.minBeltLevel==='Fitness'||category.startsWith('Fitness:');
+    let description=merged.description || '';
+    try {const parsed=JSON.parse(description);description=JSON.stringify({...parsed,actualCategory:category});}
+    catch {description=JSON.stringify({text:description,actualCategory:category});}
+    const asset={title:merged.title || '',description,library_type:fitness?'Fitness':'Taekwondo',tkd_category:fitness?null:mapCategoryToDbEnum(category),fitness_category:fitness?category.replace('Fitness: ',''):null,target_level:fitness?'All':merged.minBeltLevel || 'White',video_url:merged.videoUrl || '',...(video.muscleRelations!==undefined?{muscleRelations:video.muscleRelations}:{})};
+    const signature=JSON.stringify([state.currentUser?.id,asset]);
+    const requestKey=pendingLibraryKeys.current.get(signature)||crypto.randomUUID();
+    if(id===null)pendingLibraryKeys.current.set(signature,requestKey);
+    const result=await libraryRequest('/api/admin/library-assets',id===null?{action:'CREATE',asset,requestKey}:{action:'UPDATE',id,asset});
+    const data=result.asset;
+    if(!data||!Array.isArray(result.relations))throw new Error('Library save was not confirmed.');
+    if(id===null)pendingLibraryKeys.current.delete(signature);
+    const mapped={id:data.id,title:data.title,description:data.description || '',category,minBeltLevel:fitness?'Fitness':data.target_level,videoUrl:data.video_url || '',createdAt:data.created_at};
+    const relations=result.relations.map((r:any)=>({assetId:r.asset_id,muscleId:r.muscle_id,role:r.role}));
+    setState(s=>({...s,curriculumVideos:[...s.curriculumVideos.filter(v=>v.id!==mapped.id),mapped],assetMuscleRelations:[...s.assetMuscleRelations.filter(r=>r.assetId!==mapped.id),...relations]}));
+    showNotification(id===null?'Video added successfully.':'Video updated successfully.','success');
   };
-
-  const updateCurriculumVideo = async (id: number, video: Partial<CurriculumVideo> & { muscleRelations?: Omit<AssetMuscleRelation, 'assetId'>[] }) => {
+  const addCurriculumVideo = async (video:Omit<CurriculumVideo,'id'|'createdAt'> & {muscleRelations?:Omit<AssetMuscleRelation,'assetId'>[]}) => {
+    try {await saveLibraryVideo(null,video);}catch(e){showNotification(e instanceof Error?e.message:'Video save failed.','error');throw e;}
+  };
+  const updateCurriculumVideo = async (id:number,video:Partial<CurriculumVideo> & {muscleRelations?:Omit<AssetMuscleRelation,'assetId'>[]}) => {
+    try {await saveLibraryVideo(id,video);}catch(e){showNotification(e instanceof Error?e.message:'Video save failed.','error');throw e;}
+  };
+  const deleteCurriculumVideo = async (id:number) => {
     try {
-      const currentVideo = state.curriculumVideos.find(x => x.id === id);
-      const isFitness = (video.minBeltLevel !== undefined ? video.minBeltLevel : currentVideo?.minBeltLevel) === 'Fitness' || 
-                        ((video.category !== undefined ? video.category : currentVideo?.category || '').startsWith('Fitness:'));
-      
-      const updateData: any = {};
-      if (video.title !== undefined) updateData.title = video.title;
-      
-      const targetCategory = video.category !== undefined ? video.category : currentVideo?.category;
-      const targetDescription = video.description !== undefined ? video.description : currentVideo?.description;
-
-      if (video.category !== undefined) {
-        updateData.library_type = isFitness ? 'Fitness' : 'Taekwondo';
-        updateData.tkd_category = isFitness ? null : mapCategoryToDbEnum(video.category);
-        updateData.fitness_category = isFitness ? video.category.replace("Fitness: ", "") : null;
-      }
-      if (video.minBeltLevel !== undefined) {
-        updateData.target_level = isFitness ? 'All' : video.minBeltLevel;
-      }
-      if (video.videoUrl !== undefined) {
-        updateData.video_url = video.videoUrl || '';
-      }
-
-      if (targetDescription !== undefined) {
-        let desc = targetDescription || '';
-        try {
-          if (!desc.trim().startsWith('{') || !desc.trim().endsWith('}')) {
-            desc = JSON.stringify({
-              text: desc,
-              actualCategory: targetCategory
-            });
-          } else {
-            const parsed = JSON.parse(desc);
-            parsed.actualCategory = targetCategory;
-            desc = JSON.stringify(parsed);
-          }
-        } catch (e) {
-          desc = JSON.stringify({
-            text: desc,
-            actualCategory: targetCategory
-          });
-        }
-        updateData.description = desc;
-      }
-
-      const { data, error } = await supabase
-        .from('library_assets')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      if (data) {
-        let nextRelations = [...state.assetMuscleRelations];
-        if (video.muscleRelations !== undefined) {
-          // Delete existing relations
-          const { error: delError } = await supabase
-            .from('library_asset_muscles')
-            .delete()
-            .eq('asset_id', id);
-          if (delError) throw delError;
-
-          // Insert new relations
-          let insertedRelations: AssetMuscleRelation[] = [];
-          if (video.muscleRelations.length > 0) {
-            const relationRows = video.muscleRelations.map(r => ({
-              asset_id: id,
-              muscle_id: r.muscleId,
-              role: r.role
-            }));
-            const { data: relData, error: relError } = await supabase
-              .from('library_asset_muscles')
-              .insert(relationRows)
-              .select();
-            if (relError) throw relError;
-            if (relData) {
-              insertedRelations = relData.map((r: any) => ({
-                assetId: r.asset_id,
-                muscleId: r.muscle_id,
-                role: r.role as 'Primary' | 'Secondary'
-              }));
-            }
-          }
-          nextRelations = [
-            ...state.assetMuscleRelations.filter(x => x.assetId !== id),
-            ...insertedRelations
-          ];
-        }
-
-        let actualCategory = isFitness ? `Fitness: ${data.fitness_category}` : data.tkd_category;
-        if (data.description) {
-          try {
-            if (data.description.trim().startsWith('{') && data.description.trim().endsWith('}')) {
-              const details = JSON.parse(data.description);
-              if (details.actualCategory) {
-                actualCategory = details.actualCategory;
-              }
-            }
-          } catch (e) {}
-        }
-        if (!isFitness && actualCategory) {
-          actualCategory = normalizeCategory(actualCategory);
-        }
-
-        const mapped = {
-          id: data.id,
-          title: data.title,
-          description: data.description || '',
-          category: actualCategory,
-          minBeltLevel: isFitness ? 'Fitness' : data.target_level,
-          videoUrl: data.video_url || '',
-          createdAt: data.created_at || new Date().toISOString()
-        };
-
-        // Keep curriculum table synchronized
-        try {
-          let currCat = 'Recognized Poomsae';
-          if (mapped.category === 'Demonstration' || mapped.category === 'Tricking') {
-            currCat = mapped.category;
-          }
-          await supabase.from('curriculum').upsert({
-            id: id,
-            title: mapped.title.substring(0, 150),
-            target_belt: mapped.minBeltLevel === 'Fitness' ? 'White' : (mapped.minBeltLevel || 'White'),
-            category: currCat,
-            is_active: true
-          });
-        } catch (currErr) {
-          console.warn("[Store] Mirrored curriculum update notice:", currErr);
-        }
-
-        setState(s => ({
-          ...s,
-          curriculumVideos: s.curriculumVideos.map(x => x.id === id ? mapped : x),
-          assetMuscleRelations: nextRelations
-        }));
-        showNotification("Video updated successfully.", 'success');
-      }
-    } catch (e: any) {
-      console.error("[Store] updateCurriculumVideo error:", e);
-      showNotification("Failed to update video: " + e.message, 'error');
-    }
+      if(!can('action:curriculum_edit'))throw new Error('You do not have permission to edit the library.');
+      await libraryRequest('/api/admin/library-assets',{action:'DELETE',id});
+      setState(s=>({...s,curriculumVideos:s.curriculumVideos.filter(v=>v.id!==id),assetMuscleRelations:s.assetMuscleRelations.filter(r=>r.assetId!==id)}));
+      showNotification('Video deleted successfully.','success');
+    }catch(e){showNotification(e instanceof Error?e.message:'Video deletion failed.','error');throw e;}
   };
 
   const addWorkoutTemplate = async (template: any) => {
+    if(!can('action:curriculum_edit'))throw new Error('You do not have permission to edit routines.');
     try {
       const { data, error } = await supabase
         .from('workout_templates')
@@ -3099,7 +1964,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error || !data) throw error || new Error('Routine save was not confirmed.');
       if (data) {
         const mapped = {
           id: data.id,
@@ -3119,10 +1984,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (e: any) {
       console.error("[Store] addWorkoutTemplate error:", e);
       showNotification("Failed to save workout template: " + e.message, 'error');
+      throw e;
     }
   };
 
   const updateWorkoutTemplate = async (id: string, template: any) => {
+    if(!can('action:curriculum_edit'))throw new Error('You do not have permission to edit routines.');
     try {
       const { data, error } = await supabase
         .from('workout_templates')
@@ -3138,7 +2005,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error || !data) throw error || new Error('Routine save was not confirmed.');
       if (data) {
         const mapped = {
           id: data.id,
@@ -3158,12 +2025,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (e: any) {
       console.error("[Store] updateWorkoutTemplate error:", e);
       showNotification("Failed to update workout template: " + e.message, 'error');
+      throw e;
     }
   };
 
   const deleteWorkoutTemplate = async (id: string) => {
+    if(!can('action:curriculum_edit'))throw new Error('You do not have permission to edit routines.');
     try {
-      const { error } = await supabase.from('workout_templates').delete().eq('id', id);
+      const { error } = await supabase.from('workout_templates').delete().eq('id', id).select('id').single();
       if (error) throw error;
       setState(s => ({
         ...s,
@@ -3173,130 +2042,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (e: any) {
       console.error("[Store] deleteWorkoutTemplate error:", e);
       showNotification("Failed to delete workout template: " + e.message, 'error');
+      throw e;
     }
   };
 
-  const markVideoWatched = async (studentId: string, videoId: number) => {
+  const toggleVideoProgress = async (studentId:string,videoId:number,isCompleted:boolean) => {
     try {
-      const video = state.curriculumVideos.find(v => v.id === videoId);
-      const title = video?.title || 'Asset ' + videoId;
-      let curriculumCategory = 'Recognized Poomsae';
-      if (video?.category === 'Demonstration' || video?.category === 'Tricking') {
-        curriculumCategory = video.category;
-      }
-
-      const { error: currError } = await supabase.from('curriculum').upsert({
-        id: videoId,
-        title: title.substring(0, 150),
-        target_belt: 'White',
-        category: curriculumCategory,
-        is_active: true
-      });
-      if (currError) throw currError;
-
-      const { data, error } = await supabase
-        .from('lms_progress')
-        .upsert({
-          student_id: studentId,
-          curriculum_id: videoId,
-          status: 'Completed',
-          last_watched_at: new Date().toISOString()
-        }, {
-          onConflict: 'student_id,curriculum_id'
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      if (data) {
-        setState(s => {
-          let nextProgress;
-          const existing = s.videoProgress.find(x => x.studentId === studentId && x.videoId === videoId);
-          if (existing) {
-            nextProgress = s.videoProgress.map(x => x.id === existing.id ? { ...x, status: 'Completed' as const, lastWatchedAt: data.last_watched_at } : x);
-          } else {
-            nextProgress = [...s.videoProgress, { id: data.id, studentId, videoId, status: 'Completed' as const, lastWatchedAt: data.last_watched_at }];
-          }
-          return { ...s, videoProgress: nextProgress };
-        });
-      }
-    } catch (e: any) {
-      console.error("[Store] markVideoWatched error:", e);
-      showNotification("Failed to save watch progress: " + e.message, 'error');
-    }
+      if(!can('action:evaluations_grade'))throw new Error('You do not have permission to grade progress.');
+      const data=await libraryRequest('/api/admin/library-assets/progress',{studentId,assetId:videoId,completed:isCompleted});
+      setState(s=>({...s,videoProgress:[...s.videoProgress.filter(p=>p.studentId!==studentId||p.videoId!==videoId),...(isCompleted?[{id:data.id,studentId,videoId,status:'Completed' as const,lastWatchedAt:data.last_watched_at}]:[])]}));
+      showNotification('Video watch status updated.','success');
+    }catch(e){showNotification(e instanceof Error?e.message:'Video progress failed.','error');}
   };
-
-  const toggleVideoProgress = async (studentId: string, videoId: number, isCompleted: boolean) => {
-    try {
-      if (isCompleted) {
-        const video = state.curriculumVideos.find(v => v.id === videoId);
-        const title = video?.title || 'Asset ' + videoId;
-        let curriculumCategory = 'Recognized Poomsae';
-        if (video?.category === 'Demonstration' || video?.category === 'Tricking') {
-          curriculumCategory = video.category;
-        }
-
-        const { error: currError } = await supabase.from('curriculum').upsert({
-          id: videoId,
-          title: title.substring(0, 150),
-          target_belt: 'White',
-          category: curriculumCategory,
-          is_active: true
-        });
-        if (currError) throw currError;
-
-        const { data, error } = await supabase
-          .from('lms_progress')
-          .upsert({
-            student_id: studentId,
-            curriculum_id: videoId,
-            status: 'Completed',
-            last_watched_at: new Date().toISOString()
-          }, {
-            onConflict: 'student_id,curriculum_id'
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-        if (data) {
-          setState(s => {
-            let nextProgress;
-            const existing = s.videoProgress.find(x => x.studentId === studentId && x.videoId === videoId);
-            if (existing) {
-              nextProgress = s.videoProgress.map(x => x.id === existing.id ? { ...x, status: 'Completed' as const, lastWatchedAt: data.last_watched_at } : x);
-            } else {
-              nextProgress = [...s.videoProgress, { id: data.id, studentId, videoId, status: 'Completed' as const, lastWatchedAt: data.last_watched_at }];
-            }
-            return { ...s, videoProgress: nextProgress };
-          });
-        }
-      } else {
-        const { error } = await supabase
-          .from('lms_progress')
-          .delete()
-          .match({ student_id: studentId, curriculum_id: videoId });
-
-        if (error) throw error;
-        setState(s => ({
-          ...s,
-          videoProgress: s.videoProgress.filter(x => x.studentId !== studentId || x.videoId !== videoId)
-        }));
-      }
-      showNotification("Video watch status updated.", 'success');
-    } catch (e: any) {
-      console.error("[Store] toggleVideoProgress error:", e);
-      showNotification("Failed to update video progress: " + e.message, 'error');
-    }
-  };
+  const markVideoWatched = async (studentId:string,videoId:number) => toggleVideoProgress(studentId,videoId,true);
 
   const addUser = async (user: Omit<User, 'id'> & { password?: string; studentId?: string }) => {
     const role = state.currentUser?.role;
-    if (role !== 'Root' && role !== 'Super Root' && role !== 'Admin') {
+    if (!can('action:staff_manage')) {
       return { success: false, error: 'Unauthorized Access: Only administrators can provision system accounts.' };
     }
     const email = user.email.trim();
-    const password = user.password || 'Admin123456!';
+    const password = user.password || undefined; // The API generates unique credentials when none are supplied.
     const username = user.username;
     const displayName = user.displayName;
     const userRole = user.role;
@@ -3345,74 +2111,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (state.currentUser) {
         await fetchInitialData(state.currentUser.id);
       }
+      if (data.data?.temporaryPassword) showConfirm(`Account: ${username}\nTemporary password: ${data.data.temporaryPassword}\nCopy this credential now and ask the user to change it after signing in.`, () => {}, 'New account credential');
       showNotification('User account created successfully.', 'success');
-      return { success: true };
+      return { success: true, temporaryPassword:data.data?.temporaryPassword };
     } catch (e: any) {
       const normalized = reportError(e, 'Failed to Create User Account');
       return { success: false, error: normalized.message };
     }
   };
 
-  const commitRoster = async (date: string, branchId: number | 'all', classId: number | 'all') => {
-    const getStudentEnrollDate = (st: any) => {
-      const enrollments = state.classEnrollments.filter(e => e.studentId === st.id);
-      if (enrollments.length === 0) return st.registrationDate?.split('T')[0];
-      const dates = enrollments.map(e => e.enrollmentDate).filter(Boolean) as string[];
-      if (dates.length === 0) return st.registrationDate?.split('T')[0];
-      return dates.sort()[0].split('T')[0];
-    };
-
-    const studentsToMark = state.students.filter(student => {
-      const matchBranch = branchId === 'all' || student.homeBranchId === branchId;
-      let matchClass = true;
-      if (classId !== 'all') {
-        matchClass = state.classEnrollments.some(ce => ce.studentId === student.id && ce.classId === classId);
-      }
-      
-      const enrollDate = getStudentEnrollDate(student);
-      const isNotYetEnrolled = enrollDate ? (date < enrollDate) : false;
-
-      return matchBranch && matchClass && student.studentStatus === 'Active' && !isNotYetEnrolled;
-    }).filter(student => !state.attendanceRecords.some(ar => ar.studentId === student.id && ar.date === date));
-
-    if (studentsToMark.length === 0) return { count: 0 };
-
-    const rows = studentsToMark.map(student => ({
-      student_id: student.id,
-      date,
-      status: 'Absent' as const,
-      marked_by: state.currentUser?.id
-    }));
-
-    const { data, error } = await supabase
-      .from('attendance')
-      .upsert(rows, {
-        onConflict: 'student_id,date'
-      })
-      .select();
-
-    if (!error && data) {
-      setState(s => {
-        const records = [...s.attendanceRecords];
-        data.forEach((row: any) => {
-          const idx = records.findIndex(ar => ar.studentId === row.student_id && ar.date === date);
-          if (idx >= 0) {
-            records[idx] = { ...records[idx], status: 'Absent' as const };
-          } else {
-            records.push({ id: row.id, studentId: row.student_id, date, status: 'Absent' as const });
-          }
-        });
-        return { ...s, attendanceRecords: records };
-      });
-      return { count: studentsToMark.length };
-    }
-    throw error || new Error("Failed to commit bulk roster");
+  const commitRoster = async (date:string,branchId:number|'all',classId:number|'all') => {
+    if(!can('action:attendance_mark'))throw new Error('Permission denied.');
+    const weekday=new Date(date+'T00:00:00Z').toLocaleDateString('en-US',{weekday:'long',timeZone:'UTC'});
+    const rows=state.classEnrollments.flatMap(e=>{
+      const student=state.students.find(s=>s.id===e.studentId);
+      const session=state.classSessions.find(c=>c.id===e.classId);
+      if(!student || !session || student.studentStatus!=='Active' || (branchId!=='all' && session.branchId!==branchId) || (classId!=='all' && e.classId!==classId) || !session.daysOfWeek.includes(weekday) || date<(e.enrollmentDate || student.registrationDate).slice(0,10))return [];
+      return [{student_id:student.id,date,class_id:e.classId,status:'Absent',marked_by:state.currentUser?.id}];
+    });
+    if(!rows.length)return {count:0};
+    const {data,error}=await supabase.from('attendance').upsert(rows,{onConflict:'student_id,date,class_id',ignoreDuplicates:true}).select();
+    if(error)throw error;
+    setState(prev=>({...prev,attendanceRecords:[...prev.attendanceRecords,...(data||[]).filter(r=>!prev.attendanceRecords.some(a=>a.id===r.id)).map(r=>({id:r.id,studentId:r.student_id,date:r.date,status:r.status,classId:r.class_id ?? undefined}))]}));
+    return {count:data?.length || 0};
   };
 
   const updateUser = async (id: string, data: Partial<User> & { password?: string }) => {
     const role = state.currentUser?.role;
     const isSelf = state.currentUser?.id === id;
-    if (role !== 'Root' && role !== 'Super Root' && role !== 'Admin' && !isSelf) {
+    if (!can('action:staff_manage') && !isSelf) {
       showNotification('Unauthorized Access: You do not have permissions to modify this system account.', 'warning');
       throw new Error('Unauthorized Access: You do not have permissions to modify this system account.');
     }
@@ -3436,7 +2163,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setState(s => ({
         ...s,
         users: s.users.map(u => u.id === id ? { ...u, ...data } : u),
-        currentUser: s.currentUser?.id === id ? { ...s.currentUser, ...data } : s.currentUser
+        currentUser: s.currentUser?.id === id ? { ...s.currentUser, ...data, ...(data.password ? {mustChangePassword:false} : {}) } : s.currentUser
       }));
     } catch (e: any) {
       console.error("Error updating user/member details:", e);
@@ -3447,7 +2174,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const deleteUser = async (id: string) => {
     const role = state.currentUser?.role;
-    if (role !== 'Root' && role !== 'Super Root' && role !== 'Admin') {
+    if (!can('action:staff_manage')) {
       showNotification('Unauthorized Access: Only administrators can delete system accounts.', 'warning');
       throw new Error('Unauthorized Access: Only administrators can delete system accounts.');
     }
@@ -3514,6 +2241,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addStaffDanRecord = async (record: Omit<StaffDanRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ success: boolean; data?: StaffDanRecord; error?: string }> => {
+    const revision = sessionRevision.current;
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
@@ -3530,6 +2258,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const json = await res.json();
       if (!res.ok) throw new Error(unwrapApiError(json, 'Failed to add Dan record.'));
 
+      if (revision !== sessionRevision.current) throw new Error('Your session changed. Reload to verify the saved record.');
       const d = json.data;
       const newRec: StaffDanRecord = {
         id: d.id,
@@ -3545,34 +2274,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         updatedAt: d.updated_at
       };
 
-      setState(s => {
-        const nextRecords = [...s.staffDanRecords.filter(x => x.id !== newRec.id), newRec].sort((a, b) => a.danLevel - b.danLevel);
-        const userRecords = nextRecords.filter(r => r.userId === newRec.userId);
-        const highestDan = userRecords.reduce((max, r) => r.danLevel > max.danLevel ? r : max, userRecords[0]);
-
-        const updatedUsers = s.users.map(u => u.id === newRec.userId ? {
-          ...u,
-          currentDan: highestDan?.danLevel ?? u.currentDan,
-          danIssueDate: highestDan?.issueDate ?? u.danIssueDate,
-          kukkiwonId: highestDan?.certificateNo ?? u.kukkiwonId,
-          danCertificateUrl: highestDan?.certificateUrl ?? u.danCertificateUrl
-        } : u);
-
-        const updatedCurrentUser = s.currentUser?.id === newRec.userId ? {
-          ...s.currentUser,
-          currentDan: highestDan?.danLevel ?? s.currentUser.currentDan,
-          danIssueDate: highestDan?.issueDate ?? s.currentUser.danIssueDate,
-          kukkiwonId: highestDan?.certificateNo ?? s.currentUser.kukkiwonId,
-          danCertificateUrl: highestDan?.certificateUrl ?? s.currentUser.danCertificateUrl
-        } : s.currentUser;
-
-        return {
-          ...s,
-          staffDanRecords: nextRecords,
-          users: updatedUsers,
-          currentUser: updatedCurrentUser
-        };
-      });
+      setState(s => ({ ...s, staffDanRecords: [...s.staffDanRecords.filter(x => x.id !== newRec.id), newRec] }));
+      await refreshData().catch(() => showNotification('Dan record saved. Reload to refresh the staff profile.', 'info'));
 
       showNotification(`Added ${newRec.danLevel} Dan promotion record!`, 'success');
       return { success: true, data: newRec };
@@ -3584,6 +2287,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const updateStaffDanRecord = async (id: string, updates: Partial<StaffDanRecord>): Promise<{ success: boolean; error?: string }> => {
+    const revision = sessionRevision.current;
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
@@ -3600,10 +2304,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const json = await res.json();
       if (!res.ok) throw new Error(unwrapApiError(json, 'Failed to update Dan record.'));
 
-      setState(s => ({
-        ...s,
-        staffDanRecords: s.staffDanRecords.map(r => r.id === id ? { ...r, ...updates } : r)
-      }));
+      if (revision !== sessionRevision.current) throw new Error('Your session changed. Reload to verify the saved record.');
+      const d = json.data;
+      if (!d?.id) throw new Error('The saved Dan record could not be confirmed. Reload before retrying.');
+      setState(s => ({ ...s, staffDanRecords: s.staffDanRecords.map(r => r.id === id ? {
+        ...r, danLevel: d.dan_level, issueDate: d.issue_date, certificateNo: d.certificate_no || undefined,
+        certificateUrl: d.certificate_url || undefined, examinerName: d.examiner_name || undefined,
+        location: d.location || undefined, notes: d.notes || undefined, updatedAt: d.updated_at
+      } : r) }));
+      await refreshData().catch(() => showNotification('Dan record saved. Reload to refresh the staff profile.', 'info'));
 
       showNotification('Dan record updated successfully.', 'success');
       return { success: true };
@@ -3614,7 +2323,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const deleteStaffDanRecord = async (id: string, userId: string): Promise<{ success: boolean; error?: string }> => {
+  const deleteStaffDanRecord = async (id: string): Promise<{ success: boolean; error?: string }> => {
+    const revision = sessionRevision.current;
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
@@ -3629,34 +2339,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const json = await res.json();
       if (!res.ok) throw new Error(unwrapApiError(json, 'Failed to delete Dan record.'));
 
-      setState(s => {
-        const nextRecords = s.staffDanRecords.filter(r => r.id !== id);
-        const userRecords = nextRecords.filter(r => r.userId === userId);
-        const highestDan = userRecords.length > 0
-          ? userRecords.reduce((max, r) => r.danLevel > max.danLevel ? r : max, userRecords[0])
-          : null;
-
-        const updatedUsers = s.users.map(u => u.id === userId ? {
-          ...u,
-          currentDan: highestDan ? highestDan.danLevel : undefined,
-          danIssueDate: highestDan ? highestDan.issueDate : undefined,
-          kukkiwonId: highestDan ? highestDan.certificateNo : u.kukkiwonId
-        } : u);
-
-        const updatedCurrentUser = s.currentUser?.id === userId ? {
-          ...s.currentUser,
-          currentDan: highestDan ? highestDan.danLevel : undefined,
-          danIssueDate: highestDan ? highestDan.issueDate : undefined,
-          kukkiwonId: highestDan ? highestDan.certificateNo : s.currentUser.kukkiwonId
-        } : s.currentUser;
-
-        return {
-          ...s,
-          staffDanRecords: nextRecords,
-          users: updatedUsers,
-          currentUser: updatedCurrentUser
-        };
-      });
+      if (revision !== sessionRevision.current) throw new Error('Your session changed. Reload to verify the removed record.');
+      setState(s => ({ ...s, staffDanRecords: s.staffDanRecords.filter(r => r.id !== id) }));
+      await refreshData().catch(() => showNotification('Dan record removed. Reload to refresh the staff profile.', 'info'));
 
       showNotification('Dan record removed.', 'info');
       return { success: true };
@@ -3734,15 +2419,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
       
-      // If mock/sample item not in DB, update local state directly
-      if (!isUuid) {
-        setState(s => ({
-          ...s,
-          partners: s.partners.map(p => p.id === id ? { ...p, ...updates } : p)
-        }));
-        showNotification("Partner details updated.", 'success');
-        return { success: true };
-      }
+      if (!isUuid) throw new Error('This partner has no valid database ID. Reload the partner list before editing.');
 
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
@@ -3757,22 +2434,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ id, ...updates })
       });
       const json = await res.json();
-      if (!res.ok) {
-        // Fallback for missing DB table or type mismatch
-        if (json?.error?.code === '22P02' || json?.error?.code === '42P01') {
-          setState(s => ({
-            ...s,
-            partners: s.partners.map(p => p.id === id ? { ...p, ...updates } : p)
-          }));
-          showNotification("Partner details updated.", 'success');
-          return { success: true };
-        }
-        throw new Error(unwrapApiError(json, 'Failed to update partner.'));
-      }
+      if (!res.ok) throw new Error(unwrapApiError(json, 'Failed to update partner.'));
 
       setState(s => ({
         ...s,
-        partners: s.partners.map(p => p.id === id ? { ...p, ...updates } : p)
+        partners: s.partners.map(p => p.id === id ? mapPartnerRow(json.data) : p)
       }));
       showNotification("Partner details updated.", 'success');
       return { success: true };
@@ -3786,15 +2452,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
-      // If mock/sample item not in DB, delete from local state directly
-      if (!isUuid) {
-        setState(s => ({
-          ...s,
-          partners: s.partners.filter(p => p.id !== id)
-        }));
-        showNotification("Partner record removed.", 'info');
-        return { success: true };
-      }
+      if (!isUuid) throw new Error('This partner has no valid database ID. Reload the partner list before deleting.');
 
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
@@ -3807,18 +2465,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       });
       const json = await res.json();
-      if (!res.ok) {
-        // Fallback for missing DB table or type mismatch
-        if (json?.error?.code === '22P02' || json?.error?.code === '42P01') {
-          setState(s => ({
-            ...s,
-            partners: s.partners.filter(p => p.id !== id)
-          }));
-          showNotification("Partner record removed.", 'info');
-          return { success: true };
-        }
-        throw new Error(unwrapApiError(json, 'Failed to delete partner.'));
-      }
+      if (!res.ok) throw new Error(unwrapApiError(json, 'Failed to delete partner.'));
 
       setState(s => ({
         ...s,
@@ -3827,47 +2474,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
       showNotification("Partner record removed.", 'info');
       return { success: true };
     } catch (err: any) {
-      // Fallback: If user had a cached sample ID, still remove it locally
-      if (err.message?.includes('uuid') || id.startsWith('p-')) {
-        setState(s => ({
-          ...s,
-          partners: s.partners.filter(p => p.id !== id)
-        }));
-        showNotification("Partner record removed.", 'info');
-        return { success: true };
-      }
       const normalized = reportError(err, 'Failed to Delete Partner');
       return { success: false, error: normalized.message };
     }
   };
 
-  const fetchPartners = async (): Promise<Partner[]> => {
+  const fetchPartners = useCallback(async (): Promise<Partner[]> => {
+    const revision = sessionRevision.current;
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-      if (!token) return state.partners;
+      if (!token) throw new Error('Your session has expired. Please sign in again.');
 
       const res = await fetch('/api/admin/partners', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+        signal: AbortSignal.timeout(15000),
       });
-      if (res.ok) {
-        const json = await res.json();
-        if (Array.isArray(json.data)) {
-          const mapped = json.data.map(mapPartnerRow);
-          setState(s => ({
-            ...s,
-            partners: mapped
-          }));
-          return mapped;
-        }
-      }
-    } catch (err: any) {
-      console.warn('[Store] fetchPartners error:', err);
+      const json = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(unwrapApiError(json, 'Partners could not be loaded. Please retry.'));
+      if (json?.success !== true || !Array.isArray(json.data)) throw new Error('The partner directory returned an invalid response. Please retry.');
+      if (revision !== sessionRevision.current) throw new Error('Your session changed. Please reopen the partner directory.');
+      const mapped = json.data.map(mapPartnerRow);
+      setState(s => ({ ...s, partners: mapped,
+        dataLoadErrors: s.dataLoadErrors?.filter(dataset => dataset !== 'partners'),
+        dataLoadIssues: s.dataLoadIssues?.filter(issue => issue.dataset !== 'partners'),
+      }));
+      return mapped;
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'TimeoutError') throw new Error('Loading partners timed out. Please retry.');
+      throw err instanceof Error ? err : new Error('Partners could not be loaded. Please retry.');
     }
-    return state.partners;
-  };
+  }, []);
 
   const upsertPhysicalEvaluation = async (studentId: string, skillName: string, beltLevel: string, grade: string) => {
+    if (!can('action:evaluations_grade')) throw new Error('Permission denied.');
     try {
       const { data, error } = await supabase
         .from('student_physical_evaluations')
@@ -3904,56 +2545,43 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (e: any) {
       console.error("[Store] Physical grade upsert failed:", e);
       showNotification("Failed to save physical evaluation: " + e.message, 'error');
+      throw e;
     }
   };
 
   const addBodyComposition = async (composition: any) => {
     const role = state.currentUser?.role;
-    if (role !== 'Root' && role !== 'Super Root' && role !== 'Admin' && role !== 'Head Coach' && role !== 'Coach') {
+    if (!can('action:student_edit')) {
       showNotification('Unauthorized Access: You do not have permissions to record biometrics.', 'warning');
-      return;
+      throw new Error('You do not have permission to record biometrics.');
     }
     try {
+      const measure = (value:any) => {
+        if(value===undefined || value===null || String(value).trim()==='')return null;
+        const number=Number(value);
+        if(!Number.isFinite(number))throw new Error('Measurements must be valid numbers.');
+        return number;
+      };
       const payload = {
         student_id: composition.studentId,
-        recorded_date: composition.recordedDate || new Date().toISOString().split('T')[0],
-        height_cm: composition.heightCm ? parseFloat(composition.heightCm) : null,
-        weight_kg: composition.weightKg ? parseFloat(composition.weightKg) : null,
-        body_fat_percentage: composition.bodyFatPercentage ? parseFloat(composition.bodyFatPercentage) : null,
-        skeletal_muscle_mass_kg: composition.skeletalMuscleMassKg ? parseFloat(composition.skeletalMuscleMassKg) : null,
-        neck_cm: composition.neckCm ? parseFloat(composition.neckCm) : null,
-        shoulder_width_cm: composition.shoulderWidthCm ? parseFloat(composition.shoulderWidthCm) : null,
-        chest_cm: composition.chestCm ? parseFloat(composition.chestCm) : null,
-        waist_cm: composition.waistCm ? parseFloat(composition.waistCm) : null,
-        hips_cm: composition.hipsCm ? parseFloat(composition.hipsCm) : null,
-        left_arm_cm: composition.leftArmCm ? parseFloat(composition.leftArmCm) : null,
-        right_arm_cm: composition.rightArmCm ? parseFloat(composition.rightArmCm) : null,
-        left_thigh_cm: composition.leftThighCm ? parseFloat(composition.leftThighCm) : null,
-        right_thigh_cm: composition.rightThighCm ? parseFloat(composition.rightThighCm) : null,
-        left_calf_cm: composition.leftCalfCm ? parseFloat(composition.leftCalfCm) : null,
-        right_calf_cm: composition.rightCalfCm ? parseFloat(composition.rightCalfCm) : null,
-        recorded_by: state.currentUser?.id,
-        created_at: new Date().toISOString()
+        recorded_date: composition.recordedDate || academyDate(),
+        height_cm: measure(composition.heightCm),weight_kg: measure(composition.weightKg),
+        body_fat_percentage: measure(composition.bodyFatPercentage),skeletal_muscle_mass_kg: measure(composition.skeletalMuscleMassKg),
+        neck_cm: measure(composition.neckCm),shoulder_width_cm: measure(composition.shoulderWidthCm),chest_cm: measure(composition.chestCm),
+        waist_cm: measure(composition.waistCm),hips_cm: measure(composition.hipsCm),left_arm_cm: measure(composition.leftArmCm),right_arm_cm: measure(composition.rightArmCm),
+        left_thigh_cm: measure(composition.leftThighCm),right_thigh_cm: measure(composition.rightThighCm),left_calf_cm: measure(composition.leftCalfCm),right_calf_cm: measure(composition.rightCalfCm)
       };
-
-      const { data, error } = await supabase
-        .from('student_body_compositions')
-        .insert(payload)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Update student's primary height/weight in database
-      const { error: studentError } = await supabase
-        .from('students')
-        .update({
-          height_cm: payload.height_cm,
-          weight_kg: payload.weight_kg
-        })
-        .eq('id', composition.studentId);
-
-      if (studentError) throw studentError;
+      const {data:{session}} = await supabase.auth.getSession();
+      if(!session)throw new Error('Please sign in again.');
+      const signature=JSON.stringify([session.user.id,payload]);
+      const requestKey=pendingMeasurementKeys.current.get(signature)||crypto.randomUUID();
+      pendingMeasurementKeys.current.set(signature,requestKey);
+      const response=await fetch('/api/admin/body-compositions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({measurement:payload,requestKey})});
+      const result=await response.json();
+      if(!response.ok)throw new Error(unwrapApiError(result,'Measurement was not recorded.'));
+      const data=result.data?.measurement;const latest=result.data?.latest;
+      if(!data||!latest)throw new Error('Measurement save was not confirmed.');
+      pendingMeasurementKeys.current.delete(signature);
 
       if (data) {
         const mapped = {
@@ -3983,8 +2611,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           const comps = [...s.bodyCompositions.filter(x => x.id !== mapped.id), mapped];
           const students = s.students.map(st => st.id === mapped.studentId ? {
             ...st,
-            heightCm: mapped.heightCm ?? st.heightCm,
-            weightKg: mapped.weightKg ?? st.weightKg
+            heightCm: latest.height_cm ?? st.heightCm,
+            weightKg: latest.weight_kg ?? st.weightKg
           } : st);
           return { ...s, bodyCompositions: comps, students };
         });
@@ -4036,8 +2664,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const deleteBeltTechnique = async (id: string) => {
     try {
-      const { error } = await supabase.from('belt_techniques').delete().eq('id', id);
+      if (!can('action:curriculum_edit')) throw new Error('Permission denied.');
+      const { data, error } = await supabase.from('belt_techniques').delete().eq('id', id).select('id').single();
       if (error) throw error;
+      if (!data) throw new Error('Technique removal was not confirmed.');
       setState(s => ({
         ...s,
         beltTechniques: s.beltTechniques.filter(x => x.id !== id)
@@ -4050,9 +2680,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateAcademyProfile = async (updates: Partial<AcademyProfile>): Promise<{ success: boolean; error?: string }> => {
+  const updateAcademyProfile = async (updates: Partial<AcademyProfile>, expectedUpdatedAt?: string): Promise<{ success: boolean; error?: string; profile?: AcademyProfile }> => {
     const role = state.currentUser?.role;
-    if (role !== 'Root' && role !== 'Super Root' && role !== 'Admin') {
+    if (!can('action:staff_manage')) {
       showNotification('Unauthorized: Only administrators can update the academy profile.', 'error');
       return { success: false, error: 'Unauthorized' };
     }
@@ -4061,100 +2691,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
 
-      let apiSuccess = false;
-      if (token) {
-        try {
-          const res = await fetch('/api/admin/update-academy-profile', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(updates)
-          });
-          const resData = await res.json();
-          if (res.ok && resData.success) {
-            apiSuccess = true;
-          }
-        } catch (apiErr) {
-          console.warn('[Store] API update-academy-profile failed, falling back to direct client RPC:', apiErr);
-        }
+      if(!token)throw new Error('Please sign in again.');
+      const payload={...academyProfileChanges(updates), ...(expectedUpdatedAt ? { expectedUpdatedAt } : {})};
+      const res=await fetch('/api/admin/update-academy-profile',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(payload)});
+      const result=await res.json();
+      if (res.status === 409) {
+        // Refresh the baseline so the form can identify conflicting local edits.
+        const { data: latest, error } = await supabase.from('academy_profile').select('*').eq('id', 'default').maybeSingle();
+        if (!error && latest) setState(s => ({ ...s, academyProfile: mapDbRowToAcademyProfile(latest) }));
       }
+      if(!res.ok || !result.success || !result.data)throw new Error(unwrapApiError(result,'Academy settings were not saved.'));
 
-      if (!apiSuccess) {
-        const dbPayload: Record<string, any> = {
-          id: 'default',
-          updated_at: new Date().toISOString()
-        };
-        if (updates.academyName !== undefined) dbPayload.academy_name = updates.academyName;
-        if (updates.legalName !== undefined) dbPayload.legal_name = updates.legalName;
-        if (updates.tagline !== undefined) dbPayload.tagline = updates.tagline;
-        if (updates.logoUrl !== undefined) dbPayload.logo_url = updates.logoUrl;
-        if (updates.websiteUrl !== undefined) dbPayload.website_url = updates.websiteUrl;
-        if (updates.portalUrl !== undefined) dbPayload.portal_url = updates.portalUrl;
-        if (updates.taxId !== undefined) dbPayload.tax_id = updates.taxId;
-        if (updates.contactPhone !== undefined) dbPayload.contact_phone = updates.contactPhone;
-        if (updates.supportEmail !== undefined) dbPayload.support_email = updates.supportEmail;
-        if (updates.primaryAddress !== undefined) dbPayload.primary_address = updates.primaryAddress;
-        if (updates.defaultBranchId !== undefined) {
-          dbPayload.default_branch_id = updates.defaultBranchId === 'all' || !updates.defaultBranchId ? null : updates.defaultBranchId;
-        }
-        if (updates.currency !== undefined) {
-          dbPayload.currency = updates.currency;
-          dbPayload.currency_symbol = updates.currency === 'USD' ? '$' : '៛';
-        }
-        if (updates.currencySymbol !== undefined) dbPayload.currency_symbol = updates.currencySymbol;
-        if (updates.tuitionGracePeriodDays !== undefined) dbPayload.tuition_grace_period_days = updates.tuitionGracePeriodDays;
-        if (updates.taxRatePercentage !== undefined) dbPayload.tax_rate_percentage = updates.taxRatePercentage;
-        if (updates.dateFormat !== undefined) dbPayload.date_format = updates.dateFormat;
-        if (updates.defaultClassDurationMins !== undefined) dbPayload.default_class_duration_mins = updates.defaultClassDurationMins;
-        if (updates.examPassingScore !== undefined) dbPayload.exam_passing_score = updates.examPassingScore;
-        if (updates.minAttendanceExamPct !== undefined) dbPayload.min_attendance_exam_pct = updates.minAttendanceExamPct;
-        if (updates.allowStudentPortalLogin !== undefined) dbPayload.allow_student_portal_login = updates.allowStudentPortalLogin;
-        if (updates.enableAudioChimes !== undefined) dbPayload.enable_audio_chimes = updates.enableAudioChimes;
-        if (updates.facebookUrl !== undefined) dbPayload.facebook_url = updates.facebookUrl;
-        if (updates.telegramChannel !== undefined) dbPayload.telegram_channel = updates.telegramChannel;
-        if (updates.instagramUrl !== undefined) dbPayload.instagram_url = updates.instagramUrl;
-
-        const { error } = await supabase.from('academy_profile').upsert(dbPayload, { onConflict: 'id' });
-        if (error) {
-          console.warn('[Store] Supabase direct upsert error:', error.message);
-        }
-      }
-
-      setState(s => {
-        const merged: AcademyProfile = {
-          ...s.academyProfile,
-          ...updates,
-          updatedAt: new Date().toISOString()
-        };
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('infinity_academy_profile', JSON.stringify(merged));
-          localStorage.setItem('infinity_academy_config', JSON.stringify({
-            academyName: merged.academyName,
-            defaultBranchId: merged.defaultBranchId,
-            contactPhone: merged.contactPhone,
-            contactEmail: merged.supportEmail,
-            currency: merged.currency,
-            dateFormat: merged.dateFormat,
-            defaultClassDuration: merged.defaultClassDurationMins,
-            examPassingScore: merged.examPassingScore
-          }));
-        }
-        return { ...s, academyProfile: merged };
-      });
-
-      showNotification('Academy profile synchronized successfully!', 'success');
-      return { success: true };
+      const profile = mapDbRowToAcademyProfile(result.data);
+      setState(s => ({ ...s, academyProfile: profile }));
+      return { success: true, profile };
     } catch (e: any) {
       console.error('[Store] updateAcademyProfile error:', e);
-      showNotification('Failed to update academy profile: ' + (e.message || 'Unknown error'), 'error');
       return { success: false, error: e.message || 'Failed to update academy profile' };
     }
   };
 
   const can = useCallback((permissionKey: string, targetUserId?: string): boolean => {
     if (!state.currentUser) return false;
+    if (state.currentUser.role !== 'Root' && state.currentUser.role !== 'Super Root' && !state.permissionsReady) return false;
     const userIdToCheck = targetUserId || state.currentUser.id;
     return hasPermission(
       state.currentUser.role,
@@ -4163,7 +2722,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       userIdToCheck,
       state.userPermissions
     );
-  }, [state.currentUser, state.rolePermissions, state.userPermissions]);
+  }, [state.currentUser, state.rolePermissions, state.userPermissions, state.permissionsReady]);
 
   const canWrite = useCallback((module: SecurityModule, specificAction?: string, targetUserId?: string): boolean => {
     if (!state.currentUser) return false;
@@ -4308,6 +2867,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         updateBeltHistory,
         deleteBeltHistory,
         addAchievement,
+        saveAchievements,
         updateAchievement,
         deleteAchievement,
         addBranch,
@@ -4339,6 +2899,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         reportError,
         hideNotification,
         showConfirm,
+        refreshData,
         hideConfirm,
         updateAcademyProfile,
       }}
@@ -4363,127 +2924,6 @@ export interface MembershipBillingStatus {
   amountOwed: number;
 }
 
-export function getMembershipBillingStatus(
-  student: Student,
-  payments: Payment[],
-  scholarships: Scholarship[],
-  classEnrollments: ClassEnrollment[]
-): MembershipBillingStatus {
-  const enrollments = classEnrollments.filter(e => e.studentId === student.id);
-  let baseDateStr = '';
-  if (enrollments.length > 0) {
-    const dates = enrollments.map(e => e.enrollmentDate).filter(Boolean) as string[];
-    if (dates.length > 0) {
-      baseDateStr = dates.sort()[0].split('T')[0];
-    }
-  }
-  if (!baseDateStr) {
-    baseDateStr = student.registrationDate || '';
-  }
-  if (!baseDateStr) {
-    return { status: 'Current', nextRenewalDate: '-', daysRemaining: 999, amountOwed: 0 };
-  }
-
-  const baseDate = new Date(baseDateStr.split('T')[0]);
-  baseDate.setDate(baseDate.getDate() - 1); // Billing anchor is enrollment date minus 1 day
-  const anchorDay = baseDate.getDate();
-
-  const today = new Date();
-  const currentYear = today.getFullYear();
-  const currentMonthIdx = today.getMonth(); // 0-11
-
-  // Get correct anniversary date for a specific year and month
-  const getAnniversaryDate = (year: number, monthIndex: number, day: number) => {
-    const d = new Date(year, monthIndex, day);
-    // If month overflowed (e.g. Feb 30 -> Mar 2), cap it to the last day of the month
-    if (d.getMonth() !== (monthIndex % 12 + 12) % 12) {
-      return new Date(year, monthIndex + 1, 0);
-    }
-    return d;
-  };
-
-  const anniversaryThisMonth = getAnniversaryDate(currentYear, currentMonthIdx, anchorDay);
-
-  let targetMonthName: string;
-  let targetYear: number;
-  let nextRenewalDate: Date;
-
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-  if (today < anniversaryThisMonth) {
-    // Current billing cycle started on the anniversary of last month
-    const prevMonthIdx = currentMonthIdx === 0 ? 11 : currentMonthIdx - 1;
-    const prevYear = currentMonthIdx === 0 ? currentYear - 1 : currentYear;
-    targetMonthName = monthNames[prevMonthIdx];
-    targetYear = prevYear;
-    nextRenewalDate = anniversaryThisMonth;
-  } else {
-    // Current billing cycle started on the anniversary of this month
-    targetMonthName = monthNames[currentMonthIdx];
-    targetYear = currentYear;
-    // Next renewal is next month's anniversary
-    const nextMonthIdx = currentMonthIdx === 11 ? 0 : currentMonthIdx + 1;
-    const nextYear = currentMonthIdx === 11 ? currentYear + 1 : currentYear;
-    nextRenewalDate = getAnniversaryDate(nextYear, nextMonthIdx, anchorDay);
-  }
-
-  const scholarship = scholarships.find(s => s.id === student.scholarshipId);
-  const isStudentEarlyGroup = scholarship?.typeName === 'Early Group Student';
-  const baseFee = isStudentEarlyGroup ? 25.00 : 45.00;
-  const discountPct = isStudentEarlyGroup ? 0 : (scholarship?.discountPercentage || 0);
-  const amountOwed = baseFee * (1 - discountPct / 100);
-  const isFullScholarship = discountPct === 100;
-
-  // Time calculations
-  const diffTime = nextRenewalDate.getTime() - today.getTime();
-  const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  const formatLocalDate = (d: Date) => {
-    return d.toISOString().split('T')[0];
-  };
-
-  if (isFullScholarship) {
-    return {
-      status: 'Current',
-      nextRenewalDate: formatLocalDate(nextRenewalDate),
-      daysRemaining,
-      amountOwed: 0
-    };
-  }
-
-  const hasPaid = payments.some(
-    p => p.studentId === student.id && p.month === targetMonthName && p.year === targetYear && p.status === 'Paid'
-  );
-
-  if (!hasPaid) {
-    // Payment is overdue for the current billing cycle
-    const overdueCycleStart = today < anniversaryThisMonth 
-      ? getAnniversaryDate(targetYear, monthNames.indexOf(targetMonthName), anchorDay)
-      : anniversaryThisMonth;
-    const overdueDiff = today.getTime() - overdueCycleStart.getTime();
-    const daysOverdue = Math.floor(overdueDiff / (1000 * 60 * 60 * 24));
-
-    return {
-      status: 'Overdue',
-      nextRenewalDate: formatLocalDate(overdueCycleStart),
-      daysRemaining: -daysOverdue,
-      amountOwed
-    };
-  }
-
-  if (daysRemaining <= 5) {
-    return {
-      status: 'Due Soon',
-      nextRenewalDate: formatLocalDate(nextRenewalDate),
-      daysRemaining,
-      amountOwed
-    };
-  }
-
-  return {
-    status: 'Current',
-    nextRenewalDate: formatLocalDate(nextRenewalDate),
-    daysRemaining,
-    amountOwed
-  };
+export function getMembershipBillingStatus(student:Student,payments:Payment[],scholarships:Scholarship[],classEnrollments:ClassEnrollment[],config:AcademyProfile=DEFAULT_ACADEMY_PROFILE):MembershipBillingStatus {
+  return membershipBilling(student,payments,scholarships,classEnrollments,config);
 }

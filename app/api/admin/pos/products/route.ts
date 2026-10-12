@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { fetchAllRows } from '@/lib/data-access';
 import {
   verifyCaller,
   validateRequestBody,
@@ -44,7 +45,7 @@ const CreateProductSchema = z.object({
   hasVariants: z.boolean().default(false),
   imageUrl: z.string().url().or(z.literal('')).nullable().optional(),
   description: z.string().max(1000).nullable().optional(),
-  variants: z.array(VariantInputSchema).optional(),
+  variants: z.array(VariantInputSchema).max(200).optional(),
 });
 
 const UpdateProductSchema = z.object({
@@ -64,7 +65,7 @@ const UpdateProductSchema = z.object({
   description: z.string().max(1000).nullable().optional(),
   isActive: z.boolean().optional(),
   allowStudentOrders: z.boolean().optional(),
-  variants: z.array(VariantInputSchema).optional(),
+  variants: z.array(VariantInputSchema).max(200).optional(),
 });
 
 const DeleteProductSchema = z.object({
@@ -90,7 +91,7 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const category = searchParams.get('category');
-    const search = searchParams.get('search')?.trim();
+    const search = searchParams.get('search')?.replace(/[^\p{L}\p{N} _-]/gu, '').slice(0,100).trim();
     const includeInactive = searchParams.get('include_inactive') === 'true';
 
     let query = adminSupabase
@@ -136,7 +137,7 @@ export async function GET(req: Request) {
       query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`);
     }
 
-    const { data: products, error } = await query;
+    const { data: products, error } = await fetchAllRows(query);
     if (error) {
       return formatServerErrorResponse(error);
     }
@@ -164,49 +165,11 @@ export async function POST(req: Request) {
     if (valErr || !body) return valErr!;
 
     if (body.action === 'ADJUST_STOCK') {
-      let result: any = null;
-      const { data: rpcResult, error: rpcError } = await adminSupabase.rpc('adjust_inventory_stock', {
-        p_product_id: body.productId,
-        p_variant_id: body.variantId || null,
-        p_change_qty: body.changeQty,
-        p_reason: body.reason,
-        p_notes: body.notes || `Stock adjusted via Admin Portal (${body.reason})`,
+      const { data: result, error: rpcError } = await adminSupabase.rpc('portal_adjust_inventory', {
+        p_actor: context.userId, p_product_id: body.productId, p_variant_id: body.variantId || null,
+        p_change_qty: body.changeQty, p_reason: body.reason, p_notes: body.notes || null,
       });
-
-      if (!rpcError && rpcResult) {
-        result = rpcResult;
-      } else {
-        // Direct table fallback: update stock in products table
-        const { data: currentProduct, error: fetchErr } = await adminSupabase
-          .from('products')
-          .select('id, stock')
-          .eq('id', body.productId)
-          .single();
-
-        if (fetchErr || !currentProduct) {
-          return formatServerErrorResponse(fetchErr || new Error('Product not found in database'));
-        }
-
-        const newStock = Math.max(0, (currentProduct.stock || 0) + body.changeQty);
-        const { data: updatedProduct, error: updateErr } = await adminSupabase
-          .from('products')
-          .update({ stock: newStock, updated_at: new Date().toISOString() })
-          .eq('id', body.productId)
-          .select('id, stock')
-          .single();
-
-        if (updateErr) {
-          return formatServerErrorResponse(updateErr);
-        }
-
-        result = {
-          product_id: body.productId,
-          previous_balance: currentProduct.stock,
-          change_qty: body.changeQty,
-          new_balance: updatedProduct.stock,
-          reason: body.reason,
-        };
-      }
+      if (rpcError || !result) return formatServerErrorResponse(rpcError || new Error('Stock adjustment failed'));
 
       await logSecurityAuditEvent({
         action: 'INVENTORY_STOCK_ADJUSTED',
@@ -227,253 +190,9 @@ export async function POST(req: Request) {
       });
     }
 
-    if (body.action === 'CREATE_PRODUCT') {
-      if (!CATALOG_ADMIN_ROLES.includes(context.role)) {
-        return NextResponse.json(
-          {
-            success: false,
-            data: null,
-            error: {
-              code: 'AUTH_FORBIDDEN_ROLE',
-              message: 'Forbidden: Product creation requires Head Coach or Administrator privileges.',
-            },
-          },
-          { status: 403 }
-        );
-      }
-      const hasVariants = Boolean(body.variants && body.variants.length > 0) || body.hasVariants;
-      let calculatedStock = body.stock;
-      let finalSizes = body.sizes || [];
-
-      if (body.variants && body.variants.length > 0) {
-        calculatedStock = body.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
-        const derivedSizes = Array.from(new Set(body.variants.map(v => v.size.trim())));
-        finalSizes = derivedSizes;
-      }
-
-      const { data: newProd, error: insertError } = await adminSupabase
-        .from('products')
-        .insert({
-          sku: body.sku.toUpperCase().trim(),
-          name: body.name.trim(),
-          category_id: body.categoryId || null,
-          category_name: body.categoryName,
-          price_usd: body.priceUsd,
-          cost_usd: body.costUsd,
-          stock: calculatedStock,
-          min_stock_threshold: body.minStockThreshold,
-          sizes: finalSizes,
-          has_variants: hasVariants,
-          image_url: body.imageUrl || null,
-          description: body.description || null,
-          is_active: true,
-          allow_student_orders: true,
-        })
-        .select()
-        .single();
-
-      if (insertError) {
-        if (insertError.code === '23505' || insertError.message?.includes('duplicate key') || insertError.message?.includes('sku')) {
-          return NextResponse.json(
-            { success: false, data: null, error: { message: `SKU "${body.sku.toUpperCase().trim()}" is already assigned to another product in the catalog.` } },
-            { status: 409 }
-          );
-        }
-        return formatServerErrorResponse(insertError);
-      }
-
-      // Insert child variants if supplied
-      if (body.variants && body.variants.length > 0) {
-        const variantRows = body.variants.map(v => ({
-          product_id: newProd.id,
-          sku: v.sku.toUpperCase().trim(),
-          size: v.size.trim(),
-          color: v.color?.trim() || null,
-          stock: v.stock || 0,
-          price_override: v.priceOverride !== undefined && v.priceOverride !== null ? v.priceOverride : null,
-          min_stock_threshold: v.minStockThreshold || 3,
-          is_active: true
-        }));
-
-        const { data: createdVariants, error: variantInsertError } = await adminSupabase
-          .from('product_variants')
-          .insert(variantRows)
-          .select();
-
-        if (variantInsertError) {
-          console.error('Failed to insert product variants:', variantInsertError);
-        } else {
-          newProd.variants = createdVariants;
-        }
-      }
-
-      await logSecurityAuditEvent({
-        action: 'PRODUCT_CREATED',
-        performedBy: context.userId,
-        targetId: newProd.id,
-        details: { sku: newProd.sku, name: newProd.name, variantsCount: body.variants?.length || 0 },
-        status: 'SUCCESS',
-      });
-
-      return NextResponse.json({
-        success: true,
-        data: newProd,
-        error: null,
-      });
-    }
-
-    if (body.action === 'UPDATE_PRODUCT') {
-      if (!CATALOG_ADMIN_ROLES.includes(context.role)) {
-        return NextResponse.json(
-          {
-            success: false,
-            data: null,
-            error: {
-              code: 'AUTH_FORBIDDEN_ROLE',
-              message: 'Forbidden: Product catalog updates require Head Coach or Administrator privileges.',
-            },
-          },
-          { status: 403 }
-        );
-      }
-      const updateFields: Record<string, any> = {
-        updated_at: new Date().toISOString(),
-      };
-      if (body.sku !== undefined) updateFields.sku = body.sku.toUpperCase().trim();
-      if (body.name !== undefined) updateFields.name = body.name.trim();
-      if (body.categoryId !== undefined) updateFields.category_id = body.categoryId;
-      if (body.categoryName !== undefined) updateFields.category_name = body.categoryName;
-      if (body.priceUsd !== undefined) updateFields.price_usd = body.priceUsd;
-      if (body.costUsd !== undefined) updateFields.cost_usd = body.costUsd;
-      if (body.stock !== undefined) updateFields.stock = body.stock;
-      if (body.minStockThreshold !== undefined) updateFields.min_stock_threshold = body.minStockThreshold;
-      if (body.sizes !== undefined) updateFields.sizes = body.sizes;
-      if (body.hasVariants !== undefined) updateFields.has_variants = body.hasVariants;
-      if (body.imageUrl !== undefined) updateFields.image_url = body.imageUrl;
-      if (body.description !== undefined) updateFields.description = body.description;
-      if (body.isActive !== undefined) updateFields.is_active = body.isActive;
-      if (body.allowStudentOrders !== undefined) updateFields.allow_student_orders = body.allowStudentOrders;
-
-      if (body.variants && body.variants.length > 0) {
-        const variantStockTotal = body.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
-        updateFields.stock = variantStockTotal;
-        updateFields.has_variants = true;
-        updateFields.sizes = Array.from(new Set(body.variants.map(v => v.size.trim())));
-
-        // Clean & sync variants
-        await adminSupabase.from('product_variants').delete().eq('product_id', body.productId);
-        const variantRows = body.variants.map(v => ({
-          product_id: body.productId,
-          sku: v.sku.toUpperCase().trim(),
-          size: v.size.trim(),
-          color: v.color?.trim() || null,
-          stock: v.stock || 0,
-          price_override: v.priceOverride !== undefined && v.priceOverride !== null ? v.priceOverride : null,
-          min_stock_threshold: v.minStockThreshold || 3,
-          is_active: true
-        }));
-        await adminSupabase.from('product_variants').insert(variantRows);
-      }
-
-      const { data: updatedProd, error: updateError } = await adminSupabase
-        .from('products')
-        .update(updateFields)
-        .eq('id', body.productId)
-        .select(`
-          id,
-          sku,
-          name,
-          category_id,
-          category_name,
-          price_usd,
-          cost_usd,
-          stock,
-          min_stock_threshold,
-          sizes,
-          has_variants,
-          image_url,
-          description,
-          is_active,
-          allow_student_orders,
-          created_at,
-          updated_at,
-          variants:product_variants (
-            id,
-            sku,
-            size,
-            color,
-            price_override,
-            stock,
-            min_stock_threshold,
-            is_active
-          )
-        `)
-        .single();
-
-      if (updateError) {
-        if (updateError.code === '23505' || updateError.message?.includes('duplicate key') || updateError.message?.includes('sku')) {
-          return NextResponse.json(
-            { success: false, data: null, error: { message: `SKU "${body.sku?.toUpperCase().trim()}" is already assigned to another product in the catalog.` } },
-            { status: 409 }
-          );
-        }
-        return formatServerErrorResponse(updateError);
-      }
-
-      await logSecurityAuditEvent({
-        action: 'PRODUCT_UPDATED',
-        performedBy: context.userId,
-        targetId: body.productId,
-        details: { sku: updatedProd.sku, updatedFields: Object.keys(updateFields) },
-        status: 'SUCCESS',
-      });
-
-      return NextResponse.json({
-        success: true,
-        data: updatedProd,
-        error: null,
-      });
-    }
-
-    if (body.action === 'DELETE_PRODUCT') {
-      if (!CATALOG_DESTRUCTIVE_ROLES.includes(context.role)) {
-        return NextResponse.json(
-          {
-            success: false,
-            data: null,
-            error: {
-              code: 'AUTH_FORBIDDEN_ROLE',
-              message: 'Forbidden: Product deletion is strictly restricted to Administrators.',
-            },
-          },
-          { status: 403 }
-        );
-      }
-      const { error: deleteError } = await adminSupabase
-        .from('products')
-        .update({ is_active: false, updated_at: new Date().toISOString() })
-        .eq('id', body.productId);
-
-      if (deleteError) {
-        return formatServerErrorResponse(deleteError);
-      }
-
-      await logSecurityAuditEvent({
-        action: 'PRODUCT_DELETED',
-        performedBy: context.userId,
-        targetId: body.productId,
-        details: { softDelete: true },
-        status: 'SUCCESS',
-      });
-
-      return NextResponse.json({
-        success: true,
-        data: { id: body.productId, is_active: false },
-        error: null,
-      });
-    }
-
-    return NextResponse.json({ success: false, data: null, error: { message: 'Invalid action' } }, { status: 400 });
+    const { data: product, error } = await adminSupabase.rpc('portal_save_product', { p_actor: context.userId, p_payload: body });
+    if (error) return formatServerErrorResponse(error);
+    return NextResponse.json({success:true,data:product,error:null});
   } catch (error: any) {
     return formatServerErrorResponse(error);
   }

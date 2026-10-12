@@ -1,60 +1,50 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { useAppStore, User, Role, AcademyProfile, DEFAULT_ACADEMY_PROFILE } from '@/lib/store';
+import { dialogMotion } from '@/lib/motion';
+import { academyDate } from '@/lib/dates';
+
+import { supabase } from '@/lib/supabase';
+import { generatePassword } from '@/lib/passwords';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { useAppStore, User, Role } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  UserCircle, 
-  Lock, 
-  X, 
-  Globe, 
-  Moon, 
-  Sun, 
-  GithubLogo, 
-  Link as LinkIcon, 
-  ArrowSquareOut, 
-  Checks, 
-  XCircle, 
-  UserPlus, 
-  PencilSimple, 
-  Key, 
-  Eye, 
-  EyeClosed,
-  SquaresFour, 
-  ListDashes, 
-  UsersThree, 
-  GraduationCap,
-  ShieldCheck,
-  Sliders,
-  Info,
-  Warning,
-  DownloadSimple,
-  ArrowsClockwise,
-  Check,
-  Copy,
-  Building,
-  Phone,
-  Sparkle,
-  SpeakerHigh,
-  SpeakerSlash,
-  Database,
-  CalendarBlank,
-  Timer,
-  CurrencyDollar,
-  EnvelopeSimple,
-  HardDrives,
-  MapPin,
-  FacebookLogo,
-  TelegramLogo,
-  InstagramLogo,
-  FloppyDisk,
-  ArrowCounterClockwise,
-  Percent,
-  Tag,
-  ShareNetwork,
-  LockKey,
-  Pulse
-} from '@phosphor-icons/react';
+import { PageTransition } from './PageTransition';
+import { UserCircle } from '@phosphor-icons/react/dist/csr/UserCircle';
+import { Lock } from '@phosphor-icons/react/dist/csr/Lock';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { Globe } from '@phosphor-icons/react/dist/csr/Globe';
+import { Moon } from '@phosphor-icons/react/dist/csr/Moon';
+import { Sun } from '@phosphor-icons/react/dist/csr/Sun';
+import { GithubLogo } from '@phosphor-icons/react/dist/csr/GithubLogo';
+import { Link as LinkIcon } from '@phosphor-icons/react/dist/csr/Link';
+import { ArrowSquareOut } from '@phosphor-icons/react/dist/csr/ArrowSquareOut';
+import { Checks } from '@phosphor-icons/react/dist/csr/Checks';
+import { XCircle } from '@phosphor-icons/react/dist/csr/XCircle';
+import { UserPlus } from '@phosphor-icons/react/dist/csr/UserPlus';
+import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { Key } from '@phosphor-icons/react/dist/csr/Key';
+import { Eye } from '@phosphor-icons/react/dist/csr/Eye';
+import { EyeClosed } from '@phosphor-icons/react/dist/csr/EyeClosed';
+import { SquaresFour } from '@phosphor-icons/react/dist/csr/SquaresFour';
+import { ListDashes } from '@phosphor-icons/react/dist/csr/ListDashes';
+import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
+import { GraduationCap } from '@phosphor-icons/react/dist/csr/GraduationCap';
+import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { Sliders } from '@phosphor-icons/react/dist/csr/Sliders';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { DownloadSimple } from '@phosphor-icons/react/dist/csr/DownloadSimple';
+import { ArrowsClockwise } from '@phosphor-icons/react/dist/csr/ArrowsClockwise';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
+import { Building } from '@phosphor-icons/react/dist/csr/Building';
+import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { SpeakerHigh } from '@phosphor-icons/react/dist/csr/SpeakerHigh';
+import { SpeakerSlash } from '@phosphor-icons/react/dist/csr/SpeakerSlash';
+import { Database } from '@phosphor-icons/react/dist/csr/Database';
+import { HardDrives } from '@phosphor-icons/react/dist/csr/HardDrives';
+import { LockKey } from '@phosphor-icons/react/dist/csr/LockKey';
+import { Pulse } from '@phosphor-icons/react/dist/csr/Pulse';
 import { cn } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
 import { useT } from '@/hooks/useTranslation';
@@ -65,6 +55,8 @@ import { RolePermissionsMatrixPanel } from './RolePermissionsMatrixPanel';
 import { UserPermissionsModal } from './UserPermissionsModal';
 import { PwaDiagnosticsModal } from '@/components/pwa/PwaDiagnosticsModal';
 import { playChime, isAudioEnabled, setAudioEnabled } from '@/lib/soundEffects';
+import { AcademySettingsPanel } from './settings/AcademySettingsPanel';
+import settingsStyles from './settings/settings.module.css';
 
 const formatRoleLocalized = (roleName: string, t: any) => {
   if (roleName === 'Root' || roleName === 'Super Root') return t('role_root') || 'Root';
@@ -77,28 +69,25 @@ const formatRoleLocalized = (roleName: string, t: any) => {
 };
 
 export function SettingsView() {
-  const { state, setTheme, setLanguage, addUser, updateUser, showNotification, updateAcademyProfile } = useAppStore();
+  const { state, setTheme, setLanguage, addUser, updateUser, showNotification, can } = useAppStore();
   const t = useT();
 
   // Active Tab: Preferences, Profile, Accounts, Permissions (Root), Security, Data
   const [activeTab, setActiveTab] = useState<'general' | 'profile' | 'members' | 'permissions' | 'security' | 'data'>('general');
   const role = state.currentUser?.role;
   const isRoot = role === 'Root' || role === 'Super Root';
-  const isAdmin = role === 'Admin' || isRoot;
+  const isAdmin = (role === 'Admin' || isRoot) && can('action:staff_manage');
 
   // Sound Feedback State
   const [soundActive, setSoundActive] = useState<boolean>(true);
   const [isPlayingTestChime, setIsPlayingTestChime] = useState(false);
 
-  // Academy Profile State (Realtime Supabase + Local Cache)
-  const [profileForm, setProfileForm] = useState<AcademyProfile>(state.academyProfile || DEFAULT_ACADEMY_PROFILE);
-  const [isSavingConfig, setIsSavingConfig] = useState(false);
-  const [profileSection, setProfileSection] = useState<'all' | 'brand' | 'contact' | 'financial' | 'curriculum' | 'portal'>('all');
-
-  // Check if form has unsaved modifications
-  const isProfileDirty = useMemo(() => {
-    return JSON.stringify(profileForm) !== JSON.stringify(state.academyProfile || DEFAULT_ACADEMY_PROFILE);
-  }, [profileForm, state.academyProfile]);
+  const [isProfileDirty, setIsProfileDirty] = useState(false);
+  const [isSavingUser, setIsSavingUser] = useState(false);
+  const savingUser = useRef(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [busyUsers, setBusyUsers] = useState<Set<string>>(new Set());
+  const busyUserIds = useRef(new Set<string>());
 
   // Storage Cache Size in KB
   const [cacheSizeKB, setCacheSizeKB] = useState<number>(0);
@@ -132,18 +121,34 @@ export function SettingsView() {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [copiedPassword, setCopiedPassword] = useState(false);
 
+  const modalRef = useRef<HTMLDivElement>(null);
+  const modalBusy = useRef(false); modalBusy.current = isSavingUser || isResettingPassword;
+  const activeModal = showUserModal ? 'account' : passwordTargetUser ? 'password' : showPurgeConfirm ? 'cache' : null;
+  useEffect(() => {
+    if (!activeModal) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const frame = requestAnimationFrame(() => modalRef.current?.querySelector<HTMLElement>('input:not(:disabled),button:not(:disabled)')?.focus());
+    const keyboard = (event: KeyboardEvent) => {
+      if (document.querySelector('[role="alertdialog"]:not([inert])')) return;
+      if (event.key === 'Escape' && !modalBusy.current) {
+        setShowUserModal(null); setPasswordTargetUser(null); setTargetNewPassword(''); setShowPurgeConfirm(false);
+      }
+      if (event.key !== 'Tab') return;
+      const items = Array.from(modalRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href]') || []).filter(element => element.getClientRects().length);
+      if (!items.length) { event.preventDefault(); return; }
+      const first = items[0]; const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', keyboard);
+    return () => { cancelAnimationFrame(frame); document.removeEventListener('keydown', keyboard); previous?.focus(); };
+  }, [activeModal]);
+
   // Filters & Search
   const [memberSearch, setMemberSearch] = useState('');
   const [memberRoleFilter, setMemberRoleFilter] = useState<string>('All');
   const [memberStatusFilter, setMemberStatusFilter] = useState<'All' | 'Active' | 'Locked'>('All');
   const [activeKpiFilter, setActiveKpiFilter] = useState<'all' | 'staff' | 'students' | 'active' | null>(null);
-
-  // Synchronize profile form when store hydrates or realtime updates arrive
-  useEffect(() => {
-    if (state.academyProfile) {
-      setProfileForm(state.academyProfile);
-    }
-  }, [state.academyProfile]);
 
   // Load Preferences & Cache Size on Mount
   useEffect(() => {
@@ -155,7 +160,7 @@ export function SettingsView() {
         const key = localStorage.key(i);
         if (key && key.startsWith('infinity_')) {
           const val = localStorage.getItem(key) || '';
-          totalBytes += key.length + val.length;
+          totalBytes += 2 * (key.length + val.length);
         }
       }
       setCacheSizeKB(Math.round((totalBytes / 1024) * 10) / 10);
@@ -176,33 +181,12 @@ export function SettingsView() {
     setTimeout(() => setIsPlayingTestChime(false), 500);
   };
 
-  const handleSaveAcademyConfig = async () => {
-    setIsSavingConfig(true);
-    try {
-      const res = await updateAcademyProfile(profileForm);
-      if (res.success) {
-        playChime('bell');
-      }
-    } finally {
-      setIsSavingConfig(false);
-    }
-  };
-
-  const handleResetProfile = () => {
-    setProfileForm(state.academyProfile || DEFAULT_ACADEMY_PROFILE);
-    showNotification('Academy profile changes discarded.', 'info');
-  };
-
-  const activeBranch = useMemo(() => {
-    if (profileForm.defaultBranchId && profileForm.defaultBranchId !== 'all') {
-      return state.branches.find(b => b.id === profileForm.defaultBranchId) || state.branches[0];
-    }
-    return state.branches[0];
-  }, [state.branches, profileForm.defaultBranchId]);
+  const activeBranch = state.academyProfile.defaultBranchId === 'all' || !state.academyProfile.defaultBranchId
+    ? undefined : state.branches.find(branch => branch.id === state.academyProfile.defaultBranchId);
 
   const handleResetTargetPassword = async () => {
-    if (!passwordTargetUser || !targetNewPassword || targetNewPassword.length < 6) {
-      showNotification('Password must be at least 6 characters long.', 'warning');
+    if (!passwordTargetUser || !targetNewPassword || targetNewPassword.length < 12) {
+      showNotification('Password must be at least 12 characters long.', 'warning');
       return;
     }
     setIsResettingPassword(true);
@@ -286,6 +270,7 @@ export function SettingsView() {
   const activeUsersCount = state.users.filter(u => u.isActive).length;
 
   const handleSaveUser = async () => {
+    if (savingUser.current || !isAdmin) return;
     if (!userForm.username.trim()) {
       showNotification('Username is required.', 'warning');
       return;
@@ -294,9 +279,11 @@ export function SettingsView() {
       showNotification('Display name is required.', 'warning');
       return;
     }
+    savingUser.current = true; setIsSavingUser(true);
+    try {
     if (showUserModal === 'new') {
-      if (!userForm.password || userForm.password.length < 6) {
-        showNotification('Initial password must be at least 6 characters long.', 'warning');
+      if (!userForm.password || userForm.password.length < 12) {
+        showNotification('Initial password must be at least 12 characters long.', 'warning');
         return;
       }
       const result = await addUser(userForm);
@@ -308,11 +295,15 @@ export function SettingsView() {
         playChime('success');
       }
     } else if (typeof showUserModal === 'string') {
-      await updateUser(showUserModal, userForm);
+      const profileChanges = { username: userForm.username, email: userForm.email, displayName: userForm.displayName, khmerName: userForm.khmerName, phone: userForm.phone, role: userForm.role, isActive: userForm.isActive, profilePicturePath: userForm.profilePicturePath, studentId: userForm.studentId };
+      await updateUser(showUserModal, profileChanges);
       showNotification("Account details updated successfully.", 'success');
       playChime('success');
     }
     setShowUserModal(null);
+    } catch (error) {
+      showNotification(error instanceof Error ? error.message : 'Account could not be saved. Your edits are still here.', 'error');
+    } finally { savingUser.current = false; setIsSavingUser(false); }
   };
 
   const handleEditUser = (u: User) => {
@@ -337,12 +328,21 @@ export function SettingsView() {
     return false;
   };
 
+  const handleToggleAccount = async (user: User) => {
+    if (!canManageUser(user) || busyUserIds.current.has(user.id)) return;
+    busyUserIds.current.add(user.id); setBusyUsers(new Set(busyUserIds.current));
+    try {
+      await updateUser(user.id, { isActive: !user.isActive });
+      showNotification('Account @' + user.username + (user.isActive ? ' locked.' : ' unlocked.'), 'success');
+    } catch (error) { showNotification(error instanceof Error ? error.message : 'Account status could not be changed.', 'error'); }
+    finally { busyUserIds.current.delete(user.id); setBusyUsers(new Set(busyUserIds.current)); }
+  };
+
   const renderUserCard = (u: User) => {
     const isManageable = canManageUser(u);
     const student = (u.role === 'Student' || u.studentId) ? state.students.find(s => 
       s.id === u.studentId || 
-      s.profileId === u.id || 
-      (s.email && s.email.toLowerCase() === u.email?.toLowerCase())
+      s.profileId === u.id
     ) : null;
 
     return (
@@ -473,10 +473,8 @@ export function SettingsView() {
               <button 
                 type="button"
                 title={t('set_lock_unlock')} 
-                onClick={() => {
-                  updateUser(u.id, { isActive: !u.isActive });
-                  showNotification(`Account @${u.username} access toggled.`, 'info');
-                }}
+                onClick={() => handleToggleAccount(u)}
+                disabled={busyUsers.has(u.id)}
                 className={cn(
                   "p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-[8px] border transition-colors cursor-pointer active:scale-95 touch-manipulation", 
                   u.isActive 
@@ -493,45 +491,19 @@ export function SettingsView() {
     );
   };
 
-  const handleExportBackup = () => {
+  const handleExportBackup = async () => {
+    if (isExporting || !isRoot) return;
+    setIsExporting(true);
     try {
-      const backupData = {
-        exportTimestamp: new Date().toISOString(),
-        version: '2.4.0',
-        environment: 'Infinity TKD Production',
-        counts: {
-          students: state.students.length,
-          branches: state.branches.length,
-          classSessions: state.classSessions.length,
-          attendanceRecords: state.attendanceRecords.length,
-          payments: state.payments.length,
-          users: state.users.length,
-          workoutTemplates: state.workoutTemplates.length,
-          beltTechniques: state.beltTechniques.length
-        },
-        academyProfile: profileForm,
-        students: state.students,
-        branches: state.branches,
-        classSessions: state.classSessions,
-        attendanceRecords: state.attendanceRecords,
-        payments: state.payments,
-        users: state.users,
-        workoutTemplates: state.workoutTemplates,
-        beltTechniques: state.beltTechniques
-      };
-      const jsonStr = JSON.stringify(backupData, null, 2);
-      const blob = new Blob([jsonStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `infinity_tkd_complete_backup_${new Date().toISOString().split('T')[0]}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showNotification(t('set_backup_success'), 'success');
-      playChime('bell');
-    } catch {
-      showNotification(t('set_backup_failed'), 'error');
-    }
+      const {data:{session}} = await supabase.auth.getSession();
+      if(!session)throw new Error('Please sign in again.');
+      const response = await fetch('/api/admin/export',{headers:{Authorization:'Bearer '+session.access_token}});
+      if(!response.ok){const result=await response.json();throw new Error(result.error?.message || 'Export failed.');}
+      const url=URL.createObjectURL(await response.blob());const link=document.createElement('a');link.href=url;
+      link.download='infinity_tkd_application_data_'+academyDate()+'.json';link.click();URL.revokeObjectURL(url);
+      showNotification('Application data exported. Auth and Storage require separate backups.','success');
+    }catch(e){showNotification(e instanceof Error ? e.message : 'Export failed.','error');}
+    finally { setIsExporting(false); }
   };
 
   const handleExecutePurge = () => {
@@ -553,7 +525,7 @@ export function SettingsView() {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-6 px-3 sm:px-6 py-4 transition-all">
+    <div className={cn(settingsStyles.workspace, "w-full max-w-7xl mx-auto space-y-6 px-3 sm:px-6 py-4")}>
       {/* 1. Refined Executive Header */}
       <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 shadow-sm transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -563,11 +535,10 @@ export function SettingsView() {
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#EF2F38] bg-red-500/10 px-2 py-0.5 rounded-[6px] border border-red-500/20">
-                INFINITY TKD · GOVERNANCE & SETTINGS
+                INFINITY TKD · SETTINGS
               </span>
               <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-[6px]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                ONLINE · SUPABASE REALTIME
+                {state.isLoading ? 'LOADING SETTINGS' : state.dataLoadErrors?.length ? 'SOME DATA UNAVAILABLE' : 'ACADEMY WORKSPACE'}
               </span>
             </div>
             <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wider text-neutral-900 dark:text-white font-sans">
@@ -580,7 +551,7 @@ export function SettingsView() {
         </div>
 
         {/* Quick Context Chips */}
-        <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
+        <div className="hidden sm:flex items-center gap-2 flex-wrap w-full md:w-auto">
           <div className="flex items-center gap-2 px-3 py-1.5 min-h-[38px] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs font-mono flex-1 sm:flex-none">
             <Building className="w-3.5 h-3.5 text-[#EF2F38] shrink-0" weight="bold" />
             <span className="text-neutral-500 dark:text-neutral-400">{t('set_active_branch')}:</span>
@@ -590,113 +561,37 @@ export function SettingsView() {
           <div className="flex items-center gap-2 px-3 py-1.5 min-h-[38px] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs font-mono flex-1 sm:flex-none">
             <UserCircle className="w-3.5 h-3.5 text-blue-500 shrink-0" weight="bold" />
             <span className="text-neutral-500 dark:text-neutral-400">User:</span>
-            <span className="font-bold text-neutral-900 dark:text-white truncate">@{state.currentUser?.username || 'admin'}</span>
+            <span className="font-bold text-neutral-900 dark:text-white truncate">@{state.currentUser?.username || '—'}</span>
           </div>
         </div>
       </div>
 
-      {/* 2. Executive 5-Tab Segmented Navigation */}
-      <div className="flex gap-1.5 border-b border-neutral-200 dark:border-[#262626] -mx-3 px-3 sm:mx-0 sm:px-1 overflow-x-auto no-scrollbar touch-pan-x">
-        {/* Tab 1: Preferences */}
-        <button 
-          onClick={() => setActiveTab('general')}
-          className={cn(
-            "pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap min-h-[44px] flex items-center gap-2 px-3.5 cursor-pointer active:scale-95 touch-manipulation",
-            activeTab === 'general' 
-              ? "border-[#EF2F38] text-[#EF2F38] dark:text-white font-black" 
-              : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-          )}
-        >
-          <Sliders className="w-4 h-4" weight={activeTab === 'general' ? 'bold' : 'regular'} />
-          <span>{t('set_tab_general')}</span>
-        </button>
-
-        {/* Tab 2: Academy Profile */}
-        <button 
-          onClick={() => setActiveTab('profile')}
-          className={cn(
-            "pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap min-h-[44px] flex items-center gap-2 px-3.5 cursor-pointer active:scale-95 touch-manipulation",
-            activeTab === 'profile' 
-              ? "border-[#EF2F38] text-[#EF2F38] dark:text-white font-black" 
-              : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-          )}
-        >
-          <Building className="w-4 h-4 text-[#EF2F38]" weight={activeTab === 'profile' ? 'bold' : 'regular'} />
-          <span>{t('set_tab_profile')}</span>
-        </button>
-
-        {/* Tab 3: Accounts & RBAC (Admin/Root) */}
-        {isAdmin && (
-          <button 
-            onClick={() => setActiveTab('members')}
-            className={cn(
-              "pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap min-h-[44px] flex items-center gap-2 px-3.5 cursor-pointer active:scale-95 touch-manipulation",
-              activeTab === 'members' 
-                ? "border-[#EF2F38] text-[#EF2F38] dark:text-white font-black" 
-                : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-            )}
-          >
-            <UsersThree className="w-4 h-4" weight={activeTab === 'members' ? 'bold' : 'regular'} />
-            <span>{t('set_tab_accounts')}</span>
-            <span className={cn(
-              "ml-1 px-1.5 py-0.5 rounded-[8px] text-[10px] font-mono font-bold",
-              activeTab === 'members' 
-                ? "bg-[#EF2F38] text-white" 
-                : "bg-neutral-200 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300"
-            )}>
-              {totalUsersCount}
-            </span>
-          </button>
-        )}
-
-        {/* Tab: Access Matrix (Root Only) */}
-        {isRoot && (
-          <button 
-            onClick={() => setActiveTab('permissions')}
-            className={cn(
-              "pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap min-h-[44px] flex items-center gap-2 px-3.5 cursor-pointer active:scale-95 touch-manipulation",
-              activeTab === 'permissions' 
-                ? "border-purple-500 text-purple-600 dark:text-purple-400 font-black" 
-                : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-            )}
-          >
-            <LockKey className="w-4 h-4 text-purple-500" weight={activeTab === 'permissions' ? 'bold' : 'regular'} />
-            <span>Access Matrix</span>
-            <span className="px-1.5 py-0.5 rounded-[8px] text-[9px] font-mono font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
-              ROOT
-            </span>
-          </button>
-        )}
-
-        {/* Tab 4: Security & Sessions */}
-        <button 
-          onClick={() => setActiveTab('security')}
-          className={cn(
-            "pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap flex items-center gap-2 min-h-[44px] px-3.5 cursor-pointer active:scale-95 touch-manipulation",
-            activeTab === 'security' 
-              ? "border-[#EF2F38] text-[#EF2F38] dark:text-white font-black" 
-              : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-          )}
-        >
-          <ShieldCheck className="w-4 h-4 text-emerald-500" weight={activeTab === 'security' ? 'bold' : 'regular'} />
-          <span>{t('set_tab_security')}</span>
-        </button>
-
-        {/* Tab 5: Data & System */}
-        <button 
-          onClick={() => setActiveTab('data')}
-          className={cn(
-            "pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap min-h-[44px] flex items-center gap-2 px-3.5 cursor-pointer active:scale-95 touch-manipulation",
-            activeTab === 'data' 
-              ? "border-[#EF2F38] text-[#EF2F38] dark:text-white font-black" 
-              : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-          )}
-        >
-          <Database className="w-4 h-4 text-blue-500" weight={activeTab === 'data' ? 'bold' : 'regular'} />
-          <span>{t('set_tab_data')}</span>
-        </button>
+      {state.dataLoadErrors?.length ? <div role="alert" className={settingsStyles.notice}><p className="text-sm font-semibold">Some settings data could not be loaded.</p><p className={settingsStyles.hint}>Loaded data may be incomplete. Refresh and retry before making changes.</p></div> : null}
+      <div className={settingsStyles.shell}>
+      <div className={settingsStyles.mobileNavigation}>
+        <label htmlFor="settings-section" className="sr-only">Settings section</label>
+        <select id="settings-section" className={settingsStyles.input} value={activeTab} onChange={event => setActiveTab(event.target.value as typeof activeTab)}>
+          <option value="general">{t('set_tab_general')}</option><option value="profile">{t('set_tab_profile')}{isProfileDirty ? ' · Unsaved changes' : ''}</option>
+          {isAdmin && <option value="members">{t('set_tab_accounts')}</option>}{isRoot && <option value="permissions">Access matrix</option>}
+          <option value="security">{t('set_tab_security')}</option><option value="data">{t('set_tab_data')}</option>
+        </select>
       </div>
-
+      <nav className={settingsStyles.navigation} aria-label="Settings sections">
+        {[
+          { id: 'general', label: t('set_tab_general'), icon: Sliders },
+          { id: 'profile', label: t('set_tab_profile'), icon: Building },
+          ...(isAdmin ? [{ id: 'members', label: t('set_tab_accounts'), icon: UsersThree }] : []),
+          ...(isRoot ? [{ id: 'permissions', label: 'Access matrix', icon: LockKey }] : []),
+          { id: 'security', label: t('set_tab_security'), icon: ShieldCheck },
+          { id: 'data', label: t('set_tab_data'), icon: Database },
+        ].map(item => <button type="button" key={item.id} aria-current={activeTab === item.id ? 'page' : undefined}
+          aria-controls="settings-content" onClick={() => setActiveTab(item.id as typeof activeTab)}>
+          <item.icon size={16} aria-hidden="true" /><span>{item.label}</span>
+          {item.id === 'profile' && isProfileDirty && <span className="ml-auto text-xs" aria-label="Unsaved changes">•</span>}
+        </button>)}
+      </nav>
+      <PageTransition identity={activeTab} className={settingsStyles.content}>
+      <div id="settings-content">
       {/* ========================================================================= */}
       {/* TAB 1: PREFERENCES (THEME, LANGUAGE, AUDIO CHIMES)                       */}
       {/* ========================================================================= */}
@@ -706,7 +601,7 @@ export function SettingsView() {
             <h2 className="text-xs text-[#EF2F38] uppercase font-bold tracking-widest border-b border-neutral-200 dark:border-[#262626] pb-3 font-mono flex items-center gap-2">
               <Sliders className="w-4 h-4" /> {t('set_tab_general')}
             </h2>
-            
+
             {/* Visual Theme Selector */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-neutral-200 dark:border-[#262626]">
               <div className="max-w-md">
@@ -717,6 +612,7 @@ export function SettingsView() {
               <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
                 <button 
                   type="button"
+                  aria-pressed={state.theme === 'light'}
                   onClick={() => setTheme('light')}
                   className={cn(
                     "flex items-center gap-2.5 px-4 py-3 rounded-[8px] border text-xs font-bold transition-all cursor-pointer min-h-[48px] active:scale-95 touch-manipulation",
@@ -735,6 +631,7 @@ export function SettingsView() {
 
                 <button 
                   type="button"
+                  aria-pressed={state.theme === 'dark'}
                   onClick={() => setTheme('dark')}
                   className={cn(
                     "flex items-center gap-2.5 px-4 py-3 rounded-[8px] border text-xs font-bold transition-all cursor-pointer min-h-[48px] active:scale-95 touch-manipulation",
@@ -763,6 +660,7 @@ export function SettingsView() {
               <div className="grid grid-cols-3 gap-2 w-full md:w-auto">
                 <button 
                   type="button"
+                  aria-pressed={state.language === 'en'}
                   onClick={() => setLanguage('en')}
                   className={cn(
                     "flex items-center justify-center gap-1.5 px-3 py-2.5 min-h-[44px] rounded-[8px] border text-xs font-bold transition-all cursor-pointer active:scale-95 touch-manipulation",
@@ -777,6 +675,7 @@ export function SettingsView() {
 
                 <button 
                   type="button"
+                  aria-pressed={state.language === 'kh'}
                   onClick={() => setLanguage('kh')}
                   className={cn(
                     "flex items-center justify-center gap-1.5 px-3 py-2.5 min-h-[44px] rounded-[8px] border text-xs font-bold transition-all cursor-pointer active:scale-95 touch-manipulation",
@@ -791,6 +690,7 @@ export function SettingsView() {
 
                 <button 
                   type="button"
+                  aria-pressed={state.language === 'zh'}
                   onClick={() => setLanguage('zh')}
                   className={cn(
                     "flex items-center justify-center gap-1.5 px-3 py-2.5 min-h-[44px] rounded-[8px] border text-xs font-bold transition-all cursor-pointer active:scale-95 touch-manipulation",
@@ -835,6 +735,8 @@ export function SettingsView() {
 
                 <button
                   type="button"
+                  aria-pressed={soundActive}
+                  aria-label="Audio feedback"
                   onClick={() => handleToggleSound(!soundActive)}
                   className={cn(
                     "w-full sm:w-auto px-4 py-2.5 min-h-[44px] rounded-[8px] border text-xs font-bold font-mono uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 touch-manipulation",
@@ -856,662 +758,9 @@ export function SettingsView() {
       {/* ========================================================================= */}
       {/* TAB 2: ACADEMY PROFILE & OPERATIONAL STANDARDS                           */}
       {/* ========================================================================= */}
-      {activeTab === 'profile' && (
-        <div className="space-y-6">
-          {/* 1. Hero Executive Branding Preview Banner */}
-          <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-5 sm:p-6 shadow-sm transition-colors">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 border-b border-neutral-200 dark:border-[#262626] pb-5">
-              <div className="flex items-start sm:items-center gap-4">
-                <div className="w-16 h-16 rounded-[8px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
-                  {profileForm.logoUrl ? (
-                    <SafeImage 
-                      src={profileForm.logoUrl} 
-                      alt={profileForm.academyName} 
-                      width={64} 
-                      height={64} 
-                      className="w-full h-full object-contain p-1"
-                    />
-                  ) : (
-                    <Building className="w-8 h-8 text-[#EF2F38]" weight="duotone" />
-                  )}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#EF2F38] bg-red-500/10 px-2 py-0.5 rounded-[8px] border border-red-500/20">
-                      OFFICIAL PROFILE
-                    </span>
-                    {isProfileDirty ? (
-                      <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-[8px]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
-                        UNSAVED EDITS PENDING
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-[8px]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                        SUPABASE CLOUD SYNCED
-                      </span>
-                    )}
-                  </div>
-                  <h2 className="text-lg sm:text-xl font-black uppercase tracking-wider text-neutral-900 dark:text-white font-sans mt-1">
-                    {profileForm.academyName || 'Infinity Taekwondo Academy'}
-                  </h2>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400 font-sans">
-                    {profileForm.tagline || profileForm.legalName || 'Discipline, Honor, Excellence'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Quick KPI Status Badges */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-left">
-                <div className="px-3 py-2 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                  <p className="text-[9px] font-mono uppercase text-neutral-400 font-bold">Currency</p>
-                  <p className="text-xs font-bold text-neutral-900 dark:text-white font-mono">
-                    {profileForm.currency} ({profileForm.currencySymbol})
-                  </p>
-                </div>
-                <div className="px-3 py-2 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                  <p className="text-[9px] font-mono uppercase text-neutral-400 font-bold">HQ Branch</p>
-                  <p className="text-xs font-bold text-neutral-900 dark:text-white font-mono truncate max-w-[100px]">
-                    {activeBranch?.name || 'All'}
-                  </p>
-                </div>
-                <div className="px-3 py-2 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                  <p className="text-[9px] font-mono uppercase text-neutral-400 font-bold">Exam Pass</p>
-                  <p className="text-xs font-bold text-neutral-900 dark:text-white font-mono">
-                    {profileForm.examPassingScore}% Score
-                  </p>
-                </div>
-                <div className="px-3 py-2 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                  <p className="text-[9px] font-mono uppercase text-neutral-400 font-bold">Portal Access</p>
-                  <p className={cn(
-                    "text-xs font-bold font-mono",
-                    profileForm.allowStudentPortalLogin ? "text-emerald-500" : "text-neutral-400"
-                  )}>
-                    {profileForm.allowStudentPortalLogin ? 'Enabled' : 'Disabled'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Sub-Section Filter Pills */}
-            <div className="flex items-center gap-1.5 pt-4 overflow-x-auto no-scrollbar touch-pan-x -mx-1 px-1 sm:mx-0 sm:px-0">
-              {[
-                { id: 'all', label: 'All Settings', icon: Sliders },
-                { id: 'brand', label: 'Brand & Identity', icon: Tag },
-                { id: 'contact', label: 'Contact & HQ', icon: MapPin },
-                { id: 'financial', label: 'Financial Rules', icon: CurrencyDollar },
-                { id: 'curriculum', label: 'Curriculum & Grading', icon: GraduationCap },
-                { id: 'portal', label: 'Portal & Social', icon: ShareNetwork },
-              ].map(sec => {
-                const IconComponent = sec.icon;
-                const isActive = profileSection === sec.id;
-                return (
-                  <button
-                    key={sec.id}
-                    type="button"
-                    onClick={() => setProfileSection(sec.id as any)}
-                    className={cn(
-                      "px-3.5 py-2 min-h-[40px] rounded-[8px] text-xs font-mono font-bold tracking-wider uppercase transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer active:scale-95 touch-manipulation",
-                      isActive
-                        ? "bg-[#EF2F38] text-white shadow-sm shadow-[#EF2F38]/20"
-                        : "bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-[#262626]"
-                    )}
-                  >
-                    <IconComponent className="w-3.5 h-3.5" weight={isActive ? "bold" : "regular"} />
-                    <span>{sec.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Section 1: Brand & Identity */}
-          {(profileSection === 'all' || profileSection === 'brand') && (
-            <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-5 sm:p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-2.5">
-                <h3 className="text-xs text-[#EF2F38] uppercase font-bold tracking-widest font-mono flex items-center gap-2">
-                  <Tag className="w-4 h-4" /> Brand & Corporate Identity
-                </h3>
-                <span className="text-[10px] text-neutral-400 font-mono">Public Facing & Legal</span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Academy Name */}
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-bold text-neutral-800 dark:text-neutral-200 mb-1 font-mono">
-                    Academy Name <span className="text-[#EF2F38]">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={profileForm.academyName}
-                    onChange={(e) => setProfileForm({ ...profileForm, academyName: e.target.value })}
-                    className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3.5 py-2 text-xs sm:text-sm text-neutral-900 dark:text-white font-medium focus:outline-none focus:border-[#EF2F38]"
-                    placeholder="Infinity Taekwondo Academy"
-                    required
-                  />
-                </div>
-
-                {/* Legal Entity Name */}
-                <div>
-                  <label className="block text-xs font-bold text-neutral-800 dark:text-neutral-200 mb-1 font-mono">
-                    Legal Registered Name
-                  </label>
-                  <input
-                    type="text"
-                    value={profileForm.legalName || ''}
-                    onChange={(e) => setProfileForm({ ...profileForm, legalName: e.target.value })}
-                    className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3.5 py-2 text-xs sm:text-sm text-neutral-900 dark:text-white font-medium focus:outline-none focus:border-[#EF2F38]"
-                    placeholder="e.g. Infinity Martial Arts Co., Ltd."
-                  />
-                </div>
-
-                {/* Tagline / Motto */}
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-bold text-neutral-800 dark:text-neutral-200 mb-1 font-mono">
-                    Motto / Tagline
-                  </label>
-                  <input
-                    type="text"
-                    value={profileForm.tagline || ''}
-                    onChange={(e) => setProfileForm({ ...profileForm, tagline: e.target.value })}
-                    className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3.5 py-2 text-xs sm:text-sm text-neutral-900 dark:text-white font-medium focus:outline-none focus:border-[#EF2F38]"
-                    placeholder="Discipline, Honor, Excellence · Martial Arts & Character Building"
-                  />
-                </div>
-
-                {/* Tax ID */}
-                <div>
-                  <label className="block text-xs font-bold text-neutral-800 dark:text-neutral-200 mb-1 font-mono">
-                    Tax / VAT Identification No.
-                  </label>
-                  <input
-                    type="text"
-                    value={profileForm.taxId || ''}
-                    onChange={(e) => setProfileForm({ ...profileForm, taxId: e.target.value })}
-                    className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38]"
-                    placeholder="e.g. K008-902348123"
-                  />
-                </div>
-
-                {/* Logo URL */}
-                <div>
-                  <label className="block text-xs font-bold text-neutral-800 dark:text-neutral-200 mb-1 font-mono">
-                    Logo Asset Path / URL
-                  </label>
-                  <input
-                    type="text"
-                    value={profileForm.logoUrl || ''}
-                    onChange={(e) => setProfileForm({ ...profileForm, logoUrl: e.target.value })}
-                    className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38]"
-                    placeholder="/logo.svg or https://..."
-                  />
-                </div>
-
-                {/* Public Website URL */}
-                <div>
-                  <label className="block text-xs font-bold text-neutral-800 dark:text-neutral-200 mb-1 font-mono">
-                    Official Website URL
-                  </label>
-                  <div className="relative flex items-center">
-                    <Globe className="w-4 h-4 text-neutral-400 absolute left-3 pointer-events-none" />
-                    <input
-                      type="url"
-                      value={profileForm.websiteUrl || ''}
-                      onChange={(e) => setProfileForm({ ...profileForm, websiteUrl: e.target.value })}
-                      className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] pl-9 pr-3.5 py-2.5 min-h-[42px] text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38]"
-                      placeholder="https://infinitytkd.com"
-                    />
-                  </div>
-                </div>
-
-                {/* LMS Student Portal URL */}
-                <div>
-                  <label className="block text-xs font-bold text-neutral-800 dark:text-neutral-200 mb-1 font-mono">
-                    Student LMS Portal URL
-                  </label>
-                  <div className="relative flex items-center">
-                    <LinkIcon className="w-4 h-4 text-neutral-400 absolute left-3 pointer-events-none" />
-                    <input
-                      type="url"
-                      value={profileForm.portalUrl || ''}
-                      onChange={(e) => setProfileForm({ ...profileForm, portalUrl: e.target.value })}
-                      className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] pl-9 pr-3.5 py-2.5 min-h-[42px] text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38]"
-                      placeholder="https://infinitytkd.com/lms"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Section 2: Contact & Headquarters Location */}
-          {(profileSection === 'all' || profileSection === 'contact') && (
-            <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-5 sm:p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-2.5">
-                <h3 className="text-xs text-[#EF2F38] uppercase font-bold tracking-widest font-mono flex items-center gap-2">
-                  <MapPin className="w-4 h-4" /> Contact & Dojo Headquarters
-                </h3>
-                <span className="text-[10px] text-neutral-400 font-mono">Primary Communication Hub</span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Contact Phone */}
-                <div>
-                  <label className="block text-xs font-bold text-neutral-800 dark:text-neutral-200 mb-1 font-mono">
-                    Official Contact Phone
-                  </label>
-                  <div className="relative flex items-center">
-                    <Phone className="w-4 h-4 text-neutral-400 absolute left-3 pointer-events-none" />
-                    <input
-                      type="tel"
-                      value={profileForm.contactPhone || ''}
-                      onChange={(e) => setProfileForm({ ...profileForm, contactPhone: e.target.value })}
-                      className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] pl-9 pr-3.5 py-2.5 min-h-[42px] text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38]"
-                      placeholder="+855 12 888 999"
-                    />
-                  </div>
-                </div>
-
-                {/* Support Email */}
-                <div>
-                  <label className="block text-xs font-bold text-neutral-800 dark:text-neutral-200 mb-1 font-mono">
-                    Official Inquiries Email
-                  </label>
-                  <div className="relative flex items-center">
-                    <EnvelopeSimple className="w-4 h-4 text-neutral-400 absolute left-3 pointer-events-none" />
-                    <input
-                      type="email"
-                      value={profileForm.supportEmail || ''}
-                      onChange={(e) => setProfileForm({ ...profileForm, supportEmail: e.target.value })}
-                      className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] pl-9 pr-3.5 py-2.5 min-h-[42px] text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38]"
-                      placeholder="contact@infinitytkd.com"
-                    />
-                  </div>
-                </div>
-
-                {/* Default Branch */}
-                <div>
-                  <label className="block text-xs font-bold text-neutral-800 dark:text-neutral-200 mb-1 font-mono">
-                    Headquarters / Default Branch
-                  </label>
-                  <select
-                    value={profileForm.defaultBranchId || 'all'}
-                    onChange={(e) => setProfileForm({ 
-                      ...profileForm, 
-                      defaultBranchId: e.target.value === 'all' ? 'all' : Number(e.target.value) 
-                    })}
-                    className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38] cursor-pointer"
-                  >
-                    <option value="all">All Locations (Headquarters)</option>
-                    {state.branches.map(b => (
-                      <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Physical Address */}
-                <div className="md:col-span-3">
-                  <label className="block text-xs font-bold text-neutral-800 dark:text-neutral-200 mb-1 font-mono">
-                    Primary Physical Dojo Address
-                  </label>
-                  <div className="relative flex items-center">
-                    <MapPin className="w-4 h-4 text-neutral-400 absolute left-3 pointer-events-none" />
-                    <input
-                      type="text"
-                      value={profileForm.primaryAddress || ''}
-                      onChange={(e) => setProfileForm({ ...profileForm, primaryAddress: e.target.value })}
-                      className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] pl-9 pr-3.5 py-2.5 min-h-[42px] text-xs text-neutral-900 dark:text-white font-medium focus:outline-none focus:border-[#EF2F38]"
-                      placeholder="Street 2004, Sangkat Teuk Thla, Khan Sen Sok, Phnom Penh, Cambodia"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Section 3: Financial & Operational Rules */}
-          {(profileSection === 'all' || profileSection === 'financial') && (
-            <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-5 sm:p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-2.5">
-                <h3 className="text-xs text-[#EF2F38] uppercase font-bold tracking-widest font-mono flex items-center gap-2">
-                  <CurrencyDollar className="w-4 h-4" /> Financial Policies & Billing Rules
-                </h3>
-                <span className="text-[10px] text-neutral-400 font-mono">Tuition & Invoicing Defaults</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* 1. Operating Currency */}
-                <div className="p-3.5 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-neutral-500 font-mono flex items-center gap-1">
-                    <CurrencyDollar className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>Operating Currency</span>
-                  </label>
-                  <select
-                    value={profileForm.currency}
-                    onChange={(e) => {
-                      const newCurr = e.target.value as 'USD' | 'KHR';
-                      setProfileForm({ 
-                        ...profileForm, 
-                        currency: newCurr,
-                        currencySymbol: newCurr === 'USD' ? '$' : '៛'
-                      });
-                    }}
-                    className="w-full min-h-[42px] bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white font-mono font-bold focus:outline-none focus:border-[#EF2F38] cursor-pointer"
-                  >
-                    <option value="USD">USD ($) - US Dollar</option>
-                    <option value="KHR">KHR (៛) - Khmer Riel</option>
-                  </select>
-                </div>
-
-                {/* 2. Currency Symbol */}
-                <div className="p-3.5 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-neutral-500 font-mono flex items-center gap-1">
-                    <Tag className="w-3.5 h-3.5 text-blue-500" />
-                    <span>Display Symbol</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={profileForm.currencySymbol}
-                    onChange={(e) => setProfileForm({ ...profileForm, currencySymbol: e.target.value })}
-                    className="w-full min-h-[42px] bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white font-mono font-bold focus:outline-none focus:border-[#EF2F38]"
-                    placeholder="$ or ៛"
-                    maxLength={5}
-                  />
-                </div>
-
-                {/* 3. Tuition Grace Period */}
-                <div className="p-3.5 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-neutral-500 font-mono flex items-center gap-1">
-                    <Timer className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Grace Period (Days)</span>
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={60}
-                    value={profileForm.tuitionGracePeriodDays}
-                    onChange={(e) => setProfileForm({ ...profileForm, tuitionGracePeriodDays: Math.max(0, parseInt(e.target.value) || 0) })}
-                    className="w-full min-h-[42px] bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white font-mono font-bold focus:outline-none focus:border-[#EF2F38]"
-                  />
-                </div>
-
-                {/* 4. Tax Rate % */}
-                <div className="p-3.5 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-neutral-500 font-mono flex items-center gap-1">
-                    <Percent className="w-3.5 h-3.5 text-[#EF2F38]" />
-                    <span>Default Tax Rate (%)</span>
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={100}
-                    step={0.5}
-                    value={profileForm.taxRatePercentage}
-                    onChange={(e) => setProfileForm({ ...profileForm, taxRatePercentage: Math.max(0, parseFloat(e.target.value) || 0) })}
-                    className="w-full min-h-[42px] bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white font-mono font-bold focus:outline-none focus:border-[#EF2F38]"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Section 4: Academic Curriculum & Belt Standards */}
-          {(profileSection === 'all' || profileSection === 'curriculum') && (
-            <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-5 sm:p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-2.5">
-                <h3 className="text-xs text-[#EF2F38] uppercase font-bold tracking-widest font-mono flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4" /> Academic Curriculum & Belt Standards
-                </h3>
-                <span className="text-[10px] text-neutral-400 font-mono">Pedagogy & Evaluation Rules</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* 1. Date Format */}
-                <div className="p-3.5 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-neutral-500 font-mono flex items-center gap-1">
-                    <CalendarBlank className="w-3.5 h-3.5 text-blue-500" />
-                    <span>Date Display Format</span>
-                  </label>
-                  <select
-                    value={profileForm.dateFormat}
-                    onChange={(e) => setProfileForm({ ...profileForm, dateFormat: e.target.value as any })}
-                    className="w-full min-h-[42px] bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white font-mono font-bold focus:outline-none focus:border-[#EF2F38] cursor-pointer"
-                  >
-                    <option value="YYYY-MM-DD">YYYY-MM-DD (ISO 8601)</option>
-                    <option value="DD/MM/YYYY">DD/MM/YYYY (Standard)</option>
-                    <option value="MM/DD/YYYY">MM/DD/YYYY (US Format)</option>
-                  </select>
-                </div>
-
-                {/* 2. Class Duration */}
-                <div className="p-3.5 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-neutral-500 font-mono flex items-center gap-1">
-                    <Timer className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Class Duration</span>
-                  </label>
-                  <select
-                    value={profileForm.defaultClassDurationMins}
-                    onChange={(e) => setProfileForm({ ...profileForm, defaultClassDurationMins: Number(e.target.value) })}
-                    className="w-full min-h-[42px] bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white font-mono font-bold focus:outline-none focus:border-[#EF2F38] cursor-pointer"
-                  >
-                    <option value={45}>45 Minutes (Junior Tigers)</option>
-                    <option value={60}>60 Minutes (Standard)</option>
-                    <option value={90}>90 Minutes (Competition Prep)</option>
-                    <option value={120}>120 Minutes (Dan Testing)</option>
-                  </select>
-                </div>
-
-                {/* 3. Passing Score Threshold */}
-                <div className="p-3.5 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-neutral-500 font-mono flex items-center gap-1">
-                    <GraduationCap className="w-3.5 h-3.5 text-[#EF2F38]" />
-                    <span>Exam Passing Score</span>
-                  </label>
-                  <select
-                    value={profileForm.examPassingScore}
-                    onChange={(e) => setProfileForm({ ...profileForm, examPassingScore: Number(e.target.value) })}
-                    className="w-full min-h-[42px] bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white font-mono font-bold focus:outline-none focus:border-[#EF2F38] cursor-pointer"
-                  >
-                    <option value={65}>65% Minimum Score</option>
-                    <option value={70}>70% Score Required (Standard)</option>
-                    <option value={75}>75% Score Required (Strict)</option>
-                    <option value={80}>80% Score Required (Master Level)</option>
-                  </select>
-                </div>
-
-                {/* 4. Minimum Attendance Requirement */}
-                <div className="p-3.5 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-neutral-500 font-mono flex items-center gap-1">
-                    <Checks className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>Min Attendance for Exam</span>
-                  </label>
-                  <select
-                    value={profileForm.minAttendanceExamPct}
-                    onChange={(e) => setProfileForm({ ...profileForm, minAttendanceExamPct: Number(e.target.value) })}
-                    className="w-full min-h-[42px] bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white font-mono font-bold focus:outline-none focus:border-[#EF2F38] cursor-pointer"
-                  >
-                    <option value={60}>60% Attendance Required</option>
-                    <option value={70}>70% Attendance Required</option>
-                    <option value={80}>80% Attendance Required (Standard)</option>
-                    <option value={85}>85% Attendance Required (High)</option>
-                    <option value={90}>90% Attendance Required (Strict)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Section 5: Portal Access & Social Ecosystem */}
-          {(profileSection === 'all' || profileSection === 'portal') && (
-            <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-5 sm:p-6 shadow-sm space-y-5">
-              <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-2.5">
-                <h3 className="text-xs text-[#EF2F38] uppercase font-bold tracking-widest font-mono flex items-center gap-2">
-                  <ShareNetwork className="w-4 h-4" /> Portal Toggles & Social Ecosystem
-                </h3>
-                <span className="text-[10px] text-neutral-400 font-mono">System Flags & Channels</span>
-              </div>
-
-              {/* System Flags (Toggles) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Allow Student Portal Login */}
-                <div className="p-4 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-bold text-neutral-900 dark:text-white font-mono">
-                      Student LMS Portal Access
-                    </p>
-                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
-                      Allow enrolled students to log into their student profile and E-learning portal
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setProfileForm({ ...profileForm, allowStudentPortalLogin: !profileForm.allowStudentPortalLogin })}
-                    className={cn(
-                      "w-12 h-6 rounded-full transition-colors relative cursor-pointer shrink-0 active:scale-95 touch-manipulation",
-                      profileForm.allowStudentPortalLogin ? "bg-[#EF2F38]" : "bg-neutral-300 dark:bg-[#262626]"
-                    )}
-                  >
-                    <span 
-                      className={cn(
-                        "w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform shadow-sm",
-                        profileForm.allowStudentPortalLogin ? "left-6" : "left-0.5"
-                      )} 
-                    />
-                  </button>
-                </div>
-
-                {/* Enable Audio Chimes */}
-                <div className="p-4 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-bold text-neutral-900 dark:text-white font-mono">
-                      Audio Chimes & Sound FX
-                    </p>
-                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
-                      Play acoustic notifications on attendance scans, belt upgrades, and checkouts
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setProfileForm({ ...profileForm, enableAudioChimes: !profileForm.enableAudioChimes })}
-                    className={cn(
-                      "w-12 h-6 rounded-full transition-colors relative cursor-pointer shrink-0 active:scale-95 touch-manipulation",
-                      profileForm.enableAudioChimes ? "bg-emerald-500" : "bg-neutral-300 dark:bg-[#262626]"
-                    )}
-                  >
-                    <span 
-                      className={cn(
-                        "w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform shadow-sm",
-                        profileForm.enableAudioChimes ? "left-6" : "left-0.5"
-                      )} 
-                    />
-                  </button>
-                </div>
-              </div>
-
-              {/* Social Channels */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                {/* Facebook */}
-                <div>
-                  <label className="block text-xs font-bold text-neutral-800 dark:text-neutral-200 mb-1 font-mono flex items-center gap-1.5">
-                    <FacebookLogo className="w-4 h-4 text-blue-600" weight="fill" />
-                    <span>Facebook Page</span>
-                  </label>
-                  <input
-                    type="url"
-                    value={profileForm.facebookUrl || ''}
-                    onChange={(e) => setProfileForm({ ...profileForm, facebookUrl: e.target.value })}
-                    className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38]"
-                    placeholder="https://facebook.com/..."
-                  />
-                </div>
-
-                {/* Telegram */}
-                <div>
-                  <label className="block text-xs font-bold text-neutral-800 dark:text-neutral-200 mb-1 font-mono flex items-center gap-1.5">
-                    <TelegramLogo className="w-4 h-4 text-sky-500" weight="fill" />
-                    <span>Telegram Channel</span>
-                  </label>
-                  <input
-                    type="url"
-                    value={profileForm.telegramChannel || ''}
-                    onChange={(e) => setProfileForm({ ...profileForm, telegramChannel: e.target.value })}
-                    className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38]"
-                    placeholder="https://t.me/..."
-                  />
-                </div>
-
-                {/* Instagram */}
-                <div>
-                  <label className="block text-xs font-bold text-neutral-800 dark:text-neutral-200 mb-1 font-mono flex items-center gap-1.5">
-                    <InstagramLogo className="w-4 h-4 text-pink-500" weight="fill" />
-                    <span>Instagram Profile</span>
-                  </label>
-                  <input
-                    type="url"
-                    value={profileForm.instagramUrl || ''}
-                    onChange={(e) => setProfileForm({ ...profileForm, instagramUrl: e.target.value })}
-                    className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38]"
-                    placeholder="https://instagram.com/..."
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Sticky Bottom Control & Action Bar */}
-          <div className="bg-white/95 dark:bg-[#141414]/95 backdrop-blur-md border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 sticky bottom-4 z-20 transition-colors pb-[calc(0.875rem+env(safe-area-inset-bottom,0px))] sm:pb-4">
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
-              {isProfileDirty ? (
-                <div className="flex items-center gap-2 text-xs font-mono text-amber-600 dark:text-amber-400">
-                  <Warning className="w-4 h-4 shrink-0" weight="bold" />
-                  <span>Unsaved changes in Academy Profile</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-xs font-mono text-neutral-500 dark:text-neutral-400">
-                  <Check className="w-4 h-4 text-emerald-500 shrink-0" weight="bold" />
-                  <span>
-                    Synchronized with Supabase
-                    {profileForm.updatedAt ? ` · ${new Date(profileForm.updatedAt).toLocaleTimeString()}` : ''}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto justify-end">
-              {/* Reset Button */}
-              <button
-                type="button"
-                onClick={handleResetProfile}
-                disabled={!isProfileDirty || isSavingConfig}
-                className="w-full sm:w-auto px-4 py-2.5 min-h-[44px] bg-neutral-100 dark:bg-[#1C1C1C] hover:bg-neutral-200 dark:hover:bg-[#262626] disabled:opacity-40 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-[#262626] text-xs font-mono font-bold uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 touch-manipulation"
-              >
-                <ArrowCounterClockwise className="w-4 h-4" />
-                <span>Discard</span>
-              </button>
-
-              {/* Save Button */}
-              <button
-                type="button"
-                onClick={handleSaveAcademyConfig}
-                disabled={isSavingConfig}
-                className="w-full sm:w-auto px-6 py-2.5 min-h-[44px] bg-[#EF2F38] hover:bg-[#D0252D] disabled:opacity-50 text-white text-xs font-mono font-bold uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm shadow-[#EF2F38]/20 active:scale-95 touch-manipulation"
-              >
-                {isSavingConfig ? (
-                  <>
-                    <ArrowsClockwise className="w-4 h-4 animate-spin" weight="bold" />
-                    <span>Syncing...</span>
-                  </>
-                ) : (
-                  <>
-                    <FloppyDisk className="w-4 h-4" weight="bold" />
-                    <span>Save Profile</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <div hidden={activeTab !== 'profile'}>
+        <AcademySettingsPanel onDirtyChange={setIsProfileDirty} />
+      </div>
 
       {/* ========================================================================= */}
       {/* TAB 3: ACCOUNTS & ACCESS (RBAC)                                          */}
@@ -1551,7 +800,7 @@ export function SettingsView() {
                     role: manageableRoles[0] as Role, 
                     isActive: true, 
                     profilePicturePath: '',
-                    password: manageableRoles[0] === 'Student' ? 'Student1234567!' : 'Admin123456!',
+                    password: generatePassword(),
                     studentId: ''
                   });
                   setShowUserModal('new');
@@ -1654,7 +903,7 @@ export function SettingsView() {
               </div>
             </button>
           </div>
-          
+
           {/* Active KPI Filter Notification Pill */}
           {activeKpiFilter && (
             <div className="flex items-center justify-between p-2.5 bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs font-mono">
@@ -1692,7 +941,7 @@ export function SettingsView() {
                 </button>
               )}
             </div>
-            
+
             {/* Dropdown Filters & Controls */}
             <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto md:justify-end">
               {/* Role Filter */}
@@ -1761,14 +1010,14 @@ export function SettingsView() {
                   <SquaresFour className="w-4 h-4" weight="bold" />
                 </button>
               </div>
-              
+
               {/* Counter Badge */}
               <div className="text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] px-3 py-2.5 rounded-[8px] shrink-0">
                 {t('stf_total')}: <span className="text-neutral-900 dark:text-white font-bold">{filteredUsers.length}</span>
               </div>
             </div>
           </div>
-          
+
           {/* EMPTY STATE */}
           {filteredUsers.length === 0 ? (
             <div className="py-12 px-4 text-center border border-dashed border-neutral-200 dark:border-[#262626] rounded-[8px] bg-neutral-50 dark:bg-[#0F0F0F] flex flex-col items-center justify-center">
@@ -1851,8 +1100,7 @@ export function SettingsView() {
                               if (u.role === 'Student' || u.studentId) {
                                 const student = state.students.find(s => 
                                   s.id === u.studentId || 
-                                  s.profileId === u.id || 
-                                  (s.email && s.email.toLowerCase() === u.email?.toLowerCase())
+                                  s.profileId === u.id
                                 );
                                 return (
                                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] text-[10px] font-bold font-mono bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
@@ -1924,10 +1172,8 @@ export function SettingsView() {
                                   <button 
                                     type="button"
                                     title={t('set_lock_unlock')} 
-                                    onClick={() => {
-                                      updateUser(u.id, { isActive: !u.isActive });
-                                      showNotification(`Account @${u.username} status toggled.`, 'info');
-                                    }}
+                                    onClick={() => handleToggleAccount(u)}
+                disabled={busyUsers.has(u.id)}
                                     className={cn(
                                       "p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-[8px] border transition-colors cursor-pointer active:scale-95 touch-manipulation", 
                                       u.isActive 
@@ -1983,12 +1229,12 @@ export function SettingsView() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-200 dark:border-[#262626] pb-3">
               <div>
                 <h3 className="text-xs text-[#EF2F38] uppercase font-bold tracking-widest font-mono flex items-center gap-2">
-                  <Database className="w-4 h-4" /> Live Dataset Ledger Health
+                  <Database className="w-4 h-4" /> Loaded application data
                 </h3>
-                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">Real-time synchronized index counts across all branches</p>
+                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">Records loaded in this session. Counts reflect your access and are not a database health check.</p>
               </div>
               <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold font-mono rounded-[8px] border border-emerald-500/20 w-fit">
-                Live State Active
+                {state.isLoading ? 'Loading' : state.dataLoadErrors?.length ? 'Partial data' : 'Session data'}
               </span>
             </div>
 
@@ -2028,21 +1274,22 @@ export function SettingsView() {
                 <div className="flex items-center gap-2">
                   <DownloadSimple className="w-4 h-4 text-emerald-500" weight="bold" />
                   <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-white font-mono">
-                    {t('set_offline_backup_title')}
+                    Application Data Export
                   </h4>
                 </div>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
-                  {t('set_offline_backup_desc')}
+                  Download all application tables from the server. Configure database, Auth, and Storage backups separately for disaster recovery.
                 </p>
               </div>
 
               <button
                 type="button"
                 onClick={handleExportBackup}
+                disabled={!isRoot || isExporting}
                 className="w-full px-4 py-2.5 min-h-[44px] bg-emerald-600 hover:bg-emerald-500 text-white rounded-[8px] text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2 active:scale-95 touch-manipulation"
               >
                 <DownloadSimple className="w-4 h-4" weight="bold" /> 
-                <span>{t('set_btn_export_backup')}</span>
+                <span>{isExporting ? 'Exporting…' : 'Export application data'}</span>
               </button>
             </div>
 
@@ -2111,7 +1358,7 @@ export function SettingsView() {
                 <h4 className="font-bold text-xs text-neutral-900 dark:text-white uppercase tracking-wider mb-1">{t('set_student_portal')}</h4>
                 <p className="text-[11px] font-mono text-neutral-500 dark:text-neutral-400">{t('set_student_portal_desc')}</p>
               </a>
-              
+
               <a 
                 href="https://infinitytkd.com" 
                 target="_blank" 
@@ -2158,14 +1405,16 @@ export function SettingsView() {
       {/* ========================================================================= */}
 
       {/* 1. Add / Edit Account Modal */}
+      </div>
+      </PageTransition>
+      </div>
       <AnimatePresence>
         {showUserModal && (
           <Portal>
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }} 
-                animate={{ opacity: 1, scale: 1 }} 
-                exit={{ opacity: 0, scale: 0.95 }} 
+                {...dialogMotion}
+                ref={modalRef} role="dialog" aria-modal="true" aria-label="Account editor"
                 className="w-full max-w-lg max-h-[92dvh] my-auto bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col text-neutral-900 dark:text-white overflow-hidden"
               >
                  <div className="p-4 sm:p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#141414] shrink-0">
@@ -2182,6 +1431,7 @@ export function SettingsView() {
                     </div>
                     <button 
                       type="button"
+                      disabled={isSavingUser}
                       onClick={() => setShowUserModal(null)} 
                       aria-label="Close user modal"
                       className="p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation"
@@ -2190,7 +1440,7 @@ export function SettingsView() {
                     </button>
                  </div>
 
-                 <div className="p-4 sm:p-6 space-y-4 max-h-[calc(92dvh-135px)] overflow-y-auto overscroll-contain flex-1">
+                 <fieldset disabled={isSavingUser} className="p-4 sm:p-6 space-y-4 max-h-[calc(92dvh-135px)] overflow-y-auto overscroll-contain flex-1">
                     {/* Display Name & Khmer Name */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
@@ -2198,6 +1448,7 @@ export function SettingsView() {
                           {t('usr_display_name')} <span className="text-red-500">*</span>
                         </label>
                         <input 
+                          aria-label="Display name"
                           type="text" 
                           value={userForm.displayName} 
                           onChange={(e) => setUserForm({...userForm, displayName: e.target.value})}
@@ -2210,6 +1461,7 @@ export function SettingsView() {
                           {t('set_khmer_name')}
                         </label>
                         <input 
+                          aria-label="Khmer name"
                           type="text" 
                           value={userForm.khmerName} 
                           onChange={(e) => setUserForm({...userForm, khmerName: e.target.value})}
@@ -2226,6 +1478,7 @@ export function SettingsView() {
                       </label>
                       <div className="flex gap-3 items-center">
                         <input 
+                          aria-label="Profile image URL"
                           type="text" 
                           value={userForm.profilePicturePath} 
                           onChange={(e) => setUserForm({...userForm, profilePicturePath: e.target.value})}
@@ -2252,6 +1505,7 @@ export function SettingsView() {
                           {t('usr_username')} <span className="text-red-500">*</span>
                         </label>
                         <input 
+                          aria-label="Username"
                           type="text" 
                           value={userForm.username} 
                           onChange={(e) => setUserForm({...userForm, username: e.target.value})}
@@ -2265,6 +1519,7 @@ export function SettingsView() {
                           {t('stu_email')}
                         </label>
                         <input 
+                          aria-label="Account email"
                           type="email" 
                           value={userForm.email} 
                           onChange={(e) => setUserForm({...userForm, email: e.target.value})}
@@ -2277,6 +1532,7 @@ export function SettingsView() {
                           {t('set_phone')}
                         </label>
                         <input 
+                          aria-label="Account phone"
                           type="tel" 
                           value={userForm.phone} 
                           onChange={(e) => setUserForm({...userForm, phone: e.target.value})}
@@ -2292,13 +1548,14 @@ export function SettingsView() {
                         {t('usr_role')}
                       </label>
                       <select 
-                        value={userForm.role} 
+                        aria-label="Account role"
+                          value={userForm.role}
                         onChange={(e) => {
                           const newRole = e.target.value as Role;
                           setUserForm(prev => ({
                             ...prev,
                             role: newRole,
-                            password: prev.password || (newRole === 'Student' ? 'Student1234567!' : 'Admin123456!')
+                            password: prev.password || generatePassword()
                           }));
                         }}
                         className="w-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer font-mono font-bold"
@@ -2314,6 +1571,7 @@ export function SettingsView() {
                           <span>🎓</span> Link To Student Record
                         </label>
                         <select
+                          aria-label="Linked student"
                           value={userForm.studentId}
                           onChange={(e) => {
                             const sid = e.target.value;
@@ -2326,7 +1584,7 @@ export function SettingsView() {
                               email: (matched && matched.email) ? matched.email : (matched ? `${matched.id.toLowerCase().replace(/[^a-z0-9]/g, '')}@portal.infinitytkd.com` : prev.email),
                               phone: (matched && matched.phone) ? matched.phone : prev.phone,
                               khmerName: matched ? matched.khmerName : prev.khmerName,
-                              password: prev.password || 'Student1234567!'
+                              password: prev.password || generatePassword()
                             }));
                           }}
                           className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer font-mono"
@@ -2355,11 +1613,11 @@ export function SettingsView() {
                             type="button"
                             onClick={() => setUserForm(prev => ({ 
                               ...prev, 
-                              password: prev.role === 'Student' ? 'Student1234567!' : 'Admin123456!' 
+                              password: generatePassword()
                             }))}
                             className="text-[10px] text-[#EF2F38] hover:underline font-mono cursor-pointer"
                           >
-                            Suggest Default
+                            Generate Password
                           </button>
                         </div>
                         <div className="relative">
@@ -2367,11 +1625,12 @@ export function SettingsView() {
                             type={showModalPasswordText ? "text" : "password"} 
                             value={userForm.password} 
                             onChange={(e) => setUserForm({...userForm, password: e.target.value})}
-                            placeholder="Min 6 characters (e.g. Tkd2026!)"
+                            placeholder="At least 12 characters"
                             className="w-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono pr-10"
                           />
                           <button
                             type="button"
+                            aria-label={showModalPasswordText ? "Hide initial password" : "Show initial password"}
                             onClick={() => setShowModalPasswordText(!showModalPasswordText)}
                             className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-white p-1 cursor-pointer"
                           >
@@ -2389,12 +1648,13 @@ export function SettingsView() {
                       </div>
                       <input 
                         type="checkbox" 
+                        aria-label="System access active"
                         checked={userForm.isActive} 
                         onChange={(e) => setUserForm({...userForm, isActive: e.target.checked})}
                         className="w-4 h-4 text-[#EF2F38] rounded-[4px] cursor-pointer accent-[#EF2F38]"
                       />
                     </div>
-                 </div>
+                 </fieldset>
 
                  {/* Modal Footer */}
                  <div className="p-4 border-t border-neutral-200 dark:border-[#262626] flex justify-end gap-2.5 bg-neutral-50 dark:bg-[#0A0A0A]">
@@ -2407,10 +1667,11 @@ export function SettingsView() {
                     </button>
                     <button 
                       type="button"
-                      onClick={handleSaveUser} 
+                      onClick={handleSaveUser}
+                      disabled={isSavingUser}
                       className="flex-1 sm:flex-none px-4 py-2.5 min-h-[44px] bg-[#EF2F38] text-white font-bold uppercase tracking-wider text-xs rounded-[8px] hover:bg-[#D0252D] cursor-pointer shadow-sm shadow-[#EF2F38]/20 transition-colors active:scale-95 touch-manipulation flex items-center justify-center"
                     >
-                      {t('usr_save_account')}
+                      {isSavingUser ? 'Saving…' : t('usr_save_account')}
                     </button>
                  </div>
               </motion.div>
@@ -2422,10 +1683,8 @@ export function SettingsView() {
         {passwordTargetUser && (
           <Portal>
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }} 
-                animate={{ opacity: 1, scale: 1 }} 
-                exit={{ opacity: 0, scale: 0.95 }} 
+              <motion.div ref={modalRef} role="dialog" aria-modal="true" aria-label="Reset account password"
+                {...dialogMotion}
                 className="w-full max-w-md max-h-[92dvh] my-auto bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col text-neutral-900 dark:text-white overflow-hidden"
               >
                 <div className="p-4 sm:p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#141414] shrink-0">
@@ -2440,7 +1699,8 @@ export function SettingsView() {
                   </div>
                   <button 
                     type="button"
-                    onClick={() => setPasswordTargetUser(null)} 
+                    disabled={isResettingPassword}
+                    onClick={() => { setPasswordTargetUser(null); setTargetNewPassword(''); }}
                     aria-label="Close password modal"
                     className="p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] cursor-pointer active:scale-95 touch-manipulation transition-colors"
                   >
@@ -2465,7 +1725,7 @@ export function SettingsView() {
                           setTargetNewPassword(e.target.value);
                           setCopiedPassword(false);
                         }}
-                        placeholder="Min 6 characters (e.g. Tkd2026!)"
+                        placeholder="At least 12 characters"
                         className="w-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38] transition-colors pr-10"
                         autoFocus
                       />
@@ -2523,7 +1783,7 @@ export function SettingsView() {
                   <button 
                     type="button"
                     onClick={handleResetTargetPassword}
-                    disabled={isResettingPassword || !targetNewPassword || targetNewPassword.length < 6}
+                    disabled={isResettingPassword || !targetNewPassword || targetNewPassword.length < 12}
                     className="flex-1 sm:flex-none px-4 py-2.5 min-h-[44px] bg-[#EF2F38] text-white font-bold uppercase tracking-wider text-xs rounded-[8px] hover:bg-[#D0252D] disabled:opacity-50 cursor-pointer shadow-sm shadow-[#EF2F38]/20 flex items-center justify-center gap-2 transition-colors active:scale-95 touch-manipulation"
                   >
                     {isResettingPassword ? 'Updating...' : 'Update Password'}
@@ -2538,10 +1798,8 @@ export function SettingsView() {
         {showPurgeConfirm && (
           <Portal>
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }} 
-                animate={{ opacity: 1, scale: 1 }} 
-                exit={{ opacity: 0, scale: 0.95 }} 
+              <motion.div ref={modalRef} role="dialog" aria-modal="true" aria-label="Clear local cache"
+                {...dialogMotion}
                 className="w-full max-w-md my-auto bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl p-5 text-neutral-900 dark:text-white space-y-4"
               >
                 <div className="flex items-center gap-3">

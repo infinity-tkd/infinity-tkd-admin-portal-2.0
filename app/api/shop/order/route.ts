@@ -14,7 +14,7 @@ const OrderItemSchema = z.object({
   productId: z.string().uuid(),
   variantId: z.string().uuid().nullable().optional(),
   size: z.string().max(50).nullable().optional(),
-  qty: z.number().int().positive('Quantity must be at least 1'),
+  qty: z.number().int().positive('Quantity must be at least 1').max(1000),
 });
 
 const PlaceOrderSchema = z.object({
@@ -24,7 +24,8 @@ const PlaceOrderSchema = z.object({
   branchId: z.number().int().positive().nullable().optional(),
   paymentMethod: z.enum(['ABA Bank KHQR', 'Cash', 'Credit Card', 'Bank Transfer', 'Pay at Counter']).default('ABA Bank KHQR'),
   studentNotes: z.string().max(500).optional(),
-  items: z.array(OrderItemSchema).min(1, 'Order must contain at least one item'),
+  items: z.array(OrderItemSchema).min(1, 'Order must contain at least one item').max(100),
+  requestKey: z.string().uuid(),
 });
 
 /**
@@ -150,99 +151,11 @@ export async function POST(req: Request) {
       }
     }
 
-    // Prepare items JSON for stored procedure
-    const rpcItemsPayload = body.items.map((it) => ({
-      product_id: it.productId,
-      variant_id: it.variantId || null,
-      size: it.size || null,
-      qty: it.qty,
-    }));
-
-    // Call atomic stored procedure or use direct table fallback
-    let result: any = null;
-    const { data: rpcResult, error: rpcError } = await adminSupabase.rpc('place_student_order', {
-      p_student_id: body.studentId,
-      p_customer_name: body.customerName,
-      p_customer_phone: body.customerPhone,
-      p_branch_id: body.branchId || null,
-      p_payment_method: body.paymentMethod,
-      p_student_notes: body.studentNotes || null,
-      p_items: rpcItemsPayload,
+    const { data: result, error: rpcError } = await adminSupabase.rpc('portal_place_order', {
+      p_actor: context.userId, p_channel: 'STUDENT_PORTAL', p_payload: body,
+      p_request_key: body.requestKey || null,
     });
-
-    if (!rpcError && rpcResult) {
-      result = rpcResult;
-    } else {
-      // Direct table fallback
-      const orderNumber = `ORD-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
-
-      // Fetch pricing for ordered items
-      const productIds = body.items.map((i) => i.productId);
-      const { data: productsData } = await adminSupabase
-        .from('products')
-        .select('id, sku, name, price_usd, stock')
-        .in('id', productIds);
-
-      const productMap = new Map((productsData || []).map((p) => [p.id, p]));
-
-      let subtotal = 0;
-      const orderItems = body.items.map((it) => {
-        const prod = productMap.get(it.productId);
-        const price = prod ? Number(prod.price_usd) : 0;
-        const lineTotal = Number((price * it.qty).toFixed(2));
-        subtotal += lineTotal;
-        return {
-          product_id: it.productId,
-          variant_id: it.variantId || null,
-          sku: prod?.sku || 'UNKNOWN',
-          product_name: prod?.name || 'Equipment Item',
-          size: it.size || null,
-          unit_price_usd: price,
-          quantity: it.qty,
-          total_price_usd: lineTotal,
-        };
-      });
-
-      const { data: newOrder, error: orderErr } = await adminSupabase
-        .from('pos_orders')
-        .insert({
-          order_number: orderNumber,
-          order_channel: 'STUDENT_PORTAL',
-          student_id: body.studentId,
-          customer_name: body.customerName,
-          customer_phone: body.customerPhone,
-          branch_id: body.branchId || null,
-          subtotal_usd: Number(subtotal.toFixed(2)),
-          discount_percentage: 0,
-          discount_usd: 0,
-          total_usd: Number(subtotal.toFixed(2)),
-          payment_method: body.paymentMethod,
-          payment_status: 'PENDING',
-          order_status: 'PENDING',
-          student_notes: body.studentNotes || null,
-        })
-        .select()
-        .single();
-
-      if (orderErr || !newOrder) {
-        return formatServerErrorResponse(orderErr || new Error('Failed to record student order'));
-      }
-
-      // Attach items
-      const itemsToInsert = orderItems.map((item) => ({
-        ...item,
-        order_id: newOrder.id,
-      }));
-
-      await adminSupabase.from('pos_order_items').insert(itemsToInsert);
-
-      result = {
-        order_id: newOrder.id,
-        order_number: newOrder.order_number,
-        subtotal_usd: newOrder.subtotal_usd,
-        status: newOrder.order_status,
-      };
-    }
+    if (rpcError || !result) return formatServerErrorResponse(rpcError || new Error('Order failed'));
 
     await logSecurityAuditEvent({
       action: 'STUDENT_ORDER_PLACED',

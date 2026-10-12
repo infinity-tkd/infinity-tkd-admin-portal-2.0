@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { isCalendarDate } from '@/lib/dates';
 import { 
-  verifyCaller, 
+  verifyCaller,
+  callerHasPermission,
   validateRequestBody,
   sanitizeString, 
   logSecurityAuditEvent, 
@@ -12,7 +14,7 @@ const UserUpdatePayloadSchema = z
   .object({
     displayName: z.string().max(100).optional().nullable(),
     email: z.string().email().optional(),
-    password: z.string().min(6, 'Password must be at least 6 characters long').optional(),
+    password: z.string().min(12, 'Password must be at least 12 characters long').max(256).optional(),
     username: z.string().min(3).max(50).optional(),
     studentId: z.string().max(50).optional().nullable(),
     role: z.enum([
@@ -28,7 +30,7 @@ const UserUpdatePayloadSchema = z
     khmerName: z.string().max(100).optional().nullable(),
     englishName: z.string().max(100).optional().nullable(),
     gender: z.enum(['Male', 'Female', 'Other']).optional().nullable(),
-    dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+    dob: z.string().refine(isCalendarDate, 'Invalid date of birth').optional().nullable(),
     phone: z.string().max(30).optional().nullable(),
     emergencyContactName: z.string().max(100).optional().nullable(),
     emergencyContactPhone: z.string().max(30).optional().nullable(),
@@ -39,7 +41,7 @@ const UserUpdatePayloadSchema = z
     nationality: z.string().max(50).optional().nullable(),
     kukkiwonId: z.string().max(50).optional().nullable(),
     currentDan: z.number().int().min(1).max(9).optional().nullable(),
-    danIssueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+    danIssueDate: z.string().refine(isCalendarDate, 'Invalid certificate date').optional().nullable(),
     danCertificateUrl: z.string().max(500).optional().nullable(),
     address: z
       .object({
@@ -57,7 +59,7 @@ const UserUpdatePayloadSchema = z
 
 const UpdateUserRequestSchema = z
   .object({
-    id: z.string().min(1, 'Missing target user id'),
+    id: z.string().uuid('Invalid target user id'),
     data: UserUpdatePayloadSchema,
   })
   .passthrough();
@@ -82,7 +84,13 @@ export async function POST(req: Request) {
 
     const { id, data } = body;
 
-    const isPrivilegedAdmin = ['Root', 'Super Root', 'Admin'].includes(context.role);
+    // Auth credentials cannot participate in a PostgreSQL transaction. Keep password
+    // changes independent so a failed profile edit cannot silently reset a password.
+    if (data.password && Object.entries(data).some(([key, value]) => key !== 'password' && value !== undefined && value !== '' && value !== null)) {
+      return NextResponse.json({ success: false, error: { message: 'Save profile changes first, then change the password separately.' } }, { status: 400 });
+    }
+
+    const isPrivilegedAdmin = await callerHasPermission(adminSupabase,context,'action:staff_manage');
     const isSelf = context.userId === id;
 
     if (!isPrivilegedAdmin && !isSelf) {
@@ -133,7 +141,7 @@ export async function POST(req: Request) {
     }
 
     // Role Escalation Check: Admin cannot elevate any user to Root or Super Root
-    if (context.role === 'Admin' && (data.role === 'Root' || data.role === 'Super Root')) {
+    if (!['Root','Super Root'].includes(context.role) && (data.role === 'Root' || data.role === 'Super Root')) {
       await logSecurityAuditEvent({
         action: 'ROLE_ESCALATION_BLOCKED',
         performedBy: context.userId,
@@ -156,6 +164,7 @@ export async function POST(req: Request) {
 
     // Protection Check: Non-Root users cannot modify Root accounts
     const targetProfileRes = await adminSupabase.from('profiles').select('role').eq('id', id).single();
+    if (targetProfileRes.error) return formatServerErrorResponse(targetProfileRes.error);
     if (
       (targetProfileRes.data?.role === 'Root' || targetProfileRes.data?.role === 'Super Root') &&
       context.role !== 'Root' &&
@@ -190,28 +199,27 @@ export async function POST(req: Request) {
       });
     }
 
+    let previousEmail: string | undefined;
     if (data.email) {
-      await adminSupabase.auth.admin.updateUserById(id, {
-        email: sanitizeString(data.email),
-      });
+      const previous = await adminSupabase.auth.admin.getUserById(id);
+      if (previous.error || !previous.data.user) return formatServerErrorResponse(previous.error || new Error('Account not found.'));
+      previousEmail = previous.data.user.email;
+      const {error:emailError}=await adminSupabase.auth.admin.updateUserById(id,{email:sanitizeString(data.email)});
+      if(emailError)return formatServerErrorResponse(emailError);
     }
 
     // 4. Allowlisted Field Extraction & Input Sanitization
     const profilePayload: any = {};
+    if (data.password) profilePayload.must_change_password = !isSelf;
     if (data.displayName !== undefined) profilePayload.display_name = sanitizeString(data.displayName || '');
     if (data.email !== undefined) profilePayload.email = sanitizeString(data.email);
     if (data.username !== undefined) profilePayload.username = sanitizeString(data.username);
-
-    const appMetadataUpdates: Record<string, any> = {};
 
     // Administrative fields: only privileged admins can mutate these
     if (isPrivilegedAdmin) {
       if (data.studentId !== undefined) {
         profilePayload.student_id = data.studentId ? sanitizeString(data.studentId) : null;
-        appMetadataUpdates.student_id = data.studentId ? sanitizeString(data.studentId) : null;
-        if (data.studentId) {
-          await adminSupabase.from('students').update({ profile_id: id }).eq('id', sanitizeString(data.studentId));
-        }
+
       }
       if (data.kukkiwonId !== undefined) profilePayload.kukkiwon_id = data.kukkiwonId ? sanitizeString(data.kukkiwonId) : null;
       if (data.currentDan !== undefined) profilePayload.current_dan = data.currentDan !== null ? Number(data.currentDan) : null;
@@ -220,19 +228,13 @@ export async function POST(req: Request) {
 
       if (data.role !== undefined) {
         profilePayload.role = data.role;
-        appMetadataUpdates.role = data.role;
       }
       if (data.isActive !== undefined) {
         profilePayload.is_active = Boolean(data.isActive);
-        appMetadataUpdates.is_active = Boolean(data.isActive);
       }
     }
 
-    if (Object.keys(appMetadataUpdates).length > 0) {
-      await adminSupabase.auth.admin.updateUserById(id, {
-        app_metadata: appMetadataUpdates,
-      });
-    }
+
 
     const memberPayload: any = {};
     if (data.khmerName !== undefined) memberPayload.khmer_name = sanitizeString(data.khmerName || '');
@@ -248,46 +250,20 @@ export async function POST(req: Request) {
     if (data.profilePicturePath !== undefined) memberPayload.profile_picture_path = data.profilePicturePath;
     if (data.nationality !== undefined) memberPayload.nationality = sanitizeString(data.nationality || '');
 
-    // Execute Server-Side Mutations
-    if (Object.keys(profilePayload).length > 0) {
-      const { error } = await adminSupabase.from('profiles').update(profilePayload).eq('id', id);
-      if (error) return formatServerErrorResponse(error);
-    }
-
-    if (Object.keys(memberPayload).length > 0) {
-      const { data: memberExists } = await adminSupabase.from('members').select('id').eq('id', id).maybeSingle();
-      if (memberExists) {
-        const { error } = await adminSupabase.from('members').update(memberPayload).eq('id', id);
-        if (error) return formatServerErrorResponse(error);
+    const address=data.address;
+    const {error:saveError}=await adminSupabase.rpc('portal_update_user',{
+      p_actor:context.userId,p_target:id,p_profile:profilePayload,p_member:memberPayload,
+      p_address:address ? {address_line1:sanitizeString(address.line1 || ''),address_line2:sanitizeString(address.line2 || ''),district_commune:sanitizeString(address.city || ''),state_province_city:sanitizeString(address.stateProvince || ''),postal_code:sanitizeString(address.postalCode || ''),country:sanitizeString(address.country || 'Cambodia')} : null,
+    });
+    if(saveError) {
+      if (data.email && previousEmail) {
+        const restored = await adminSupabase.auth.admin.updateUserById(id, {email:previousEmail});
+        if (restored.error) {
+          console.error('[AUTH_EMAIL_RECONCILIATION_REQUIRED]', id, restored.error.code);
+          return NextResponse.json({success:false,error:{code:'ACCOUNT_RECONCILIATION_REQUIRED',message:'The profile save failed and the login email could not be restored. An administrator must reconcile this account before retrying.'}},{status:503});
+        }
       }
-    }
-
-    if (data.address) {
-      const { data: existingAddr } = await adminSupabase
-        .from('member_addresses')
-        .select('address_id')
-        .eq('member_id', id)
-        .eq('is_primary', true)
-        .maybeSingle();
-
-      const addrFields = {
-        address_line1: sanitizeString(data.address.line1 || ''),
-        address_line2: sanitizeString(data.address.line2 || ''),
-        district_commune: sanitizeString(data.address.city || ''),
-        state_province_city: sanitizeString(data.address.stateProvince || ''),
-        postal_code: sanitizeString(data.address.postalCode || ''),
-        country: sanitizeString(data.address.country || 'Cambodia'),
-      };
-
-      if (existingAddr) {
-        await adminSupabase.from('member_addresses').update(addrFields).eq('address_id', existingAddr.address_id);
-      } else {
-        await adminSupabase.from('member_addresses').insert({
-          member_id: id,
-          ...addrFields,
-          is_primary: true,
-        });
-      }
+      return formatServerErrorResponse(saveError);
     }
 
     // Log Audit Event

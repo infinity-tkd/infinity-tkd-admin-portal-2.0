@@ -1,15 +1,33 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useAppStore, CurriculumVideo } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  VideoCamera, MagnifyingGlass, CheckCircle, Lock, PlayCircle, Eye, 
-  Trash, ShieldWarning, X, UserCircle, Calendar, Clock, Barbell, Check,
-  BookOpen, CaretRight, GraduationCap, CheckSquare, Sparkle, ArrowSquareOut,
-  Stack, Flame, ArrowsOut
-} from '@phosphor-icons/react';
+import { VideoCamera } from '@phosphor-icons/react/dist/csr/VideoCamera';
+import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { Lock } from '@phosphor-icons/react/dist/csr/Lock';
+import { PlayCircle } from '@phosphor-icons/react/dist/csr/PlayCircle';
+import { Eye } from '@phosphor-icons/react/dist/csr/Eye';
+import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
+import { ShieldWarning } from '@phosphor-icons/react/dist/csr/ShieldWarning';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { UserCircle } from '@phosphor-icons/react/dist/csr/UserCircle';
+import { Calendar } from '@phosphor-icons/react/dist/csr/Calendar';
+import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
+import { Barbell } from '@phosphor-icons/react/dist/csr/Barbell';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { BookOpen } from '@phosphor-icons/react/dist/csr/BookOpen';
+import { CaretRight } from '@phosphor-icons/react/dist/csr/CaretRight';
+import { GraduationCap } from '@phosphor-icons/react/dist/csr/GraduationCap';
+import { CheckSquare } from '@phosphor-icons/react/dist/csr/CheckSquare';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { ArrowSquareOut } from '@phosphor-icons/react/dist/csr/ArrowSquareOut';
+import { Stack } from '@phosphor-icons/react/dist/csr/Stack';
+import { Flame } from '@phosphor-icons/react/dist/csr/Flame';
+import { ArrowsOut } from '@phosphor-icons/react/dist/csr/ArrowsOut';
 import dynamic from 'next/dynamic';
 import { AnatomyStudioModal } from '@/components/AnatomyStudioModal';
 import { resolveAssetMuscleLoads } from '@/lib/anatomyUtils';
@@ -58,7 +76,7 @@ export function LmsView() {
 
   // Track student progress selector (for coaches to inspect a student or for student self-view)
   const [selectedStudentId, setSelectedStudentId] = useState<string>(currentStudent?.id || 'all');
-  
+
   // Track belt filter (default to student's current belt if available, else White)
   const [selectedTrackBelt, setSelectedTrackBelt] = useState<string>(
     currentStudent?.currentBelt && BELTS.includes(currentStudent.currentBelt) ? currentStudent.currentBelt : 'White'
@@ -298,8 +316,9 @@ export function LmsView() {
                       "h-full rounded-full transition-all duration-500",
                       trackCompletionPct === 100 ? "bg-emerald-500" : trackCompletionPct >= 50 ? "bg-[#EF2F38]" : "bg-amber-500"
                     )}
-                    initial={{ width: 0 }}
-                    animate={{ width: String(trackCompletionPct) + "%" }}
+                    initial={false}
+                    animate={{ scaleX: Math.min(1, Math.max(0, trackCompletionPct / 100)) }}
+                    style={{ transformOrigin: 'left', width: '100%' }}
                   />
                 </div>
               </div>
@@ -365,9 +384,9 @@ export function LmsView() {
                       style={{ backgroundImage: `url('${bgImage}')` }}
                     />
                     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors z-10" />
-                    
+
                     <PlayCircle className="w-12 h-12 text-white/90 z-20 group-hover:scale-110 group-hover:text-[#EF2F38] transition-all duration-300 shadow-lg"/>
-                    
+
                     <div className="absolute top-3 left-3 z-20 flex gap-1.5">
                        <span className="px-2.5 py-1 bg-black/80 backdrop-blur-md rounded-[6px] text-[10px] font-bold uppercase tracking-wider text-white border border-white/10 shadow-sm">
                          {video.minBeltLevel} Belt
@@ -471,14 +490,12 @@ export function LmsView() {
           const parsed = parseAssetDescription(activePlayVideo.description);
           const isTkd = activePlayVideo.category && !activePlayVideo.category.startsWith('Fitness:') && activePlayVideo.minBeltLevel !== 'Fitness';
           const isWatched = effectiveStudent ? studentWatchedIds.has(activePlayVideo.id) : false;
-          
+
           return (
             <Portal>
               <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[100] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-200">
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.96, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.96, y: 20 }}
+                  {...dialogMotion}
                   className="w-full max-w-6xl h-[88vh] min-h-[500px] bg-[#0F0F0F] border border-[#262626] rounded-[10px] shadow-2xl flex flex-col md:flex-row overflow-hidden relative"
                 >
                   {/* Close Button */}
@@ -514,7 +531,7 @@ export function LmsView() {
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Basic Info (Scrollable) */}
                     <div className="flex-1 overflow-y-auto p-5 md:p-6 bg-[#141414] border-t border-[#262626] space-y-4">
                       <div className="flex justify-between items-start gap-4">
@@ -529,7 +546,7 @@ export function LmsView() {
                           <span className="text-xs font-mono font-bold text-white mt-0.5 inline-block bg-[#1A1A1A] border border-[#262626] px-2 py-0.5 rounded-[6px]">{activePlayVideo.minBeltLevel} Belt</span>
                         </div>
                       </div>
-                      
+
                       <div className="space-y-1">
                         <span className="block text-[9px] uppercase font-bold text-[#666] tracking-wider">Mechanics & Guidelines</span>
                         <p className="text-xs text-[#AAA] leading-relaxed font-sans">{t.translateText(parsed.text || activePlayVideo.description)}</p>
@@ -849,7 +866,7 @@ function LmsAnalyticsTab() {
   const [activeTechIdx, setActiveTechIdx] = useState(-1);
   const techDropdownRef = useRef<HTMLDivElement>(null);
   const dropdownListRef = useRef<HTMLDivElement>(null);
-  
+
   const SYLLABUS_CATEGORIES = [
     'Kicks (Chagi)',
     'Stances & Footwork (Seogi)',
@@ -945,38 +962,10 @@ function LmsAnalyticsTab() {
     }
   };
 
-  useEffect(() => {
-    const cached = localStorage.getItem('infinity_lms_physical_grades');
-    if (cached) {
-      try {
-        setPhysicalGrades(JSON.parse(cached));
-      } catch (e) {}
-    }
-  }, []);
-
-  const getSkillGrade = (studentId: string, skill: string) => {
-    const dbMatch = state.physicalEvaluations?.find(x => x.studentId === studentId && x.skillName === skill);
-    if (dbMatch) return dbMatch.grade;
-    return physicalGrades[studentId]?.[skill] || 'Unrated';
-  };
-
-  const handleGradePhysical = (studentId: string, skill: string, beltLevel: string, grade: string) => {
-    // 1. Update local storage (offline cache)
-    setPhysicalGrades(prev => {
-      const studentSkills = prev[studentId] || {};
-      const updated = {
-        ...prev,
-        [studentId]: {
-          ...studentSkills,
-          [skill]: grade
-        }
-      };
-      localStorage.setItem('infinity_lms_physical_grades', JSON.stringify(updated));
-      return updated;
-    });
-
-    // 2. Synchronize to Supabase cloud database
-    upsertPhysicalEvaluation(studentId, skill, beltLevel, grade);
+  const getSkillGrade = (studentId: string, skill: string) => state.physicalEvaluations?.find(x => x.studentId === studentId && x.skillName === skill)?.grade || 'Unrated';
+  const handleGradePhysical = async (studentId: string, skill: string, beltLevel: string, grade: string) => {
+    try { await upsertPhysicalEvaluation(studentId, skill, beltLevel, grade); }
+    catch(error) { showNotification(error instanceof Error ? error.message : 'Grade was not saved.','error'); }
   };
 
   const calculateAge = (dob?: string) => {
@@ -994,22 +983,22 @@ function LmsAnalyticsTab() {
   const filteredStudents = state.students.filter(s => {
     // Status Filter
     if (statusFilter !== 'All' && s.studentStatus !== statusFilter) return false;
-    
+
     // Branch Filter
     if (branchFilter !== 'All' && s.homeBranchId.toString() !== branchFilter) return false;
-    
+
     // Belt Filter
     if (beltFilter !== 'All' && s.currentBelt !== beltFilter) return false;
-    
+
     // Gender Filter
     if (genderFilter !== 'All' && s.gender !== genderFilter) return false;
-    
+
     // Schedule Filter
     if (scheduleFilter !== 'All') {
       const isEnrolled = state.classEnrollments.some(e => e.studentId === s.id && e.classId.toString() === scheduleFilter);
       if (!isEnrolled) return false;
     }
-    
+
     // Search filter (English name, Khmer name, or Student ID)
     if (search) {
       const q = search.toLowerCase();
@@ -1018,7 +1007,7 @@ function LmsAnalyticsTab() {
       const matchId = s.id?.toLowerCase().includes(q);
       if (!matchEnglish && !matchKhmer && !matchId) return false;
     }
-    
+
     return true;
   });
 
@@ -1105,7 +1094,7 @@ function LmsAnalyticsTab() {
           </div>
 
           {showManager && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-neutral-200 dark:border-[#262626]">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-neutral-200 dark:border-[#262626]">
               {/* Form Column */}
               <form onSubmit={handleAddTechnique} className="space-y-4">
                 <div>
@@ -1215,7 +1204,7 @@ function LmsAnalyticsTab() {
                   {(() => {
                     const beltTechs = state.beltTechniques.filter(x => getBeltKeyLocal(x.beltLevel) === getBeltKeyLocal(manageBelt));
                     const categories = Array.from(new Set(beltTechs.map(t => t.category || 'Kicks (Chagi)')));
-                    
+
                     if (beltTechs.length === 0) {
                       return (
                         <div className="text-center py-8 text-neutral-400 dark:text-[#555] italic text-xs">
@@ -1269,7 +1258,7 @@ function LmsAnalyticsTab() {
               className="w-full pl-10 pr-3 min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-sm focus:outline-none focus:border-[#EF2F38] transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666]"
             />
           </div>
-          
+
           <div className="md:col-span-3">
              <select 
                value={statusFilter}
@@ -1283,7 +1272,7 @@ function LmsAnalyticsTab() {
                <option value="Graduated">{t.translateText('Graduated')}</option>
              </select>
           </div>
-          
+
           <div className="md:col-span-3">
              <select 
                value={genderFilter}
@@ -1349,7 +1338,7 @@ function LmsAnalyticsTab() {
           </div>
         </div>
       </div>
-      
+
       {/* Table Listing */}
       <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[10px] overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
@@ -1373,12 +1362,12 @@ function LmsAnalyticsTab() {
                     state.physicalEvaluations,
                     state.beltTechniques
                   );
-                  
+
                   const completedCount = report.completedVideos;
                   const totalAvailable = report.totalVideos;
                   const eligibilityStatus = report.eligibilityStatus;
                   const pri = report.pri;
-                  
+
                   return (
                     <tr 
                       key={student.id} 
@@ -1455,16 +1444,14 @@ function LmsAnalyticsTab() {
           )}
         </div>
       </div>
-      
+
       {/* Student Progress Detail Modal with Premium Profile Card */}
       <AnimatePresence>
         {selectedStudent && (
           <Portal>
              <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in">
                 <motion.div 
-                   initial={{ opacity: 0, scale: 0.95 }}
-                   animate={{ opacity: 1, scale: 1 }}
-                   exit={{ opacity: 0, scale: 0.95 }}
+                   {...dialogMotion}
                    className="w-full max-w-2xl bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[10px] shadow-2xl flex flex-col max-h-[88dvh] overflow-hidden"
                 >
                    {/* Modal Header */}
@@ -1481,10 +1468,10 @@ function LmsAnalyticsTab() {
                         <X className="w-5 h-5" />
                       </button>
                    </div>
-                   
+
                    {/* Modal Content Frame (Scrollable) */}
                    <div className="p-5 md:p-6 overflow-y-auto space-y-6">
-                      
+
                       {/* Premium Student Profile Overview Card */}
                       <div className="bg-neutral-50/50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[10px] p-5 flex flex-col md:flex-row gap-5 items-start">
                         <SafeImage 
@@ -1508,7 +1495,7 @@ function LmsAnalyticsTab() {
                                  {formatBeltLocalized(selectedStudent.currentBelt, selectedStudent.dob, t)}
                               </span>
                            </div>
-                           
+
                            <div>
                               <span className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('lms_status_gender')}</span>
                               <span className="text-xs text-neutral-800 dark:text-[#E4E4E4] font-medium flex items-center gap-1.5 mt-0.5">
@@ -1530,7 +1517,7 @@ function LmsAnalyticsTab() {
                                   }
                               </span>
                            </div>
-                           
+
                            <div>
                               <span className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('lms_age_dob')}</span>
                               <span className="text-xs text-neutral-800 dark:text-[#E4E4E4] font-medium mt-0.5 block">
@@ -1581,12 +1568,12 @@ function LmsAnalyticsTab() {
                            state.physicalEvaluations,
                            state.beltTechniques
                          );
-                         
+
                          const startDate = report.startDate;
                          const daysElapsedCount = report.daysElapsed;
                          const attendanceSinceCount = report.attendanceSince;
                          const syllabusCompletedPct = report.syllabusCompletedPct;
-                         
+
                          const daysPct = report.daysProgress;
                          const attendPct = report.attendanceProgress;
 
@@ -1600,7 +1587,7 @@ function LmsAnalyticsTab() {
                          };
 
                          const targetSkillsKey = getBeltKey(selectedStudent.currentBelt);
-                          
+
                          // Load techniques dynamically from database with category, fallback to static defaults if empty
                          const dynamicSkills = state.beltTechniques
                            .filter(x => getBeltKey(x.beltLevel) === targetSkillsKey)
@@ -1722,7 +1709,7 @@ function LmsAnalyticsTab() {
                                                     return (
                                                        <div key={skillName} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] gap-2 hover:border-neutral-300 dark:hover:border-[#333] transition-colors">
                                                           <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">{skillName}</span>
-                                                          
+
                                                           <div className="flex gap-1.5 flex-wrap">
                                                              {(['Needs Work', 'Developing', 'Proficient', 'Outstanding'] as const).map(level => {
                                                                 const isActive = studentGrade === level;

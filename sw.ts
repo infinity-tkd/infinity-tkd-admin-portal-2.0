@@ -3,7 +3,6 @@ import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist';
 import {
   Serwist,
   CacheFirst,
-  NetworkFirst,
   NetworkOnly,
   StaleWhileRevalidate,
   ExpirationPlugin,
@@ -19,7 +18,7 @@ declare const self: WorkerGlobalScope;
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
-  skipWaiting: true,
+  skipWaiting: false,
   clientsClaim: true,
   navigationPreload: true,
   fallbacks: {
@@ -49,23 +48,12 @@ const serwist = new Serwist({
       handler: new NetworkOnly(),
     },
 
-    // 2. Navigation Requests (NetworkFirst with timeout & offline fallback)
-    // RATIONALE: Ensure latest server state is loaded when connected; provide offline page if offline
+    // 2. Protected navigation bypasses stored pages; use the offline fallback without cached account data.
     {
       matcher({ request }) {
         return request.mode === 'navigate';
       },
-      handler: new NetworkFirst({
-        cacheName: 'pages-cache-v2',
-        networkTimeoutSeconds: 3,
-        plugins: [
-          new ExpirationPlugin({
-            maxEntries: 30,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
-            purgeOnQuotaError: true,
-          }),
-        ],
-      }),
+      handler: new NetworkOnly(),
     },
 
     // 3. 3D Model & Large Asset Caching (CacheFirst)

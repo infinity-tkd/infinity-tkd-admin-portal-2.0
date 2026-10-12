@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import { reportClientError } from '@/lib/client-telemetry';
 
 export default function GlobalError({
   error,
@@ -12,23 +13,7 @@ export default function GlobalError({
   useEffect(() => {
     console.error('[FATAL_ROOT_CRASH]', error);
 
-    // Automated client-to-server telemetry reporting
-    try {
-      fetch('/api/telemetry/log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          level: 'FATAL',
-          message: error.message || 'Root layout fatal exception',
-          stack: error.stack,
-          digest: error.digest,
-          url: typeof window !== 'undefined' ? window.location.href : '',
-          timestamp: new Date().toISOString(),
-        }),
-      }).catch(() => {});
-    } catch {
-      // Prevent crash loop in error logger
-    }
+    reportClientError(error, 'Root layout', 'FATAL');
   }, [error]);
 
   return (

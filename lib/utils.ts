@@ -47,8 +47,8 @@ export interface PasswordStrengthResult {
 // High-security password complexity checker
 export function checkPasswordStrength(password: string): PasswordStrengthResult {
   const errors: string[] = [];
-  if (password.length < 8) {
-    errors.push('Minimum 8 characters required.');
+  if (password.length < 12) {
+    errors.push('Minimum 12 characters required.');
   }
   if (!/[A-Z]/.test(password)) {
     errors.push('At least one uppercase letter required.');

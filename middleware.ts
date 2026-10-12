@@ -15,29 +15,34 @@ function pruneExpiredMiddlewareLimits() {
 }
 
 export function middleware(request: NextRequest) {
-  const response = NextResponse.next();
+  const nonce = btoa(crypto.randomUUID());
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-nonce', nonce);
 
   // --- 1. Hardened Enterprise HTTP Security Headers ---
   // Note: Wildcard 'https: wss:' removed from connect-src to eliminate exfiltration channels
   const cspHeader = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${process.env.NODE_ENV !== 'production' ? " 'unsafe-eval'" : ''}`,
     "worker-src 'self' blob:",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: blob: https://picsum.photos https://*.supabase.co https://*.supabase.com https://lh3.googleusercontent.com https://drive.google.com",
     "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.supabase.com wss://*.supabase.com https://lh3.googleusercontent.com https://drive.google.com",
+    "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://drive.google.com",
     "object-src 'none'",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
   ].join('; ');
 
+  requestHeaders.set('Content-Security-Policy', cspHeader);
+  const response = NextResponse.next({request:{headers:requestHeaders}});
   response.headers.set('Content-Security-Policy', cspHeader);
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  response.headers.set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=()');
   response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
@@ -60,10 +65,10 @@ export function middleware(request: NextRequest) {
       if (origin && host) {
         try {
           const originUrl = new URL(origin);
-          const isLocalhost = originUrl.hostname === 'localhost' || originUrl.hostname === '127.0.0.1';
+          const isLocalhost = process.env.NODE_ENV !== 'production' && (originUrl.hostname === 'localhost' || originUrl.hostname === '127.0.0.1');
           const hostHostname = host.split(':')[0];
 
-          if (!isLocalhost && originUrl.hostname !== hostHostname) {
+          if (!isLocalhost && (originUrl.host !== host || process.env.NODE_ENV === 'production' && originUrl.protocol !== 'https:')) {
             return new NextResponse(
               JSON.stringify({ error: 'Forbidden: Cross-site request rejected.' }),
               { status: 403, headers: { 'Content-Type': 'application/json' } }

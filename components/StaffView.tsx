@@ -1,13 +1,35 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
 import React, { useState, useMemo } from 'react';
 import { useAppStore, User, Role } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  UserCircle, PencilSimple, EnvelopeSimple, DeviceMobile, Funnel, ArrowsClockwise,
-  SquaresFour, ListDashes, Key, Eye, EyeClosed, X, Checks, XCircle, UsersThree, ShieldCheck, Phone,
-  Copy, Check, Medal, CalendarCheck, ClockAfternoon, CheckCircle, Warning, Sparkle, MagnifyingGlass
-} from '@phosphor-icons/react';
+import { UserCircle } from '@phosphor-icons/react/dist/csr/UserCircle';
+import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { EnvelopeSimple } from '@phosphor-icons/react/dist/csr/EnvelopeSimple';
+import { DeviceMobile } from '@phosphor-icons/react/dist/csr/DeviceMobile';
+import { Funnel } from '@phosphor-icons/react/dist/csr/Funnel';
+import { ArrowsClockwise } from '@phosphor-icons/react/dist/csr/ArrowsClockwise';
+import { SquaresFour } from '@phosphor-icons/react/dist/csr/SquaresFour';
+import { ListDashes } from '@phosphor-icons/react/dist/csr/ListDashes';
+import { Key } from '@phosphor-icons/react/dist/csr/Key';
+import { Eye } from '@phosphor-icons/react/dist/csr/Eye';
+import { EyeClosed } from '@phosphor-icons/react/dist/csr/EyeClosed';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { Checks } from '@phosphor-icons/react/dist/csr/Checks';
+import { XCircle } from '@phosphor-icons/react/dist/csr/XCircle';
+import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
+import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
+import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { Medal } from '@phosphor-icons/react/dist/csr/Medal';
+import { CalendarCheck } from '@phosphor-icons/react/dist/csr/CalendarCheck';
+import { ClockAfternoon } from '@phosphor-icons/react/dist/csr/ClockAfternoon';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
 import { cn } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
 import { calculateDanEligibility, formatDanRank, getDanStripes } from '@/lib/kukkiwon';
@@ -17,6 +39,13 @@ import { BulkImportStaffModal } from './BulkImportStaffModal';
 import { ManageStaffPanel } from './ManageStaffPanel';
 import { SafeImage } from '@/components/SafeImage';
 import { useT } from '@/hooks/useTranslation';
+
+const ROLE_HIERARCHY: Record<string, number> = {
+    'Admin': 1,
+    'Head Coach': 2,
+    'Coach': 3,
+    'Assistant Coach': 4,
+  };
 
 export function StaffView() {
   const { state, updateUser, showNotification } = useAppStore();
@@ -36,7 +65,7 @@ export function StaffView() {
     showNotification(`${label} copied to clipboard!`, 'info');
     setTimeout(() => setCopiedId(null), 2000);
   };
-  
+
   const currentUserRole = state.currentUser?.role;
   const canEditStaff = currentUserRole === 'Root' || currentUserRole === 'Super Root' || currentUserRole === 'Admin';
 
@@ -47,8 +76,8 @@ export function StaffView() {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   const handleResetStaffPassword = async () => {
-    if (!passwordTargetStaff || !staffNewPassword || staffNewPassword.length < 6) {
-      showNotification('Password must be at least 6 characters long.', 'warning');
+    if (!passwordTargetStaff || !staffNewPassword || staffNewPassword.length < 12) {
+      showNotification('Password must be at least 12 characters long.', 'warning');
       return;
     }
     setIsResettingPassword(true);
@@ -74,12 +103,7 @@ export function StaffView() {
     });
   }, [state.users]);
 
-  const ROLE_HIERARCHY: Record<string, number> = {
-    'Admin': 1,
-    'Head Coach': 2,
-    'Coach': 3,
-    'Assistant Coach': 4,
-  };
+
 
   const staffMembers = useMemo(() => {
     const filtered = allStaff.filter(u => {
@@ -266,7 +290,7 @@ export function StaffView() {
             </button>
           )}
         </div>
-        
+
         {/* Filter Strip: Horizontal Scrolling on Mobile, Flex on Desktop */}
         <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar touch-pan-x -mx-3 px-3 sm:mx-0 sm:px-0 sm:flex-wrap w-full md:w-auto md:justify-end">
           {/* Role Filter */}
@@ -1039,9 +1063,7 @@ export function StaffView() {
           <Portal>
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }} 
-                animate={{ opacity: 1, scale: 1 }} 
-                exit={{ opacity: 0, scale: 0.95 }} 
+                {...dialogMotion}
                 className="w-full max-w-md max-h-[90dvh] bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col text-neutral-900 dark:text-white overflow-hidden"
               >
                 <div className="p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#141414] shrink-0">

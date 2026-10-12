@@ -1,9 +1,11 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
 import React, { useState } from 'react';
 import { useAppStore, Role } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, MapPin } from '@phosphor-icons/react';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
 import { Portal } from '@/components/Portal';
 import { sanitizeStringInput, isValidEmail, isValidPhone, isValidDate, checkPasswordStrength } from '@/lib/utils';
 import { CAMBODIA_LOCATIONS } from './DataLists';
@@ -205,9 +207,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
     <Portal>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 pt-[env(safe-area-inset-top)] pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }} 
-          animate={{ opacity: 1, scale: 1 }} 
-          exit={{ opacity: 0, scale: 0.95 }}
+          {...dialogMotion}
           className="w-full max-w-4xl bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col max-h-[90dvh] text-neutral-900 dark:text-white"
         >
           <div className="p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#141414] shrink-0">
@@ -224,7 +224,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
               <X className="w-5 h-5"/>
             </button>
           </div>
-          
+
           <div className="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-6 bg-white dark:bg-[#0A0A0A]">
             {error && (
               <div className="col-span-full p-3 bg-red-500/10 border border-red-500/50 rounded-[8px] text-xs text-red-600 dark:text-red-400 font-bold uppercase tracking-widest text-center">
@@ -235,7 +235,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
             {/* Column 1: Credentials */}
             <div className="space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#EF2F38] border-b border-neutral-200 dark:border-[#262626] pb-2">1. {t('usr_account_details')}</h3>
-              
+
               <div>
                 <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_username')} <span className="text-[#EF2F38]">*</span></label>
                 <input type="text" value={form.username} onChange={e => setForm({...form, username: e.target.value})}
@@ -244,7 +244,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_display_name')} <span className="text-[#EF2F38]">*</span></label>
                 <input type="text" value={form.displayName} onChange={e => setForm({...form, displayName: e.target.value})}
@@ -253,7 +253,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_email')} <span className="text-[#EF2F38]">*</span></label>
                 <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})}
@@ -262,7 +262,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_profile_pic_link')}</label>
                 <div className="flex gap-4 items-center">
@@ -282,7 +282,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                   )}
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_password_default_hint')}</label>
                 <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})}
@@ -298,7 +298,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                   placeholder="••••••••"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_role')}</label>
                 <select value={form.role} onChange={e => setForm({...form, role: e.target.value as Role})}
@@ -318,11 +318,11 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                 <label htmlFor="isActive" className="text-xs uppercase font-bold text-neutral-500 dark:text-[#999] tracking-wider">{t('usr_active_on_creation')}</label>
               </div>
             </div>
-            
+
             {/* Column 2: Personal & Emergency info */}
             <div className="space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#EF2F38] border-b border-neutral-200 dark:border-[#262626] pb-2">2. {t('usr_role_snapshot')}</h3>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_khmer_name')}</label>
@@ -527,7 +527,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
               </div>
             </div>
           </div>
-          
+
           <div className="p-4 border-t border-neutral-200 dark:border-[#262626] flex justify-end gap-3 bg-neutral-50 dark:bg-[#0A0A0A] shrink-0">
             <button onClick={onClose} className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] text-neutral-700 dark:text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] dark:hover:bg-[#262626] transition-colors">{t('act_cancel')}</button>
             <button onClick={handleSave} className="px-4 py-2 bg-[#EF2F38] text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] hover:opacity-90 transition-opacity">{t('usr_provision_account')}</button>
@@ -540,7 +540,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
         {showConfirm && (
           <Portal>
             <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[110] flex items-center justify-center p-4 animate-in fade-in">
-              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              <motion.div {...dialogMotion}
                 className="w-full max-w-sm bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-6 text-center shadow-2xl flex flex-col items-center text-neutral-900 dark:text-white"
               >
                 <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center mb-4 text-[#EF2F38]">

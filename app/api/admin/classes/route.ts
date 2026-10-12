@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { fetchAllRows } from '@/lib/data-access';
 import {
   verifyCaller,
   validateRequestBody,
@@ -8,12 +9,13 @@ import {
 } from '@/lib/backend-security';
 
 // Strict Zod Schemas for Class Management
+const weekday = z.enum(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']);
 const CreateClassSchema = z
   .object({
     branchId: z.number().int().positive('branchId must be a positive integer'),
     name: z.string().min(1, 'Class name is required').max(100),
-    daysOfWeek: z.array(z.string()).optional(),
-    dayOfWeek: z.string().optional(),
+    daysOfWeek: z.array(weekday).min(1).max(7).optional(),
+    dayOfWeek: weekday.optional(),
     classType: z.string().max(50).optional(),
     coachId: z.string().uuid().nullable().optional(),
     standardDurationMins: z.number().int().min(15).max(360).optional(),
@@ -40,8 +42,8 @@ const UpdateClassSchema = z
     data: z
       .object({
         name: z.string().min(1).max(100).optional(),
-        daysOfWeek: z.array(z.string()).optional(),
-        dayOfWeek: z.string().optional(),
+        daysOfWeek: z.array(weekday).min(1).max(7).optional(),
+        dayOfWeek: weekday.optional(),
         classType: z.string().max(50).optional(),
         coachId: z.string().uuid().nullable().optional(),
         standardDurationMins: z.number().int().min(15).max(360).optional(),
@@ -88,13 +90,13 @@ export async function GET(req: Request) {
       .order('start_time', { ascending: true });
 
     if (branchIdParam) {
-      const branchId = parseInt(branchIdParam, 10);
-      if (!isNaN(branchId) && branchId > 0) {
-        query = query.eq('branch_id', branchId);
-      }
+      const branchId = Number(branchIdParam);
+      if (!/^[1-9]\d*$/.test(branchIdParam) || !Number.isSafeInteger(branchId) || branchId>2147483647)
+        return NextResponse.json({success:false,error:{message:'Invalid branch ID.'}},{status:422});
+      query = query.eq('branch_id', branchId);
     }
 
-    const { data, error } = await query;
+    const { data, error } = await fetchAllRows(query);
     if (error) {
       return formatServerErrorResponse(error);
     }
@@ -116,6 +118,8 @@ export async function POST(req: Request) {
       'Super Root',
       'Admin',
       'Head Coach',
+      'Coach',
+      'Assistant Coach',
     ]);
     if (authErr || !adminSupabase || !context) return authErr!;
 
@@ -170,6 +174,8 @@ export async function PUT(req: Request) {
       'Super Root',
       'Admin',
       'Head Coach',
+      'Coach',
+      'Assistant Coach',
     ]);
     if (authErr || !adminSupabase || !context) return authErr!;
 
@@ -193,7 +199,7 @@ export async function PUT(req: Request) {
     if (data.endTime !== undefined) payload.end_time = data.endTime;
     if (data.capacity !== undefined) payload.capacity = data.capacity;
 
-    const { error } = await adminSupabase.from('class_sessions').update(payload).eq('id', id);
+    const { error } = await adminSupabase.from('class_sessions').update(payload).eq('id', id).select('id').single();
     if (error) {
       return formatServerErrorResponse(error);
     }
@@ -223,6 +229,8 @@ export async function DELETE(req: Request) {
       'Super Root',
       'Admin',
       'Head Coach',
+      'Coach',
+      'Assistant Coach',
     ]);
     if (authErr || !adminSupabase || !context) return authErr!;
 
@@ -243,8 +251,8 @@ export async function DELETE(req: Request) {
       );
     }
 
-    const id = parseInt(idParam, 10);
-    if (isNaN(id) || id <= 0) {
+    const id = Number(idParam);
+    if (!/^[1-9]\d*$/.test(idParam) || !Number.isSafeInteger(id) || id>2147483647) {
       return NextResponse.json(
         {
           success: false,
@@ -258,20 +266,10 @@ export async function DELETE(req: Request) {
       );
     }
 
-    // First delete any associated enrollments so no orphan records remain
-    await adminSupabase.from('class_enrollments').delete().eq('class_id', id);
-
-    const { error } = await adminSupabase.from('class_sessions').delete().eq('id', id);
+    const { error } = await adminSupabase.rpc('portal_delete_class',{p_actor:context.userId,p_class_id:id});
     if (error) {
       return formatServerErrorResponse(error);
     }
-
-    await logSecurityAuditEvent({
-      action: 'CLASS_DELETED',
-      performedBy: context.userId,
-      targetId: String(id),
-      status: 'SUCCESS',
-    });
 
     return NextResponse.json({
       success: true,
@@ -299,6 +297,8 @@ export async function PATCH(req: Request) {
       'Super Root',
       'Admin',
       'Head Coach',
+      'Coach',
+      'Assistant Coach',
     ]);
     if (authErr || !adminSupabase || !context) return authErr!;
 
@@ -310,7 +310,7 @@ export async function PATCH(req: Request) {
     if (body.coachId !== undefined) payload.coach_id = body.coachId;
     if (body.name !== undefined) payload.class_name = body.name;
 
-    const { error } = await adminSupabase.from('class_sessions').update(payload).eq('id', body.id);
+    const { error } = await adminSupabase.from('class_sessions').update(payload).eq('id', body.id).select('id').single();
     if (error) {
       return formatServerErrorResponse(error);
     }

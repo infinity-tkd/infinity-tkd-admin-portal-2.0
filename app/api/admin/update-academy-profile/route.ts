@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
+import { academySettingsRequestSchema } from '@/lib/academy-settings';
 import { 
   verifyCaller, 
   validateRequestBody, 
@@ -7,50 +7,19 @@ import {
   logSecurityAuditEvent, 
   formatServerErrorResponse 
 } from '@/lib/backend-security';
-import { createClient } from '@supabase/supabase-js';
-import { env } from '@/lib/env';
-
-const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY;
-
-const AcademyProfileUpdateSchema = z.object({
-  academyName: z.string().min(1, 'Academy name is required').max(255).optional(),
-  legalName: z.string().max(255).optional().nullable(),
-  tagline: z.string().max(255).optional().nullable(),
-  logoUrl: z.string().max(500).optional().nullable(),
-  websiteUrl: z.string().url('Invalid website URL').or(z.literal('')).optional().nullable(),
-  portalUrl: z.string().url('Invalid portal URL').or(z.literal('')).optional().nullable(),
-  taxId: z.string().max(100).optional().nullable(),
-  contactPhone: z.string().max(50).optional().nullable(),
-  supportEmail: z.string().email('Invalid support email address').or(z.literal('')).optional().nullable(),
-  primaryAddress: z.string().max(500).optional().nullable(),
-  defaultBranchId: z.union([z.number().int().positive(), z.literal('all')]).optional().nullable(),
-  currency: z.enum(['USD', 'KHR']).optional(),
-  currencySymbol: z.string().max(10).optional(),
-  tuitionGracePeriodDays: z.number().int().min(0).max(60).optional(),
-  taxRatePercentage: z.number().min(0).max(100).optional(),
-  dateFormat: z.enum(['YYYY-MM-DD', 'DD/MM/YYYY', 'MM/DD/YYYY']).optional(),
-  defaultClassDurationMins: z.number().int().min(15).max(360).optional(),
-  examPassingScore: z.number().int().min(50).max(100).optional(),
-  minAttendanceExamPct: z.number().int().min(0).max(100).optional(),
-  allowStudentPortalLogin: z.boolean().optional(),
-  enableAudioChimes: z.boolean().optional(),
-  facebookUrl: z.string().url().or(z.literal('')).optional().nullable(),
-  telegramChannel: z.string().url().or(z.literal('')).optional().nullable(),
-  instagramUrl: z.string().url().or(z.literal('')).optional().nullable(),
-}).strict();
 
 export async function POST(req: Request) {
   try {
-    // 1. Verify caller with RBAC (only Root, Super Root, Admin can alter Academy Profile)
-    const callerRes = await verifyCaller(req, ['Root', 'Super Root', 'Admin']);
-    if (callerRes.errorResponse) return callerRes.errorResponse;
+    // The shared guard applies the fresh staff-management permission matrix.
+    const callerRes = await verifyCaller(req, ['Root', 'Super Root', 'Admin','Head Coach','Coach','Assistant Coach']);
+    if (callerRes.errorResponse || !callerRes.context || !callerRes.adminSupabase) return callerRes.errorResponse!;
     const caller = callerRes.context!;
 
     // 2. Validate request payload with Zod
-    const bodyRes = await validateRequestBody(AcademyProfileUpdateSchema, req);
+    const bodyRes = await validateRequestBody(academySettingsRequestSchema, req);
     if (bodyRes.errorResponse) return bodyRes.errorResponse;
-    const data = bodyRes.data!;
+    const { expectedUpdatedAt, ...data } = bodyRes.data!;
+    if (!Object.keys(data).length) return NextResponse.json({ success: false, error: { message: "No settings changes supplied." } }, { status: 422 });
 
     // 3. Map camelCase payload to snake_case DB columns
     const dbPayload: Record<string, any> = {
@@ -59,6 +28,8 @@ export async function POST(req: Request) {
       updated_at: new Date().toISOString()
     };
 
+    if (data.earlyGroupTuitionUsd !== undefined) dbPayload.early_group_tuition_usd = data.earlyGroupTuitionUsd;
+    if (data.standardTuitionUsd !== undefined) dbPayload.standard_tuition_usd = data.standardTuitionUsd;
     if (data.academyName !== undefined) dbPayload.academy_name = sanitizeString(data.academyName);
     if (data.legalName !== undefined) dbPayload.legal_name = sanitizeString(data.legalName || '');
     if (data.tagline !== undefined) dbPayload.tagline = sanitizeString(data.tagline || '');
@@ -90,15 +61,15 @@ export async function POST(req: Request) {
     if (data.instagramUrl !== undefined) dbPayload.instagram_url = data.instagramUrl;
 
     // 4. Upsert using service role client for privileged database write
-    const client = serviceRoleKey 
-      ? createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } })
-      : createClient(supabaseUrl, env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    const client = callerRes.adminSupabase;
 
-    const { data: updatedRecord, error: upsertError } = await client
-      .from('academy_profile')
-      .upsert(dbPayload, { onConflict: 'id' })
-      .select()
-      .single();
+    const write = expectedUpdatedAt
+      ? client.from('academy_profile').update(dbPayload).eq('id', 'default').eq('updated_at', expectedUpdatedAt)
+      : client.from('academy_profile').upsert(dbPayload, { onConflict: 'id' });
+    const { data: updatedRecord, error: upsertError } = await write.select().maybeSingle();
+    if (!upsertError && !updatedRecord) {
+      return NextResponse.json({ success: false, error: { message: 'Academy settings changed since you opened them. Reload the latest settings and review your edits before saving.' } }, { status: 409 });
+    }
 
     if (upsertError) {
       console.error('[API /api/admin/update-academy-profile] Upsert error:', upsertError);

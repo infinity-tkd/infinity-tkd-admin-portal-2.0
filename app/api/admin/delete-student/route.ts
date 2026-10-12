@@ -49,34 +49,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2. Clean up child dependencies safely using service role
-    // A. Student Addresses
-    await adminSupabase.from('student_addresses').delete().eq('student_id', id);
-    // B. Class Enrollments
-    await adminSupabase.from('class_enrollments').delete().eq('student_id', id);
-    // C. Belt Histories
-    await adminSupabase.from('belt_histories').delete().eq('student_id', id);
-    // D. Achievements
-    await adminSupabase.from('achievements').delete().eq('student_id', id);
-    // E. Physical Evaluations & Biometrics
-    await adminSupabase.from('student_physical_evaluations').delete().eq('student_id', id);
-    await adminSupabase.from('student_body_compositions').delete().eq('student_id', id);
-
-    // 3. Deactivate or unlink linked profile if present
-    if (currentStudent.profile_id) {
-      await adminSupabase.from('profiles').update({ is_active: false, student_id: null }).eq('id', currentStudent.profile_id);
-    }
-
-    // 4. Delete the student record
-    const { error: deleteErr } = await adminSupabase.from('students').delete().eq('id', id);
-    if (deleteErr) {
-      console.error('[delete-student API] Error deleting student:', deleteErr);
-      return formatServerErrorResponse(deleteErr);
-    }
+    const { error: archiveError } = await adminSupabase.rpc('portal_archive_student', { p_actor: context.userId, p_id: id });
+    if (archiveError) return formatServerErrorResponse(archiveError);
 
     // 5. Audit Log
     await logSecurityAuditEvent({
-      action: 'STUDENT_DELETED',
+      action: 'STUDENT_ARCHIVED',
       performedBy: context.userId,
       targetId: id,
       details: {

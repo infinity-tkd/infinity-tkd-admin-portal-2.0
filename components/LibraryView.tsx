@@ -1,22 +1,51 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppStore, CurriculumVideo } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  BookOpen, Plus, MagnifyingGlass, Trash, PlayCircle, X, 
-  UserCircle, Calendar, Clock, Barbell, Sparkle, Timer, 
-  ListChecks, ArrowLeft, CheckCircle, ShieldWarning, FastForward,
-  UploadSimple, FileCsv, Checks, Question, Info, Warning, Copy, PencilSimple,
-  CaretDown, CaretUp, CaretRight, Check, MusicNotes, ArrowsOut, ArrowsIn,
-  Stack, Flame
-} from '@phosphor-icons/react';
+import { BookOpen } from '@phosphor-icons/react/dist/csr/BookOpen';
+import { Plus } from '@phosphor-icons/react/dist/csr/Plus';
+import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
+import { PlayCircle } from '@phosphor-icons/react/dist/csr/PlayCircle';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { UserCircle } from '@phosphor-icons/react/dist/csr/UserCircle';
+import { Calendar } from '@phosphor-icons/react/dist/csr/Calendar';
+import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
+import { Barbell } from '@phosphor-icons/react/dist/csr/Barbell';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { Timer } from '@phosphor-icons/react/dist/csr/Timer';
+import { ListChecks } from '@phosphor-icons/react/dist/csr/ListChecks';
+import { ArrowLeft } from '@phosphor-icons/react/dist/csr/ArrowLeft';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { ShieldWarning } from '@phosphor-icons/react/dist/csr/ShieldWarning';
+import { FastForward } from '@phosphor-icons/react/dist/csr/FastForward';
+import { UploadSimple } from '@phosphor-icons/react/dist/csr/UploadSimple';
+import { FileCsv } from '@phosphor-icons/react/dist/csr/FileCsv';
+import { Checks } from '@phosphor-icons/react/dist/csr/Checks';
+import { Question } from '@phosphor-icons/react/dist/csr/Question';
+import { Info } from '@phosphor-icons/react/dist/csr/Info';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
+import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { CaretDown } from '@phosphor-icons/react/dist/csr/CaretDown';
+import { CaretUp } from '@phosphor-icons/react/dist/csr/CaretUp';
+import { CaretRight } from '@phosphor-icons/react/dist/csr/CaretRight';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { MusicNotes } from '@phosphor-icons/react/dist/csr/MusicNotes';
+import { ArrowsOut } from '@phosphor-icons/react/dist/csr/ArrowsOut';
+import { ArrowsIn } from '@phosphor-icons/react/dist/csr/ArrowsIn';
+import { Stack } from '@phosphor-icons/react/dist/csr/Stack';
+import { Flame } from '@phosphor-icons/react/dist/csr/Flame';
 import { AnatomyStudioModal } from '@/components/AnatomyStudioModal';
 import { resolveAssetMuscleLoads } from '@/lib/anatomyUtils';
 import { cn, normalizeCategory, getCategoryTranslationKey, getYouTubeId, getEmbedVideoUrl, parseAssetDescription, AssetDetails, MistakeCorrection, VocabularyItem, QuestionAnswerItem } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
 import { useT } from '@/hooks/useTranslation';
 import dynamic from 'next/dynamic';
+import Papa from 'papaparse';
+import {runImportRows,validateImportSize,importFailureCsv,ImportFailure,MAX_IMPORT_BYTES,MAX_IMPORT_ROWS} from '@/lib/imports';
 
 const Anatomical3DModel = dynamic(
   () => import('@/components/Anatomical3DModel').then(mod => mod.Anatomical3DModel),
@@ -95,11 +124,11 @@ const normalizeMuscleNameFor3D = (name: string): string => {
   if (n.includes('biceps') || n.includes('brachialis') || n.includes('brachioradialis')) return 'Biceps';
   if (n.includes('triceps')) return 'Triceps';
   if (n.includes('trapezius')) return 'Trapezius';
-  
+
   if (n.includes('forearm')) return 'Biceps';
   if (n.includes('rhomboid') || n.includes('teres major')) return 'Back (Lats)';
   if (n.includes('rotator cuff')) return 'Shoulders (Deltoids)';
-  
+
   return name;
 };
 
@@ -111,7 +140,7 @@ export function LibraryView() {
 
   // Tabs: Taekwondo Technical vs Workout & Fitness vs Dance vs Routines
   const [activeTab, setActiveTab] = useState<'tkd' | 'fitness' | 'dance' | 'routines'>('tkd');
-  
+
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBelt, setSelectedBelt] = useState<string>('All');
@@ -236,7 +265,7 @@ export function LibraryView() {
     const matchesSearch = 
       template.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       template.description.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     if (!matchesSearch) return false;
 
     const tType = template.structure?.routineType || 'Taekwondo Workout';
@@ -278,12 +307,12 @@ export function LibraryView() {
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     if (draggedIndex === null || draggedIndex === index) return;
-    
+
     const items = [...newRoutine.selectedExercises];
     const draggedItem = items[draggedIndex];
     items.splice(draggedIndex, 1);
     items.splice(index, 0, draggedItem);
-    
+
     setDraggedIndex(index);
     setNewRoutine({ ...newRoutine, selectedExercises: items });
   };
@@ -311,7 +340,7 @@ export function LibraryView() {
   const filteredAssets = state.curriculumVideos.filter(video => {
     const isFitness = video.minBeltLevel === 'Fitness' || video.category.startsWith('Fitness:');
     const isDance = video.category.startsWith('Dance:');
-    
+
     // Filter by general activeTab selection
     if (activeTab === 'tkd' && (isFitness || isDance)) return false;
     if (activeTab === 'fitness' && !isFitness) return false;
@@ -399,14 +428,14 @@ export function LibraryView() {
         : []
     });
 
-    await addCurriculumVideo({
+    try { await addCurriculumVideo({
       title: newAsset.title,
       description: descriptionJson,
       category: categoryToSave,
       minBeltLevel: beltToSave,
       videoUrl: newAsset.videoUrl || undefined,
       muscleRelations: selectedMuscles
-    });
+    }); } catch { return; }
 
     setNewAsset({
       title: '',
@@ -436,7 +465,7 @@ export function LibraryView() {
 
   const handleStartEdit = (video: CurriculumVideo) => {
     const details = parseAssetDescription(video.description);
-    
+
     const relations = state.assetMuscleRelations
       .filter(r => r.assetId === video.id)
       .map(r => ({ muscleId: r.muscleId, role: r.role }));
@@ -526,14 +555,14 @@ export function LibraryView() {
         : []
     });
 
-    await updateCurriculumVideo(editAsset.id, {
+    try { await updateCurriculumVideo(editAsset.id, {
       title: editAsset.title,
       description: descriptionJson,
       category: categoryToSave,
       minBeltLevel: beltToSave,
       videoUrl: editAsset.videoUrl || undefined,
       muscleRelations: editSelectedMuscles
-    });
+    }); } catch { return; }
 
     // Sync state inside detail view if it is open
     setSelectedDetailAsset(prev => {
@@ -568,7 +597,7 @@ export function LibraryView() {
   const confirmDeleteVideo = (videoId: number, videoTitle: string, onCloseDetail?: () => void) => {
     let title = 'Delete Video';
     let message = `Are you sure you want to delete "${videoTitle}"? This will permanently remove the video from the curriculum library.`;
-    
+
     if (state.language === 'kh') {
       title = 'លុបវីដេអូ';
       message = `តើអ្នកពិតជាចង់លុប "${videoTitle}" មែនទេ? វានឹងលុបវីដេអូនេះចេញពីបណ្ណាល័យកម្មវិធីសិក្សាជាអចិន្ត្រៃយ៍។`;
@@ -580,14 +609,13 @@ export function LibraryView() {
     showConfirm(
       message,
       async () => {
-        if (onCloseDetail) onCloseDetail();
-        await deleteCurriculumVideo(videoId);
+        try { await deleteCurriculumVideo(videoId); if (onCloseDetail) onCloseDetail(); } catch { /* Store shows the save error. */ }
       },
       title
     );
   };
 
-  const handleSaveRoutine = (e: React.FormEvent) => {
+  const handleSaveRoutine = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRoutine.title.trim()) return;
 
@@ -613,11 +641,10 @@ export function LibraryView() {
       }
     };
 
-    if (editingRoutine) {
-      updateWorkoutTemplate(editingRoutine.id, routineTemplate);
-    } else {
-      addWorkoutTemplate(routineTemplate);
-    }
+    try {
+      if (editingRoutine) await updateWorkoutTemplate(editingRoutine.id,routineTemplate);
+      else await addWorkoutTemplate(routineTemplate);
+    }catch {return;}
 
     setShowRoutineModal(false);
     setEditingRoutine(null);
@@ -637,7 +664,7 @@ export function LibraryView() {
   const handleDeleteRoutine = (id: string, routineTitle: string) => {
     let title = 'Delete Routine';
     let message = `Are you sure you want to delete the routine "${routineTitle}"? This will permanently remove the routine template from the library.`;
-    
+
     if (state.language === 'kh') {
       title = 'លុបលំហាត់ហ្វឹកហាត់';
       message = `តើអ្នកពិតជាចង់លុប "${routineTitle}" មែនទេ? វានឹងលុបគំរូលំហាត់ហ្វឹកហាត់នេះចេញពីបណ្ណាល័យជាអចិន្ត្រៃយ៍។`;
@@ -648,8 +675,8 @@ export function LibraryView() {
 
     showConfirm(
       message,
-      () => {
-        deleteWorkoutTemplate(id);
+      async () => {
+        try {await deleteWorkoutTemplate(id);}catch { /* Store shows the save error. */ }
       },
       title
     );
@@ -855,7 +882,7 @@ export function LibraryView() {
                template.difficulty === 'Advanced' ? 'bg-[#EF2F38]' :
                template.difficulty === 'Intermediate' ? 'bg-amber-500' : 'bg-emerald-500'
              )} />
-             
+
              <div>
                <div className="flex items-center justify-between mb-3">
                  <div className="flex gap-1.5 flex-wrap">
@@ -874,7 +901,7 @@ export function LibraryView() {
                    <Clock className="w-3.5 h-3.5"/> {template.duration} Min Session
                  </span>
                </div>
-               
+
                <h3 className="text-sm font-bold text-neutral-900 dark:text-white group-hover:text-[#EF2F38] dark:group-hover:text-[#EF2F38] transition-colors leading-tight mb-2">{template.title}</h3>
                <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed line-clamp-3 mb-4">{template.description}</p>
 
@@ -944,13 +971,13 @@ export function LibraryView() {
             const details = parseAssetDescription(video.description);
             return (
               <div key={video.id} className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden flex flex-col justify-between hover:border-[#EF2F38]/40 dark:hover:border-[#EF2F38]/40 hover:shadow-md transition-all group duration-300 shadow-sm">
-                
+
                 {/* Thumbnail card with dynamic play overlay */}
                 <div className="aspect-video bg-neutral-100 dark:bg-[#1A1A1A] relative flex items-center justify-center border-b border-neutral-200 dark:border-[#262626] overflow-hidden">
                   <div className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" 
                     style={{ backgroundImage: `url('${details.thumbnailUrl || 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=480&auto=format&fit=crop'}')` }}
                   />
-                  
+
                   <div className="absolute inset-0 bg-black/55 flex items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity">
                     {video.videoUrl ? (
                       <button onClick={(e) => { e.stopPropagation(); setActivePlayVideo(video); }} className="p-3 bg-[#EF2F38] text-white rounded-full hover:scale-110 transition-transform duration-300 shadow-xl shadow-red-950/40 cursor-pointer touch-manipulation active:scale-95">
@@ -994,7 +1021,7 @@ export function LibraryView() {
                   <div>
                     <h3 className="text-sm font-bold text-neutral-900 dark:text-white group-hover:text-[#EF2F38] dark:group-hover:text-[#EF2F38] transition-colors leading-tight">{video.title}</h3>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed mt-2 line-clamp-3">{details.text || 'No description provided.'}</p>
-                    
+
                     {/* Focus Zones tags preview */}
                     {details.focusZones && details.focusZones.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-3">
@@ -1104,7 +1131,7 @@ export function LibraryView() {
         {showAddModal && (
           <Portal>
             <div className="fixed inset-0 bg-neutral-950/75 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-               <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }}
+               <motion.div {...dialogMotion}
                  className="w-full max-w-4xl bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[10px] shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]"
                >
                  <div className="p-4 md:p-5 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex justify-between items-center">
@@ -1283,11 +1310,11 @@ export function LibraryView() {
                                          (m.nameZh && m.nameZh.toLowerCase().includes(query)) ||
                                          m.muscleGroup.toLowerCase().includes(query);
                                 });
-                                
+
                                 if (filtered.length === 0) {
                                   return <div className="p-3 text-xs text-neutral-400 text-center">No muscles found</div>;
                                 }
-                                
+
                                 return filtered.map((m, idx) => {
                                   const isSelected = selectedMuscles.some(s => s.muscleId === m.id);
                                   const isActive = activeMuscleIdx === idx;
@@ -1404,12 +1431,12 @@ export function LibraryView() {
                               <div className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-neutral-600 dark:hover:text-white shrink-0 p-1">
                                 <ListChecks className="w-4 h-4" />
                               </div>
-                              
+
                               {/* Step Badge */}
                               <span className="text-[10px] font-mono font-bold bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[50px] text-center">
                                 Step {idx + 1}
                               </span>
-                              
+
                               {/* Input Box */}
                               <input
                                 id={`step-input-add-${idx}`}
@@ -1442,7 +1469,7 @@ export function LibraryView() {
                                 }}
                                 className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-medium"
                               />
-                              
+
                               {/* Remove button */}
                               {instructionSteps.length > 1 && (
                                 <button
@@ -1508,11 +1535,11 @@ export function LibraryView() {
                                 f.title.toLowerCase().includes(query) || 
                                 f.category.toLowerCase().includes(query)
                               );
-                              
+
                               if (filtered.length === 0) {
                                 return <div className="p-3 text-xs text-neutral-400 text-center">No fitness skills found</div>;
                               }
-                              
+
                               return filtered.map(f => {
                                 const isSelected = selectedFitnessSolutions.includes(f.id);
                                 return (
@@ -1884,7 +1911,7 @@ export function LibraryView() {
         {showRoutineModal && (
           <Portal>
             <div className="fixed inset-0 bg-neutral-950/75 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-               <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }}
+               <motion.div {...dialogMotion}
                  className="w-full max-w-lg bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[10px] shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]"
                >
                  <div className="p-4 md:p-5 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex justify-between items-center">
@@ -1975,7 +2002,7 @@ export function LibraryView() {
                         <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">
                           {t('lib_routine_sequence_label')}
                         </label>
-                        
+
                         {/* Search input container */}
                         <div className="relative">
                           <span className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center justify-center">
@@ -2042,7 +2069,7 @@ export function LibraryView() {
                                   }}
                                   className="w-full px-4 py-2.5 text-left text-xs text-[#EF2F38] hover:bg-[#EF2F38]/5 dark:hover:bg-[#EF2F38]/10 transition-colors flex justify-between items-center group font-bold border-b border-neutral-100 dark:border-[#262626] cursor-pointer"
                                 >
-                                  <span>+ Add Custom: "{exerciseSearch.trim()}"</span>
+                                  <span>+ Add Custom: &quot;{exerciseSearch.trim()}&quot;</span>
                                   <Plus className="w-3.5 h-3.5 text-[#EF2F38]" />
                                 </button>
                               )}
@@ -2081,7 +2108,7 @@ export function LibraryView() {
                         <span className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">
                           Routine Exercise Sequence ({newRoutine.selectedExercises.length} items)
                         </span>
-                        
+
                         {newRoutine.selectedExercises.length > 0 ? (
                           <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
                             {newRoutine.selectedExercises.map((exercise, index) => (
@@ -2109,12 +2136,12 @@ export function LibraryView() {
                                       <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h16M4 16h16" />
                                     </svg>
                                   </div>
-                                  
+
                                   {/* Index badge */}
                                   <span className="w-5 h-5 flex items-center justify-center bg-neutral-200/60 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-full text-[9px] font-mono font-bold shrink-0">
                                     {index + 1}
                                   </span>
-                                  
+
                                   <span className="text-xs text-neutral-800 dark:text-neutral-200 font-medium truncate">
                                     {exercise}
                                   </span>
@@ -2218,7 +2245,7 @@ export function LibraryView() {
                     <X className="w-4 h-4"/>
                   </button>
                 </div>
-                
+
                 <div className="flex-1 bg-black flex items-center justify-center p-2 min-h-[300px]">
                   {activePlayVideo.videoUrl ? (
                     <iframe 
@@ -2241,7 +2268,7 @@ export function LibraryView() {
         {selectedDetailAsset && (
           <Portal>
             <div className="fixed inset-0 bg-neutral-950/75 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-              <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }}
+              <motion.div {...dialogMotion}
                 className="w-full max-w-2xl bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[10px] shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]"
               >
                 {editAsset ? (
@@ -2408,11 +2435,11 @@ export function LibraryView() {
                                            (m.nameZh && m.nameZh.toLowerCase().includes(query)) ||
                                            m.muscleGroup.toLowerCase().includes(query);
                                   });
-                                  
+
                                   if (filtered.length === 0) {
                                     return <div className="p-3 text-xs text-neutral-400 text-center">No muscles found</div>;
                                   }
-                                  
+
                                   return filtered.map((m, idx) => {
                                     const isSelected = editSelectedMuscles.some(s => s.muscleId === m.id);
                                     const isActive = editActiveMuscleIdx === idx;
@@ -2529,12 +2556,12 @@ export function LibraryView() {
                                 <div className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-neutral-600 dark:hover:text-white shrink-0 p-1">
                                   <ListChecks className="w-4 h-4" />
                                 </div>
-                                
+
                                 {/* Step Badge */}
                                 <span className="text-[10px] font-mono font-bold bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[50px] text-center">
                                   Step {idx + 1}
                                 </span>
-                                
+
                                 {/* Input Box */}
                                 <input
                                   id={`step-input-edit-${idx}`}
@@ -2567,7 +2594,7 @@ export function LibraryView() {
                                   }}
                                   className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-medium"
                                 />
-                                
+
                                 {/* Remove button */}
                                 {editInstructionSteps.length > 1 && (
                                   <button
@@ -2633,11 +2660,11 @@ export function LibraryView() {
                                   f.title.toLowerCase().includes(query) || 
                                   f.category.toLowerCase().includes(query)
                                 );
-                                
+
                                 if (filtered.length === 0) {
                                   return <div className="p-3 text-xs text-neutral-400 text-center">No fitness skills found</div>;
                                 }
-                                
+
                                 return filtered.map(f => {
                                   const isSelected = editSelectedFitnessSolutions.includes(f.id);
                                   return (
@@ -3486,7 +3513,7 @@ function WorkoutTimerModal({ workout, onClose }: { workout: any, onClose: () => 
   return (
     <Portal>
       <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4 animate-in fade-in">
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+        <motion.div {...dialogMotion}
           className={cn("w-full max-w-md border rounded-[8px] p-6 shadow-2xl flex flex-col justify-between space-y-6 transition-all duration-300 bg-[#0A0A0A] dark-card-override", theme.border, `shadow-2xl ${theme.glow}`)}
         >
           {/* Header */}
@@ -3508,7 +3535,7 @@ function WorkoutTimerModal({ workout, onClose }: { workout: any, onClose: () => 
           {/* Central Timer Face */}
           <div className={cn("rounded-[8px] p-8 flex flex-col items-center justify-center transition-all relative border border-transparent overflow-hidden", theme.bg)}>
             <span className="text-[9px] uppercase font-black tracking-[0.25em] text-neutral-400">{t('lib_timer_current_mode')}</span>
-            
+
             {/* Massive mode flash text */}
             <motion.h1 key={mode} initial={{ y: -5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className={cn("text-2xl font-black uppercase tracking-widest mt-1 mb-2 font-mono", theme.text)}>
               {getModeLabel(mode)}
@@ -3605,7 +3632,7 @@ interface ParsedAssetRow {
 }
 
 function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModalProps) {
-  const { state, addCurriculumVideo } = useAppStore();
+  const { state, addCurriculumVideo, showNotification } = useAppStore();
   const t = useT();
   const [csvText, setCsvText] = useState('');
   const [fileName, setFileName] = useState('');
@@ -3616,6 +3643,15 @@ function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModalProps)
   const [importSummary, setImportSummary] = useState<{ success: number; failed: number } | null>(null);
   const [copied, setCopied] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+
+  const completedImports=useRef(new Set<string>());
+  const importRunning=useRef(false);
+  const [importFailures,setImportFailures]=useState<ImportFailure[]>([]);
+  const downloadImportFailures=()=>{
+    const errors=[...parsedRows.filter(r=>!r.isValid).map(r=>({row:r.index,message:r.errors.join('; ')})),...importFailures];
+    const url=URL.createObjectURL(new Blob([importFailureCsv(errors)],{type:'text/csv;charset=utf-8'}));
+    const link=document.createElement('a');link.href=url;link.download='library-import-errors.csv';link.click();URL.revokeObjectURL(url);
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -3634,6 +3670,7 @@ function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModalProps)
   };
 
   const handleAddManualRow = () => {
+    if(parsedRows.length>=MAX_IMPORT_ROWS){showNotification('Import at most 500 rows per batch.','warning');return;}
     const nextIndex = parsedRows.length > 0 ? Math.max(...parsedRows.map(r => r.index)) + 1 : 1;
     const newEmptyRow: ParsedAssetRow = {
       index: nextIndex,
@@ -3674,34 +3711,11 @@ function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModalProps)
     'video_link': 'videoUrl'
   };
 
-  const parseCSVLine = (line: string): string[] => {
-    const result: string[] = [];
-    let current = '';
-    let inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if (char === ',' && !inQuotes) {
-        result.push(current.trim());
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-    result.push(current.trim());
-    return result.map(val => 
-      val.startsWith('"') && val.endsWith('"') 
-        ? val.substring(1, val.length - 1).trim() 
-        : val
-    );
-  };
-
   const validateRecord = (data: any): string[] => {
     const errors: string[] = [];
     if (!data.title.trim()) errors.push("Title is required.");
     if (!data.description.trim()) errors.push("Description is required.");
-    
+
     // Check if duplicate title exists under same category in library_assets
     const normalizeCatString = (cat: string) => {
       return cat.replace(/^Fitness:\s*/i, '').replace(/^Dance:\s*/i, '').trim().toLowerCase();
@@ -3718,7 +3732,7 @@ function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModalProps)
     if (data.videoUrl && !/^https?:\/\/.+/i.test(data.videoUrl)) {
       errors.push("Video link must start with http:// or https://");
     }
-    
+
     if (activeTab === 'tkd') {
       const validCategories = [
         'Forms (Poomsae)',
@@ -3754,25 +3768,31 @@ function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModalProps)
   };
 
   const handleProcessCSV = (textToParse: string) => {
+    if(importRunning.current)return;
+    try {validateImportSize(textToParse);}catch(error){setParsedRows([]);showNotification(error instanceof Error?error.message:'Import is too large.','error');return;}
+    completedImports.current.clear();setImportFailures([]);setImportSummary(null);
     if (!textToParse.trim()) {
       setParsedRows([]);
       return;
     }
 
-    const lines = textToParse.split(/\r?\n/).filter(line => line.trim() !== '');
+    const parsed=Papa.parse<string[]>(textToParse,{skipEmptyLines:'greedy'});
+    if(parsed.errors.length){setParsedRows([]);showNotification('CSV could not be read: '+parsed.errors[0].message,'error');return;}
+    const lines=parsed.data;
+    try {validateImportSize('',Math.max(0,lines.length-1));}catch(error){setParsedRows([]);showNotification(error instanceof Error?error.message:'Too many rows.','error');return;}
     if (lines.length < 2) {
       setParsedRows([]);
       return;
     }
 
-    const rawHeaders = parseCSVLine(lines[0]);
+    const rawHeaders = lines[0];
     const normalizedHeaders = rawHeaders.map(h => h.toLowerCase().trim());
     const matchedFields = normalizedHeaders.map(h => headerMap[h] || h);
 
     const rows: ParsedAssetRow[] = [];
 
     for (let i = 1; i < lines.length; i++) {
-      const values = parseCSVLine(lines[i]);
+      const values = lines[i];
       if (values.length === 1 && values[0] === '') continue;
 
       const rawData: any = {};
@@ -3846,6 +3866,8 @@ function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModalProps)
   };
 
   const processFile = (file: File) => {
+    if(importRunning.current)return;
+    if(file.size>MAX_IMPORT_BYTES){showNotification('Import files must be 2 MB or smaller.','error');return;}
     setFileName(file.name);
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -3882,18 +3904,15 @@ function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModalProps)
 
   const handleStartImport = async () => {
     const validRows = parsedRows.filter(r => r.isValid);
-    if (validRows.length === 0) return;
+    if (validRows.length === 0 || importRunning.current) return;
+    importRunning.current=true;
 
     setIsProcessing(true);
     setImportSummary(null);
     setCurrentIndex(0);
 
-    let successCount = 0;
-    let failedCount = 0;
-
-    for (let i = 0; i < validRows.length; i++) {
-      setCurrentIndex(i + 1);
-      const row = validRows[i];
+    try {
+      const summary=await runImportRows(validRows,completedImports.current,async row=>{
 
       let categoryToSave = row.data.category;
       let beltToSave = row.data.minBeltLevel;
@@ -3937,15 +3956,14 @@ function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModalProps)
           minBeltLevel: beltToSave,
           videoUrl: row.data.videoUrl || undefined
         });
-        successCount++;
+        return {success:true};
       } catch (err) {
-        failedCount++;
-        console.error(err);
+        return {success:false,error:err instanceof Error?err.message:'Asset save failed.'};
       }
-    }
-
-    setIsProcessing(false);
-    setImportSummary({ success: successCount, failed: failedCount });
+      },done=>setCurrentIndex(done));
+      setImportFailures(summary.failures);setImportSummary({success:summary.success,failed:summary.failed});
+    }catch(error){showNotification(error instanceof Error?error.message:'Import failed.','error');}
+    finally {importRunning.current=false;setIsProcessing(false);}
   };
 
   const totalValid = parsedRows.filter(r => r.isValid).length;
@@ -3984,7 +4002,7 @@ function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModalProps)
         }
       `}} />
       <div className="w-full max-w-5xl bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[10px] shadow-2xl flex flex-col my-8 max-h-[90dvh] overflow-hidden text-neutral-900 dark:text-white">
-        
+
         {/* Header */}
         <div className="p-4 md:p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#0F0F0F]">
           <div className="flex items-center gap-2.5">
@@ -4002,7 +4020,7 @@ function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModalProps)
               <Question className="w-3.5 h-3.5" /> {t('bulk_tutorial_btn')}
             </button>
             <button 
-              onClick={onClose} 
+              disabled={isProcessing} onClick={onClose}
               className="w-8 h-8 rounded-full flex items-center justify-center text-neutral-400 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors active:scale-95 touch-manipulation cursor-pointer"
               title={t('act_close')}
             >
@@ -4160,7 +4178,7 @@ function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModalProps)
                         !row.isValid && "bg-red-500/[0.02] dark:bg-red-500/[0.01]"
                       )}>
                         <td className="px-4 py-3 font-mono text-neutral-500 dark:text-neutral-400 text-center font-bold">{row.index}</td>
-                        
+
                         {/* Title Input */}
                         <td className="px-3 py-2 min-w-[200px]">
                           <input 

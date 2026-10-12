@@ -1,17 +1,25 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
 import React from 'react';
-import { useAppStore } from '@/lib/store';
-import { motion, AnimatePresence } from 'motion/react';
-import { Warning, X, Question, Check } from '@phosphor-icons/react';
+import { useAppStore, type SystemConfirm } from '@/lib/store';
+import { motion, AnimatePresence, useIsPresent } from 'motion/react';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { Question } from '@phosphor-icons/react/dist/csr/Question';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
 import { useT } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
 
 export function SystemConfirmModal() {
+  const { state } = useAppStore();
+  return <AnimatePresence>{state.systemConfirm && <ConfirmContent confirmData={state.systemConfirm} />}</AnimatePresence>;
+}
+
+function ConfirmContent({ confirmData }: { confirmData: SystemConfirm }) {
   const { state, hideConfirm } = useAppStore();
   const t = useT();
-
-  const confirmData = state.systemConfirm;
+  const present = useIsPresent();
 
   // Localized default headers based on language
   const getHeader = () => {
@@ -29,15 +37,13 @@ export function SystemConfirmModal() {
     return 'Confirm';
   };
 
-  if (!confirmData) return null;
-
   const headerText = confirmData.title || getHeader();
   const confirmLabel = getConfirmLabel();
 
   // Determine modal styling theme dynamically based on intent/message content
   const modalTheme = (() => {
     const msg = confirmData.message.toLowerCase();
-    
+
     // Danger / Red: deletions, voiding, or setting to Absent
     const isDanger = msg.includes('delete') || 
                      msg.includes('remove') || 
@@ -48,7 +54,7 @@ export function SystemConfirmModal() {
                      msg.includes('"absent"') || 
                      msg.includes('"អវត្តមាន"') || 
                      msg.includes('"未到"');
-                     
+
     if (isDanger) {
       return {
         borderColor: 'border-red-500/20',
@@ -59,12 +65,12 @@ export function SystemConfirmModal() {
         confirmBtn: 'bg-[#EF2F38] hover:bg-red-600 text-white'
       };
     }
-    
+
     // Success / Green: setting to Present
     const isSuccess = msg.includes('"present"') || 
                       msg.includes('"វត្តមាន"') || 
                       msg.includes('"已到"');
-                      
+
     if (isSuccess) {
       return {
         borderColor: 'border-green-500/20',
@@ -80,7 +86,7 @@ export function SystemConfirmModal() {
     const isWarning = msg.includes('"late"') || 
                       msg.includes('"យឺត"') || 
                       msg.includes('"迟到"');
-                      
+
     if (isWarning) {
       return {
         borderColor: 'border-yellow-500/20',
@@ -91,7 +97,7 @@ export function SystemConfirmModal() {
         confirmBtn: 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-500/20'
       };
     }
-    
+
     // Default / Info / Blue
     return {
       borderColor: 'border-blue-500/20',
@@ -124,8 +130,7 @@ export function SystemConfirmModal() {
   };
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      <div inert={!present} className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
         {/* Backdrop blur with overlay */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -137,10 +142,8 @@ export function SystemConfirmModal() {
 
         {/* Modal Card container */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 15 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          transition={{ type: 'spring', duration: 0.3, bounce: 0.18 }}
+          {...dialogMotion}
+
           style={{
             boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px ${modalTheme.glowColor}`,
           }}
@@ -211,7 +214,6 @@ export function SystemConfirmModal() {
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>
   );
 }
 

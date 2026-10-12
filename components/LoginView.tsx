@@ -1,26 +1,25 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppStore } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  User, 
-  Lock, 
-  Eye, 
-  EyeClosed, 
-  ShieldWarning, 
-  Sparkle, 
-  Sun, 
-  Moon, 
-  Globe, 
-  Question, 
-  TelegramLogo, 
-  Phone, 
-  EnvelopeSimple, 
-  Copy, 
-  Check, 
-  X 
-} from '@phosphor-icons/react';
+import { User } from '@phosphor-icons/react/dist/csr/User';
+import { Lock } from '@phosphor-icons/react/dist/csr/Lock';
+import { Eye } from '@phosphor-icons/react/dist/csr/Eye';
+import { EyeClosed } from '@phosphor-icons/react/dist/csr/EyeClosed';
+import { ShieldWarning } from '@phosphor-icons/react/dist/csr/ShieldWarning';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { Sun } from '@phosphor-icons/react/dist/csr/Sun';
+import { Moon } from '@phosphor-icons/react/dist/csr/Moon';
+import { Globe } from '@phosphor-icons/react/dist/csr/Globe';
+import { Question } from '@phosphor-icons/react/dist/csr/Question';
+import { TelegramLogo } from '@phosphor-icons/react/dist/csr/TelegramLogo';
+import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
+import { EnvelopeSimple } from '@phosphor-icons/react/dist/csr/EnvelopeSimple';
+import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { X } from '@phosphor-icons/react/dist/csr/X';
 import { useT } from '@/hooks/useTranslation';
 import { securityRateLimiter, formatSafeError } from '@/lib/security';
 
@@ -260,7 +259,7 @@ export function LoginView() {
 
   return (
     <div className="min-h-dvh flex flex-col justify-between p-4 sm:p-6 relative overflow-x-hidden overflow-y-auto bg-[#0A0A0A] dark:bg-[#0A0A0A] select-none font-sans transition-colors duration-300">
-      
+
       {/* 1. Dynamic Canvas Ambient Embers */}
       <LoginBackground />
 
@@ -338,9 +337,8 @@ export function LoginView() {
       {/* 4. Center Glassmorphic Login Card */}
       <main className="relative z-10 w-full flex items-center justify-center my-auto py-6 shrink-0">
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: 'easeOut' }}
           className="w-full max-w-sm sm:max-w-md bg-white/85 dark:bg-[#121212]/90 backdrop-blur-2xl rounded-[8px] p-6 sm:p-8 border border-neutral-200/80 dark:border-neutral-800/90 shadow-[0_16px_50px_rgba(0,0,0,0.08)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.65)] flex flex-col gap-5 sm:gap-6 transition-colors"
         >
           {/* Academy Brand Logo & Header */}
@@ -520,9 +518,7 @@ export function LoginView() {
         {showHelpModal && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              {...dialogMotion}
               className="w-full max-w-md bg-white dark:bg-[#141414] border border-neutral-200 dark:border-neutral-800 rounded-[8px] p-6 shadow-2xl flex flex-col gap-4 text-neutral-900 dark:text-white max-h-[90dvh] overflow-y-auto"
             >
               <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">

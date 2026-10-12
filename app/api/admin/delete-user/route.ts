@@ -89,48 +89,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // 4. Safely detach foreign key references
-    // A. Unassign coach assignments in class sessions
-    await adminSupabase
-      .from('class_sessions')
-      .update({ coach_id: null })
-      .eq('coach_id', id);
-
-    await adminSupabase
-      .from('class_sessions')
-      .update({ head_coach_id: null })
-      .eq('head_coach_id', id);
-
-    // B. Unlink student profile references if any
-    await adminSupabase
-      .from('students')
-      .update({ profile_id: null })
-      .eq('profile_id', id);
-
-    // 5. Clean up child records
-    // A. Member addresses
-    await adminSupabase.from('member_addresses').delete().eq('member_id', id);
-
-    // B. Member record
-    await adminSupabase.from('members').delete().eq('id', id);
-
-    // C. Public profile record
-    const { error: deleteProfileErr } = await adminSupabase.from('profiles').delete().eq('id', id);
-    if (deleteProfileErr) {
-      console.error('[delete-user API] Error deleting profile record:', deleteProfileErr);
-      return formatServerErrorResponse(deleteProfileErr);
-    }
-
-    // D. Auth user record in Supabase Auth
-    try {
-      await adminSupabase.auth.admin.deleteUser(id);
-    } catch (authDeleteErr: any) {
-      console.warn('[delete-user API] Supabase auth delete warning (might already be pruned):', authDeleteErr);
-    }
+    const {error:archiveError}=await adminSupabase.rpc('portal_archive_user',{p_actor:context.userId,p_target:id});
+    if(archiveError)return formatServerErrorResponse(archiveError);
 
     // 6. Log Security Audit Event
     await logSecurityAuditEvent({
-      action: 'USER_DELETED',
+      action: 'USER_ARCHIVED',
       performedBy: context.userId,
       targetId: id,
       details: {

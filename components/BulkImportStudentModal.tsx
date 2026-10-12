@@ -1,11 +1,25 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
+import { academyDate } from '@/lib/dates';
+
+import Papa from 'papaparse';
+import {runImportRows,validateImportSize,importFailureCsv,ImportFailure,MAX_IMPORT_BYTES,MAX_IMPORT_ROWS} from '@/lib/imports';
 import React, { useState, useRef } from 'react';
 import { useAppStore, Student } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  X, UploadSimple, Question, Info, FileCsv, Checks, Warning, Copy, Trash, Play, CheckCircle, PencilSimple
-} from '@phosphor-icons/react';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { UploadSimple } from '@phosphor-icons/react/dist/csr/UploadSimple';
+import { Question } from '@phosphor-icons/react/dist/csr/Question';
+import { Info } from '@phosphor-icons/react/dist/csr/Info';
+import { FileCsv } from '@phosphor-icons/react/dist/csr/FileCsv';
+import { Checks } from '@phosphor-icons/react/dist/csr/Checks';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
+import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
+import { Play } from '@phosphor-icons/react/dist/csr/Play';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
 import { cn, sanitizeStringInput, isValidEmail, isValidPhone, isValidDate } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
 import { SafeImage } from '@/components/SafeImage';
@@ -23,7 +37,7 @@ interface ParsedRow {
 }
 
 export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps) {
-  const { addStudent, state } = useAppStore();
+  const { addStudent, state, showNotification } = useAppStore();
   const t = useT();
   const [csvText, setCsvText] = useState('');
   const [fileName, setFileName] = useState('');
@@ -35,12 +49,21 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
   const [copied, setCopied] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
+  const completedImports=useRef(new Set<string>());
+  const importRunning=useRef(false);
+  const [importFailures,setImportFailures]=useState<ImportFailure[]>([]);
+  const downloadImportFailures=()=>{
+    const errors=[...parsedRows.filter(r=>!r.isValid).map(r=>({row:r.index,message:r.errors.join('; ')})),...importFailures];
+    const url=URL.createObjectURL(new Blob([importFailureCsv(errors)],{type:'text/csv;charset=utf-8'}));
+    const link=document.createElement('a');link.href=url;link.download='import-errors.csv';link.click();URL.revokeObjectURL(url);
+  };
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Template headers & example data for clipboard
   const csvHeaders = "English Name,Khmer Name,Gender,Date of Birth,Phone,Email,Current Belt,Home Branch ID,Scholarship ID,Height Cm,Weight Kg,Profile Picture Path,Kukkiwon ID,Nationality,Address Line 1,District Commune,State Province City,Emergency Contact Name,Emergency Contact Phone,Emergency Contact Relation,Medical Notes,Allergies,Enrollment Date,Migration Notes";
   const csvExampleRow = "Chan Dara,ចាន់ ដារ៉ា,Male,2010-08-12,012345678,dara@gmail.com,Yellow,1,1,142,38,https://drive.google.com/file/d/1lBmAnT-53eMCmhIc0tjwv9Hb1V9gfvsG/view,,Cambodian,St. 105 House 22B,Chamkar Mon,Phnom Penh,Chan Sothea,099888777,Father,None,Peanuts,2026-03-01,Migrated from old list";
-  
+
   const handleCopyTemplate = () => {
     navigator.clipboard.writeText(`${csvHeaders}\n${csvExampleRow}`);
     setCopied(true);
@@ -186,7 +209,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
     const errors: string[] = [];
     if (!data.englishName) errors.push(t('panel_err_name_dob_required'));
     if (!data.khmerName) errors.push(t('panel_err_name_dob_required'));
-    
+
     if (!data.dob) {
       errors.push(t('panel_err_name_dob_required'));
     } else if (!isValidDate(data.dob)) {
@@ -245,7 +268,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
         postalCode: '',
         country: 'Cambodia',
         classId: '',
-        registrationDate: new Date().toISOString().split('T')[0],
+        registrationDate: academyDate(),
         notes: ''
       },
       errors: [t('panel_err_name_dob_required') || 'Name and Date of Birth are required.'],
@@ -255,6 +278,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
   const handleAddManualRow = () => {
     const nextIndex = parsedRows.length > 0 ? Math.max(...parsedRows.map(r => r.index)) + 1 : 1;
+    if(parsedRows.length>=MAX_IMPORT_ROWS){showNotification('Import at most 500 rows per batch.','warning');return;}
     setParsedRows(prev => [...prev, createDefaultRow(nextIndex)]);
   };
 
@@ -266,13 +290,15 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
     if (!rowIndexAttr || !colFieldAttr) return;
 
     const text = e.clipboardData.getData('text');
-    
+    if(importRunning.current)return;
+    try {validateImportSize(text);}catch(error){showNotification(error instanceof Error?error.message:'Paste is too large.','error');return;}
+
     // Check if it's a spreadsheet paste (contains tabs or newlines)
     const rawLines = text.split(/\r?\n/);
     if (rawLines.length > 1 && rawLines[rawLines.length - 1] === '') {
       rawLines.pop();
     }
-    
+
     const isMultiCell = rawLines.length > 1 || rawLines[0].includes('\t');
     if (!isMultiCell) {
       // Allow default single cell text paste
@@ -306,8 +332,11 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
     if (startColIndex === -1) return;
 
     // Parse the paste grid
-    const pasteGrid = rawLines.map(line => line.split('\t'));
+    const pasted=Papa.parse<string[]>(text,{delimiter:'\t',skipEmptyLines:'greedy'});
+    if(pasted.errors.length){showNotification('Pasted cells could not be read: '+pasted.errors[0].message,'error');return;}
+    const pasteGrid=pasted.data;
 
+    if(pasteGrid.length+parsedRows.length>MAX_IMPORT_ROWS){showNotification('Paste smaller batches of at most 500 total rows.','warning');return;}
     setParsedRows(prev => {
       const rowMap = new Map<number, ParsedRow>();
       prev.forEach(row => {
@@ -319,7 +348,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
       const sortedRows = [...prev].sort((a, b) => a.index - b.index);
       const startRowObj = sortedRows.find(r => r.index === startRowIndex);
       if (!startRowObj) return prev;
-      
+
       const startSortedRowIndex = sortedRows.indexOf(startRowObj);
 
       for (let r = 0; r < pasteGrid.length; r++) {
@@ -373,26 +402,32 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
   };
 
   const handleProcessCSV = (textToParse: string) => {
+    if(importRunning.current)return;
+    try {validateImportSize(textToParse);}catch(error){setParsedRows([]);showNotification(error instanceof Error?error.message:'Import is too large.','error');return;}
+    completedImports.current.clear();setImportFailures([]);setImportSummary(null);
     if (!textToParse.trim()) {
       setParsedRows([]);
       return;
     }
 
-    const lines = textToParse.split(/\r?\n/).filter(line => line.trim() !== '');
+    const parsedCsv = Papa.parse<string[]>(textToParse, { skipEmptyLines: 'greedy' });
+    if (parsedCsv.errors.length) { setParsedRows([]); showNotification('CSV could not be read: '+parsedCsv.errors[0].message,'error'); return; }
+    const lines = parsedCsv.data;
+    try {validateImportSize('',Math.max(0,lines.length-1));}catch(error){setParsedRows([]);showNotification(error instanceof Error?error.message:'Too many rows.','error');return;}
     if (lines.length < 2) {
       setParsedRows([]);
       return;
     }
 
     // Parse headers
-    const rawHeaders = parseCSVLine(lines[0]);
+    const rawHeaders = lines[0];
     const normalizedHeaders = rawHeaders.map(h => h.toLowerCase().trim());
     const matchedFields = normalizedHeaders.map(h => headerMap[h] || h);
 
     const rows: ParsedRow[] = [];
 
     for (let i = 1; i < lines.length; i++) {
-      const values = parseCSVLine(lines[i]);
+      const values = lines[i];
       // Skip completely empty lines
       if (values.length === 1 && values[0] === '') continue;
 
@@ -433,7 +468,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
         postalCode: sanitizeStringInput(rawData.postalCode || ''),
         country: sanitizeStringInput(rawData.country || 'Cambodia'),
         classId: rawData.classId || '',
-        registrationDate: rawData.registrationDate ? sanitizeStringInput(rawData.registrationDate) : new Date().toISOString().split('T')[0],
+        registrationDate: rawData.registrationDate ? sanitizeStringInput(rawData.registrationDate) : academyDate(),
         notes: rawData.notes ? sanitizeStringInput(rawData.notes) : ''
       };
 
@@ -463,7 +498,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
     setParsedRows(prev => prev.map(row => {
       if (row.index !== index) return row;
       const updatedData = { ...row.data, [field]: value };
-      
+
       // Auto-coerce gender if editing gender
       if (field === 'gender') {
         const lowerGender = String(value).toLowerCase().trim();
@@ -491,6 +526,8 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
   };
 
   const processFile = (file: File) => {
+    if(importRunning.current)return;
+    if(file.size>MAX_IMPORT_BYTES){showNotification('Import files must be 2 MB or smaller.','error');return;}
     setFileName(file.name);
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -527,51 +564,14 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
   };
 
   const handleStartImport = async () => {
-    const validRows = parsedRows.filter(r => r.isValid);
-    if (validRows.length === 0) return;
-
-    setIsProcessing(true);
-    setImportSummary(null);
-    setCurrentIndex(0);
-
-    let successCount = 0;
-    let failedCount = 0;
-
-    let runningCount = state.students.length;
-
-    for (let i = 0; i < validRows.length; i++) {
-      setCurrentIndex(i + 1);
-      const row = validRows[i];
-      runningCount++;
-
-      const prefix = row.data.gender === 'Male' ? 'M' : 'F';
-      const generatedId = `STU-${prefix}-${String(runningCount).padStart(3, '0')}`;
-
-      const payload = {
-        ...row.data,
-        id: generatedId,
-        address: {
-          line1: row.data.addressLine1,
-          line2: row.data.addressLine2,
-          city: row.data.city,
-          stateProvince: row.data.stateProvince,
-          postalCode: row.data.postalCode,
-          country: row.data.country
-        },
-        initialClassId: row.data.classId ? parseInt(row.data.classId) : undefined
-      };
-
-      const result = await addStudent(payload);
-      if (result.success) {
-        successCount++;
-      } else {
-        failedCount++;
-        console.error(`[Bulk Import Failure] Row ${row.index} (${row.data.englishName || 'Unnamed'}):`, result.error);
-      }
-    }
-
-    setIsProcessing(false);
-    setImportSummary({ success: successCount, failed: failedCount });
+    const validRows=parsedRows.filter(r=>r.isValid);
+    if(!validRows.length || importRunning.current)return;
+    importRunning.current=true;setIsProcessing(true);setCurrentIndex(0);
+    try {
+      const summary=await runImportRows(validRows,completedImports.current,async row=>addStudent({...row.data,address:{line1:row.data.addressLine1,line2:row.data.addressLine2,city:row.data.city,stateProvince:row.data.stateProvince,postalCode:row.data.postalCode,country:row.data.country},initialClassId:row.data.classId?Number(row.data.classId):undefined}),done=>setCurrentIndex(done));
+      setImportFailures(summary.failures);setImportSummary({success:summary.success,failed:summary.failed});
+    }catch(error){showNotification(error instanceof Error?error.message:'Import failed.','error');}
+    finally {importRunning.current=false;setIsProcessing(false);}
   };
 
   const totalValid = parsedRows.filter(r => r.isValid).length;
@@ -705,7 +705,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
           }
         `}} />
         <div className="w-full max-w-5xl bg-[#0F0F0F] border border-[#262626] rounded-[8px] shadow-2xl flex flex-col my-8 max-h-[90dvh] overflow-hidden">
-          
+
           {/* Header */}
           <div className="p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#141414]">
             <div className="flex items-center gap-2.5">
@@ -724,7 +724,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
               </button>
               <button 
                 type="button"
-                onClick={onClose} 
+                disabled={isProcessing} onClick={onClose}
                 aria-label="Close modal"
                 className="min-h-[44px] min-w-[44px] flex items-center justify-center text-neutral-400 hover:text-neutral-800 dark:text-[#666] dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation"
               >
@@ -734,11 +734,11 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
           </div>
 
           <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#0A0A0A]">
-            
+
             {/* Phase 1: Upload or Paste */}
             {!importSummary && !isProcessing && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
+
                 {/* Drag and Drop File Selector */}
                 <div 
                   onClick={() => fileInputRef.current?.click()} 
@@ -807,7 +807,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                     </div>
                     <div className="text-left">
                       <p className="text-sm font-bold text-white">Manual Spreadsheet Roster</p>
-                      <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">Don't have a CSV file? Start with a blank Excel-like grid to type in student rows manually!</p>
+                      <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">Don&apos;t have a CSV file? Start with a blank Excel-like grid to type in student rows manually!</p>
                     </div>
                   </div>
                   <button
@@ -884,7 +884,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                           !row.isValid && "bg-red-500/[0.02] dark:bg-red-500/[0.01] hover:bg-red-500/[0.04] dark:hover:bg-red-500/[0.03]"
                         )}>
                           <td className="px-4 py-3 font-mono text-neutral-500 dark:text-neutral-400 text-center font-bold w-16">{row.index}</td>
-                          
+
                           {/* English Name Input */}
                           <td className="px-3 py-2 min-w-[160px]">
                             <input 
@@ -1127,6 +1127,8 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
               </div>
             )}
 
+            {(importFailures.length>0 || parsedRows.some(r=>!r.isValid)) && <button type="button" onClick={downloadImportFailures} className="border rounded px-3 py-2 text-xs">Download row errors</button>}
+            {importSummary && importSummary.failed>0 && <button type="button" disabled={isProcessing} onClick={handleStartImport} className="border rounded px-3 py-2 text-xs">Retry failed rows (check the directory first)</button>}
             {/* Phase 4: Import Complete Summary */}
             {importSummary && (
               <div className="p-8 flex flex-col items-center justify-center text-center max-w-md mx-auto space-y-6 bg-white dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626]">
@@ -1137,7 +1139,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                   <h3 className="text-lg font-bold text-neutral-900 dark:text-white">{t('bulk_completed_title')}</h3>
                   <p className="text-xs text-neutral-500 dark:text-neutral-400 font-mono mt-1">{t('bulk_completed_desc')}</p>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4 w-full">
                   <div className="bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 text-center">
                     <span className="block text-2xl font-black text-green-500 font-mono">{importSummary.success}</span>
@@ -1150,7 +1152,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                 </div>
 
                 <button 
-                  onClick={onClose}
+                  disabled={isProcessing} onClick={onClose}
                   className="w-full py-2.5 bg-white text-black font-bold uppercase tracking-widest text-[10px] rounded-[8px] hover:bg-gray-200 transition-colors"
                 >
                   {t('act_close')}
@@ -1180,7 +1182,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
               </div>
               <div className="flex gap-3">
                 <button 
-                  onClick={onClose} 
+                  disabled={isProcessing} onClick={onClose}
                   className="px-4 py-2 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#999] hover:text-neutral-950 dark:hover:text-white rounded-[8px] text-[10px] font-bold uppercase tracking-widest transition-all"
                 >
                   {t('act_cancel')}
@@ -1210,9 +1212,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
           <Portal>
             <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }} 
-                animate={{ opacity: 1, scale: 1 }} 
-                exit={{ opacity: 0, scale: 0.95 }}
+                {...dialogMotion}
                 className="w-full max-w-lg bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col overflow-hidden max-h-[85dvh]"
               >
                 <div className="p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#141414]">
@@ -1221,9 +1221,9 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                   </h3>
                   <button onClick={() => setShowHelp(false)} className="p-1 text-neutral-400 hover:text-neutral-800 dark:text-[#666] dark:hover:text-white transition-colors"><X className="w-5 h-5" /></button>
                 </div>
-                
+
                 <div className="p-6 overflow-y-auto space-y-5 text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed">
-                  
+
                   <div>
                     <h4 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider mb-1.5 text-[10px]">{t('bulk_tutorial_req_title')}</h4>
                     <p>{t('bulk_tutorial_req_desc')}</p>

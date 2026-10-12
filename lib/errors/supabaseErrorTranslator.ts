@@ -135,10 +135,10 @@ export function translateSupabaseError(error: any): TranslatedError {
     code === 'NETWORK_ERROR' ||
     rawMsg.toLowerCase().includes('failed to fetch') ||
     rawMsg.toLowerCase().includes('network request failed') ||
-    (typeof navigator !== 'undefined' && !navigator.onLine)
+    (typeof navigator !== 'undefined' && navigator.onLine === false)
   ) {
     return {
-      userMessage: 'Network connection lost. Changes will sync once reconnected.',
+      userMessage: 'Network connection lost. The save could not be confirmed. Reconnect and check the record before retrying.',
       code: 'NETWORK_OFFLINE',
       isAuthExpired: false,
       retryable: true,

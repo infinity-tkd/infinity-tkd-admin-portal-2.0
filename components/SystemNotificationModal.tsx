@@ -1,30 +1,38 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAppStore } from '@/lib/store';
-import { motion, AnimatePresence } from 'motion/react';
-import { 
-  CheckCircle, Warning, Info, XCircle, X, 
-  Copy, Check, CaretDown, CaretUp, Bug
-} from '@phosphor-icons/react';
+import { useAppStore, type SystemNotification } from '@/lib/store';
+import { motion, AnimatePresence, useIsPresent } from 'motion/react';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { Info } from '@phosphor-icons/react/dist/csr/Info';
+import { XCircle } from '@phosphor-icons/react/dist/csr/XCircle';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { CaretDown } from '@phosphor-icons/react/dist/csr/CaretDown';
+import { CaretUp } from '@phosphor-icons/react/dist/csr/CaretUp';
+import { Bug } from '@phosphor-icons/react/dist/csr/Bug';
 import { useT } from '@/hooks/useTranslation';
 import { playChime } from '@/lib/soundEffects';
 
 export function SystemNotificationModal() {
-  const { state, hideNotification } = useAppStore();
-  const t = useT();
+  const { state } = useAppStore();
+  return <AnimatePresence>{state.systemNotification && <NotificationContent notification={state.systemNotification} />}</AnimatePresence>;
+}
 
-  const notification = state.systemNotification;
+function NotificationContent({ notification }: { notification: SystemNotification }) {
+  const { hideNotification } = useAppStore();
+  const t = useT();
+  const present = useIsPresent();
   const [showDetails, setShowDetails] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // Auto-chime and reset state when a new notification arrives
   useEffect(() => {
-    if (!notification) {
-      setShowDetails(false);
-      setCopied(false);
-      return;
-    }
+    setShowDetails(false);
+    setCopied(false);
 
     if (notification.type === 'error' || notification.type === 'warning') {
       playChime('alert');
@@ -43,6 +51,7 @@ export function SystemNotificationModal() {
 
   // Keyboard shortcut: Escape to dismiss
   useEffect(() => {
+    if (!present) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && notification) {
         hideNotification();
@@ -50,7 +59,7 @@ export function SystemNotificationModal() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [notification, hideNotification]);
+  }, [notification, hideNotification, present]);
 
   const handleCopyDetails = useCallback(async () => {
     if (!notification) return;
@@ -71,8 +80,6 @@ URL: ${typeof window !== 'undefined' ? window.location.href : ''}`;
       // Fallback
     }
   }, [notification]);
-
-  if (!notification) return null;
 
   const isError = notification.type === 'error';
   const isWarning = notification.type === 'warning';
@@ -127,8 +134,8 @@ URL: ${typeof window !== 'undefined' ? window.location.href : ''}`;
   const headerTitle = notification.title || theme.headerLabel;
 
   return (
-    <AnimatePresence>
       <div 
+        inert={!present}
         className="fixed inset-0 z-[9999] flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200"
         role="alertdialog"
         aria-modal="true"
@@ -146,10 +153,8 @@ URL: ${typeof window !== 'undefined' ? window.location.href : ''}`;
 
         {/* Modal Card container */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 15 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          transition={{ type: 'spring', duration: 0.25, bounce: 0.15 }}
+          {...dialogMotion}
+
           style={{
             boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 45px ${theme.glowColor}`,
           }}
@@ -258,6 +263,5 @@ URL: ${typeof window !== 'undefined' ? window.location.href : ''}`;
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>
   );
 }

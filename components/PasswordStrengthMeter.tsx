@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { evaluatePasswordStrength } from '@/lib/security';
-import { Check, X } from '@phosphor-icons/react';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { X } from '@phosphor-icons/react/dist/csr/X';
 
 interface PasswordStrengthMeterProps {
   password?: string;

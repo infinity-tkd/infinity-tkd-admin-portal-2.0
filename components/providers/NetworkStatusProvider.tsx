@@ -51,7 +51,7 @@ async function getDb(): Promise<IDBPDatabase> {
   });
 }
 
-export function NetworkStatusProvider({ children }: { children: React.ReactNode }) {
+export function NetworkStatusProvider({ children, showConnectionBanners = true }: { children: React.ReactNode; showConnectionBanners?: boolean }) {
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [queuedCount, setQueuedCount] = useState<number>(0);
@@ -187,17 +187,17 @@ export function NetworkStatusProvider({ children }: { children: React.ReactNode 
       }}
     >
       {/* Offline Status Warning Bar */}
-      {!isOnline && (
+      {!isOnline && (showConnectionBanners || queuedCount > 0) && (
         <aside
           role="status"
           aria-live="polite"
           aria-atomic="true"
-          className="bg-amber-600/90 text-white px-4 py-2 text-xs md:text-sm font-medium flex items-center justify-between shadow-md backdrop-blur-sm sticky top-0 z-[100] transition-all"
+          className="portal-global-toast fixed right-4 z-[35] max-w-[calc(100vw-2rem)] pointer-events-none portal-notice-enter bg-amber-600/90 text-white px-4 py-2 text-xs md:text-sm font-medium flex items-center justify-between rounded-lg shadow-md"
         >
           <div className="flex items-center gap-2">
-            <WifiOff className="w-4 h-4 flex-shrink-0 animate-pulse text-amber-200" />
+            <WifiOff className="w-4 h-4 flex-shrink-0 text-amber-200" />
             <span>
-              <strong>Offline Mode:</strong> You are currently offline. Changes will be saved locally and synced once reconnected.
+              <strong>Offline:</strong> Reconnect before saving. Review interrupted saves before retrying.
             </span>
           </div>
           {queuedCount > 0 && (
@@ -214,7 +214,7 @@ export function NetworkStatusProvider({ children }: { children: React.ReactNode 
           role="status"
           aria-live="polite"
           aria-atomic="true"
-          className="bg-blue-600/90 text-white px-4 py-1.5 text-xs font-medium flex items-center justify-center gap-2 shadow-sm backdrop-blur-sm sticky top-0 z-[100]"
+          className="portal-global-toast fixed right-4 z-[35] max-w-[calc(100vw-2rem)] pointer-events-none portal-notice-enter bg-blue-600/90 text-white px-4 py-1.5 text-xs font-medium flex items-center justify-center gap-2 rounded-lg shadow-sm"
         >
           <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-200" />
           <span>Synchronizing offline changes to cloud database...</span>
@@ -222,12 +222,12 @@ export function NetworkStatusProvider({ children }: { children: React.ReactNode 
       )}
 
       {/* Back Online Reconnection Banner */}
-      {isOnline && showReconnectedBanner && !isSyncing && (
+      {showConnectionBanners && isOnline && showReconnectedBanner && !isSyncing && (
         <aside
           role="status"
           aria-live="polite"
           aria-atomic="true"
-          className="bg-emerald-600/90 text-white px-4 py-1.5 text-xs font-medium flex items-center justify-center gap-2 shadow-sm backdrop-blur-sm sticky top-0 z-[100] transition-opacity duration-300"
+          className="portal-global-toast fixed right-4 z-[35] max-w-[calc(100vw-2rem)] pointer-events-none portal-notice-enter bg-emerald-600/90 text-white px-4 py-1.5 text-xs font-medium flex items-center justify-center gap-2 rounded-lg shadow-sm"
         >
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-200" />
           <span>Connection restored — you are back online.</span>

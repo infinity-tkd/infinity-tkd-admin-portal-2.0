@@ -3,7 +3,7 @@
 import React, { ReactNode } from 'react';
 import { useAppStore } from '@/lib/store';
 import { PermissionKey, hasPermission } from '@/lib/security';
-import { ShieldWarning } from '@phosphor-icons/react';
+import { ShieldWarning } from '@phosphor-icons/react/dist/csr/ShieldWarning';
 
 interface PermissionGuardProps {
   permission: PermissionKey;
@@ -23,10 +23,10 @@ export function PermissionGuard({
   fallback,
   showAccessDeniedBanner = false,
 }: PermissionGuardProps) {
-  const { state } = useAppStore();
+  const { state, can } = useAppStore();
   const userRole = state.currentUser?.role;
 
-  const isAuthorized = hasPermission(userRole, permission);
+  const isAuthorized = can(permission);
 
   if (isAuthorized) {
     return <>{children}</>;

@@ -1,16 +1,50 @@
 'use client';
+import { tuitionCollectionStats } from '@/lib/financial-reporting';
 
+import { dialogMotion } from '@/lib/motion';
+import { toCsv } from '@/lib/csv';
+import { academyDate } from '@/lib/dates';
 import React, { useState } from 'react';
 import { useAppStore, Student, getMembershipBillingStatus } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  MagnifyingGlass, CheckSquare, X, Printer, ChartLine, 
-  CreditCard, Warning, PhoneCall, Check, UsersThree, FileText,
-  PaintBrush, QrCode, ShieldCheck, ArrowsOut, FilePdf, Image, Sparkle,
-  Receipt, CaretUp, CaretDown, ArrowsDownUp, Coins,
-  CalendarCheck, CaretLeft, CaretRight, User, Clock, ArrowRight, CheckCircle,
-  SquaresFour, ListDashes, DownloadSimple, TrendUp, TrendDown, Funnel, ArrowClockwise, Copy
-} from '@phosphor-icons/react';
+import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { CheckSquare } from '@phosphor-icons/react/dist/csr/CheckSquare';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { Printer } from '@phosphor-icons/react/dist/csr/Printer';
+import { ChartLine } from '@phosphor-icons/react/dist/csr/ChartLine';
+import { CreditCard } from '@phosphor-icons/react/dist/csr/CreditCard';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { PhoneCall } from '@phosphor-icons/react/dist/csr/PhoneCall';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
+import { FileText } from '@phosphor-icons/react/dist/csr/FileText';
+import { PaintBrush } from '@phosphor-icons/react/dist/csr/PaintBrush';
+import { QrCode } from '@phosphor-icons/react/dist/csr/QrCode';
+import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { ArrowsOut } from '@phosphor-icons/react/dist/csr/ArrowsOut';
+import { FilePdf } from '@phosphor-icons/react/dist/csr/FilePdf';
+import { Image } from '@phosphor-icons/react/dist/csr/Image';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { Receipt } from '@phosphor-icons/react/dist/csr/Receipt';
+import { CaretUp } from '@phosphor-icons/react/dist/csr/CaretUp';
+import { CaretDown } from '@phosphor-icons/react/dist/csr/CaretDown';
+import { ArrowsDownUp } from '@phosphor-icons/react/dist/csr/ArrowsDownUp';
+import { Coins } from '@phosphor-icons/react/dist/csr/Coins';
+import { CalendarCheck } from '@phosphor-icons/react/dist/csr/CalendarCheck';
+import { CaretLeft } from '@phosphor-icons/react/dist/csr/CaretLeft';
+import { CaretRight } from '@phosphor-icons/react/dist/csr/CaretRight';
+import { User } from '@phosphor-icons/react/dist/csr/User';
+import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
+import { ArrowRight } from '@phosphor-icons/react/dist/csr/ArrowRight';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { SquaresFour } from '@phosphor-icons/react/dist/csr/SquaresFour';
+import { ListDashes } from '@phosphor-icons/react/dist/csr/ListDashes';
+import { DownloadSimple } from '@phosphor-icons/react/dist/csr/DownloadSimple';
+import { TrendUp } from '@phosphor-icons/react/dist/csr/TrendUp';
+import { TrendDown } from '@phosphor-icons/react/dist/csr/TrendDown';
+import { Funnel } from '@phosphor-icons/react/dist/csr/Funnel';
+import { ArrowClockwise } from '@phosphor-icons/react/dist/csr/ArrowClockwise';
+import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
 import { cn, formatBelt } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
 import { SafeImage } from '@/components/SafeImage';
@@ -21,16 +55,16 @@ const isMonthBeforeEnrollment = (monthStr: string, year: number, enrollmentDateS
   if (!enrollmentDateStr) return true; // Default to TRUE (before enrollment) if no enrollment date is set!
   const parts = enrollmentDateStr.split('-');
   if (parts.length < 2) return false;
-  
+
   const enrollYear = parseInt(parts[0], 10);
   const enrollMonthIdx = parseInt(parts[1], 10) - 1; // 0-11
-  
+
   const targetMonthIdx = monthsListGlobal.indexOf(monthStr);
   if (targetMonthIdx === -1) return false;
-  
+
   if (year < enrollYear) return true;
   if (year === enrollYear && targetMonthIdx < enrollMonthIdx) return true;
-  
+
   return false;
 };
 
@@ -38,21 +72,21 @@ export function FinancialsView() {
   const { state, payInvoice, prepayInvoiceBulk, showNotification, can } = useAppStore();
   const canRecordPayment = can('action:finance_record_payment');
   const isReadOnlyLedger = !canRecordPayment;
-  
-  const getStudentEnrollDate = (st: Student) => {
+
+  const getStudentEnrollDate = React.useCallback((st: Student) => {
     const enrollments = state.classEnrollments.filter(e => e.studentId === st.id);
-    if (enrollments.length === 0) return undefined;
+    if (enrollments.length === 0) return st.registrationDate;
     const dates = enrollments.map(e => e.enrollmentDate).filter(Boolean) as string[];
     if (dates.length === 0) return st.registrationDate;
     return dates.sort()[0];
-  };
+  }, [state.classEnrollments]);
 
   const [activeTab, setActiveTab] = useState<'ledger' | 'revenue' | 'transactions' | 'calendar'>('ledger');
-  
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const currentActualYear = new Date().getFullYear();
-  const currentActualMonthIndex = new Date().getMonth();
-  
+
+  const months = monthsListGlobal;
+  const currentActualYear = Number(academyDate().slice(0,4));
+  const currentActualMonthIndex = Number(academyDate().slice(5,7))-1;
+
   // Calendar View State
   const [calendarYear, setCalendarYear] = useState<number>(currentActualYear);
   const [calendarMonth, setCalendarMonth] = useState<string>(months[currentActualMonthIndex]);
@@ -62,7 +96,7 @@ export function FinancialsView() {
   const [selectedCalendarDay, setSelectedCalendarDay] = useState<{ year: number; month: string; day: number } | null>(null);
   const [selectedDaySearch, setSelectedDaySearch] = useState<string>('');
   const [calendarViewMode, setCalendarViewMode] = useState<'grid' | 'agenda'>('grid');
-  
+
   const [search, setSearch] = useState('');
   const [filterBranch, setFilterBranch] = useState<number | 'all'>('all');
   const [filterScholarship, setFilterScholarship] = useState<number | 'all'>('all');
@@ -81,7 +115,7 @@ export function FinancialsView() {
   // Aging Receivables Filters
   const [agingSearch, setAgingSearch] = useState('');
   const [agingSeverityFilter, setAgingSeverityFilter] = useState<'all' | '1m' | '2m_plus'>('all');
-  
+
   // Ledger Matrix Filters & Pagination
   const [ledgerStatusFilter, setLedgerStatusFilter] = useState<'all' | 'unpaid' | 'paid'>('all');
   const [ledgerPage, setLedgerPage] = useState<number>(1);
@@ -96,7 +130,7 @@ export function FinancialsView() {
 
   const [txnSortField, setTxnSortField] = useState<'student' | 'branch' | 'cycle' | 'refId' | 'amount' | null>(null);
   const [txnSortDirection, setTxnSortDirection] = useState<'asc' | 'desc'>('asc');
-  
+
   const [studentDetailsId, setStudentDetailsId] = useState<string | null>(null);
   const [paymentAmounts, setPaymentAmounts] = useState<Record<string, string>>({});
 
@@ -106,7 +140,7 @@ export function FinancialsView() {
   const [prepayAmount, setPrepayAmount] = useState<string>('');
   const [showPrepayPanel, setShowPrepayPanel] = useState<boolean>(false);
   const [isProcessingPrepay, setIsProcessingPrepay] = useState<boolean>(false);
-  
+
   const [showReceipt, setShowReceipt] = useState<{
     student: Student;
     month: string;
@@ -115,7 +149,7 @@ export function FinancialsView() {
   } | null>(null);
 
   // Custom E-Receipt Customization States
-  const [receiptPaymentMethod, setReceiptPaymentMethod] = useState<'ABA Pay' | 'Cash' | 'ABA Mobile Transfer' | 'Credit Card' | 'Bakong' | 'Wing'>('ABA Mobile Transfer');
+  const [receiptPaymentMethod, setReceiptPaymentMethod] = useState<string>('ABA Mobile Transfer');
   const [receiptAccentColor, setReceiptAccentColor] = useState<string>('#3B82F6'); // default: ABA Blue
   const [receiptShowLogo, setReceiptShowLogo] = useState<boolean>(true);
   const [receiptShowWatermark, setReceiptShowWatermark] = useState<boolean>(true);
@@ -135,29 +169,21 @@ export function FinancialsView() {
 
   React.useEffect(() => {
     if (showReceipt) {
-      // Pre-fill a randomized, highly-detailed transaction reference ID
-      const randomId = Math.floor(100000 + Math.random() * 900000);
-      setReceiptReferenceNumber(`TXN-INF-${showReceipt.year}${showReceipt.month.substring(0, 3).toUpperCase()}-${randomId}`);
+      const payment = state.payments.find(p => p.studentId === showReceipt.student.id && p.year === showReceipt.year && p.month === showReceipt.month);
+      setReceiptReferenceNumber(payment?.receiptNumber || (payment ? 'LEGACY-PAYMENT-' + payment.id : 'PREVIEW-UNPAID'));
+      setReceiptPaymentMethod(payment?.paymentMethod || 'Not recorded (legacy)');
       setReceiptCustomNotes('');
     }
-  }, [showReceipt]);
+  }, [showReceipt, state.payments]);
 
   // Admin Sync States
   const [isSavingAdmin, setIsSavingAdmin] = useState<boolean>(false);
   const [showAdminSuccess, setShowAdminSuccess] = useState<boolean>(false);
 
   const handleSaveToAdmin = () => {
-    setIsSavingAdmin(true);
-    setTimeout(() => {
-      setIsSavingAdmin(false);
-      setShowAdminSuccess(true);
-      setTimeout(() => {
-        setShowAdminSuccess(false);
-        setShowReceipt(null);
-      }, 1500);
-    }, 800);
+    showNotification('Payments are saved when recorded. This receipt is a view of the saved ledger.', 'info');
   };
-  
+
   const handleSaveAsImage = async () => {
     const elementId = receiptFullscreen ? 'receipt-print-area-fullscreen' : 'receipt-print-area-core';
     const element = document.getElementById(elementId);
@@ -179,7 +205,7 @@ export function FinancialsView() {
             clonedCard.style.borderRadius = '16px';
             clonedCard.style.border = '1px solid #e5e7eb';
             clonedCard.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.08)';
-            
+
             // Get the parent of the cloned card
             const parent = clonedCard.parentElement;
             if (parent) {
@@ -193,7 +219,7 @@ export function FinancialsView() {
               wrapper.style.alignItems = 'center';
               wrapper.style.width = '444px'; // 380px card + 64px padding
               wrapper.style.boxSizing = 'border-box';
-              
+
               // Replace the card in the parent with our wrapper, and append the card to the wrapper!
               parent.replaceChild(wrapper, clonedCard);
               wrapper.appendChild(clonedCard);
@@ -218,7 +244,7 @@ export function FinancialsView() {
     const printContent = document.getElementById(elementId)?.outerHTML;
     if (printContent) {
       const printWindow = window.open('', '', 'height=850,width=700');
-      
+
       // Extract all active document stylesheets & inline styles to guarantee Tailwind grid/flex loads perfectly
       const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
         .map(el => el.outerHTML)
@@ -267,11 +293,11 @@ export function FinancialsView() {
         }
       </style></head><body>`);
       printWindow?.document.write('<div class="print-wrapper">');
-      
+
       // Convert all relative images (like logo.svg) to absolute urls to load correctly in print window
       const origin = typeof window !== 'undefined' ? window.location.origin : '';
       const absolutePrintContent = printContent.replace(/src="\/([^"]+)"/g, `src="${origin}/$1"`);
-      
+
       printWindow?.document.write(absolutePrintContent);
       printWindow?.document.write('</div>');
       printWindow?.document.write('</body></html>');
@@ -288,9 +314,9 @@ export function FinancialsView() {
     if (!showReceipt) return null;
     const scholarship = state.scholarships.find(s => s.id === showReceipt.student.scholarshipId);
     const isEarlyGroupReceipt = scholarship?.typeName === 'Early Group Student';
-    const studentBaseFee = isEarlyGroupReceipt ? 25.00 : 45.00;
+    const studentBaseFee = isEarlyGroupReceipt ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
     const activeDiscountPct = isEarlyGroupReceipt ? 0 : (scholarship?.discountPercentage || 0);
-    
+
     return (
       <div 
         id={printId} 
@@ -491,7 +517,7 @@ export function FinancialsView() {
                             (s.khmerName && s.khmerName.toLowerCase().includes(q));
       const matchesBranch = filterBranch === 'all' || s.homeBranchId === filterBranch;
       const matchesScholarship = filterScholarship === 'all' || s.scholarshipId === filterScholarship;
-      
+
       if (!matchesSearch || !matchesBranch || !matchesScholarship || s.studentStatus !== 'Active') {
         return false;
       }
@@ -528,7 +554,7 @@ export function FinancialsView() {
     });
 
     if (!ledgerSortField) return list;
-    
+
     return list.sort((a, b) => {
       let comparison = 0;
       if (ledgerSortField === 'student') {
@@ -546,14 +572,14 @@ export function FinancialsView() {
           const ed = getStudentEnrollDate(st);
           if (!ed) return 999;
           const d = new Date(ed.split('T')[0]);
-          d.setDate(d.getDate() - 1);
+
           return d.getDate();
         };
         comparison = getDueDayNum(a) - getDueDayNum(b);
       }
       return ledgerSortDirection === 'asc' ? comparison : -comparison;
     });
-  }, [state.students, search, filterBranch, filterScholarship, ledgerStatusFilter, filterYear, currentActualYear, currentActualMonthIndex, ledgerSortField, ledgerSortDirection, state.branches, state.scholarships, state.payments]);
+  }, [search, state.students, state.scholarships, state.payments, state.branches, ledgerSortField, filterBranch, filterScholarship, ledgerStatusFilter, months, filterYear, currentActualYear, currentActualMonthIndex, getStudentEnrollDate, ledgerSortDirection]);
 
   // Ledger Matrix Monthly Yields & Footer Computations
   const monthlyLedgerMatrixTotals = React.useMemo(() => {
@@ -570,7 +596,7 @@ export function FinancialsView() {
         eligibleCount++;
         const scholarship = state.scholarships.find(s => s.id === student.scholarshipId);
         const isEarlyGroup = scholarship?.typeName === 'Early Group Student';
-        const baseFee = isEarlyGroup ? 25.00 : 45.00;
+        const baseFee = isEarlyGroup ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
         const discountPct = isEarlyGroup ? 0 : (scholarship?.discountPercentage || 0);
         const reqPayment = baseFee * (1 - discountPct / 100);
 
@@ -598,7 +624,7 @@ export function FinancialsView() {
         rate
       };
     });
-  }, [months, filteredStudents, filterYear, state.payments, state.scholarships]);
+  }, [months, filteredStudents, getStudentEnrollDate, filterYear, state.scholarships, state.academyProfile.earlyGroupTuitionUsd, state.academyProfile.standardTuitionUsd, state.payments]);
 
   const totalLedgerPages = Math.max(1, Math.ceil(filteredStudents.length / ledgerPerPage));
   const paginatedStudents = React.useMemo(() => {
@@ -627,7 +653,7 @@ export function FinancialsView() {
       let dueDay = '-';
       if (enrollDate) {
         const d = new Date(enrollDate.split('T')[0]);
-        d.setDate(d.getDate() - 1);
+
         dueDay = String(d.getDate());
       }
 
@@ -642,7 +668,7 @@ export function FinancialsView() {
         if (isFuture) return 'Upcoming';
 
         const isEarlyGroup = scholarship?.typeName === 'Early Group Student';
-        const baseFee = isEarlyGroup ? 25.00 : 45.00;
+        const baseFee = isEarlyGroup ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
         const discountPct = isEarlyGroup ? 0 : (scholarship?.discountPercentage || 0);
         const reqPayment = baseFee * (1 - discountPct / 100);
 
@@ -664,26 +690,27 @@ export function FinancialsView() {
 
       return [
         student.id,
-        `"${student.englishName.replace(/"/g, '""')}"`,
-        `"${(student.khmerName || '').replace(/"/g, '""')}"`,
-        `"${branchName.replace(/"/g, '""')}"`,
-        `"${(scholarship?.typeName || 'Standard').replace(/"/g, '""')}"`,
+        student.englishName,
+        student.khmerName || '',
+        branchName,
+        scholarship?.typeName || 'Standard',
         dueDay,
-        ...monthCols.map(c => `"${c}"`),
+        ...monthCols,
         studentCollected.toFixed(2),
         studentOwed.toFixed(2),
         studentStatus
       ];
     });
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = toCsv(headers, rows);
+    const encodedUri = URL.createObjectURL(new Blob([csvContent],{type:'text/csv;charset=utf-8;'}));
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
     link.setAttribute('download', `InfinityTKD_Annual_Ledger_${filterYear}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(encodedUri);
   };
 
   // --- Financial & Receivables Analytics ---
@@ -696,7 +723,7 @@ export function FinancialsView() {
     const scholarship = state.scholarships.find(s => s.id === student.scholarshipId);
     const isStudentEarlyGroup = scholarship?.typeName === 'Early Group Student';
     const discountPct = isStudentEarlyGroup ? 0 : (scholarship?.discountPercentage || 0);
-    
+
     let monthsToAnalyze = months;
     if (filterMonth !== 'all') {
       monthsToAnalyze = [filterMonth];
@@ -714,10 +741,10 @@ export function FinancialsView() {
         return; // Ignore completely, student not enrolled yet!
       }
 
-      const fee = isStudentEarlyGroup ? 25.00 : 45.00;
+      const fee = isStudentEarlyGroup ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
       const discountAmount = fee * (discountPct / 100);
       const requiredPayment = fee - discountAmount;
-      
+
       studentExpected += fee;
       studentDiscount += discountAmount;
 
@@ -827,7 +854,7 @@ export function FinancialsView() {
 
         const scholarship = state.scholarships.find(s => s.id === student.scholarshipId);
         const isEarly = scholarship?.typeName === 'Early Group Student';
-        const fee = isEarly ? 25.0 : 45.0;
+        const fee = isEarly ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
         const discount = fee * ((isEarly ? 0 : (scholarship?.discountPercentage || 0)) / 100);
         const netFee = fee - discount;
 
@@ -854,7 +881,7 @@ export function FinancialsView() {
         isPastOrCurrent
       };
     });
-  }, [state.students, state.payments, state.scholarships, filterYear, filterBranch, filterScholarship, currentActualYear, currentActualMonthIndex]);
+  }, [months, state.students, state.scholarships, state.academyProfile.earlyGroupTuitionUsd, state.academyProfile.standardTuitionUsd, state.payments, filterYear, currentActualYear, currentActualMonthIndex, filterBranch, filterScholarship, getStudentEnrollDate]);
 
   const peakRevenueMonth = React.useMemo(() => {
     const list = [...monthlyRevenueTrajectory].filter(m => m.collected > 0);
@@ -867,7 +894,7 @@ export function FinancialsView() {
     return state.scholarships.map(sc => {
       const enrolledStudents = state.students.filter(s => s.scholarshipId === sc.id && s.studentStatus === 'Active');
       const isEarly = sc.typeName === 'Early Group Student';
-      const basePrice = isEarly ? 25.0 : 45.0;
+      const basePrice = isEarly ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
       const discountPct = isEarly ? 0 : (sc.discountPercentage || 0);
       const monthlyDiscountPerStudent = basePrice * (discountPct / 100);
       const monthlyTotalWaived = enrolledStudents.length * monthlyDiscountPerStudent;
@@ -881,25 +908,25 @@ export function FinancialsView() {
         annualProjectedWaived
       };
     }).filter(item => item.studentCount > 0 || item.discountPct > 0);
-  }, [state.scholarships, state.students]);
+  }, [state.academyProfile.earlyGroupTuitionUsd, state.academyProfile.standardTuitionUsd, state.scholarships, state.students]);
 
   const activeStudentProfile = studentDetailsId ? state.students.find(s => s.id === studentDetailsId) : null;
   const activeStudentScholarship = activeStudentProfile ? state.scholarships.find(s => s.id === activeStudentProfile.scholarshipId) : null;
   const isEarlyGroupStudent = activeStudentScholarship?.typeName === 'Early Group Student';
-  const studentBasePrice = isEarlyGroupStudent ? 25.00 : 45.00;
+  const studentBasePrice = isEarlyGroupStudent ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
   const activeDiscountPct = isEarlyGroupStudent ? 0 : (activeStudentScholarship?.discountPercentage || 0);
   const netMonthlyFee = studentBasePrice * (1 - activeDiscountPct / 100);
-  
+
   const activeStudentEnrollDate = activeStudentProfile ? getStudentEnrollDate(activeStudentProfile) : null;
   let activeBillingAnchorDay = '-';
   if (activeStudentProfile && activeStudentEnrollDate) {
     const d = new Date(activeStudentEnrollDate.split('T')[0]);
-    d.setDate(d.getDate() - 1);
+
     activeBillingAnchorDay = `${d.getDate()}`;
   }
 
   const prepayPreviewList = (() => {
-    const finalAmount = parseFloat(prepayAmount) || (netMonthlyFee * prepayMonths);
+    const finalAmount = prepayAmount.trim() === '' ? Math.round(netMonthlyFee * 100) * prepayMonths / 100 : Number(prepayAmount);
     const amountPerMonth = finalAmount / prepayMonths;
     const list = [];
     let curMonthIdx = months.indexOf(prepayStartMonth);
@@ -949,7 +976,7 @@ export function FinancialsView() {
                             student.englishName.toLowerCase().includes(q) || 
                             student.id.toLowerCase().includes(q) ||
                             (student.khmerName && student.khmerName.toLowerCase().includes(q)) ||
-                            `txn-pay-${p.id}`.includes(q);
+                            `txn-pay-${p.id}`.includes(q) || (p.receiptNumber || `LEGACY-${p.id}`).toLowerCase().includes(q);
       const matchesBranch = filterTransactionBranch === 'all' || student.homeBranchId === filterTransactionBranch;
       const matchesYear = filterTransactionYear === 'all' || p.year === filterTransactionYear;
       const matchesMonth = filterTransactionMonth === 'all' || p.month === filterTransactionMonth;
@@ -1000,14 +1027,7 @@ export function FinancialsView() {
     });
   }, [state.payments, state.students, state.branches, searchTransactions, filterTransactionBranch, filterTransactionYear, filterTransactionMonth, filterTransactionStatus, txnSortField, txnSortDirection]);
 
-  const transactionStats = (() => {
-    const count = filteredTransactionsList.length;
-    const totalCollected = filteredTransactionsList.reduce((acc, curr) => acc + (curr.amountUsd || 0), 0);
-    const avgVal = count > 0 ? totalCollected / count : 0;
-    const maxVal = filteredTransactionsList.reduce((max, curr) => Math.max(max, curr.amountUsd || 0), 0);
-    const paidCount = filteredTransactionsList.filter(p => p.status === 'Paid').length;
-    return { count, totalCollected, avgVal, maxVal, paidCount };
-  })();
+  const transactionStats = tuitionCollectionStats(filteredTransactionsList);
 
   const totalTxnPages = Math.max(1, Math.ceil(filteredTransactionsList.length / txnPerPage));
   const paginatedTransactions = React.useMemo(() => {
@@ -1038,19 +1058,19 @@ export function FinancialsView() {
       const branchName = state.branches.find(b => b.id === student?.homeBranchId)?.name || 'Central Dojang';
       const scholarship = state.scholarships.find(s => s.id === student?.scholarshipId);
       return [
-        `"TXN-PAY-${p.id}"`,
-        `"${(student?.englishName || 'Unknown').replace(/"/g, '""')}"`,
-        `"${student?.id || ''}"`,
-        `"${branchName.replace(/"/g, '""')}"`,
-        `"${p.month}"`,
+        p.receiptNumber || `LEGACY-${p.id}`,
+        student?.englishName || 'Unknown',
+        student?.id || '',
+        branchName,
+        p.month,
         p.year,
-        `"${(scholarship?.typeName || 'Standard').replace(/"/g, '""')}"`,
-        `"${p.status}"`,
+        scholarship?.typeName || 'Standard',
+        p.status,
         (p.amountUsd || 0).toFixed(2)
-      ].join(',');
+      ];
     });
 
-    const csvContent = [headers.join(','), ...rows].join('\r\n');
+    const csvContent = toCsv(headers, rows);
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -1070,8 +1090,13 @@ export function FinancialsView() {
   };
 
   const handleProcessBulkPrepay = async () => {
-    if (!activeStudentProfile) return;
-    const finalAmount = parseFloat(prepayAmount) || (netMonthlyFee * prepayMonths);
+    if (!activeStudentProfile || isProcessingPrepay) return;
+    const expectedAmount = Math.round(netMonthlyFee * 100) * prepayMonths / 100;
+    const finalAmount = prepayAmount.trim() === '' ? expectedAmount : Number(prepayAmount);
+    if (!Number.isFinite(finalAmount) || Math.abs(finalAmount - expectedAmount) > 0.00001) {
+      showNotification(`Each prepaid month requires its full tuition. The total must be $${expectedAmount.toFixed(2)}.`, 'error');
+      return;
+    }
     const amountPerMonth = finalAmount / prepayMonths;
 
     const prepayList: { year: number; month: string; amount: number }[] = [];
@@ -1111,7 +1136,7 @@ export function FinancialsView() {
     if (monthIdx === -1) return { daysInMonth: 31, firstDayOffset: 0, dayMap: {}, stats: { total: 0, paid: 0, pending: 0, overdue: 0, waived: 0, expected: 0, collected: 0, outstanding: 0 } };
 
     const daysInMonth = new Date(calendarYear, monthIdx + 1, 0).getDate();
-    
+
     // Monday start offset: 0 = Mon, 1 = Tue, ..., 6 = Sun
     const rawFirstDay = new Date(calendarYear, monthIdx, 1).getDay();
     const firstDayOffset = (rawFirstDay + 6) % 7;
@@ -1160,14 +1185,14 @@ export function FinancialsView() {
         const parts = enrollDateStr.split('T')[0].split('-');
         if (parts.length === 3) {
           const dObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
-          dObj.setDate(dObj.getDate() - 1);
+
           anchorDay = dObj.getDate();
         }
       } else if (student.registrationDate) {
         const parts = student.registrationDate.split('T')[0].split('-');
         if (parts.length === 3) {
           const dObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
-          dObj.setDate(dObj.getDate() - 1);
+
           anchorDay = dObj.getDate();
         }
       }
@@ -1176,7 +1201,7 @@ export function FinancialsView() {
 
       const scholarship = state.scholarships.find(s => s.id === student.scholarshipId);
       const isEarlyGroup = scholarship?.typeName === 'Early Group Student';
-      const baseFee = isEarlyGroup ? 25.00 : 45.00;
+      const baseFee = isEarlyGroup ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
       const discountPct = isEarlyGroup ? 0 : (scholarship?.discountPercentage || 0);
       const requiredPayment = baseFee * (1 - discountPct / 100);
 
@@ -1263,7 +1288,7 @@ export function FinancialsView() {
         outstanding: outstandingSum
       }
     };
-  }, [state.students, state.payments, state.scholarships, state.branches, calendarYear, calendarMonth, calendarFilterStatus, calendarSearch, calendarFilterBranch, currentActualYear, currentActualMonthIndex]);
+  }, [calendarMonth, calendarYear, state.students, state.scholarships, state.academyProfile.earlyGroupTuitionUsd, state.academyProfile.standardTuitionUsd, state.branches, state.payments, calendarFilterBranch, calendarSearch, getStudentEnrollDate, calendarFilterStatus, currentActualYear, currentActualMonthIndex]);
 
   return (
     <div className="w-full max-w-[1600px] mx-auto space-y-4 pb-12">
@@ -1505,7 +1530,7 @@ export function FinancialsView() {
                 const alerts = state.students
                   .filter(student => student.studentStatus === 'Active')
                   .map(student => {
-                    const billing = getMembershipBillingStatus(student, state.payments, state.scholarships, state.classEnrollments);
+                    const billing = getMembershipBillingStatus(student, state.payments, state.scholarships, state.classEnrollments, state.academyProfile);
                     return { student, billing };
                   })
                   .filter(item => item.billing.status === 'Overdue' || item.billing.status === 'Due Soon')
@@ -1612,7 +1637,9 @@ export function FinancialsView() {
                                         const currentMonthNameShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][currentMonthIdx];
                                         const currentYear = new Date().getFullYear();
                                         try {
-                                          await payInvoice(student.id, currentYear, currentMonthNameShort, billing.amountOwed);
+                                          const dueDate = billing.nextRenewalDate;
+                                          if (!/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) throw new Error('Set the enrollment date before collecting tuition.');
+                                          await payInvoice(student.id, Number(dueDate.slice(0,4)), monthsListGlobal[Number(dueDate.slice(5,7))-1], billing.amountOwed);
                                           showNotification(`Collected $${billing.amountOwed.toFixed(2)} renewal for ${student.englishName}.`, 'success');
                                         } catch (e: any) {
                                           showNotification(`Payment logging failed: ${e.message}`, 'error');
@@ -1654,7 +1681,7 @@ export function FinancialsView() {
                     Confirmed collections {filterMonth === 'all' ? 'YTD' : filterMonth} {filterYear}
                   </p>
                 </div>
-                
+
                 <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 flex flex-col justify-between group overflow-hidden relative shadow-sm">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
                   <div>
@@ -1665,7 +1692,7 @@ export function FinancialsView() {
                     Pending balances {filterMonth === 'all' ? 'YTD' : filterMonth} {filterYear}
                   </p>
                 </div>
-                
+
                 <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 flex flex-col justify-between group overflow-hidden relative shadow-sm">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
                   <div>
@@ -1755,7 +1782,7 @@ export function FinancialsView() {
                     paginatedStudents.map(student => {
                       const scholarship = state.scholarships.find(s => s.id === student.scholarshipId);
                       const isEarlyGroup = scholarship?.typeName === 'Early Group Student';
-                      const baseFee = isEarlyGroup ? 25.00 : 45.00;
+                      const baseFee = isEarlyGroup ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
                       const discountPct = isEarlyGroup ? 0 : (scholarship?.discountPercentage || 0);
                       const reqPayment = baseFee * (1 - discountPct / 100);
 
@@ -1763,7 +1790,7 @@ export function FinancialsView() {
                       let dueDay = '-';
                       if (enrollDate) {
                         const d = new Date(enrollDate.split('T')[0]);
-                        d.setDate(d.getDate() - 1);
+
                         dueDay = String(d.getDate());
                       }
 
@@ -1977,7 +2004,7 @@ export function FinancialsView() {
                           paginatedStudents.map(student => {
                             const scholarship = state.scholarships.find(s => s.id === student.scholarshipId);
                             const isEarlyGroup = scholarship?.typeName === 'Early Group Student';
-                            const baseFee = isEarlyGroup ? 25.00 : 45.00;
+                            const baseFee = isEarlyGroup ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
                             const discountPct = isEarlyGroup ? 0 : (scholarship?.discountPercentage || 0);
                             const reqPayment = baseFee * (1 - discountPct / 100);
 
@@ -1985,7 +2012,7 @@ export function FinancialsView() {
                             let dueDay = '-';
                             if (enrollDate) {
                               const d = new Date(enrollDate.split('T')[0]);
-                              d.setDate(d.getDate() - 1);
+
                               dueDay = String(d.getDate());
                             }
 
@@ -3753,9 +3780,7 @@ export function FinancialsView() {
           <Portal>
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                {...dialogMotion}
                 className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] w-full max-w-2xl max-h-[85dvh] flex flex-col overflow-hidden shadow-2xl transition-colors"
               >
                 {/* Modal Header */}
@@ -3941,7 +3966,7 @@ export function FinancialsView() {
         {studentDetailsId && activeStudentProfile && (
           <Portal>
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in">
-               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full max-w-2xl bg-white dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col overflow-hidden max-h-[90dvh]">
+               <motion.div {...dialogMotion} className="w-full max-w-2xl bg-white dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col overflow-hidden max-h-[90dvh]">
                   <div className="p-5 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex justify-between items-center z-10 sticky top-0 shrink-0">
                     <div className="flex items-center gap-3">
                       <SafeImage 
@@ -4020,7 +4045,7 @@ export function FinancialsView() {
                              {showPrepayPanel ? 'Collapse ▲' : 'Expand ▼'}
                            </span>
                          </button>
-                         
+
                          {showPrepayPanel && (
                            <div className="p-4 border-t border-neutral-200 dark:border-[#262626] space-y-4 animate-in slide-in-from-top-2 duration-200">
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -4042,7 +4067,7 @@ export function FinancialsView() {
                                       <option value={24}>24 Months (2 Years Plan)</option>
                                     </select>
                                  </div>
-                                 
+
                                  <div>
                                     <label className="block text-[9px] uppercase font-bold text-[#666] mb-1.5">Start Month / Year</label>
                                     <div className="flex gap-2">
@@ -4065,7 +4090,7 @@ export function FinancialsView() {
                                        </select>
                                     </div>
                                  </div>
-                                 
+
                                  <div>
                                     <label className="block text-[9px] uppercase font-bold text-[#666] mb-1.5">Total Prepaid Amount</label>
                                     <div className="relative">
@@ -4080,7 +4105,7 @@ export function FinancialsView() {
                                     </div>
                                  </div>
                               </div>
-                              
+
                               {/* Dynamic Prepayment Schedule Preview */}
                               <div className="border-t border-[#262626] pt-4 mt-2">
                                 <p className="text-[10px] text-[#888] uppercase font-bold tracking-wider mb-2">Prepayment Coverage Timeline</p>
@@ -4107,7 +4132,7 @@ export function FinancialsView() {
                                  <div>
                                     <span className="text-[#666] uppercase text-[9px] font-bold block mb-0.5">Prepayment breakdown</span>
                                     <span className="text-white font-mono">
-                                      {prepayMonths} Months × ${(parseFloat(prepayAmount) ? (parseFloat(prepayAmount)/prepayMonths) : netMonthlyFee).toFixed(2)}/mo
+                                      {prepayMonths} Months × ${(prepayPreviewList[0]?.amount ?? 0).toFixed(2)}/mo
                                     </span>
                                  </div>
                                  <button 
@@ -4204,10 +4229,13 @@ export function FinancialsView() {
                                     </td>
                                     <td className="px-4 py-3 flex justify-end">
                                       {!isPaid && !isReadOnlyLedger && (
-                                        <button onClick={() => {
+                                        <button onClick={async () => {
+                                           try {
                                              const inputAmt = parseFloat(paymentAmounts[m] !== undefined ? paymentAmounts[m] : String(requiredAmt));
-                                             payInvoice(activeStudentProfile.id, filterYear, m, inputAmt || 0);
-                                             showNotification(`Paid ${m} ${filterYear}: ${(inputAmt || 0).toFixed(2)}`, 'success');
+                                             if (!Number.isFinite(inputAmt) || inputAmt < 0) throw new Error('Enter a valid amount.');
+                                             await payInvoice(activeStudentProfile.id, filterYear, m, inputAmt);
+                                             showNotification(`Payment recorded for ${m} ${filterYear}: ${inputAmt.toFixed(2)}`, 'success');
+                                           } catch (error) { showNotification(error instanceof Error ? error.message : 'Payment was not recorded.', 'error'); }
                                           }}
                                           className="px-3.5 py-1.5 min-h-[32px] bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 rounded-[6px] text-[10px] font-bold uppercase tracking-widest transition-colors shadow-xs cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
                                         >
@@ -4250,12 +4278,10 @@ export function FinancialsView() {
           <Portal>
             <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-[110] flex items-center justify-center p-2 sm:p-4">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }} 
-                animate={{ opacity: 1, scale: 1 }} 
-                exit={{ opacity: 0, scale: 0.95 }} 
+                {...dialogMotion}
                 className="w-full max-w-5xl bg-[#0A0A0A] border border-[#262626] rounded-[8px] shadow-2xl flex flex-col overflow-hidden max-h-[95dvh] md:max-h-[90dvh] h-full relative font-sans"
               >
-                {/* Save to Admin Success / Loading Screen Overlays */}
+                {/* View Saved Ledger Success / Loading Screen Overlays */}
                 <AnimatePresence>
                   {isSavingAdmin && (
                     <motion.div 
@@ -4270,9 +4296,7 @@ export function FinancialsView() {
                   )}
                   {showAdminSuccess && (
                     <motion.div 
-                      initial={{ opacity: 0, scale: 0.95 }} 
-                      animate={{ opacity: 1, scale: 1 }} 
-                      exit={{ opacity: 0 }} 
+                      {...dialogMotion}
                       className="absolute inset-0 bg-[#0F0F0F]/95 backdrop-blur-md z-50 flex flex-col items-center justify-center text-center p-6"
                     >
                       <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(16,185,129,0.15)] animate-[bounce_1s_infinite_alternate]">
@@ -4307,7 +4331,7 @@ export function FinancialsView() {
 
                 {/* Dashboard Grid Container */}
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-y-auto md:overflow-hidden bg-[#0A0A0A]">
-                  
+
                   {/* Left Column: Customization Controls */}
                   <div className="md:col-span-5 bg-[#0F0F0F] border-b md:border-b-0 md:border-r border-[#262626] p-5 flex flex-col gap-4 overflow-y-auto shrink-0 custom-scrollbar">
                     <div>
@@ -4350,6 +4374,7 @@ export function FinancialsView() {
                     <div className="space-y-1.5">
                       <label className="block text-[9px] uppercase font-bold text-[#888] tracking-wider">Payment Gateway</label>
                       <select 
+                        disabled
                         value={receiptPaymentMethod} 
                         onChange={(e) => setReceiptPaymentMethod(e.target.value as any)}
                         className="w-full bg-[#1A1A1A] border border-[#262626] rounded-[8px] px-3 py-2 text-xs text-[#E4E4E4] focus:outline-none focus:border-[#444]"
@@ -4368,6 +4393,7 @@ export function FinancialsView() {
                       <label className="block text-[9px] uppercase font-bold text-[#888] tracking-wider">Transaction Reference ID</label>
                       <input 
                         type="text" 
+                        readOnly
                         value={receiptReferenceNumber} 
                         onChange={(e) => setReceiptReferenceNumber(e.target.value)}
                         placeholder="e.g. TXN-ABA-182390231"
@@ -4378,7 +4404,7 @@ export function FinancialsView() {
                     {/* Toggles */}
                     <div className="space-y-2 border-t border-[#262626] pt-3 mt-1">
                       <label className="block text-[9px] uppercase font-bold text-[#888] tracking-wider mb-2">Display Elements</label>
-                      
+
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] text-[#BBB]">Include Institution Logo</span>
                         <button 
@@ -4394,7 +4420,7 @@ export function FinancialsView() {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] text-[#BBB]">Print "PAID" Watermark Stamp</span>
+                        <span className="text-[10px] text-[#BBB]">Print &quot;PAID&quot; Watermark Stamp</span>
                         <button 
                           type="button"
                           onClick={() => setReceiptShowWatermark(!receiptShowWatermark)}
@@ -4423,7 +4449,7 @@ export function FinancialsView() {
 
                   {/* Right Column: Live E-Receipt Canvas Preview */}
                   <div className="md:col-span-7 bg-[#121212] p-4 sm:p-6 flex flex-col items-center justify-start overflow-hidden select-none relative">
-                    
+
                     {/* Live E-Invoice Title Bar */}
                     <div className="w-full max-w-[480px] mb-3 flex items-center justify-between text-[#666] font-mono text-[9px] uppercase tracking-widest px-1 shrink-0">
                       <span>Live Digital Preview</span>
@@ -4468,7 +4494,7 @@ export function FinancialsView() {
                   <div>
                     <span className="text-[10px] text-[#666] font-mono uppercase tracking-widest hidden sm:inline">Active Session Admin: {state.currentUser?.displayName}</span>
                   </div>
-                  
+
                   <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                     <button 
                       onClick={() => setShowReceipt(null)} 
@@ -4476,12 +4502,12 @@ export function FinancialsView() {
                     >
                       Close Panel
                     </button>
-                    
+
                     <button 
                       onClick={handleSaveToAdmin}
                       className="flex-1 sm:flex-none px-4 py-2 min-h-[38px] bg-[#1A1A1A] hover:bg-[#262626] border border-green-500/20 text-[#10B981] hover:text-green-400 font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
                     >
-                      Sync to Admin DB
+                      View Saved Ledger
                     </button>
 
                     <button 
@@ -4511,7 +4537,7 @@ export function FinancialsView() {
         {receiptFullscreen && showReceipt && (
           <Portal>
             <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[150] flex flex-col items-center justify-between p-4 md:p-6 animate-in fade-in duration-200 font-sans">
-              
+
               {/* Fullscreen Floating Top Header Bar */}
               <div className="w-full max-w-[500px] bg-[#141414]/80 backdrop-blur-md border border-[#262626] rounded-[8px] p-3 flex items-center justify-between shadow-2xl shrink-0 z-10">
                 <div className="flex items-center gap-2">

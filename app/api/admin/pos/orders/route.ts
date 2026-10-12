@@ -18,7 +18,7 @@ const PosSaleItemSchema = z.object({
   size: z.string().max(50).nullable().optional(),
   color: z.string().max(50).nullable().optional(),
   price: z.number().nonnegative(),
-  qty: z.number().int().positive(),
+  qty: z.number().int().positive().max(1000),
 });
 
 const DirectPosSaleSchema = z.object({
@@ -29,14 +29,15 @@ const DirectPosSaleSchema = z.object({
   discountPercentage: z.number().min(0).max(100).default(0),
   paymentMethod: z.enum(['ABA Bank KHQR', 'Cash', 'Credit Card', 'Bank Transfer', 'Pay at Counter']),
   adminNotes: z.string().max(500).optional(),
-  items: z.array(PosSaleItemSchema).min(1, 'Cart cannot be empty'),
+  items: z.array(PosSaleItemSchema).min(1, 'Cart cannot be empty').max(100),
+  requestKey: z.string().uuid(),
 });
 
 // Zod Schema for Confirming / Updating Order Status
 const UpdateOrderStatusSchema = z.object({
   orderId: z.string().uuid('Invalid order UUID'),
   newOrderStatus: z.enum(['CONFIRMED', 'PREPARING', 'READY_FOR_PICKUP', 'COMPLETED']),
-  paymentStatus: z.enum(['PENDING', 'PAID', 'REFUNDED', 'VOID']).optional(),
+  paymentStatus: z.enum(['PENDING', 'PAID']).optional(),
   adminNotes: z.string().max(500).optional(),
 });
 
@@ -52,9 +53,9 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
     const channel = searchParams.get('channel');
-    const search = searchParams.get('search')?.trim();
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50', 10)));
-    const offset = Math.max(0, parseInt(searchParams.get('offset') || '0', 10));
+    const search = searchParams.get('search')?.replace(/[^\p{L}\p{N} _-]/gu, '').slice(0,100).trim();
+    const limit = Math.min(100, Math.max(1, Number(searchParams.get('limit')) || 50));
+    const offset = Math.max(0, Math.floor(Number(searchParams.get('offset')) || 0));
 
     let query = adminSupabase
       .from('pos_orders')
@@ -99,6 +100,7 @@ export async function GET(req: Request) {
         )
       `)
       .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (status && status !== 'All') {
@@ -138,122 +140,11 @@ export async function POST(req: Request) {
     const { data: body, errorResponse: valErr } = await validateRequestBody(DirectPosSaleSchema, req);
     if (valErr || !body) return valErr!;
 
-    // Format items payload for PostgreSQL stored procedure
-    const rpcItemsPayload = body.items.map((it) => ({
-      product_id: it.productId,
-      variant_id: it.variantId || null,
-      sku: it.sku,
-      name: it.name,
-      size: it.size || null,
-      color: it.color || null,
-      price: it.price,
-      qty: it.qty,
-    }));
-
-    let result: any = null;
-    const { data: rpcResult, error: rpcError } = await adminSupabase.rpc('process_admin_pos_sale', {
-      p_student_id: body.studentId || null,
-      p_customer_name: body.customerName,
-      p_branch_id: body.branchId || null,
-      p_subtotal: body.subtotal,
-      p_discount_percentage: body.discountPercentage,
-      p_payment_method: body.paymentMethod,
-      p_admin_notes: body.adminNotes || null,
-      p_items: rpcItemsPayload,
+    const { data: result, error: rpcError } = await adminSupabase.rpc('portal_place_order', {
+      p_actor: context.userId, p_channel: 'ADMIN_POS', p_payload: body,
+      p_request_key: body.requestKey || null,
     });
-
-    if (!rpcError && rpcResult) {
-      result = rpcResult;
-    } else {
-      // Fallback: Direct table operations
-      const orderNumber = `POS-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
-      const discountUsd = Number(((body.subtotal * (body.discountPercentage || 0)) / 100).toFixed(2));
-      const totalUsd = Number((body.subtotal - discountUsd).toFixed(2));
-
-      const { data: newOrder, error: orderErr } = await adminSupabase
-        .from('pos_orders')
-        .insert({
-          order_number: orderNumber,
-          order_channel: 'ADMIN_POS',
-          student_id: body.studentId || null,
-          customer_name: body.customerName,
-          branch_id: body.branchId || null,
-          subtotal_usd: body.subtotal,
-          discount_percentage: body.discountPercentage || 0,
-          discount_usd: discountUsd,
-          total_usd: totalUsd,
-          payment_method: body.paymentMethod,
-          payment_status: 'PAID',
-          order_status: 'COMPLETED',
-          admin_notes: body.adminNotes || null,
-          recorded_by: context.userId,
-        })
-        .select()
-        .single();
-
-      if (orderErr || !newOrder) {
-        return formatServerErrorResponse(orderErr || new Error('Failed to record POS order'));
-      }
-
-      // Insert line items
-      const orderItems = body.items.map((it) => ({
-        order_id: newOrder.id,
-        product_id: it.productId,
-        variant_id: it.variantId || null,
-        sku: it.sku,
-        product_name: it.name,
-        size: it.size || null,
-        color: it.color || null,
-        unit_price_usd: it.price,
-        quantity: it.qty,
-        total_price_usd: Number((it.price * it.qty).toFixed(2)),
-      }));
-
-      const { error: itemsErr } = await adminSupabase
-        .from('pos_order_items')
-        .insert(orderItems);
-
-      if (itemsErr) {
-        console.error('Failed to insert POS order items:', itemsErr);
-      }
-
-      // Decrement stock for each item in the products and variants ledger
-      for (const it of body.items) {
-        if (it.variantId) {
-          const { data: v } = await adminSupabase
-            .from('product_variants')
-            .select('id, stock')
-            .eq('id', it.variantId)
-            .single();
-          if (v) {
-            const nextVStock = Math.max(0, (v.stock || 0) - it.qty);
-            await adminSupabase
-              .from('product_variants')
-              .update({ stock: nextVStock, updated_at: new Date().toISOString() })
-              .eq('id', it.variantId);
-          }
-        }
-        const { data: p } = await adminSupabase
-          .from('products')
-          .select('id, stock')
-          .eq('id', it.productId)
-          .single();
-        if (p) {
-          const nextStock = Math.max(0, (p.stock || 0) - it.qty);
-          await adminSupabase
-            .from('products')
-            .update({ stock: nextStock, updated_at: new Date().toISOString() })
-            .eq('id', it.productId);
-        }
-      }
-
-      result = {
-        order_id: newOrder.id,
-        order_number: newOrder.order_number,
-        total_usd: newOrder.total_usd,
-        status: newOrder.order_status,
-      };
-    }
+    if (rpcError || !result) return formatServerErrorResponse(rpcError || new Error('Checkout failed'));
 
     await logSecurityAuditEvent({
       action: 'POS_COUNTER_SALE_EXECUTED',
@@ -289,7 +180,8 @@ export async function PUT(req: Request) {
     const { data: body, errorResponse: valErr } = await validateRequestBody(UpdateOrderStatusSchema, req);
     if (valErr || !body) return valErr!;
 
-    const { data: result, error: rpcError } = await adminSupabase.rpc('confirm_student_order', {
+    const { data: result, error: rpcError } = await adminSupabase.rpc('portal_update_order', {
+      p_actor: context.userId,
       p_order_id: body.orderId,
       p_new_order_status: body.newOrderStatus,
       p_payment_status: body.paymentStatus || null,

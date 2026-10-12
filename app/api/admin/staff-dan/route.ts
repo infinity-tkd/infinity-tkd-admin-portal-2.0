@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { academyDate, isCalendarDate } from '@/lib/dates';
 import { 
   verifyCaller, 
   validateRequestBody, 
@@ -11,24 +12,24 @@ import {
 const AddDanRecordSchema = z.object({
   userId: z.string().uuid('Invalid user UUID'),
   danLevel: z.number().int().min(1).max(9),
-  issueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Issue date must be YYYY-MM-DD'),
+  issueDate: z.string().refine(value => isCalendarDate(value) && value >= '1900-01-01' && value <= academyDate(), 'Use a valid issue date that is not in the future.'),
   certificateNo: z.string().max(50).optional().nullable(),
   certificateUrl: z.string().max(500).optional().nullable(),
   examinerName: z.string().max(100).optional().nullable(),
   location: z.string().max(150).optional().nullable(),
   notes: z.string().max(1000).optional().nullable()
-});
+}).strict();
 
 const UpdateDanRecordSchema = z.object({
   id: z.string().uuid('Invalid record UUID'),
   danLevel: z.number().int().min(1).max(9).optional(),
-  issueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Issue date must be YYYY-MM-DD').optional(),
+  issueDate: z.string().refine(value => isCalendarDate(value) && value >= '1900-01-01' && value <= academyDate(), 'Use a valid issue date that is not in the future.').optional(),
   certificateNo: z.string().max(50).optional().nullable(),
   certificateUrl: z.string().max(500).optional().nullable(),
   examinerName: z.string().max(100).optional().nullable(),
   location: z.string().max(150).optional().nullable(),
   notes: z.string().max(1000).optional().nullable()
-});
+}).strict().refine(value => Object.keys(value).length > 1, 'Supply a change to the Dan record.');
 
 /**
  * GET: Fetch Dan promotion history for a staff member
@@ -42,6 +43,7 @@ export async function GET(req: Request) {
 
     const url = new URL(req.url);
     const targetUserId = url.searchParams.get('userId') || context.userId;
+    if (!z.string().uuid().safeParse(targetUserId).success) return NextResponse.json({success:false,error:{message:'Invalid staff ID.'}},{status:422});
 
     // Coaches can only inspect their own record unless they hold an Admin/Root role
     const isPrivileged = ['Root', 'Super Root', 'Admin', 'Head Coach'].includes(context.role);
@@ -171,23 +173,25 @@ export async function DELETE(req: Request) {
 
     const url = new URL(req.url);
     const id = url.searchParams.get('id');
-    if (!id) {
+    if (!id || !z.string().uuid().safeParse(id).success) {
       return NextResponse.json(
         { success: false, data: null, error: { code: 'BAD_REQUEST', message: 'Missing record id' } },
-        { status: 400 }
+        { status: 422 }
       );
     }
 
-    const { error } = await adminSupabase
+    const { data: deleted, error } = await adminSupabase
       .from('staff_dan_history')
       .delete()
-      .eq('id', id);
+      .eq('id', id).select('id,user_id').single();
 
     if (error) return formatServerErrorResponse(error);
+    if (!deleted) return formatServerErrorResponse({code:'P0002',message:'Dan record not found.'});
 
     await logSecurityAuditEvent({
       action: 'STAFF_DAN_RECORD_DELETED',
       performedBy: context.userId,
+      targetId: deleted.user_id,
       details: { id },
       status: 'SUCCESS'
     });

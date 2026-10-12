@@ -19,12 +19,13 @@ function isAllowedHost(hostname: string): boolean {
     normalized === 'drive.google.com' ||
     normalized === 'docs.google.com' ||
     normalized === 'picsum.photos'
+    || normalized === 'fastly.picsum.photos'
   ) {
     return true;
   }
 
   // Approved Supabase storage domains
-  if (normalized.endsWith('.supabase.co') || normalized.endsWith('.supabase.com')) {
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL && normalized === new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname) {
     return true;
   }
 
@@ -117,12 +118,17 @@ export async function GET(request: NextRequest) {
   }
 
   for (const url of targetUrls) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
-
-      const upstreamRes = await fetch(url, {
+      let destination = url;
+      let upstreamRes: Response | undefined;
+      for (let redirect = 0; redirect <= 4; redirect++) {
+      const parsed = new URL(destination);
+      if (parsed.protocol !== 'https:' || parsed.username || parsed.password || (parsed.port && parsed.port !== '443') || !isAllowedHost(parsed.hostname)) throw new Error('Rejected upstream redirect');
+      upstreamRes = await fetch(destination, {
         method: 'GET',
+        redirect: 'manual',
         headers: {
           'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -130,10 +136,17 @@ export async function GET(request: NextRequest) {
         },
         signal: controller.signal,
       });
+      if (upstreamRes.status >= 300 && upstreamRes.status < 400) {
+        const location = upstreamRes.headers.get('location');
+        await upstreamRes.body?.cancel();
+        if (!location || redirect === 4) throw new Error('Too many redirects');
+        destination = new URL(location, destination).toString();
+        continue;
+      }
+      break;
+      }
 
-      clearTimeout(timeoutId);
-
-      if (upstreamRes.ok) {
+      if (upstreamRes?.ok) {
         const contentType = upstreamRes.headers.get('content-type') || '';
         const contentLength = parseInt(upstreamRes.headers.get('content-length') || '0', 10);
 
@@ -145,12 +158,18 @@ export async function GET(request: NextRequest) {
         // Strictly allow raster image formats (prevent HTML/JS or malicious polyglot file injection)
         const isAllowedImage = /^(?:image\/(?:jpeg|png|webp|avif|gif|vnd\.microsoft\.icon))$/i.test(contentType);
         if (isAllowedImage) {
-          const arrayBuffer = await upstreamRes.arrayBuffer();
-          if (arrayBuffer.byteLength > MAX_IMAGE_BYTES) {
-            return NextResponse.json({ error: 'Upstream image payload too large' }, { status: 413 });
+          const reader = upstreamRes.body?.getReader();
+          const chunks: Uint8Array[] = [];
+          let size = 0;
+          if (reader) while (true) {
+            const {value,done} = await reader.read();
+            if (done) break;
+            size += value.length;
+            if (size > MAX_IMAGE_BYTES) { await reader.cancel(); return NextResponse.json({error:'Upstream image payload too large'},{status:413}); }
+            chunks.push(value);
           }
 
-          const buffer = Buffer.from(arrayBuffer);
+          const buffer = Buffer.concat(chunks);
 
           return new NextResponse(buffer, {
             status: 200,
@@ -167,6 +186,8 @@ export async function GET(request: NextRequest) {
     } catch {
       // Continue to next fallback URL if available
       continue;
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 

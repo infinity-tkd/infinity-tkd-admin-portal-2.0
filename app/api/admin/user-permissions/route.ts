@@ -8,11 +8,13 @@ import {
 } from '@/lib/backend-security';
 import { createClient } from '@supabase/supabase-js';
 import { env } from '@/lib/env';
+import { fetchAllRows } from '@/lib/data-access';
 
 const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY;
 
 const adminSupabase = createClient(supabaseUrl, serviceRoleKey, {
+  db: { retry: false },
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
@@ -23,7 +25,7 @@ const SingleUserPermissionUpdateSchema = z.object({
 
 const BatchUpdateUserPermissionsSchema = z.object({
   userId: z.string().uuid(),
-  updates: z.array(SingleUserPermissionUpdateSchema).min(1),
+  updates: z.array(SingleUserPermissionUpdateSchema).min(1).max(100),
 }).strict();
 
 /**
@@ -46,6 +48,9 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const targetUserId = searchParams.get('userId');
+    const caller = callerRes.context!;
+    const isRoot = ['Root','Super Root'].includes(caller.role);
+    if (targetUserId && targetUserId !== caller.userId && !isRoot) return NextResponse.json({success:false,error:{message:'You can only view your own permission overrides.'}},{status:403});
 
     let query = adminSupabase
       .from('user_permissions')
@@ -53,13 +58,14 @@ export async function GET(req: Request) {
 
     if (targetUserId) {
       query = query.eq('user_id', targetUserId);
+    } else if (!isRoot) {
+      query = query.eq('user_id', caller.userId);
     }
 
-    const { data, error } = await query;
+    const { data, error } = await fetchAllRows(query);
 
     if (error) {
-      // Table might not be migrated yet; return empty list gracefully
-      return NextResponse.json({ success: true, data: [] });
+      return formatServerErrorResponse(error);
     }
 
     return NextResponse.json({ success: true, data: data || [] });
@@ -99,29 +105,8 @@ export async function POST(req: Request) {
       .filter(u => u.isGranted === null)
       .map(u => u.permissionKey);
 
-    // Execute upserts if any
-    if (upserts.length > 0) {
-      const { error: upsertError } = await adminSupabase
-        .from('user_permissions')
-        .upsert(upserts, { onConflict: 'user_id,permission_key' });
-
-      if (upsertError) {
-        return formatServerErrorResponse(upsertError);
-      }
-    }
-
-    // Execute deletions if any (reverting to role default)
-    if (keysToDelete.length > 0) {
-      const { error: deleteError } = await adminSupabase
-        .from('user_permissions')
-        .delete()
-        .eq('user_id', userId)
-        .in('permission_key', keysToDelete);
-
-      if (deleteError) {
-        return formatServerErrorResponse(deleteError);
-      }
-    }
+    const {error:saveError}=await adminSupabase.rpc('portal_set_user_permissions',{p_actor:caller.userId,p_user:userId,p_updates:updates});
+    if(saveError)return formatServerErrorResponse(saveError);
 
     // 4. Log immutable security audit event
     await logSecurityAuditEvent({

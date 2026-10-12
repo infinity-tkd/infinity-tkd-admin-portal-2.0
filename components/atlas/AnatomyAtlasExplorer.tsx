@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import {
   Activity,
@@ -150,18 +150,18 @@ export function AnatomyAtlasExplorer({
       .slice(0, 60);
   }, [atlas, query]);
 
-  const choose = (c: Concept) => {
+  const choose = useCallback((c: Concept) => {
     setChosen(c);
     setState((s) => ({ ...s, selected: c.elements, isolate: false, rotate: false }));
     setDetails(true);
     setPanel(null);
     if (onSelectMuscle) onSelectMuscle(c.name);
-  };
+  }, [onSelectMuscle]);
 
   useEffect(() => {
     if (!atlas) return;
     return registerAtlasTools(atlas, (c) => flushSync(() => choose(c)));
-  }, [atlas]);
+  }, [atlas, choose]);
 
   const choosePart = (id: string) => {
     const p = parts.get(id);
@@ -206,7 +206,7 @@ export function AnatomyAtlasExplorer({
     if (hit) {
       choose(hit);
     }
-  }, [atlas, initialSelectedMuscle]);
+  }, [atlas, initialSelectedMuscle, choose]);
 
   // Compute active muscle load for the chosen structure
   const activeLoadScore = useMemo(() => {

@@ -1,7 +1,9 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { ArrowClockwise, Image as ImageIcon, Warning } from '@phosphor-icons/react';
+import { ArrowClockwise } from '@phosphor-icons/react/dist/csr/ArrowClockwise';
+import { Image as ImageIcon } from '@phosphor-icons/react/dist/csr/Image';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
 
 interface Props {
   children: ReactNode;

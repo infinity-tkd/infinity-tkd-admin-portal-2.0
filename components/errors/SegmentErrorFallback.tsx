@@ -1,8 +1,11 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { Warning, ArrowClockwise, House } from '@phosphor-icons/react';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { ArrowClockwise } from '@phosphor-icons/react/dist/csr/ArrowClockwise';
+import { House } from '@phosphor-icons/react/dist/csr/House';
 import Link from 'next/link';
+import { reportClientError } from '@/lib/client-telemetry';
 
 interface SegmentErrorFallbackProps {
   error: Error & { digest?: string };
@@ -18,23 +21,7 @@ export function SegmentErrorFallback({
   useEffect(() => {
     console.error(`[SEGMENT_ERROR:${sectionName.toUpperCase()}]`, error);
 
-    try {
-      fetch('/api/telemetry/log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          level: 'ERROR',
-          section: sectionName,
-          message: error.message || `${sectionName} segment failure`,
-          stack: error.stack,
-          digest: error.digest,
-          url: typeof window !== 'undefined' ? window.location.href : '',
-          timestamp: new Date().toISOString(),
-        }),
-      }).catch(() => {});
-    } catch {
-      // Non-blocking telemetry
-    }
+    reportClientError(error, sectionName);
   }, [error, sectionName]);
 
   return (

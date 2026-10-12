@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Warning, House, MagnifyingGlass, ArrowLeft } from '@phosphor-icons/react';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { House } from '@phosphor-icons/react/dist/csr/House';
+import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { ArrowLeft } from '@phosphor-icons/react/dist/csr/ArrowLeft';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 

@@ -1,5 +1,7 @@
+import { randomBytes } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { isCalendarDate } from '@/lib/dates';
 import { 
   verifyCaller, 
   validateRequestBody,
@@ -12,8 +14,8 @@ const CreateUserRequestSchema = z
   .object({
     email: z.string().email('Invalid email address').optional().nullable(),
     studentId: z.string().max(50).optional().nullable(),
-    password: z.string().min(8, 'Password must be at least 8 characters long'),
-    username: z.string().min(3, 'Username must be at least 3 characters long').max(50),
+    password: z.string().min(12, 'Password must be at least 12 characters long').max(256).optional(),
+    username: z.string().min(3).max(50).regex(/^[a-zA-Z0-9._-]+$/, 'Use letters, numbers, dots, underscores or hyphens.'),
     displayName: z.string().max(100).optional().nullable(),
     role: z.enum([
       'Root',
@@ -28,7 +30,7 @@ const CreateUserRequestSchema = z
     khmerName: z.string().max(100).optional().nullable(),
     englishName: z.string().max(100).optional().nullable(),
     gender: z.enum(['Male', 'Female', 'Other']).optional().nullable(),
-    dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+    dob: z.string().refine(isCalendarDate, 'Invalid date of birth').optional().nullable(),
     phone: z.string().max(30).optional().nullable(),
     emergencyContactName: z.string().max(100).optional().nullable(),
     emergencyContactPhone: z.string().max(30).optional().nullable(),
@@ -88,7 +90,8 @@ export async function POST(req: Request) {
       }
     }
 
-    const password = body.password;
+    const temporaryPassword = body.password ? undefined : randomBytes(24).toString('base64url');
+    const password = body.password || temporaryPassword;
     const username = sanitizeString(body.username);
     const displayName = sanitizeString(body.displayName || '');
 
@@ -113,102 +116,23 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3. Create Auth User or Recover Orphaned Auth User via Service Role Client
-    let newUserId: string | null = null;
-
+    if (role === 'Student' && !studentId) return NextResponse.json({ success:false, error:{message:'Choose the student record explicitly.'} }, {status:400});
+    if (role !== 'Student' && studentId) return NextResponse.json({ success:false, error:{message:'Only Student accounts can link a student record.'} }, {status:400});
     const { data: authData, error: authError } = await adminSupabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: {
-        username,
-        display_name: displayName,
-        role,
-      },
-      app_metadata: {
-        role,
-        is_active: true,
-        student_id: studentId,
-      },
+      email, password, email_confirm: true,
+      user_metadata: { username, display_name: displayName },
+      app_metadata: { role, is_active: body.isActive ?? true, student_id: studentId },
     });
+    if (authError || !authData.user) return formatServerErrorResponse(authError || new Error('Account creation failed'));
+    const newUserId = authData.user.id;
 
-    if (authError) {
-      // Handle case where user already exists in auth.users
-      if (authError.code === 'email_exists' || (authError as any).status === 422) {
-        // A. Check if user already exists in public.profiles
-        const { data: existingProfile } = await adminSupabase
-          .from('profiles')
-          .select('id, email, username, role')
-          .eq('email', email)
-          .maybeSingle();
-
-        if (existingProfile) {
-          return NextResponse.json(
-            {
-              success: false,
-              data: null,
-              error: {
-                code: 'EMAIL_ALREADY_EXISTS',
-                message: `A user with email "${email}" is already registered with role "${existingProfile.role}".`,
-              },
-            },
-            { status: 409 }
-          );
-        }
-
-        // B. Orphaned auth user recovery: user exists in auth.users but has no profile
-        const { data: listData } = await adminSupabase.auth.admin.listUsers();
-        const existingAuthUser = listData?.users?.find(
-          (u) => u.email?.toLowerCase() === email.toLowerCase()
-        );
-
-        if (existingAuthUser) {
-          newUserId = existingAuthUser.id;
-          // Sync password and metadata for the recovered user
-          await adminSupabase.auth.admin.updateUserById(newUserId, {
-            password,
-            user_metadata: {
-              username,
-              display_name: displayName,
-              role,
-            },
-            app_metadata: {
-              role,
-              is_active: true,
-              student_id: studentId,
-            },
-          });
-        } else {
-          return formatServerErrorResponse(authError);
-        }
-      } else {
-        return formatServerErrorResponse(authError);
-      }
-    } else {
-      newUserId = authData.user?.id || null;
-    }
-
-    if (!newUserId) {
-      return NextResponse.json(
-        {
-          success: false,
-          data: null,
-          error: {
-            code: 'AUTH_USER_CREATION_FAILED',
-            message: 'Auth creation succeeded but no User ID was returned.',
-          },
-        },
-        { status: 500 }
-      );
-    }
-
-    // 4. Server-Side Upserts to Profiles & Members
     const profilePayload: any = {
       id: newUserId,
       email,
       display_name: displayName || '',
       username: username || '',
       role,
+      student_id: studentId,
       is_active: body.isActive !== undefined ? Boolean(body.isActive) : true,
     };
 
@@ -228,55 +152,16 @@ export async function POST(req: Request) {
       nationality: sanitizeString(body.nationality || '') || null,
     };
 
-    const profileRes = await adminSupabase.from('profiles').upsert(profilePayload, { onConflict: 'id' });
-    if (profileRes.error) {
-      return formatServerErrorResponse(profileRes.error);
-    }
-
-    // 4b. Staff profiles are registered in members table; Student accounts are strictly linked to students table
-    if (role !== 'Student') {
-      const memberRes = await adminSupabase.from('members').upsert(memberPayload, { onConflict: 'id' });
-      if (memberRes.error) {
-        return formatServerErrorResponse(memberRes.error);
+    const { error: provisionError } = await adminSupabase.rpc('portal_provision_user', {
+      p_actor: context.userId, p_profile: profilePayload, p_member: memberPayload, p_address: body.address || null,
+    });
+    if (provisionError) {
+      const cleanup = await adminSupabase.auth.admin.deleteUser(newUserId);
+      if (cleanup.error) {
+        console.error('[ACCOUNT_COMPENSATION_FAILED]', { userId: newUserId, code: cleanup.error.code });
+        return NextResponse.json({success:false,error:{code:'ACCOUNT_RECONCILIATION_REQUIRED',message:'Account setup failed and the new login could not be removed. An administrator must reconcile this account before retrying.',accountId:newUserId}},{status:503});
       }
-
-      if (body.address) {
-        await adminSupabase.from('member_addresses').insert({
-          member_id: newUserId,
-          address_line1: sanitizeString(body.address.line1 || ''),
-          address_line2: sanitizeString(body.address.line2 || ''),
-          district_commune: sanitizeString(body.address.city || ''),
-          state_province_city: sanitizeString(body.address.stateProvince || ''),
-          postal_code: sanitizeString(body.address.postalCode || ''),
-          country: sanitizeString(body.address.country || 'Cambodia'),
-          is_primary: true,
-        });
-      }
-    }
-
-    // 5. Explicitly link student record and profile bi-directionally
-    if (studentId) {
-      await adminSupabase
-        .from('students')
-        .update({ profile_id: newUserId })
-        .eq('id', studentId);
-      await adminSupabase
-        .from('profiles')
-        .update({ student_id: studentId })
-        .eq('id', newUserId);
-    } else if (role === 'Student') {
-      const studentIdPattern = username.replace(/_/g, '-');
-      const { data: matchedStudents } = await adminSupabase
-        .from('students')
-        .update({ profile_id: newUserId })
-        .or(`id.ilike.${username},id.ilike.${studentIdPattern}`)
-        .select('id');
-      if (matchedStudents && matchedStudents.length > 0) {
-        await adminSupabase
-          .from('profiles')
-          .update({ student_id: matchedStudents[0].id })
-          .eq('id', newUserId);
-      }
+      return formatServerErrorResponse(provisionError);
     }
 
     // 6. Audit Event Logging
@@ -295,6 +180,7 @@ export async function POST(req: Request) {
         email: authData.user?.email || email,
         role,
         studentId: studentId || undefined,
+        temporaryPassword,
       },
       user: {
         id: authData.user?.id || newUserId,

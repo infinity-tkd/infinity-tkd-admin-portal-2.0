@@ -2,12 +2,26 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { 
-  X, Printer, ArrowsOutSimple, ArrowsInSimple, 
-  Calendar, Phone, Envelope, MapPin, Heart, Trophy, Medal,
-  ShieldCheck, Clock, Image as ImageIcon, GraduationCap, CheckCircle,
-  FileText, Receipt, Notebook, ListChecks
-} from '@phosphor-icons/react';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { Printer } from '@phosphor-icons/react/dist/csr/Printer';
+import { ArrowsOutSimple } from '@phosphor-icons/react/dist/csr/ArrowsOutSimple';
+import { ArrowsInSimple } from '@phosphor-icons/react/dist/csr/ArrowsInSimple';
+import { Calendar } from '@phosphor-icons/react/dist/csr/Calendar';
+import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
+import { Envelope } from '@phosphor-icons/react/dist/csr/Envelope';
+import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
+import { Heart } from '@phosphor-icons/react/dist/csr/Heart';
+import { Trophy } from '@phosphor-icons/react/dist/csr/Trophy';
+import { Medal } from '@phosphor-icons/react/dist/csr/Medal';
+import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
+import { Image as ImageIcon } from '@phosphor-icons/react/dist/csr/Image';
+import { GraduationCap } from '@phosphor-icons/react/dist/csr/GraduationCap';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { FileText } from '@phosphor-icons/react/dist/csr/FileText';
+import { Receipt } from '@phosphor-icons/react/dist/csr/Receipt';
+import { Notebook } from '@phosphor-icons/react/dist/csr/Notebook';
+import { ListChecks } from '@phosphor-icons/react/dist/csr/ListChecks';
 import { useAppStore } from '@/lib/store';
 import { cn, formatBelt, formatBeltLocalized } from '@/lib/utils';
 import { useT } from '@/hooks/useTranslation';

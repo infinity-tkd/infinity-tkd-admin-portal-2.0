@@ -1,24 +1,17 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { useAppStore, Student } from '@/lib/store';
-import { 
-  Users, 
-  UserPlus, 
-  House, 
-  Receipt, 
-  QrCode, 
-  CheckCircle, 
-  X, 
-  Trash, 
-  Cake, 
-  Crown, 
-  Phone, 
-  Envelope,
-  Warning,
-  Sparkle
-} from '@phosphor-icons/react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { useAppStore } from '@/lib/store';
+import { UserPlus } from '@phosphor-icons/react/dist/csr/UserPlus';
+import { House } from '@phosphor-icons/react/dist/csr/House';
+import { Receipt } from '@phosphor-icons/react/dist/csr/Receipt';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
+import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
+import { Envelope } from '@phosphor-icons/react/dist/csr/Envelope';
+import { supabase } from '@/lib/supabase';
 import { SafeImage } from '@/components/SafeImage';
+import { householdTuitionEntries } from '@/lib/billing';
 
 interface HouseholdGroup {
   id: string;
@@ -37,20 +30,44 @@ export function HouseholdManagementModal({
   onClose: () => void;
   initialStudentId?: string;
 }) {
-  const { state, showNotification } = useAppStore();
+  const { state, showNotification, refreshData, can } = useAppStore();
 
-  // Initial household groups
-  const [households, setHouseholds] = useState<HouseholdGroup[]>([
-    {
-      id: 'hh-1',
-      guardianName: 'Sokha Tan (Father)',
-      guardianPhone: '+855 12 345 678',
-      guardianEmail: 'sokha.tan@gmail.com',
-      studentIds: state.students.slice(0, 2).map(s => s.id)
-    }
-  ]);
+  const [households, setHouseholds] = useState<HouseholdGroup[]>([]);
+  const [selectedHouseholdId, setSelectedHouseholdId] = useState('');
+  const api = async (method:string, payload?:any) => {
+    const {data:{session}} = await supabase.auth.getSession();
+    if (!session) throw new Error('Please sign in again.');
+    const response = await fetch('/api/admin/households', {method,headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:payload ? JSON.stringify(payload) : undefined});
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error?.message || 'Household could not be saved.');
+    return result.data;
+  };
+  useEffect(() => {
+    if (!isOpen) return;
+    let active=true;
+    api('GET').then(groups => { if(active) { setHouseholds(groups); setSelectedHouseholdId(groups.find((g:HouseholdGroup)=>g.studentIds.includes(initialStudentId || ''))?.id || groups[0]?.id || ''); } }).catch(e=>showNotification(e.message,'error'));
+    return () => {active=false;};
+  }, [isOpen, initialStudentId, showNotification]);
+  const householdSaveKeys=useRef(new Map<string,string>());
+  const householdSaving=useRef(false);
+  const [savingHousehold,setSavingHousehold]=useState(false);
+  const saveHousehold = async (household:Omit<HouseholdGroup,'id'> & {id?:string}) => {
+    if(householdSaving.current)throw new Error('A household save is already in progress.');
+    householdSaving.current=true;setSavingHousehold(true);
+    try {
+      const signature=JSON.stringify(household);
+      const id=household.id || householdSaveKeys.current.get(signature) || crypto.randomUUID();
+      householdSaveKeys.current.set(signature,id);
+      const result=await api('POST',{...household,id});
+      if(!result?.id)throw new Error('Household save was not confirmed.');
+      householdSaveKeys.current.delete(signature);
+      const saved={...household,id:result.id} as HouseholdGroup;
+      setHouseholds(prev=>[...prev.filter(h=>h.id!==saved.id),saved]);
+      return saved;
+    }finally {householdSaving.current=false;setSavingHousehold(false);}
 
-  const [selectedHouseholdId, setSelectedHouseholdId] = useState<string>(households[0]?.id || '');
+  };
+
   const [isCreatingHousehold, setIsCreatingHousehold] = useState(false);
   const [newGuardian, setNewGuardian] = useState({
     name: '',
@@ -69,124 +86,58 @@ export function HouseholdManagementModal({
     return state.students.filter(s => activeHousehold.studentIds.includes(s.id));
   }, [activeHousehold, state.students]);
 
-  // Consolidated Tuition Calculations
-  const familyTuitionSummary = useMemo(() => {
-    if (linkedStudents.length === 0) return { expectedTotal: 0, unpaidStudentsCount: 0 };
-    
-    let total = 0;
-    let unpaidCount = 0;
+  const familyEntries = useMemo(() => householdTuitionEntries(linkedStudents,state.payments,state.scholarships,state.classEnrollments,state.academyProfile), [linkedStudents,state.payments,state.scholarships,state.classEnrollments,state.academyProfile]);
+  const familyTotal = familyEntries.reduce((sum,entry)=>sum+entry.amount,0);
+  type Review = {householdId:string;guardianName:string;entries:typeof familyEntries;requestKey:string};
+  type ReceiptData = {receipt_number:string;guardian_name:string;payment_method:string;external_reference?:string;transactions:{student_id:string;student_name:string;year:number;for_month:string;amount_usd:number;receipt_number:string}[]};
+  const [paymentReview,setPaymentReview]=useState<Review|null>(null);
+  const [familyReceipt,setFamilyReceipt]=useState<ReceiptData|null>(null);
+  const [paymentMethod,setPaymentMethod]=useState('Cash');
+  const [paymentReference,setPaymentReference]=useState('');
+  const [paymentConfirmed,setPaymentConfirmed]=useState(false);
+  const [collecting,setCollecting]=useState(false);
+  const collectingRef=useRef(false);
+  const retryPayload=useRef<string|null>(null);
 
-    linkedStudents.forEach(st => {
-      const scholarship = state.scholarships.find(s => s.id === st.scholarshipId);
-      const isEarlyGroup = scholarship?.typeName === 'Early Group Student';
-      const baseFee = isEarlyGroup ? 25.00 : 45.00;
-      const discountPct = isEarlyGroup ? 0 : (scholarship?.discountPercentage || 0);
-      const fee = baseFee * (1 - discountPct / 100);
-      
-      total += fee;
-      
-      const payment = state.payments.find(p => p.studentId === st.id && p.status === 'Unpaid');
-      if (payment) unpaidCount++;
-    });
-
-    return {
-      expectedTotal: total,
-      unpaidStudentsCount: unpaidCount
-    };
-  }, [linkedStudents, state.scholarships, state.payments]);
-
-  // Household Checkout Modal
-  const [familyReceipt, setFamilyReceipt] = useState<{
-    txId: string;
-    guardianName: string;
-    siblings: { name: string; belt: string; fee: number }[];
-    total: number;
-  } | null>(null);
-
-  const handleCreateHousehold = (e: React.FormEvent) => {
+  const handleCreateHousehold = async (e:React.FormEvent) => {
     e.preventDefault();
-    if (!newGuardian.name.trim() || !newGuardian.phone.trim()) {
-      showNotification('Guardian Name and Phone are required.', 'error');
-      return;
-    }
-
-    const created: HouseholdGroup = {
-      id: `hh-${Date.now()}`,
-      guardianName: newGuardian.name.trim(),
-      guardianPhone: newGuardian.phone.trim(),
-      guardianEmail: newGuardian.email.trim() || '',
-      studentIds: initialStudentId ? [initialStudentId] : []
-    };
-
-    setHouseholds(prev => [...prev, created]);
-    setSelectedHouseholdId(created.id);
-    setIsCreatingHousehold(false);
-    setNewGuardian({ name: '', phone: '', email: '' });
-    showNotification('New Household profile created successfully!', 'success');
+    try {
+      const created = await saveHousehold({guardianName:newGuardian.name.trim(),guardianPhone:newGuardian.phone.trim(),guardianEmail:newGuardian.email.trim(),studentIds:initialStudentId ? [initialStudentId] : []});
+      setSelectedHouseholdId(created.id); setIsCreatingHousehold(false); setNewGuardian({name:'',phone:'',email:''});
+      showNotification('Household saved.','success');
+    } catch(e) {showNotification(e instanceof Error ? e.message : 'Save failed.','error');}
   };
-
-  const handleAddSibling = () => {
-    if (!activeHousehold || !addStudentId) return;
-
-    if (activeHousehold.studentIds.includes(addStudentId)) {
-      showNotification('Student is already linked to this household.', 'error');
-      return;
-    }
-
-    setHouseholds(prev =>
-      prev.map(h => {
-        if (h.id === activeHousehold.id) {
-          return { ...h, studentIds: [...h.studentIds, addStudentId] };
-        }
-        return h;
-      })
-    );
-
-    setAddStudentId('');
-    showNotification('Sibling student linked to household!', 'success');
+  const handleAddSibling = async () => {
+    if(!activeHousehold || !addStudentId || activeHousehold.studentIds.includes(addStudentId))return;
+    try {await saveHousehold({...activeHousehold,studentIds:[...activeHousehold.studentIds,addStudentId]});setAddStudentId('');}catch(e){showNotification(e instanceof Error ? e.message : 'Save failed.','error');}
   };
-
-  const handleRemoveSibling = (studentId: string) => {
-    if (!activeHousehold) return;
-
-    setHouseholds(prev =>
-      prev.map(h => {
-        if (h.id === activeHousehold.id) {
-          return { ...h, studentIds: h.studentIds.filter(id => id !== studentId) };
-        }
-        return h;
-      })
-    );
-
-    showNotification('Sibling removed from household group.', 'success');
+  const handleRemoveSibling = async (studentId:string) => {
+    if(!activeHousehold)return;
+    try {await saveHousehold({...activeHousehold,studentIds:activeHousehold.studentIds.filter(id=>id!==studentId)});}catch(e){showNotification(e instanceof Error ? e.message : 'Save failed.','error');}
   };
 
   const handleFamilyCheckout = () => {
-    if (!activeHousehold || linkedStudents.length === 0) return;
-
-    const txId = `FAM-${Date.now().toString().slice(-6)}`;
-    const siblingDetails = linkedStudents.map(st => {
-      const scholarship = state.scholarships.find(s => s.id === st.scholarshipId);
-      const isEarlyGroup = scholarship?.typeName === 'Early Group Student';
-      const baseFee = isEarlyGroup ? 25.00 : 45.00;
-      const discountPct = isEarlyGroup ? 0 : (scholarship?.discountPercentage || 0);
-      const fee = baseFee * (1 - discountPct / 100);
-
-      return {
-        name: st.englishName,
-        belt: st.currentBelt,
-        fee
-      };
-    });
-
-    setFamilyReceipt({
-      txId,
-      guardianName: activeHousehold.guardianName,
-      siblings: siblingDetails,
-      total: familyTuitionSummary.expectedTotal
-    });
-
-    showNotification('Family batch checkout initiated!', 'success');
+    if (!activeHousehold || !familyEntries.length || !can('action:finance_record_payment')) return;
+    setPaymentReview({householdId:activeHousehold.id,guardianName:activeHousehold.guardianName,entries:familyEntries,requestKey:crypto.randomUUID()});
+    setPaymentMethod('Cash');setPaymentReference('');setPaymentConfirmed(false);retryPayload.current=null;
+  };
+  const collectFamilyPayment = async () => {
+    if(!paymentReview || !paymentConfirmed || collectingRef.current)return;
+    collectingRef.current=true;setCollecting(true);
+    try {
+      const {data:{session}}=await supabase.auth.getSession();
+      if(!session)throw new Error('Please sign in again.');
+      const payload=retryPayload.current || JSON.stringify({householdId:paymentReview.householdId,requestKey:paymentReview.requestKey,method:paymentMethod,reference:paymentReference.trim(),entries:paymentReview.entries.map(({studentId,year,month,amount})=>({studentId,year,month,amount}))});
+      retryPayload.current=payload;
+      const response=await fetch('/api/admin/households/payments',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:payload});
+      const result=await response.json();
+      if(!response.ok) { if(response.status<500)retryPayload.current=null; throw new Error(result.error?.message || 'Family collection was not confirmed. Retry the same request.'); }
+      if(!result.data?.receipt_number || !Array.isArray(result.data.transactions))throw new Error('Family collection was not confirmed. Retry the same request.');
+      setFamilyReceipt(result.data);setPaymentReview(null);retryPayload.current=null;
+      showNotification('Family tuition recorded.','success');
+      await refreshData();
+    } catch(e) {showNotification(e instanceof Error?e.message:'Collection failed. Retry the same request.','error');}
+    finally {collectingRef.current=false;setCollecting(false);}
   };
 
   if (!isOpen) return null;
@@ -223,8 +174,9 @@ export function HouseholdManagementModal({
           {/* LEFT: HOUSEHOLD PROFILES (4 Columns) */}
           <div className="md:col-span-4 flex flex-col space-y-3 border-r border-neutral-200 dark:border-neutral-850 pr-4">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono font-black text-[#EF2F38] uppercase tracking-wider">// HOUSEHOLDS</span>
+              <span className="text-[10px] font-mono font-black text-[#EF2F38] uppercase tracking-wider">{"// HOUSEHOLDS"}</span>
               <button
+                disabled={savingHousehold || !can('action:student_edit')}
                 onClick={() => setIsCreatingHousehold(true)}
                 className="px-2 py-1 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-[#EF2F38] text-neutral-900 dark:text-white text-[9px] font-mono rounded-[8px] flex items-center gap-1 cursor-pointer"
               >
@@ -292,7 +244,7 @@ export function HouseholdManagementModal({
                     </select>
                     <button
                       onClick={handleAddSibling}
-                      disabled={!addStudentId}
+                      disabled={savingHousehold || !addStudentId || !can('action:student_edit')}
                       className="px-2.5 py-1.5 bg-[#EF2F38] disabled:bg-neutral-300 dark:disabled:bg-neutral-800 text-white text-[10px] font-mono font-bold rounded-[8px] cursor-pointer"
                     >
                       LINK
@@ -303,7 +255,7 @@ export function HouseholdManagementModal({
                 {/* Linked Siblings Grid */}
                 <div>
                   <span className="block text-[9px] font-mono font-black text-[#EF2F38] uppercase tracking-wider mb-2">
-                    // LINKED SIBLINGS ({linkedStudents.length})
+                    {"// LINKED SIBLINGS ("}{linkedStudents.length})
                   </span>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -324,6 +276,7 @@ export function HouseholdManagementModal({
                         </div>
 
                         <button
+                          disabled={savingHousehold || !can('action:student_edit')}
                           onClick={() => handleRemoveSibling(st.id)}
                           className="p-1.5 text-neutral-400 hover:text-red-600 dark:hover:text-red-400 rounded-[8px] hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer"
                           title="Remove Sibling"
@@ -342,20 +295,20 @@ export function HouseholdManagementModal({
                       <Receipt size={14} className="text-[#EF2F38]" /> CONSOLIDATED FAMILY TUITION
                     </span>
                     <span className="text-xs font-mono font-black text-[#EF2F38]">
-                      ${familyTuitionSummary.expectedTotal.toFixed(2)} / month
+                      ${familyTotal.toFixed(2)} outstanding
                     </span>
                   </div>
 
                   <p className="text-[11px] font-sans text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                    Combines tuition fees for all {linkedStudents.length} enrolled siblings into a single monthly invoice for parent convenience.
+                    Collects one outstanding tuition cycle for each of {familyEntries.length} active siblings. Review each month before recording funds received.
                   </p>
 
                   <button
                     onClick={handleFamilyCheckout}
-                    disabled={linkedStudents.length === 0}
+                    disabled={!familyEntries.length || !can('action:finance_record_payment')}
                     className="w-full py-2.5 bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-mono font-bold uppercase rounded-[8px] transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:bg-neutral-300 dark:disabled:bg-neutral-800 disabled:text-neutral-500"
                   >
-                    <QrCode size={16} /> BATCH ABA KHQR FAMILY CHECKOUT (${familyTuitionSummary.expectedTotal.toFixed(2)})
+                    <Receipt size={16} /> REVIEW FAMILY COLLECTION (${familyTotal.toFixed(2)})
                   </button>
                 </div>
 
@@ -376,7 +329,7 @@ export function HouseholdManagementModal({
         <div className="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <form onSubmit={handleCreateHousehold} className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white w-full max-w-md rounded-[8px] p-5 font-mono space-y-4 shadow-2xl max-h-[90dvh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
-              <h3 className="text-xs font-black tracking-wider text-[#EF2F38]">// CREATE HOUSEHOLD GUARDIAN</h3>
+              <h3 className="text-xs font-black tracking-wider text-[#EF2F38]">{"// CREATE HOUSEHOLD GUARDIAN"}</h3>
               <button type="button" onClick={() => setIsCreatingHousehold(false)} className="text-neutral-400 hover:text-neutral-900 dark:hover:text-white cursor-pointer">
                 <X size={16} />
               </button>
@@ -429,6 +382,7 @@ export function HouseholdManagementModal({
               </button>
               <button
                 type="submit"
+                disabled={savingHousehold}
                 className="px-4 py-1.5 bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-bold rounded-[8px] shadow cursor-pointer"
               >
                 Create Household
@@ -438,33 +392,60 @@ export function HouseholdManagementModal({
         </div>
       )}
 
-      {/* FAMILY BATCH RECEIPT MODAL */}
+      {paymentReview && (
+        <div className="fixed inset-0 z-[10000] bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-neutral-950 text-neutral-900 dark:text-white rounded-lg p-5 w-full max-w-md space-y-4 max-h-[90dvh] overflow-y-auto">
+            <h3 className="font-bold">Review family collection: {paymentReview.guardianName}</h3>
+            <ul className="text-sm space-y-2">{paymentReview.entries.map(entry=><li key={entry.studentId}>{entry.name} — {entry.month} {entry.year}: ${entry.amount.toFixed(2)}</li>)}</ul>
+            <p className="font-bold">Total: ${paymentReview.entries.reduce((sum,e)=>sum+e.amount,0).toFixed(2)}</p>
+            <label className="block text-sm">Payment method
+              <select disabled={collecting || !!retryPayload.current} value={paymentMethod} onChange={e=>setPaymentMethod(e.target.value)} className="block w-full border rounded p-2 bg-transparent">
+                {['Cash','Bank Transfer','Credit Card','ABA Bank KHQR'].map(method=><option key={method}>{method}</option>)}
+              </select>
+            </label>
+            {paymentMethod!=='Cash' && <label className="block text-sm">Verified bank or card reference
+              <input disabled={collecting || !!retryPayload.current} value={paymentReference} onChange={e=>setPaymentReference(e.target.value)} maxLength={100} className="block w-full border rounded p-2 bg-transparent" />
+            </label>}
+            <label className="flex gap-2 text-sm"><input type="checkbox" checked={paymentConfirmed} disabled={collecting} onChange={e=>setPaymentConfirmed(e.target.checked)} />I verified that these funds were received.</label>
+            <p className="text-xs text-neutral-500">Record cash or a completed bank/card payment. This screen does not initiate or verify a bank transfer.</p>
+            {retryPayload.current && <p className="text-xs text-amber-600">An attempted collection is awaiting confirmation. Retry to retrieve its receipt.</p>}
+            <div className="flex gap-3">
+              <button disabled={collecting || !!retryPayload.current} onClick={()=>setPaymentReview(null)} className="border rounded px-3 py-2">Close</button>
+              <button disabled={collecting || !paymentConfirmed || (paymentMethod!=='Cash' && paymentReference.trim().length<3)} onClick={collectFamilyPayment} className="bg-[#EF2F38] text-white rounded px-3 py-2 disabled:opacity-40">{collecting?'Recording…':retryPayload.current?'Retry collection':'Record collection'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FAMILY TUITION RECEIPT MODAL */}
       {familyReceipt && (
         <div className="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-white text-neutral-900 w-full max-w-sm rounded-[8px] p-6 font-mono shadow-2xl space-y-4 max-h-[90dvh] overflow-y-auto">
             <div className="text-center border-b border-neutral-300 pb-3">
               <h2 className="text-sm font-black tracking-widest text-[#EF2F38]">INFINITY TAEKWONDO ACADEMY</h2>
               <p className="text-[9px] text-neutral-600 uppercase font-bold">CONSOLIDATED FAMILY TUITION RECEIPT</p>
-              <p className="text-[9px] text-neutral-500 mt-1">TX #: {familyReceipt.txId}</p>
+              <p className="text-[9px] text-neutral-500 mt-1">TX #: {familyReceipt.receipt_number}</p>
             </div>
 
             <div className="text-[10px] space-y-1">
-              <p><strong>Guardian:</strong> {familyReceipt.guardianName}</p>
+              <p><strong>Guardian:</strong> {familyReceipt.guardian_name}</p>
+              <p><strong>Method:</strong> {familyReceipt.payment_method}</p>
+              {familyReceipt.external_reference && <p><strong>Reference:</strong> {familyReceipt.external_reference}</p>}
             </div>
 
             {/* Siblings Breakdown */}
             <div className="border-t border-b border-neutral-300 py-2 space-y-1 text-[10px]">
-              {familyReceipt.siblings.map((sib, idx) => (
+              {familyReceipt.transactions.map((sib, idx) => (
                 <div key={idx} className="flex justify-between">
-                  <span>{sib.name} ({sib.belt})</span>
-                  <span>${sib.fee.toFixed(2)}</span>
+                  <span>{sib.student_name} ({sib.for_month} {sib.year})</span>
+                  <span>${Number(sib.amount_usd).toFixed(2)}</span>
                 </div>
               ))}
             </div>
 
             <div className="flex justify-between text-xs font-black pt-1 border-t border-neutral-400">
               <span>TOTAL FAMILY TUITION:</span>
-              <span className="text-[#EF2F38]">${familyReceipt.total.toFixed(2)}</span>
+              <span className="text-[#EF2F38]">${familyReceipt.transactions.reduce((sum,t)=>sum+Number(t.amount_usd),0).toFixed(2)}</span>
             </div>
 
             <button

@@ -119,7 +119,7 @@ function ToastContainer({
   return (
     <section
       aria-label="Notifications"
-      className="fixed bottom-4 right-4 left-4 md:left-auto md:w-[420px] z-[120] flex flex-col gap-2.5 pointer-events-none"
+      className="portal-global-toast fixed right-4 left-4 md:left-auto md:w-[420px] z-[120] flex flex-col gap-2.5 pointer-events-none"
     >
       {toasts.map((toast) => (
         <SingleToast key={toast.id} toast={toast} onDismiss={() => onDismiss(toast.id)} />
@@ -193,7 +193,7 @@ function SingleToast({
     <div
       role={toast.type === 'error' ? 'alert' : 'status'}
       aria-live={toast.type === 'error' ? 'assertive' : 'polite'}
-      className={`pointer-events-auto rounded-[8px] border ${config.borderColor} ${config.bgColor} p-3.5 shadow-2xl backdrop-blur-md text-white transition-all transform animate-in slide-in-from-bottom-2 duration-200 flex flex-col gap-2`}
+      className={`portal-notice-enter pointer-events-auto rounded-[8px] border ${config.borderColor} ${config.bgColor} p-3.5 shadow-lg text-white flex flex-col gap-2`}
     >
       <div className="flex items-start gap-3">
         <IconComponent className={`w-5 h-5 flex-shrink-0 mt-0.5 ${config.iconColor}`} />

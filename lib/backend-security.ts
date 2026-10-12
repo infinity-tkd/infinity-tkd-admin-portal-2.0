@@ -8,6 +8,45 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { z, ZodType } from 'zod';
 import { env } from './env';
+import { hasPermission, type PermissionKey } from './permissions';
+
+function requestPermission(req: Request): PermissionKey | undefined {
+  const path = new URL(req.url).pathname;
+  if (path === '/api/admin/library-assets/progress') return 'action:evaluations_grade';
+  if (path === '/api/admin/library-assets') return 'action:curriculum_edit';
+  if (path === '/api/admin/payments') return 'action:finance_record_payment';
+  if (path === '/api/admin/households/payments') return 'action:finance_record_payment';
+  if (path === '/api/admin/body-compositions') return 'action:student_edit';
+  if (path === '/api/admin/achievements') return 'action:student_edit';
+  if (path === '/api/admin/promotions/reconcile') return 'action:evaluations_grade';
+  const read = req.method === 'GET';
+  if (path.includes('/admin/staff-dan')) return read ? 'page:staff' : 'action:staff_manage';
+  const actions: Record<string, PermissionKey> = {
+    'create-student': 'action:student_create', 'update-student': 'action:student_edit',
+    'delete-student': 'action:student_delete', 'delete-user': 'action:staff_manage', 'create-user':'action:staff_manage',
+    'update-academy-profile': 'action:staff_manage',
+  };
+  const action = actions[path.split('/').pop() || ''];
+  if (action) return action;
+  if (path.includes('/admin/pos/products')) return read ? 'page:pos' : 'action:pos_manage_inventory';
+  if (path.includes('/admin/pos/orders/cancel') || path.includes('/admin/pos/orders/refund')) return 'action:pos_cancel_order';
+  if (path.includes('/admin/pos/orders')) return read ? 'page:pos' : 'action:pos_create_order';
+  if (path.includes('/admin/classes')) return read ? 'page:schedule' : 'action:schedule_manage';
+  if (path.includes('/admin/partners')) return read ? 'page:partners' : req.method === 'POST' ? 'action:partner_create' : req.method === 'DELETE' ? 'action:partner_delete' : 'action:partner_edit';
+  return undefined;
+}
+
+export async function callerHasPermission(client: SupabaseClient, context: CallerSecurityContext, permission: string): Promise<boolean> {
+  if (context.role === 'Root' || context.role === 'Super Root') return true;
+  const [roleResult, userResult] = await Promise.all([
+    client.from('role_permissions').select('is_granted').eq('role', context.role).eq('permission_key', permission).maybeSingle(),
+    client.from('user_permissions').select('is_granted').eq('user_id', context.userId).eq('permission_key', permission).maybeSingle(),
+  ]);
+  if (roleResult.error || userResult.error) return false;
+  return hasPermission(context.role, permission,
+    roleResult.data ? { [`${context.role}:${permission}`]: roleResult.data.is_granted } : {}, context.userId,
+    userResult.data ? { [`${context.userId}:${permission}`]: userResult.data.is_granted } : {});
+}
 
 const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -91,8 +130,8 @@ export function validateRequestOrigin(req: Request): boolean {
       originUrl.hostname === '127.0.0.1' ||
       originUrl.hostname === '0.0.0.0';
 
-    if (isLocalhost) return true;
-    return originUrl.hostname === hostDomain;
+    if (isLocalhost && process.env.NODE_ENV !== 'production') return true;
+    return originUrl.host === host && (process.env.NODE_ENV !== 'production' || originUrl.protocol === 'https:');
   } catch {
     return false;
   }
@@ -135,6 +174,7 @@ export async function verifyCaller(
 
   const token = authHeader.replace('Bearer ', '');
   const clientSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+    db: { retry: false },
     auth: { persistSession: false },
   });
 
@@ -175,26 +215,31 @@ export async function verifyCaller(
   }
 
   const adminSupabase = createClient(supabaseUrl, serviceRoleKey, {
+    db: { retry: false },
     auth: { persistSession: false },
   });
   const { data: profile, error: profileErr } = await adminSupabase
     .from('profiles')
-    .select('id, email, role, is_active')
+    .select('id, email, role, is_active, must_change_password')
     .eq('id', user.id)
     .single();
 
   if (profileErr || !profile) {
+    const setupIncomplete = profileErr?.code === '42703' || profileErr?.code === 'PGRST204';
+    const unavailable = Boolean(profileErr && profileErr.code !== 'PGRST116');
     return {
       errorResponse: NextResponse.json(
         {
           success: false,
           data: null,
           error: {
-            code: 'AUTH_PROFILE_NOT_FOUND',
-            message: 'Forbidden: Security profile not found.',
+            code: setupIncomplete ? 'AUTH_DATABASE_SETUP_REQUIRED' : unavailable ? 'AUTH_PROFILE_UNAVAILABLE' : 'AUTH_PROFILE_NOT_FOUND',
+            message: setupIncomplete
+              ? 'Account security setup is incomplete. Apply the profile security SQL repair in Supabase, then retry.'
+              : unavailable ? 'Account verification is temporarily unavailable. Please retry.' : 'Forbidden: Security profile not found.',
           },
         },
-        { status: 403 }
+        { status: unavailable ? 503 : 403, headers: { 'Cache-Control': 'no-store' } }
       ),
     };
   }
@@ -215,7 +260,17 @@ export async function verifyCaller(
     };
   }
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(profile.role)) {
+  if(profile.must_change_password) {
+    if(new URL(req.url).pathname !== '/api/admin/update-user') return {errorResponse:NextResponse.json({success:false,error:{message:'Change your temporary password before using the portal.'}},{status:403})};
+    const {data:change,errorResponse:invalid}=await validateRequestBody(z.object({id:z.string().uuid(),data:z.object({password:z.string().min(12).max(256)}).strict()}).strict(),req.clone());
+    if(invalid || change?.id!==profile.id)return {errorResponse:invalid || NextResponse.json({success:false,error:{message:'Change your own temporary password first.'}},{status:403})};
+  }
+  if(profile.role==='Student' && !allowedRoles.includes('Student'))return {errorResponse:NextResponse.json({success:false,error:{message:'Staff access required.'}},{status:403})};
+
+  const permission = requestPermission(req);
+  const context: CallerSecurityContext = { userId: profile.id, email: profile.email, role: profile.role };
+  const permitted = permission ? await callerHasPermission(adminSupabase, context, permission) : allowedRoles.length === 0 || allowedRoles.includes(profile.role);
+  if (!permitted) {
     return {
       errorResponse: NextResponse.json(
         {
@@ -223,13 +278,19 @@ export async function verifyCaller(
           data: null,
           error: {
             code: 'AUTH_FORBIDDEN_ROLE',
-            message: `Forbidden: Requires one of [${allowedRoles.join(', ')}] roles.`,
+            message: 'You do not have permission to perform this operation.',
           },
         },
         { status: 403 }
       ),
     };
   }
+
+  if (!validateRequestOrigin(req)) return { errorResponse: NextResponse.json({ success:false, error:{message:'Request origin rejected.'} }, {status:403}) };
+  const {data: slot, error: rateError} = await adminSupabase.rpc('portal_take_rate_slot', {
+    p_key: `api:${profile.id}:${new URL(req.url).pathname}`, p_limit: req.method === 'GET' ? 180 : 120, p_seconds:60,
+  });
+  if (rateError || !slot) return {errorResponse:NextResponse.json({success:false,error:{message:rateError ? 'Service temporarily unavailable. Please retry.' : 'Too many requests. Please retry shortly.'}}, {status:rateError ? 503 : 429, headers:{'Retry-After':'60'}})};
 
   return {
     context: {
@@ -253,7 +314,24 @@ export async function validateRequestBody<T>(
 ): Promise<{ data?: T; errorResponse?: NextResponse }> {
   let rawBody: unknown;
   try {
-    rawBody = await req.json();
+    const length = Number(req.headers.get('content-length') || 0);
+    if (length > 1048576) return { errorResponse: NextResponse.json({ success: false, error: { code: 'PAYLOAD_TOO_LARGE', message: 'Request exceeds 1 MB.' } }, { status: 413 }) };
+    const reader = req.body?.getReader();
+    let size = 0;
+    const chunks: Uint8Array[] = [];
+    if (reader) {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        size += value.length;
+        if (size > 1048576) { await reader.cancel(); return { errorResponse: NextResponse.json({ success: false, error: { code: 'PAYLOAD_TOO_LARGE', message: 'Request exceeds 1 MB.' } }, { status: 413 }) }; }
+        chunks.push(value);
+      }
+    }
+    const bytes = new Uint8Array(size);
+    let offset = 0;
+    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+    rawBody = JSON.parse(new TextDecoder().decode(bytes));
   } catch (err: any) {
     return {
       errorResponse: NextResponse.json(
@@ -356,9 +434,10 @@ export async function logSecurityAuditEvent(event: {
 
   try {
     const adminSupabase = createClient(supabaseUrl, serviceRoleKey, {
+      db: { retry: false },
       auth: { persistSession: false },
     });
-    await adminSupabase.from('audit_logs').insert({
+    const { error } = await adminSupabase.from('audit_logs').insert({
       action: event.action,
       performed_by: event.performedBy,
       target_id: event.targetId || null,
@@ -366,6 +445,7 @@ export async function logSecurityAuditEvent(event: {
       status: event.status,
       created_at: new Date().toISOString(),
     });
+    if (error) throw error;
   } catch (err) {
     // Non-blocking log catch
     console.error('[AUDIT_LOG_ERROR]', err);
@@ -380,11 +460,13 @@ export function formatServerErrorResponse(error: any): NextResponse {
   const status =
     translated.code === '42501' || translated.code === 'AUTH_FORBIDDEN'
       ? 403
-      : translated.code === 'PGRST116'
+      : translated.code === 'PGRST116' || translated.code === 'P0002'
       ? 404
       : translated.code === 'AUTH_SESSION_EXPIRED' || translated.code === 'AUTH_UNAUTHORIZED'
       ? 401
-      : 400;
+      : ['23505','23503','40001','40P01'].includes(translated.code) ? 409
+      : ['PGRST202','PGRST204','42P01','42703','NETWORK_OFFLINE'].includes(translated.code) ? 503
+      : ['23502','23514','22023','22007','22008','22P02','P0001','VALIDATION_ERROR'].includes(translated.code) ? 400 : 500;
 
   return NextResponse.json(
     {
@@ -392,7 +474,9 @@ export function formatServerErrorResponse(error: any): NextResponse {
       data: null,
       error: {
         code: translated.code,
-        message: translated.userMessage,
+        message: process.env.NODE_ENV === 'production' && status >= 500
+          ? 'The operation could not be completed. Please retry or contact an administrator.'
+          : translated.userMessage,
         details: process.env.NODE_ENV === 'development' ? error?.message : undefined,
       },
     },

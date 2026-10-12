@@ -85,10 +85,10 @@ export function playChime(type: 'success' | 'alert' | 'scan' | 'bell' = 'success
 
 export function isAudioEnabled(): boolean {
   if (typeof window === 'undefined') return true;
-  return localStorage.getItem('infinity_audio_feedback') !== 'false';
+  try { return localStorage.getItem('infinity_audio_feedback') !== 'false'; } catch { return true; }
 }
 
 export function setAudioEnabled(enabled: boolean): void {
   if (typeof window === 'undefined') return;
-  localStorage.setItem('infinity_audio_feedback', enabled ? 'true' : 'false');
+  try { localStorage.setItem('infinity_audio_feedback', enabled ? 'true' : 'false'); } catch { /* Storage can be disabled by browser policy. */ }
 }

@@ -1,0 +1,80 @@
+/* Infinity motion: short, calm feedback; no decorative loops or layout tweens. */
+:root {
+  --motion-fast: 120ms;
+  --motion-standard: 180ms;
+  --motion-panel: 220ms;
+  --motion-ease: cubic-bezier(.22, 1, .36, 1);
+  --portal-safe-top: env(safe-area-inset-top, 0px);
+  --portal-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --portal-header-height: calc(3.5rem + var(--portal-safe-top));
+  --portal-footer-height: calc(3.9375rem + var(--portal-safe-bottom));
+}
+
+:where(button, a[href], [role="button"], input, select, textarea) {
+  transition-property: color, background-color, border-color, opacity, scale;
+  transition-duration: var(--motion-fast);
+  transition-timing-function: var(--motion-ease);
+}
+
+/* Keep utility-based interactions from tweening size, position, blur or shadows. */
+:where(.transition-all) {
+  transition-property: color, background-color, border-color, opacity, scale;
+  transition-duration: var(--motion-standard);
+  transition-timing-function: var(--motion-ease);
+}
+:where(.transition-colors, .transition-opacity) {
+  transition-duration: var(--motion-fast);
+  transition-timing-function: var(--motion-ease);
+}
+:where(.transition-transform) {
+  transition-property: transform, translate, scale, rotate;
+  transition-duration: var(--motion-standard);
+  transition-timing-function: var(--motion-ease);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :where(button:not(:disabled), a[href], [role="button"]:not([aria-disabled="true"])):active {
+    scale: .985;
+  }
+}
+
+@keyframes portal-notice-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.portal-notice-enter { animation: portal-notice-in var(--motion-standard) var(--motion-ease); }
+
+@keyframes portal-surface-in {
+  from { opacity: .88; }
+  to { opacity: 1; }
+}
+/* Existing CSS-only popovers and overlays share the same quiet fade. */
+.animate-in { animation: portal-surface-in var(--motion-standard) var(--motion-ease); }
+
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(300%); }
+}
+.animate-shimmer { animation: shimmer 1.4s linear infinite; }
+
+[data-portal-scroll] :where(button, a[href], input, select, textarea, [tabindex]) { scroll-margin-block: 1rem; }
+.portal-global-toast { bottom: 1rem; }
+@media (max-width: 1279px), (hover: none) and (pointer: coarse) {
+  .portal-global-toast { bottom: calc(var(--portal-footer-height) + 1rem); }
+}
+
+@media (pointer: coarse) {
+  :root { --motion-standard: 160ms; --motion-panel: 200ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --motion-fast: 0ms; --motion-standard: 0ms; --motion-panel: 0ms; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}

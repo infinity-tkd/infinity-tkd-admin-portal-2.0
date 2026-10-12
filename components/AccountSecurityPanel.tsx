@@ -1,24 +1,23 @@
 'use client';
 
+import { generatePassword } from '@/lib/passwords';
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
+import { supabase } from '@/lib/supabase';
 import { generateSessionFingerprint } from '@/lib/security';
-import { 
-  ShieldCheck, 
-  Desktop, 
-  Globe, 
-  Clock, 
-  SignOut, 
-  Lock, 
-  Eye, 
-  EyeClosed, 
-  Sparkle, 
-  Check, 
-  Key, 
-  DeviceMobile,
-  CheckCircle,
-  Warning
-} from '@phosphor-icons/react';
+import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { Desktop } from '@phosphor-icons/react/dist/csr/Desktop';
+import { Globe } from '@phosphor-icons/react/dist/csr/Globe';
+import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
+import { SignOut } from '@phosphor-icons/react/dist/csr/SignOut';
+import { Lock } from '@phosphor-icons/react/dist/csr/Lock';
+import { Eye } from '@phosphor-icons/react/dist/csr/Eye';
+import { EyeClosed } from '@phosphor-icons/react/dist/csr/EyeClosed';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { Key } from '@phosphor-icons/react/dist/csr/Key';
+import { DeviceMobile } from '@phosphor-icons/react/dist/csr/DeviceMobile';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
 import { playChime } from '@/lib/soundEffects';
 import { cn } from '@/lib/utils';
 
@@ -41,6 +40,7 @@ export function AccountSecurityPanel() {
   const fingerprint = generateSessionFingerprint();
 
   // Password Update State
+  const [isRevoking, setIsRevoking] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -51,26 +51,26 @@ export function AccountSecurityPanel() {
     {
       id: 'sess-curr',
       device: typeof navigator !== 'undefined' ? `${navigator.platform} (${navigator.vendor || 'Browser'})` : 'Current Device',
-      location: 'Phnom Penh, Cambodia',
-      ip: '103.216.x.x',
+      location: 'Current browser',
+      ip: 'Not collected',
       lastActive: 'Active Now',
       isCurrent: true,
     },
-    {
-      id: 'sess-mobile-1',
-      device: 'iOS Safari / iPhone 15 Pro',
-      location: 'Phnom Penh, Cambodia',
-      ip: '116.212.x.x',
-      lastActive: '2 hours ago',
-      isCurrent: false,
-    },
+
   ]);
 
   const handleLogoutAllDevices = async () => {
-    if (confirm('Are you sure you want to log out from ALL other devices? Active tokens on other devices will be revoked immediately.')) {
+    if (isRevoking) return;
+    if (confirm('Are you sure you want to log out from ALL other devices? Other sessions will be signed out; already issued access tokens remain valid until expiry.')) {
+      setIsRevoking(true);
+      try {
+      const { error } = await supabase.auth.signOut({ scope: 'others' });
+      if (error) { showNotification('Could not revoke other sessions. Please retry.', 'error'); return; }
       setActiveSessions(prev => prev.filter(s => s.isCurrent));
-      showNotification('Global Sign-out Executed. All other active sessions have been invalidated.', 'success');
+      showNotification('Other sessions signed out. Existing access tokens expire according to the server session policy.', 'success');
       playChime('bell');
+      } catch { showNotification('Could not revoke other sessions. Please retry.', 'error'); }
+      finally { setIsRevoking(false); }
     }
   };
 
@@ -80,8 +80,8 @@ export function AccountSecurityPanel() {
       showNotification('No active user session found.', 'error');
       return;
     }
-    if (!newPassword || newPassword.length < 6) {
-      showNotification('New password must be at least 6 characters long.', 'warning');
+    if (!newPassword || newPassword.length < 12) {
+      showNotification('New password must be at least 12 characters long.', 'warning');
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -116,7 +116,7 @@ export function AccountSecurityPanel() {
               Session Security Status
             </h4>
             <p className="text-[11px] text-neutral-600 dark:text-neutral-400 font-sans mt-0.5">
-              Authenticated via Secure Supabase JWT + Session Fingerprinting
+              Authenticated with Supabase; account status is checked by the server
             </p>
           </div>
         </div>
@@ -149,12 +149,12 @@ export function AccountSecurityPanel() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* New Password */}
             <div className="space-y-1.5">
-              <label className="text-[10px] uppercase font-bold text-neutral-600 dark:text-[#AAA] tracking-wider font-mono flex items-center justify-between">
-                <span>New Password <strong className="text-red-500">*</strong></span>
+              <div className="text-[10px] uppercase font-bold text-neutral-600 dark:text-[#AAA] tracking-wider font-mono flex items-center justify-between">
+                <label htmlFor="security-new-password">New Password <strong className="text-red-500">*</strong></label>
                 <button
                   type="button"
                   onClick={() => {
-                    const generated = `Tkd${Math.random().toString(36).slice(-5)}!2026`;
+                    const generated = generatePassword();
                     setNewPassword(generated);
                     setConfirmPassword(generated);
                   }}
@@ -163,17 +163,20 @@ export function AccountSecurityPanel() {
                   <Sparkle className="w-3 h-3" />
                   <span>Generate Strong</span>
                 </button>
-              </label>
+              </div>
               <div className="relative">
                 <input
+                  id="security-new-password" autoComplete="new-password" minLength={12} maxLength={256} required
+                  disabled={isUpdatingPassword}
                   type={showNewPassword ? "text" : "password"}
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
-                  placeholder="Min 6 characters (e.g. Master2026!)"
+                  placeholder="Min 12 characters (e.g. Master2026!)"
                   className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38] pr-10"
                 />
                 <button
                   type="button"
+                  aria-label={showNewPassword ? "Hide new password" : "Show new password"}
                   onClick={() => setShowNewPassword(!showNewPassword)}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 dark:hover:text-white p-1 cursor-pointer"
                 >
@@ -184,11 +187,13 @@ export function AccountSecurityPanel() {
 
             {/* Confirm New Password */}
             <div className="space-y-1.5">
-              <label className="text-[10px] uppercase font-bold text-neutral-600 dark:text-[#AAA] tracking-wider font-mono">
+              <label htmlFor="security-confirm-password" className="text-[10px] uppercase font-bold text-neutral-600 dark:text-[#AAA] tracking-wider font-mono">
                 Confirm Password <strong className="text-red-500">*</strong>
               </label>
               <div className="relative">
                 <input
+                  id="security-confirm-password" autoComplete="new-password" minLength={12} maxLength={256} required
+                  disabled={isUpdatingPassword}
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
@@ -202,6 +207,7 @@ export function AccountSecurityPanel() {
                 />
                 <button
                   type="button"
+                  aria-label={showConfirmPassword ? "Hide confirmation password" : "Show confirmation password"}
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 dark:hover:text-white p-1 cursor-pointer"
                 >
@@ -222,13 +228,13 @@ export function AccountSecurityPanel() {
                   <Warning className="w-3.5 h-3.5" weight="bold" /> Passwords do not match
                 </span>
               ) : (
-                <span>Must be at least 6 characters with mixed characters recommended.</span>
+                <span>Must be at least 12 characters with mixed characters recommended.</span>
               )}
             </div>
 
             <button
               type="submit"
-              disabled={isUpdatingPassword || !newPassword || newPassword !== confirmPassword || newPassword.length < 6}
+              disabled={isUpdatingPassword || !newPassword || newPassword !== confirmPassword || newPassword.length < 12}
               className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] bg-[#EF2F38] hover:bg-[#D9222B] disabled:opacity-40 text-white font-mono font-bold uppercase tracking-wider text-xs rounded-[8px] cursor-pointer shadow-sm shadow-[#EF2F38]/20 flex items-center justify-center gap-2 transition-all active:scale-95 touch-manipulation"
             >
               <Key className="w-4 h-4" weight="bold" />
@@ -243,18 +249,20 @@ export function AccountSecurityPanel() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <h3 className="text-xs font-black uppercase tracking-wider text-neutral-900 dark:text-white flex items-center gap-2 font-mono">
             <Desktop className="w-4 h-4 text-[#EF2F38]" weight="bold" /> 
-            <span>Active Login Sessions</span>
+            <span>Current browser session</span>
           </h3>
           <button
             type="button"
             onClick={handleLogoutAllDevices}
+            disabled={isRevoking}
             className="w-full sm:w-auto px-3.5 py-2 min-h-[42px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-600 dark:text-red-400 text-xs font-mono font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
           >
             <SignOut className="w-3.5 h-3.5" weight="bold" /> 
-            <span>Terminate Other Sessions</span>
+            <span>{isRevoking ? 'Signing out…' : 'Sign out other devices'}</span>
           </button>
         </div>
 
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">Only this browser is shown. The provider does not expose a device list here; use the button above to revoke other refresh sessions.</p>
         {/* Responsive Dual Presentation: Desktop rows & Mobile/Tablet Cards */}
         <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden shadow-sm divide-y divide-neutral-200 dark:divide-[#262626]">
           {activeSessions.map(session => (

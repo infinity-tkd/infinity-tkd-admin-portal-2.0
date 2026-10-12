@@ -10,20 +10,18 @@ import {
   AccessType,
   hasPermission 
 } from '@/lib/security';
-import { 
-  ShieldCheck, 
-  X, 
-  MagnifyingGlass, 
-  Check, 
-  LockKey, 
-  Warning, 
-  ArrowCounterClockwise,
-  FloppyDisk,
-  Sparkle,
-  Eye,
-  PencilSimple,
-  Sliders
-} from '@phosphor-icons/react';
+import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { LockKey } from '@phosphor-icons/react/dist/csr/LockKey';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { ArrowCounterClockwise } from '@phosphor-icons/react/dist/csr/ArrowCounterClockwise';
+import { FloppyDisk } from '@phosphor-icons/react/dist/csr/FloppyDisk';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { Eye } from '@phosphor-icons/react/dist/csr/Eye';
+import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { Sliders } from '@phosphor-icons/react/dist/csr/Sliders';
 import { cn } from '@/lib/utils';
 import { playChime } from '@/lib/soundEffects';
 import { Portal } from '@/components/Portal';

@@ -3,7 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, User, Flame, Sparkle, Stack } from '@phosphor-icons/react';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { User } from '@phosphor-icons/react/dist/csr/User';
+import { Flame } from '@phosphor-icons/react/dist/csr/Flame';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { Stack } from '@phosphor-icons/react/dist/csr/Stack';
 import { Layers } from 'lucide-react';
 import { CurriculumVideo, useAppStore } from '@/lib/store';
 import { Portal } from '@/components/Portal';

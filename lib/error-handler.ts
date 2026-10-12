@@ -171,12 +171,13 @@ export function normalizeError(
     rawLower.includes('failed to fetch') ||
     rawLower.includes('network error') ||
     rawLower.includes('networkrequestfailed') ||
+    rawLower.includes('timeout') || rawLower.includes('timed out') ||
     rawLower.includes('abort') ||
     (typeof navigator !== 'undefined' && !navigator.onLine)
   ) {
     return {
       title: 'Network Connection Lost',
-      message: 'Unable to reach the server. Your actions are safely preserved locally and will sync once connection is restored.',
+      message: 'Unable to reach the server. The save could not be confirmed. Reconnect and check the record before retrying.',
       code: 'NETWORK_OFFLINE',
       details: rawMsg,
       severity: 'warning',

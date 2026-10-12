@@ -1,15 +1,37 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
+import { academyDate, addCalendarDays, isCalendarDate } from '@/lib/dates';
+import { rosterAttendance } from '@/lib/attendance';
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAppStore, Student } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  MagnifyingGlass, X, ChartLine, CalendarCheck, UsersThree, 
-  Warning, Trophy, Sparkle, PhoneCall, CheckSquare,
-  Calendar, CaretLeft, CaretRight, Check, ArrowsCounterClockwise,
-  Barcode, QrCode, CheckCircle, Clock, SpeakerHigh, SpeakerSlash, XCircle,
-  Flame, GraduationCap, ArrowRight
-} from '@phosphor-icons/react';
+import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { ChartLine } from '@phosphor-icons/react/dist/csr/ChartLine';
+import { CalendarCheck } from '@phosphor-icons/react/dist/csr/CalendarCheck';
+import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { Trophy } from '@phosphor-icons/react/dist/csr/Trophy';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { PhoneCall } from '@phosphor-icons/react/dist/csr/PhoneCall';
+import { CheckSquare } from '@phosphor-icons/react/dist/csr/CheckSquare';
+import { Calendar } from '@phosphor-icons/react/dist/csr/Calendar';
+import { CaretLeft } from '@phosphor-icons/react/dist/csr/CaretLeft';
+import { CaretRight } from '@phosphor-icons/react/dist/csr/CaretRight';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { ArrowsCounterClockwise } from '@phosphor-icons/react/dist/csr/ArrowsCounterClockwise';
+import { Barcode } from '@phosphor-icons/react/dist/csr/Barcode';
+import { QrCode } from '@phosphor-icons/react/dist/csr/QrCode';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
+import { SpeakerHigh } from '@phosphor-icons/react/dist/csr/SpeakerHigh';
+import { SpeakerSlash } from '@phosphor-icons/react/dist/csr/SpeakerSlash';
+import { XCircle } from '@phosphor-icons/react/dist/csr/XCircle';
+import { Flame } from '@phosphor-icons/react/dist/csr/Flame';
+import { GraduationCap } from '@phosphor-icons/react/dist/csr/GraduationCap';
+import { ArrowRight } from '@phosphor-icons/react/dist/csr/ArrowRight';
 import { cn, formatBelt, formatBeltLocalized } from '@/lib/utils';
 import { useT } from '@/hooks/useTranslation';
 import { SafeImage } from '@/components/SafeImage';
@@ -26,7 +48,7 @@ const playBeep = (type: 'success' | 'error') => {
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(ctx.destination);
-    
+
     if (type === 'success') {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
@@ -60,7 +82,7 @@ export function DatePicker({ value, onChange }: DatePickerProps) {
   const [typedValue, setTypedValue] = useState(value);
   const [isValid, setIsValid] = useState(true);
   const popoverRef = React.useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     setTypedValue(value);
     setIsValid(true);
@@ -90,8 +112,7 @@ export function DatePicker({ value, onChange }: DatePickerProps) {
 
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (dateRegex.test(val)) {
-      const parsedDate = new Date(val);
-      if (!isNaN(parsedDate.getTime())) {
+      if (isCalendarDate(val)) {
         setIsValid(true);
         onChange(val);
       } else {
@@ -102,12 +123,12 @@ export function DatePicker({ value, onChange }: DatePickerProps) {
     }
   };
 
-  const currentDate = new Date(value || new Date());
+  const currentDate = new Date(`${isCalendarDate(value || '') ? value : academyDate()}T12:00:00`);
   const [viewYear, setViewYear] = useState(currentDate.getFullYear());
   const [viewMonth, setViewMonth] = useState(currentDate.getMonth());
 
   useEffect(() => {
-    const d = new Date(value || new Date());
+    const d = new Date(`${isCalendarDate(value || '') ? value : academyDate()}T12:00:00`);
     setViewYear(d.getFullYear());
     setViewMonth(d.getMonth());
   }, [value]);
@@ -167,15 +188,13 @@ export function DatePicker({ value, onChange }: DatePickerProps) {
   };
 
   const handleQuickSelect = (offset: number) => {
-    const d = new Date();
-    d.setDate(d.getDate() + offset);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = addCalendarDays(academyDate(), offset);
     onChange(dateStr);
     setIsOpen(false);
   };
 
   const stepDate = (days: number) => {
-    const [y, m, d] = (value || new Date().toISOString().split('T')[0]).split('-').map(Number);
+    const [y, m, d] = (value || academyDate()).split('-').map(Number);
     const current = new Date(y, m - 1, d);
     current.setDate(current.getDate() + days);
     const nextY = current.getFullYear();
@@ -362,14 +381,14 @@ export function AttendanceView() {
   const lang = state.language || 'en';
 
   const getStudentEnrollDate = (st: Student) => {
-    const enrollments = state.classEnrollments.filter(e => e.studentId === st.id);
+    const enrollments = state.classEnrollments.filter(e => e.studentId === st.id && (filterClass === 'all' || e.classId === filterClass));
     if (enrollments.length === 0) return st.registrationDate?.split('T')[0];
     const dates = enrollments.map(e => e.enrollmentDate).filter(Boolean) as string[];
     if (dates.length === 0) return st.registrationDate?.split('T')[0];
     return dates.sort()[0].split('T')[0];
   };
   const [activeTab, setActiveTab] = useState<'roster' | 'analytics'>('roster');
-  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(() => academyDate());
   const [search, setSearch] = useState('');
   const [filterBranch, setFilterBranch] = useState<number | 'all'>('all');
   const [filterClass, setFilterClass] = useState<number | 'all'>('all');
@@ -377,7 +396,7 @@ export function AttendanceView() {
   const [updateTrigger, setUpdateTrigger] = useState(0);
   const [statusFilter, setStatusFilter] = useState<'all' | 'Present' | 'Late' | 'Absent' | 'Unmarked'>('all');
   const [overrideMismatch, setOverrideMismatch] = useState(false);
-  
+
   // Fast Kiosk Terminal State
   const [isKioskOpen, setIsKioskOpen] = useState(false);
   const [kioskBarcode, setKioskBarcode] = useState('');
@@ -392,7 +411,7 @@ export function AttendanceView() {
 
   // Multi-Select Row State
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
-  
+
   // Loading & Committing states
   const [isCommitting, setIsCommitting] = useState(false);
   const [commitMessage, setCommitMessage] = useState<string | null>(null);
@@ -450,20 +469,20 @@ export function AttendanceView() {
   }, [state.students, state.classEnrollments, filterBranch, filterClass]);
 
   const totalRosterCount = rosterStudents.length;
-  
+  const selectedAttendance = useMemo(() => rosterAttendance(state.attendanceRecords, selectedDate, filterClass === 'all' ? undefined : filterClass), [state.attendanceRecords, selectedDate, filterClass]);
+
   const { presentRosterCount, lateRosterCount, absentRosterCount, unmarkedRosterCount } = useMemo(() => {
     let p = 0, l = 0, a = 0, u = 0;
-    const attMap = new Map(state.attendanceRecords.filter(r => r.date === selectedDate).map(r => [r.studentId, r.status]));
 
     for (const s of rosterStudents) {
-      const st = attMap.get(s.id);
+      const st = selectedAttendance.get(s.id)?.status;
       if (st === 'Present') p++;
       else if (st === 'Late') l++;
       else if (st === 'Absent') a++;
       else u++;
     }
     return { presentRosterCount: p, lateRosterCount: l, absentRosterCount: a, unmarkedRosterCount: u };
-  }, [rosterStudents, state.attendanceRecords, selectedDate]);
+  }, [selectedAttendance, rosterStudents]);
 
   const markedPercentage = totalRosterCount > 0 
     ? Math.round(((presentRosterCount + lateRosterCount + absentRosterCount) / totalRosterCount) * 100)
@@ -502,30 +521,29 @@ export function AttendanceView() {
 
   // Filter list by selected status capsule
   const finalFilteredStudents = useMemo(() => {
-    const attMap = new Map(state.attendanceRecords.filter(r => r.date === selectedDate).map(r => [r.studentId, r.status]));
     return filteredStudents.filter(s => {
-      const currentStatus = attMap.get(s.id);
+      const currentStatus = selectedAttendance.get(s.id)?.status;
       if (statusFilter === 'all') return true;
       if (statusFilter === 'Unmarked') return !currentStatus;
       return currentStatus === statusFilter;
     });
-  }, [filteredStudents, state.attendanceRecords, selectedDate, statusFilter]);
+  }, [filteredStudents, selectedAttendance, statusFilter]);
 
   // Bulk marking filtered set
   const handleBulkMark = async (status: 'Present' | 'Absent') => {
     setIsCommitting(true);
     try {
       const targetStudents = finalFilteredStudents.filter(s => {
-        const rec = state.attendanceRecords.find(r => r.studentId === s.id && r.date === selectedDate);
+        const rec = selectedAttendance.get(s.id);
         const enrollDate = getStudentEnrollDate(s);
         const isNotYetEnrolled = enrollDate ? (selectedDate < enrollDate) : false;
         return rec?.status !== status && !isNotYetEnrolled;
       });
       if (targetStudents.length === 0) return;
-      
+
       await Promise.all(
         targetStudents.map(student => 
-          markAttendance(student.id, selectedDate, status)
+          markAttendance(student.id, selectedDate, status, filterClass === 'all' ? undefined : filterClass)
         )
       );
       showNotification(t('att_bulk_success').replace('{count}', String(targetStudents.length)).replace('{status}', status === 'Present' ? t('att_present') : t('att_absent')), 'success');
@@ -542,12 +560,12 @@ export function AttendanceView() {
     setIsCommitting(true);
     try {
       const targetIds = finalFilteredStudents
-        .filter(s => state.attendanceRecords.some(r => r.studentId === s.id && r.date === selectedDate))
+        .filter(s => state.attendanceRecords.some(r => r.studentId === s.id && r.date === selectedDate && (filterClass === 'all' || r.classId === filterClass)))
         .map(s => s.id);
-        
+
       if (targetIds.length === 0) return;
-      
-      await deleteAttendanceRecords(selectedDate, targetIds);
+
+      await deleteAttendanceRecords(selectedDate, targetIds, filterClass === 'all' ? undefined : filterClass);
       showNotification(t('att_clear_success').replace('{count}', String(targetIds.length)), 'success');
     } catch (e: any) {
       console.error(e);
@@ -559,7 +577,7 @@ export function AttendanceView() {
 
   const requestBulkMark = (status: 'Present' | 'Absent') => {
     const targetStudents = finalFilteredStudents.filter(s => {
-      const rec = state.attendanceRecords.find(r => r.studentId === s.id && r.date === selectedDate);
+      const rec = selectedAttendance.get(s.id);
       const enrollDate = getStudentEnrollDate(s);
       const isNotYetEnrolled = enrollDate ? (selectedDate < enrollDate) : false;
       return rec?.status !== status && !isNotYetEnrolled;
@@ -582,7 +600,7 @@ export function AttendanceView() {
 
   const requestResetSelection = () => {
     const targetStudents = finalFilteredStudents.filter(s => {
-      const rec = state.attendanceRecords.find(r => r.studentId === s.id && r.date === selectedDate);
+      const rec = selectedAttendance.get(s.id);
       return !!rec?.status;
     });
 
@@ -611,7 +629,7 @@ export function AttendanceView() {
       const enrollDate = getStudentEnrollDate(student);
       const isNotYetEnrolled = enrollDate ? (selectedDate < enrollDate) : false;
       return matchBranch && matchClass && student.studentStatus === 'Active' && !isNotYetEnrolled;
-    }).filter(student => !state.attendanceRecords.some(ar => ar.studentId === student.id && ar.date === selectedDate));
+    }).filter(student => !state.attendanceRecords.some(ar => ar.studentId === student.id && ar.date === selectedDate && (filterClass === 'all' || ar.classId === filterClass)));
 
     if (targetStudents.length === 0) {
       showNotification(t('att_all_already_marked'), 'info');
@@ -630,16 +648,16 @@ export function AttendanceView() {
 
   const statsStudent = statsStudentId ? state.students.find(s => s.id === statsStudentId) : null;
   const studentAttendanceRecords = statsStudent ? state.attendanceRecords.filter(r => r.studentId === statsStudent.id) : [];
-  
+
   const presentCount = studentAttendanceRecords.filter(r => r.status === 'Present').length;
   const lateCount = studentAttendanceRecords.filter(r => r.status === 'Late').length;
   const absentCount = studentAttendanceRecords.filter(r => r.status === 'Absent').length;
   const totalCount = studentAttendanceRecords.length;
 
   // --- Group Analytics Calculations ---
-  
+
   // --- Group Analytics Calculations ---
-  
+
   // Base set of active students filtered by branch & class (not by search/status)
   const activeStudentsForAnalytics = state.students.filter(student => {
     if (student.studentStatus !== 'Active') return false;
@@ -654,7 +672,8 @@ export function AttendanceView() {
   const activeStudentIds = new Set(activeStudentsForAnalytics.map(s => s.id));
 
   // 1. Academy/Cohort Attendance Rate & Statistics
-  const filteredRecords = state.attendanceRecords.filter(r => activeStudentIds.has(r.studentId));
+  const analyticsRecords = useMemo(() => state.attendanceRecords.filter(r => filterClass === 'all' || r.classId === filterClass), [state.attendanceRecords, filterClass]);
+  const filteredRecords = analyticsRecords.filter(r => activeStudentIds.has(r.studentId));
   const totalRecordsCount = filteredRecords.length;
   const allPresentCount = filteredRecords.filter(r => r.status === 'Present').length;
   const allLateCount = filteredRecords.filter(r => r.status === 'Late').length;
@@ -700,7 +719,7 @@ export function AttendanceView() {
   // 2. Attendance Rates & Promotion Milestones by Student
   const studentAttendanceRates = useMemo(() => {
     return activeStudentsForAnalytics.map(st => {
-      const records = state.attendanceRecords.filter(r => r.studentId === st.id);
+      const records = analyticsRecords.filter(r => r.studentId === st.id);
       const p = records.filter(r => r.status === 'Present').length;
       const l = records.filter(r => r.status === 'Late').length;
       const a = records.filter(r => r.status === 'Absent').length;
@@ -726,7 +745,7 @@ export function AttendanceView() {
         records
       };
     });
-  }, [activeStudentsForAnalytics, state.attendanceRecords]);
+  }, [activeStudentsForAnalytics, analyticsRecords]);
 
   // At-Risk Roster (Rate < 75%, Min 3 sessions)
   const atRiskStudents = useMemo(() => {
@@ -767,9 +786,9 @@ export function AttendanceView() {
   const branchAnalytics = state.branches
     .filter(b => filterBranch === 'all' || b.id === filterBranch)
     .map(branch => {
-      const branchStudents = state.students.filter(s => s.homeBranchId === branch.id && s.studentStatus === 'Active');
+      const branchStudents = activeStudentsForAnalytics.filter(s => s.homeBranchId === branch.id);
       const branchStudentIds = new Set(branchStudents.map(s => s.id));
-      const records = state.attendanceRecords.filter(r => branchStudentIds.has(r.studentId));
+      const records = analyticsRecords.filter(r => branchStudentIds.has(r.studentId));
       const p = records.filter(r => r.status === 'Present').length;
       const l = records.filter(r => r.status === 'Late').length;
       const rate = records.length > 0 ? Math.round(((p + l) / records.length) * 100) : 0;
@@ -789,9 +808,9 @@ export function AttendanceView() {
       return matchBranch && matchClass;
     })
     .map(cls => {
-      const enrollments = state.classEnrollments.filter(e => e.classId === cls.id);
+      const enrollments = state.classEnrollments.filter(e => e.classId === cls.id && state.students.some(s => s.id === e.studentId && s.studentStatus === 'Active'));
       const enrolledIds = new Set(enrollments.map(e => e.studentId));
-      const records = state.attendanceRecords.filter(r => enrolledIds.has(r.studentId));
+      const records = state.attendanceRecords.filter(r => r.classId === cls.id && enrolledIds.has(r.studentId));
       const p = records.filter(r => r.status === 'Present').length;
       const l = records.filter(r => r.status === 'Late').length;
       const rate = records.length > 0 ? Math.round(((p + l) / records.length) * 100) : 0;
@@ -812,7 +831,7 @@ export function AttendanceView() {
       s.currentBelt.toLowerCase().includes(tier.toLowerCase())
     );
     const studentIds = new Set(studentsInBelt.map(s => s.id));
-    const records = state.attendanceRecords.filter(r => studentIds.has(r.studentId));
+    const records = analyticsRecords.filter(r => studentIds.has(r.studentId));
     const p = records.filter(r => r.status === 'Present').length;
     const l = records.filter(r => r.status === 'Late').length;
     const rate = records.length > 0 ? Math.round(((p + l) / records.length) * 100) : 0;
@@ -949,7 +968,7 @@ export function AttendanceView() {
                   <option key={b.id} value={b.id}>{b.name}</option>
                 ))}
               </select>
-              <select value={filterClass} onChange={(e) => {
+              <select aria-label="Attendance class" value={filterClass} onChange={(e) => {
                   setFilterClass(e.target.value === 'all' ? 'all' : Number(e.target.value));
                   setStatusFilter('all');
                 }}
@@ -976,7 +995,7 @@ export function AttendanceView() {
                     {t('nav_schedule')}: {selectedClassObj.daysOfWeek?.map(d => getLocalizedDayName(d)).join(', ') || getLocalizedDayName(selectedClassObj.dayOfWeek)} • {selectedClassObj.startTime} - {selectedClassObj.endTime}
                   </p>
                 </div>
-                
+
                 <div className="flex items-center gap-4 text-[10px] font-mono">
                   <div>
                     <span className="text-neutral-500 dark:text-[#888] block">{t('att_instructor')}</span>
@@ -1018,7 +1037,7 @@ export function AttendanceView() {
                     </p>
                   </div>
                 </div>
-                
+
                 <label className="flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-[#262626] hover:border-neutral-400 dark:hover:border-[#444] text-neutral-900 dark:text-white font-bold uppercase text-[9px] tracking-wider shrink-0 cursor-pointer select-none shadow-sm">
                   <input 
                     type="checkbox" 
@@ -1191,12 +1210,12 @@ export function AttendanceView() {
               </div>
             ) : (
               finalFilteredStudents.map(student => {
-                const record = state.attendanceRecords.find(r => r.studentId === student.id && r.date === selectedDate);
+                const record = selectedAttendance.get(student.id);
                 const currentStatus = record?.status;
-                
+
                 const enrollDate = getStudentEnrollDate(student);
                 const isNotYetEnrolled = enrollDate ? (selectedDate < enrollDate) : false;
-                
+
                 return (
                   <div 
                     key={student.id} 
@@ -1250,11 +1269,11 @@ export function AttendanceView() {
                         </p>
                       </div>
                     </div>
-                  
+
                   <div className="flex bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] w-full md:w-auto p-1 gap-1 shrink-0">
                     <button 
                       disabled={isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance}
-                      onClick={() => markAttendance(student.id, selectedDate, 'Present')}
+                      onClick={() => markAttendance(student.id, selectedDate, 'Present', filterClass === 'all' ? undefined : filterClass)}
                       className={cn(
                         "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-[42px] sm:min-h-[38px] rounded-[6px] text-[11px] sm:text-[10px] font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
                         isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance
@@ -1269,7 +1288,7 @@ export function AttendanceView() {
                     </button>
                     <button 
                       disabled={isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance}
-                      onClick={() => markAttendance(student.id, selectedDate, 'Late')}
+                      onClick={() => markAttendance(student.id, selectedDate, 'Late', filterClass === 'all' ? undefined : filterClass)}
                       className={cn(
                         "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-[42px] sm:min-h-[38px] rounded-[6px] text-[11px] sm:text-[10px] font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
                         isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance
@@ -1284,7 +1303,7 @@ export function AttendanceView() {
                     </button>
                     <button 
                       disabled={isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance}
-                      onClick={() => markAttendance(student.id, selectedDate, 'Absent')}
+                      onClick={() => markAttendance(student.id, selectedDate, 'Absent', filterClass === 'all' ? undefined : filterClass)}
                       className={cn(
                         "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-[42px] sm:min-h-[38px] rounded-[6px] text-[11px] sm:text-[10px] font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
                         isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance
@@ -1912,13 +1931,13 @@ export function AttendanceView() {
 
         const handleStatusChange = (r: any, newStatus: 'Present' | 'Late' | 'Absent') => {
           if (newStatus === r.status) return;
-          
+
           const oldLabel = r.status === 'Present' ? t('att_present') : r.status === 'Late' ? t('att_late') : t('att_absent');
           const newLabel = newStatus === 'Present' ? t('att_present') : newStatus === 'Late' ? t('att_late') : t('att_absent');
-          
+
           let title = 'Update Attendance';
           let message = `Are you sure you want to change ${statsStudent.englishName}'s status on ${r.date} from "${oldLabel}" to "${newLabel}"?`;
-          
+
           if (state.language === 'kh') {
             title = 'ធ្វើបច្ចុប្បន្នភាពវត្តមាន';
             message = `តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពវត្តមានរបស់ ${statsStudent.englishName} នៅថ្ងៃ ${r.date} ពី "${oldLabel}" ទៅ "${newLabel}" មែនទេ?`;
@@ -1930,7 +1949,7 @@ export function AttendanceView() {
           showConfirm(
             message,
             async () => {
-              await markAttendance(statsStudent.id, r.date, newStatus);
+              await markAttendance(statsStudent.id, r.date, newStatus, r.classId);
             },
             title,
             () => {
@@ -1970,7 +1989,7 @@ export function AttendanceView() {
           <Portal>
             <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
               <div className="fixed inset-0" onClick={() => setStatsStudentId(null)} />
-              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-lg bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] flex flex-col shadow-2xl overflow-hidden max-h-[90dvh] z-10">
+              <motion.div {...dialogMotion} className="relative w-full max-w-lg bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] flex flex-col shadow-2xl overflow-hidden max-h-[90dvh] z-10">
                  <div className="p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#0F0F0F]">
                <div className="flex items-center gap-3">
                  <SafeImage 
@@ -1988,7 +2007,7 @@ export function AttendanceView() {
                  <X className="w-4 h-4"/>
                </button>
              </div>
-             
+
              <div className="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-6 custom-scrollbar">
                <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
                  <div className="bg-white dark:bg-[#141414] border border-emerald-500/30 p-2.5 sm:p-4 rounded-[8px] text-center shadow-sm">
@@ -2090,7 +2109,7 @@ export function AttendanceView() {
                      </div>
                    </div>
                  </div>
-                 
+
                  {/* Smart Analyze Box */}
                  <div className="mt-6 p-4 rounded-[8px] bg-rose-500/10 border border-rose-500/20">
                    <p className="text-[10px] font-bold uppercase tracking-widest text-rose-700 dark:text-rose-400 mb-2">{t('att_smart_analysis')}</p>
@@ -2111,7 +2130,7 @@ export function AttendanceView() {
                    )}
                  </div>
                </div>
-               
+
                <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden shadow-sm">
                  <table className="w-full text-left">
                    <thead className="bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626] text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 tracking-widest">
@@ -2182,11 +2201,9 @@ export function AttendanceView() {
               onClick={() => setConfirmModal(null)}
               className="absolute inset-0 bg-black/85 backdrop-blur-md"
             />
-            
+
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              {...dialogMotion}
               className={cn(
                 "relative w-full max-w-md bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-6 text-center overflow-y-auto max-h-[90dvh] z-10 shadow-2xl",
                 confirmModal.actionType === 'Present' ? "border-emerald-500/30" : 
@@ -2277,9 +2294,7 @@ export function AttendanceView() {
         {isKioskOpen && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              {...dialogMotion}
               className="w-full max-w-lg max-h-[92dvh] bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl overflow-hidden flex flex-col text-neutral-900 dark:text-white"
             >
               <div className="p-4 bg-emerald-600 text-white flex items-center justify-between shadow-md shrink-0">
@@ -2332,7 +2347,7 @@ export function AttendanceView() {
                     }
 
                     try {
-                      await markAttendance(student.id, selectedDate, 'Present');
+                      await markAttendance(student.id, selectedDate, 'Present', filterClass === 'all' ? undefined : filterClass);
                       if (kioskSound) playBeep('success');
                       const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                       setKioskRecentScans(prev => [{ student, time: nowTime, status: 'Present' }, ...prev.slice(0, 3)]);
@@ -2378,7 +2393,7 @@ export function AttendanceView() {
                     <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono uppercase tracking-wider font-bold">
                       Recent Check-Ins ({kioskRecentScans.length})
                     </p>
-                    
+
                     {/* Latest primary scan card */}
                     {kioskRecentScans[0] && (
                       <div className="bg-emerald-500/10 border border-emerald-500/40 rounded-[8px] p-4 flex items-center gap-3.5 shadow-sm animate-in zoom-in-95 duration-200">

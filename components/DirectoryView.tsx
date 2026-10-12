@@ -1,16 +1,41 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
+import { academyDate } from '@/lib/dates';
+
 import React, { useState } from 'react';
-import { useAppStore, BeltHistory, getMembershipBillingStatus } from '@/lib/store';
+import { useAppStore, BeltHistory, Student, getMembershipBillingStatus } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
 import { HouseholdManagementModal } from './HouseholdManagementModal';
-import { 
-  MagnifyingGlass, ShieldCheck, Trophy, Checks, Calendar, GraduationCap, 
-  Trash, Clock, Info, CheckCircle, Warning, UserCircle, Plus, CaretRight,
-  PencilSimple, Globe, Copy, Check, House, ArrowsClockwise,
-  DownloadSimple, CaretLeft, Phone, Envelope, Funnel, X,
-  ArrowRight, FileCsv, Sparkle
-} from '@phosphor-icons/react';
+import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { Trophy } from '@phosphor-icons/react/dist/csr/Trophy';
+import { Checks } from '@phosphor-icons/react/dist/csr/Checks';
+import { Calendar } from '@phosphor-icons/react/dist/csr/Calendar';
+import { GraduationCap } from '@phosphor-icons/react/dist/csr/GraduationCap';
+import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
+import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
+import { Info } from '@phosphor-icons/react/dist/csr/Info';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { UserCircle } from '@phosphor-icons/react/dist/csr/UserCircle';
+import { Plus } from '@phosphor-icons/react/dist/csr/Plus';
+import { CaretRight } from '@phosphor-icons/react/dist/csr/CaretRight';
+import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { Globe } from '@phosphor-icons/react/dist/csr/Globe';
+import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { House } from '@phosphor-icons/react/dist/csr/House';
+import { ArrowsClockwise } from '@phosphor-icons/react/dist/csr/ArrowsClockwise';
+import { DownloadSimple } from '@phosphor-icons/react/dist/csr/DownloadSimple';
+import { CaretLeft } from '@phosphor-icons/react/dist/csr/CaretLeft';
+import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
+import { Envelope } from '@phosphor-icons/react/dist/csr/Envelope';
+import { Funnel } from '@phosphor-icons/react/dist/csr/Funnel';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { ArrowRight } from '@phosphor-icons/react/dist/csr/ArrowRight';
+import { FileCsv } from '@phosphor-icons/react/dist/csr/FileCsv';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
 import { cn, formatBelt, isBeltMatch, calculatePromotionReadiness, getBeltKey, DEFAULT_BELT_TECHNIQUES, BELT_REQUIREMENTS } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 
@@ -20,10 +45,9 @@ import { ManageStudentPanel } from './ManageStudentPanel';
 import { useT } from '@/hooks/useTranslation';
 import { SafeImage } from '@/components/SafeImage';
 import { Portal } from './Portal';
-import { supabase } from '@/lib/supabase';
 
 export function DirectoryView() {
-  const { state, updateStudent, reconcileAllStudentBelts, addBeltHistory, upsertPhysicalEvaluation, showNotification, showConfirm, can } = useAppStore();
+  const { state, updateStudent, reconcileAllStudentBelts, addBeltHistory, updateBeltHistory, deleteBeltHistory, upsertPhysicalEvaluation, showNotification, showConfirm, can } = useAppStore();
   const t = useT();
 
   // Quick Status Management Modal state
@@ -51,7 +75,7 @@ export function DirectoryView() {
   const [filterDivision, setFilterDivision] = useState<string | 'all'>('all');
   const [filterStatus, setFilterStatus] = useState<string | 'all'>('Active');
   const [showFilters, setShowFilters] = useState(false);
-  
+
   // Sorting states
   const [sortBy, setSortBy] = useState<'id' | 'name' | 'khmerName' | 'belt' | 'regDate'>('id');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -71,12 +95,12 @@ export function DirectoryView() {
     fixedTargetBelt: 'Yellow' as string,
     testScore: 80,
     program: 'Standard Class',
-    promotionDate: new Date().toISOString().split('T')[0],
+    promotionDate: academyDate(),
     certificateUrl: ''
   });
 
   const [copiedHistoryId, setCopiedHistoryId] = useState<number | null>(null);
-  
+
   // Edit Log States
   const [editingHistory, setEditingHistory] = useState<BeltHistory | null>(null);
   const [editHistoryForm, setEditHistoryForm] = useState({
@@ -107,10 +131,10 @@ export function DirectoryView() {
       kukkiwonDanCardId: h.kukkiwonDanCardId || ''
     });
   };
-  
+
   const handleSaveEditHistorySubmit = async () => {
     if (!editingHistory) return;
-    
+
     // Uniqueness validation on certificateRef
     if (editHistoryForm.certificateRef) {
       const normalizedRef = editHistoryForm.certificateRef.trim().toUpperCase();
@@ -125,35 +149,15 @@ export function DirectoryView() {
 
     setIsSavingEdit(true);
     try {
-      const { error } = await supabase.from('belt_histories').update({
-        belt_level: editHistoryForm.beltLevel,
-        promotion_date: editHistoryForm.promotionDate,
-        test_score: Number(editHistoryForm.testScore),
+      await updateBeltHistory(editingHistory.id, {
+        beltLevel: editHistoryForm.beltLevel,
+        promotionDate: editHistoryForm.promotionDate,
+        testScore: Number(editHistoryForm.testScore),
         program: editHistoryForm.program.trim(),
-        certificate_id: editHistoryForm.certificateRef.trim() || null,
-        kukkiwon_dan_card_id: editHistoryForm.kukkiwonDanCardId.trim() || null
-      }).eq('id', editingHistory.id);
+        certificateRef: editHistoryForm.certificateRef.trim(),
+        kukkiwonDanCardId: editHistoryForm.kukkiwonDanCardId.trim(),
+      });
 
-      if (error) throw error;
-
-      // Update local state
-      state.beltHistories = state.beltHistories.map(h => 
-        h.id === editingHistory.id 
-          ? { 
-              ...h, 
-              beltLevel: editHistoryForm.beltLevel,
-              promotionDate: editHistoryForm.promotionDate || new Date().toISOString().split('T')[0],
-              testScore: Number(editHistoryForm.testScore) || 80,
-              program: editHistoryForm.program.trim() || 'Standard Class',
-              certificateRef: editHistoryForm.certificateRef.trim() || undefined,
-              kukkiwonDanCardId: editHistoryForm.kukkiwonDanCardId.trim() || undefined
-            } 
-          : h
-      );
-
-      // Reconcile student belts to automatically heal current belts in profile and state!
-      await reconcileAllStudentBelts();
-      
       setStateRevision(prev => prev + 1);
       showNotification(t('dir_msg_log_updated'), 'success');
       setEditingHistory(null);
@@ -216,7 +220,7 @@ export function DirectoryView() {
     return currentBelt;
   };
 
-  const getStudentPromotionData = (student: typeof state.students[0]) => {
+  const getStudentPromotionData = React.useCallback((student: Student) => {
     return calculatePromotionReadiness(
       student,
       state.attendanceRecords,
@@ -226,7 +230,7 @@ export function DirectoryView() {
       state.physicalEvaluations,
       state.beltTechniques
     );
-  };
+  }, [state.attendanceRecords, state.videoProgress, state.curriculumVideos, state.beltHistories, state.physicalEvaluations, state.beltTechniques]);
 
   const handleOpenSinglePromote = (studentId: string) => {
     setSelectedStudentsForPromotion([studentId]);
@@ -239,14 +243,9 @@ export function DirectoryView() {
       async () => {
         setIsDeletingHistory(historyId);
         try {
-          const { error } = await supabase.from('belt_histories').delete().eq('id', historyId);
-          if (error) throw error;
-          
-          // Update local state by removing the history entry
-          state.beltHistories = state.beltHistories.filter(h => h.id !== historyId);
-          
-          // Call reconcileAllStudentBelts to auto-heal the student's active belt!
-          await reconcileAllStudentBelts();
+          const history=state.beltHistories.find(h=>h.id===historyId);
+          if(!history)throw new Error('Promotion record not found. Refresh the directory.');
+          await deleteBeltHistory(historyId,history.studentId);
           setStateRevision(prev => prev + 1);
           showNotification(t('dir_msg_promotion_voided'), 'success');
         } catch (e: any) {
@@ -260,9 +259,9 @@ export function DirectoryView() {
 
   const handleBulkPromoteSubmit = async () => {
     if (selectedStudentsForPromotion.length === 0) return;
-    
+
     let successCount = 0;
-    
+
     for (const studentId of selectedStudentsForPromotion) {
       const student = state.students.find(s => s.id === studentId);
       if (!student) continue;
@@ -273,10 +272,10 @@ export function DirectoryView() {
       }
 
       // Generate a collision-free certificate reference
-      const promotionDate = promotionForm.promotionDate || new Date().toISOString().split('T')[0];
+      const promotionDate = promotionForm.promotionDate || academyDate();
       const cleanDate = promotionDate.replace(/-/g, '');
       const cleanId = student.id.replace(/[^a-zA-Z0-9]/g, '');
-      const rand = Math.floor(100 + Math.random() * 900);
+      const rand = crypto.randomUUID().replace(/-/g,'');
       const certificateRef = `INF-${cleanDate}-${cleanId}-${rand}`;
 
       try {
@@ -310,7 +309,7 @@ export function DirectoryView() {
     const matchesGender = filterGender === 'all' || s.gender === filterGender;
     const matchesScholarship = filterScholarship === 'all' || s.scholarshipId === filterScholarship;
     const matchesStatus = filterStatus === 'all' || s.studentStatus === filterStatus;
-    
+
     let matchesClass = true;
     if (filterClass !== 'all') {
       matchesClass = state.classEnrollments.some(e => e.studentId === s.id && e.classId === filterClass);
@@ -321,7 +320,7 @@ export function DirectoryView() {
       const birthYear = new Date(s.dob).getFullYear();
       const currentYear = new Date().getFullYear();
       const age = currentYear - birthYear;
-      
+
       if (filterDivision === 'Kid') matchesDivision = age >= 6 && age <= 11;
       else if (filterDivision === 'Cadet') matchesDivision = age >= 12 && age <= 14;
       else if (filterDivision === 'Junior') matchesDivision = age >= 15 && age <= 17;
@@ -473,7 +472,7 @@ export function DirectoryView() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `infinitytkd-students-${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `infinitytkd-students-${academyDate()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -487,7 +486,7 @@ export function DirectoryView() {
       student: s,
       ...getStudentPromotionData(s)
     }));
-  }, [state.students, state.attendanceRecords, state.videoProgress, state.curriculumVideos, state.beltHistories, state.physicalEvaluations, state.beltTechniques, stateRevision]);
+  }, [state.students, getStudentPromotionData]);
 
   const totalColorBelts = state.students.filter(s => 
     ['White', 'Yellow', 'Green', 'Blue', 'Brown', 'Red'].includes(s.currentBelt)
@@ -536,11 +535,11 @@ export function DirectoryView() {
         student.englishName.toLowerCase().includes(q) ||
         student.id.toLowerCase().includes(q) ||
         (history.certificateRef && history.certificateRef.toLowerCase().includes(q));
-      
+
       const matchesBranch = filterBranchHistory === 'all' || student.homeBranchId === filterBranchHistory;
       const matchesBelt = filterBeltHistory === 'all' || history.beltLevel === filterBeltHistory;
       const matchesProgram = filterProgramHistory === 'all' || (history.program && history.program === filterProgramHistory) || (filterProgramHistory === 'Standard Class' && !history.program);
-      
+
       return matchesSearch && matchesBranch && matchesBelt && matchesProgram;
     }).sort((a, b) => {
       return new Date(b.promotionDate).getTime() - new Date(a.promotionDate).getTime();
@@ -588,7 +587,7 @@ export function DirectoryView() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `infinitytkd-promotion-history-${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `infinitytkd-promotion-history-${academyDate()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -629,7 +628,7 @@ export function DirectoryView() {
 
   return (
     <div className="bg-white dark:bg-[#141414] rounded-[8px] flex flex-col min-h-[calc(100dvh-8rem)] shadow-sm border border-neutral-200 dark:border-[#262626] relative overflow-hidden">
-      
+
       {/* Top Navigation Tabs */}
       <div className="bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626] flex px-3 sm:px-4 gap-3 sm:gap-6 shrink-0 z-20 overflow-x-auto no-scrollbar">
         <button 
@@ -768,7 +767,7 @@ export function DirectoryView() {
                 )}
               </div>
             </div>
-            
+
             {/* Quick Status Filter Segment Pills */}
             <div className="flex items-center gap-1.5 pt-0.5 overflow-x-auto no-scrollbar touch-pan-x -mx-3 px-3 sm:mx-0 sm:px-0 flex-nowrap sm:flex-wrap">
               {[
@@ -1186,7 +1185,7 @@ export function DirectoryView() {
 
                               {(() => {
                                 if (student.studentStatus !== 'Active') return null;
-                                const billing = getMembershipBillingStatus(student, state.payments, state.scholarships, state.classEnrollments);
+                                const billing = getMembershipBillingStatus(student, state.payments, state.scholarships, state.classEnrollments, state.academyProfile);
                                 if (billing.status === 'Current') return null;
                                 return (
                                   <span className={cn(
@@ -1254,7 +1253,7 @@ export function DirectoryView() {
                           </button>
                           {(() => {
                             if (student.studentStatus !== 'Active') return null;
-                            const billing = getMembershipBillingStatus(student, state.payments, state.scholarships, state.classEnrollments);
+                            const billing = getMembershipBillingStatus(student, state.payments, state.scholarships, state.classEnrollments, state.academyProfile);
                             if (billing.status === 'Current') return null;
                             return (
                               <span className={cn(
@@ -1411,7 +1410,7 @@ export function DirectoryView() {
         </>
       ) : (
         <div className="flex-grow overflow-y-auto bg-white dark:bg-[#0A0A0A] p-3.5 sm:p-6 space-y-4 sm:space-y-6 flex flex-col">
-          
+
           {/* Dashboard Sub-Tabs */}
           <div className="flex bg-neutral-100 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-1 shrink-0 z-20 shadow-inner">
             <button 
@@ -1471,7 +1470,7 @@ export function DirectoryView() {
                   const count = state.students.filter(s => s.currentBelt === belt).length;
                   const readyCount = studentsWithPromoData.filter(c => c.student.currentBelt === belt && c.eligibilityStatus === 'Ready').length;
                   const isSelected = selectedBeltPipelineFilter === belt;
-                  
+
                   const beltColorClass = 
                     belt === 'White' ? 'bg-white border border-neutral-300 dark:border-[#333]' :
                     belt === 'Yellow' ? 'bg-yellow-400' :
@@ -1480,7 +1479,7 @@ export function DirectoryView() {
                     belt === 'Brown' ? 'bg-amber-800' :
                     belt === 'Red' ? 'bg-red-500' :
                     'bg-neutral-900 border border-neutral-600 dark:border-[#444]'; // Dan/Poom
-                    
+
                   return (
                     <button 
                       key={belt}
@@ -2361,7 +2360,7 @@ export function DirectoryView() {
 
             return (
               <div className="flex flex-col md:flex-row gap-4 sm:gap-6 flex-1 overflow-hidden animate-in fade-in">
-                
+
                 {/* Left side student selector */}
                 <div className="w-full md:w-80 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 flex flex-col max-h-[190px] md:max-h-full transition-colors shadow-xs shrink-0">
                   <div className="mb-2 sm:mb-3">
@@ -2748,15 +2747,13 @@ export function DirectoryView() {
         {isBulkImporting && (
           <BulkImportStudentModal onClose={() => setIsBulkImporting(false)} />
         )}
-        
+
         {/* Bulk Promotion Modal */}
         {showPromotionModal && (
           <Portal>
             <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
+                {...dialogMotion}
                 className="w-full max-w-md bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl overflow-hidden flex flex-col text-neutral-900 dark:text-white max-h-[90dvh]"
               >
                 <div className="p-4 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0A0A0A] flex justify-between items-center">
@@ -2893,9 +2890,7 @@ export function DirectoryView() {
           <Portal>
             <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
+                {...dialogMotion}
                 className="w-full max-w-lg bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl overflow-hidden flex flex-col text-neutral-900 dark:text-white max-h-[90dvh]"
               >
                 <div className="p-4 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0A0A0A] flex justify-between items-center shrink-0">
@@ -2960,9 +2955,7 @@ export function DirectoryView() {
           <Portal>
             <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
+                {...dialogMotion}
                 className="w-full max-w-md bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl overflow-hidden flex flex-col text-neutral-900 dark:text-white max-h-[90dvh] animate-in zoom-in-95 duration-150"
               >
                 <div className="p-4 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0A0A0A] flex justify-between items-center">
@@ -3198,4 +3191,3 @@ export function DirectoryView() {
     </div>
   );
 }
-

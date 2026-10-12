@@ -11,7 +11,7 @@ const STAFF_ROLES = ['Root', 'Super Root', 'Admin', 'Head Coach', 'Coach'];
 
 const CancelOrderSchema = z.object({
   orderId: z.string().uuid('Invalid order UUID'),
-  reason: z.string().min(1, 'Cancellation reason is required').max(500),
+  reason: z.string().trim().min(3, 'Cancellation reason is required').max(500),
 });
 
 /**
@@ -26,7 +26,8 @@ export async function POST(req: Request) {
     const { data: body, errorResponse: valErr } = await validateRequestBody(CancelOrderSchema, req);
     if (valErr || !body) return valErr!;
 
-    const { data: result, error: rpcError } = await adminSupabase.rpc('cancel_or_refund_order', {
+    const { data: result, error: rpcError } = await adminSupabase.rpc('portal_cancel_order', {
+      p_actor: context.userId,
       p_order_id: body.orderId,
       p_reason: body.reason,
     });

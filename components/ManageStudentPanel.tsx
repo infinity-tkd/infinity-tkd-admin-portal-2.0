@@ -1,43 +1,44 @@
 'use client';
 
+import { academyDate } from '@/lib/dates';
+import { generatePassword } from '@/lib/passwords';
+
 import React, { useState, useEffect } from 'react';
 import { useAppStore, Student, getMembershipBillingStatus } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  X, 
-  User, 
-  Phone, 
-  Envelope, 
-  MapPin, 
-  Heart, 
-  ShieldWarning, 
-  GraduationCap, 
-  Trophy, 
-  Key, 
-  Calendar, 
-  IdentificationCard, 
-  Certificate,
-  Clock,
-  Globe,
-  GenderMale,
-  GenderFemale,
-  Check,
-  Plus,
-  Trash,
-  Pencil,
-  WarningCircle,
-  ArrowsOut,
-  ArrowsIn,
-  Coins,
-  Warning,
-  Lock,
-  Eye,
-  EyeClosed,
-  ShieldCheck,
-  Copy,
-  ArrowSquareOut,
-  FileText
-} from '@phosphor-icons/react';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { User } from '@phosphor-icons/react/dist/csr/User';
+import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
+import { Envelope } from '@phosphor-icons/react/dist/csr/Envelope';
+import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
+import { Heart } from '@phosphor-icons/react/dist/csr/Heart';
+import { ShieldWarning } from '@phosphor-icons/react/dist/csr/ShieldWarning';
+import { GraduationCap } from '@phosphor-icons/react/dist/csr/GraduationCap';
+import { Trophy } from '@phosphor-icons/react/dist/csr/Trophy';
+import { Key } from '@phosphor-icons/react/dist/csr/Key';
+import { Calendar } from '@phosphor-icons/react/dist/csr/Calendar';
+import { IdentificationCard } from '@phosphor-icons/react/dist/csr/IdentificationCard';
+import { Certificate } from '@phosphor-icons/react/dist/csr/Certificate';
+import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
+import { Globe } from '@phosphor-icons/react/dist/csr/Globe';
+import { GenderMale } from '@phosphor-icons/react/dist/csr/GenderMale';
+import { GenderFemale } from '@phosphor-icons/react/dist/csr/GenderFemale';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { Plus } from '@phosphor-icons/react/dist/csr/Plus';
+import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
+import { Pencil } from '@phosphor-icons/react/dist/csr/Pencil';
+import { WarningCircle } from '@phosphor-icons/react/dist/csr/WarningCircle';
+import { ArrowsOut } from '@phosphor-icons/react/dist/csr/ArrowsOut';
+import { ArrowsIn } from '@phosphor-icons/react/dist/csr/ArrowsIn';
+import { Coins } from '@phosphor-icons/react/dist/csr/Coins';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { Lock } from '@phosphor-icons/react/dist/csr/Lock';
+import { Eye } from '@phosphor-icons/react/dist/csr/Eye';
+import { EyeClosed } from '@phosphor-icons/react/dist/csr/EyeClosed';
+import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
+import { ArrowSquareOut } from '@phosphor-icons/react/dist/csr/ArrowSquareOut';
+import { FileText } from '@phosphor-icons/react/dist/csr/FileText';
 import { cn, formatBelt, formatBeltLocalized } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
 import { supabase } from '@/lib/supabase';
@@ -54,7 +55,7 @@ const Anatomical3DModel = dynamic(
 import { Biomechanical2DScanner } from './2d/Biomechanical2DScanner';
 
 export function ManageStudentPanel({ studentId, onClose }: { studentId: string, onClose: () => void }) {
-  const { state, updateStudent, deleteStudent, addBeltHistory, updateBeltHistory, deleteBeltHistory, addAchievement, deleteAchievement, updateAchievement, addUser, updateUser, showNotification, showConfirm, enrollStudent, unenrollStudent, addBodyComposition, payInvoice } = useAppStore();
+  const { state, updateStudent, deleteStudent, addBeltHistory, updateBeltHistory, deleteBeltHistory, saveAchievements, deleteAchievement, addUser, updateUser, showNotification, showConfirm, enrollStudent, unenrollStudent, addBodyComposition, payInvoice, can } = useAppStore();
   const t = useT();
   const student = state.students.find(s => s.id === studentId);
   const [isEditing, setIsEditing] = useState(false);
@@ -69,7 +70,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
   const [activeTab, setActiveTab] = useState<'profile' | 'belts' | 'skills' | 'biometrics'>('profile');
 
   const [biometricsForm, setBiometricsForm] = useState({
-    recordedDate: new Date().toISOString().split('T')[0],
+    recordedDate: academyDate(),
     heightCm: student?.heightCm ? String(student.heightCm) : '',
     weightKg: student?.weightKg ? String(student.weightKg) : '',
     bodyFatPercentage: '',
@@ -119,6 +120,8 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [showBeltModal, setShowBeltModal] = useState(false);
   const [showAchievementModal, setShowAchievementModal] = useState(false);
+  const achievementSaveInFlight = React.useRef(false);
+  const [isSavingAchievement, setIsSavingAchievement] = useState(false);
   
   // Bulk Modal spreadsheet states
   const [showBulkBeltModal, setShowBulkBeltModal] = useState(false);
@@ -134,7 +137,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
   const [showProvisionModal, setShowProvisionModal] = useState(false);
   const [provisionUsername, setProvisionUsername] = useState('');
   const [provisionEmail, setProvisionEmail] = useState('');
-  const [provisionPassword, setProvisionPassword] = useState('Student1234567!');
+  const [provisionPassword, setProvisionPassword] = useState('');
   const [showProvisionPasswordText, setShowProvisionPasswordText] = useState(true);
   const [isProvisioning, setIsProvisioning] = useState(false);
 
@@ -163,8 +166,8 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
   const [isSavingBulkAchv, setIsSavingBulkAchv] = useState(false);
 
   // Forms for new data
-  const [beltForm, setBeltForm] = useState({ beltLevel: 'Yellow', promotionDate: new Date().toISOString().split('T')[0], testScore: '', program: 'Standard Class', certificateRef: '', kukkiwonDanCardId: '' });
-  const [achvForm, setAchvForm] = useState({ eventName: '', date: new Date().toISOString().split('T')[0] });
+  const [beltForm, setBeltForm] = useState({ beltLevel: 'Yellow', promotionDate: academyDate(), testScore: '', program: 'Standard Class', certificateRef: '', kukkiwonDanCardId: '' });
+  const [achvForm, setAchvForm] = useState({ eventName: '', date: academyDate() });
   const [achvEvents, setAchvEvents] = useState<Array<{ id?: number; category: string; division: string; medalRank: string; notes: string; ageDivision: string; beltDivision: string }>>([
     { category: 'Recognized Poomsae', division: 'Male Division', medalRank: 'Gold', notes: '', ageDivision: 'No Age Requirement', beltDivision: 'No Belt Requirement' }
   ]);
@@ -208,7 +211,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
 
   const handleOpenBeltModal = () => {
     const defaultLevel = 'Yellow';
-    const defaultDate = new Date().toISOString().split('T')[0];
+    const defaultDate = academyDate();
     const generated = generateCertRef(defaultLevel, defaultDate);
     setBeltForm({
       beltLevel: defaultLevel,
@@ -237,12 +240,11 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
     setShowBeltModal(true);
   };
 
-  const role = state.currentUser?.role;
-  const canEdit = role === 'Root' || role === 'Super Root' || role === 'Admin';
+  const canEdit = can('action:student_edit');
 
   const handleSaveStudentPassword = async (targetUserId: string) => {
-    if (!newPassword || newPassword.length < 6) {
-      showNotification('Password must be at least 6 characters long.', 'warning');
+    if (!newPassword || newPassword.length < 12) {
+      showNotification('Password must be at least 12 characters long.', 'warning');
       return;
     }
     setIsUpdatingPassword(true);
@@ -265,8 +267,8 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
       showNotification('Portal username is required.', 'warning');
       return;
     }
-    if (!provisionPassword || provisionPassword.length < 6) {
-      showNotification('Initial password must be at least 6 characters long.', 'warning');
+    if (!provisionPassword || provisionPassword.length < 12) {
+      showNotification('Initial password must be at least 12 characters long.', 'warning');
       return;
     }
     const cleanEmail = provisionEmail.trim() || `${student.id.toLowerCase().replace(/[^a-z0-9]/g, '')}@portal.infinitytkd.com`;
@@ -357,6 +359,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
     }
   }, [studentId, student, isEditing, state.classEnrollments]);
 
+  const [isDeleting, setIsDeleting] = useState(false);
   if (!student) return null;
 
   const beltHistory = state.beltHistories.filter(b => b.studentId === student.id).sort((a,b) => new Date(b.promotionDate).getTime() - new Date(a.promotionDate).getTime());
@@ -556,18 +559,6 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
     try {
       await updateStudent(student.id, editForm);
       
-      const primaryEnroll = state.classEnrollments.find(e => e.studentId === student.id);
-      if (primaryEnroll && editForm.classEnrollmentDate && editForm.classEnrollmentDate !== primaryEnroll.enrollmentDate?.split('T')[0]) {
-        const { error } = await supabase.from('class_enrollments').update({
-          enrollment_date: editForm.classEnrollmentDate
-        }).eq('id', primaryEnroll.id);
-        if (error) {
-          console.error("Failed to update class enrollment date:", error.message);
-          showNotification(t('dir_err_update_failed').replace('{error}', error.message), 'error');
-          return;
-        }
-      }
-
       showNotification('Student profile updated successfully!', 'success');
       setIsEditing(false);
       setShowSaveConfirm(false);
@@ -579,7 +570,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
     }
   };
 
-  const [isDeleting, setIsDeleting] = useState(false);
+
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -671,7 +662,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
   };
 
   // Spreadsheet initializers and event handlers
-  const initBulkBeltRow = (level = 'Yellow', dateStr = new Date().toISOString().split('T')[0]): BulkBeltRow => {
+  const initBulkBeltRow = (level = 'Yellow', dateStr = academyDate()): BulkBeltRow => {
     return {
       beltLevel: level,
       promotionDate: dateStr,
@@ -689,7 +680,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
       category: 'Recognized Poomsae',
       division: student?.gender === 'Female' ? 'Female Division' : 'Male Division',
       medalRank: 'Gold',
-      date: new Date().toISOString().split('T')[0],
+      date: academyDate(),
       notes: ''
     };
   };
@@ -812,114 +803,50 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
   };
 
   const handleSaveBulkAchvs = async () => {
-    const validRows = bulkAchvs.filter(r => r.eventName.trim() !== '' && r.date);
-    if (validRows.length === 0) {
-      showNotification("Please add at least one tournament achievement with an event name.", "warning");
-      return;
-    }
-    
+    if (achievementSaveInFlight.current) return;
+    const validRows = bulkAchvs.filter(row => row.eventName.trim() !== '' && row.date);
+    if (!validRows.length) { showNotification('Add at least one achievement with an event name and date.', 'warning'); return; }
+    achievementSaveInFlight.current = true;
     setIsSavingBulkAchv(true);
     try {
-      await Promise.all(validRows.map(row => 
-        addAchievement({
-          studentId: student.id,
-          eventName: row.eventName,
-          category: row.category,
-          division: row.division,
-          medalRank: row.medalRank,
-          date: row.date,
-          notes: row.notes || undefined
-        })
-      ));
+      await saveAchievements(student.id, validRows.map(row => ({
+        eventName: row.eventName, category: row.category, division: row.division,
+        medalRank: row.medalRank === 'Participant' ? 'Participation' : row.medalRank, date: row.date, notes: row.notes || undefined,
+      })));
       setShowBulkAchvModal(false);
-    } catch (e: any) {
-      console.error("Bulk achievements save failed:", e);
-      showNotification("Failed to save some tournament achievements. Please try again.", "error");
-    } finally {
-      setIsSavingBulkAchv(false);
-    }
+    } catch (error) {
+      showNotification(error instanceof Error ? error.message : 'Tournament achievements were not saved.', 'error');
+    } finally { achievementSaveInFlight.current = false; setIsSavingBulkAchv(false); }
   };
 
-
   const handleAddAchievement = async () => {
-    if (!achvForm.eventName || achvEvents.length === 0) return;
-    
+    if (achievementSaveInFlight.current || !achvForm.eventName.trim() || !achvEvents.length) return;
+    achievementSaveInFlight.current = true;
+    setIsSavingAchievement(true);
     try {
-      if (editingAchievementId !== null) {
-        // Edit mode (multi-event update/insert/delete)
-        // 1. Process deletes
-        if (deletedAchvIds.length > 0) {
-          await Promise.all(deletedAchvIds.map(id => deleteAchievement(id)));
-        }
-
-        // 2. Process updates and new additions
-        await Promise.all(achvEvents.map(event => {
-          if (event.id) {
-            // Update existing achievement
-            return updateAchievement(event.id, {
-              eventName: achvForm.eventName,
-              date: achvForm.date,
-              category: event.category,
-              division: event.division,
-              medalRank: event.medalRank === 'Participant' ? 'Participation' : event.medalRank,
-              notes: event.notes,
-              ageDivision: event.ageDivision,
-              beltDivision: event.beltDivision
-            });
-          } else {
-            // Insert new achievement
-            return addAchievement({
-              studentId: student.id,
-              eventName: achvForm.eventName,
-              date: achvForm.date,
-              category: event.category,
-              division: event.division,
-              medalRank: event.medalRank === 'Participant' ? 'Participation' : event.medalRank,
-              notes: event.notes,
-              ageDivision: event.ageDivision,
-              beltDivision: event.beltDivision
-            });
-          }
-        }));
-      } else {
-        // Add mode (bulk inserts)
-        await Promise.all(achvEvents.map(event => 
-          addAchievement({
-            studentId: student.id,
-            eventName: achvForm.eventName,
-            date: achvForm.date,
-            category: event.category,
-            division: event.division,
-            medalRank: event.medalRank === 'Participant' ? 'Participation' : event.medalRank,
-            notes: event.notes,
-            ageDivision: event.ageDivision,
-            beltDivision: event.beltDivision
-          })
-        ));
-      }
-      
-      // Reset form
-      setAchvForm({
-        eventName: '',
-        date: new Date().toISOString().split('T')[0]
-      });
-      setAchvEvents([
-        { category: 'Recognized Poomsae', division: 'Male Division', medalRank: 'Gold', notes: '', ageDivision: 'No Age Requirement', beltDivision: 'No Belt Requirement' }
-      ]);
+      await saveAchievements(student.id, achvEvents.map(event => ({
+        ...(event.id ? { id: event.id } : {}), eventName: achvForm.eventName, date: achvForm.date,
+        category: event.category, division: event.division,
+        medalRank: event.medalRank === 'Participant' ? 'Participation' : event.medalRank,
+        notes: event.notes, ageDivision: event.ageDivision, beltDivision: event.beltDivision,
+      })), editingAchievementId !== null ? deletedAchvIds : []);
+      setAchvForm({ eventName: '', date: academyDate() });
+      setAchvEvents([{ category: 'Recognized Poomsae', division: 'Male Division', medalRank: 'Gold', notes: '', ageDivision: 'No Age Requirement', beltDivision: 'No Belt Requirement' }]);
       setEditingAchievementId(null);
       setDeletedAchvIds([]);
       setShowAchievementModal(false);
-    } catch (e) {
-      console.error("Failed to save achievements:", e);
-    }
+    } catch (error) {
+      showNotification(error instanceof Error ? error.message : 'Tournament achievements were not saved.', 'error');
+    } finally { achievementSaveInFlight.current = false; setIsSavingAchievement(false); }
   };
 
   const handleCloseAchievementModal = () => {
+    if (achievementSaveInFlight.current) return;
     setEditingAchievementId(null);
     setDeletedAchvIds([]);
     setAchvForm({
       eventName: '',
-      date: new Date().toISOString().split('T')[0]
+      date: academyDate()
     });
     setAchvEvents([
       { category: 'Recognized Poomsae', division: 'Male Division', medalRank: 'Gold', notes: '', ageDivision: 'No Age Requirement', beltDivision: 'No Belt Requirement' }
@@ -936,7 +863,6 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
         initial={isMobile ? { y: '100%' } : { x: '100%' }} 
         animate={isMobile ? { y: 0 } : { x: 0 }} 
         exit={isMobile ? { y: '100%' } : { x: '100%' }} 
-        transition={{ type: 'spring', damping: 25, stiffness: 200 }} 
         className={cn(
           "fixed inset-x-0 bottom-0 top-[10vh] rounded-t-[8px] md:inset-x-auto md:top-0 md:inset-y-0 md:right-0 w-full bg-white dark:bg-[#0A0A0A] border-t md:border-t-0 md:border-l border-neutral-200 dark:border-[#262626] z-50 flex flex-col shadow-2xl md:rounded-none overflow-hidden text-neutral-900 dark:text-white transition-all duration-355 ease-in-out",
           (activeTab === 'biometrics' || isExpanded)
@@ -1060,7 +986,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
 
         {(() => {
           if (!student) return null;
-          const billing = getMembershipBillingStatus(student, state.payments, state.scholarships, state.classEnrollments);
+          const billing = getMembershipBillingStatus(student, state.payments, state.scholarships, state.classEnrollments, state.academyProfile);
           if (billing.status === 'Current') return null;
           
           return (
@@ -2178,7 +2104,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
 
                           <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
                             {state.classSessions.filter(c => c.branchId === student.homeBranchId).length === 0 ? (
-                              <p className="text-xs text-neutral-400 italic text-center py-4">No class sessions scheduled for this student's branch.</p>
+                              <p className="text-xs text-neutral-400 italic text-center py-4">No class sessions scheduled for this student&apos;s branch.</p>
                             ) : (
                               state.classSessions.filter(c => c.branchId === student.homeBranchId).map(c => {
                                 const isEnrolled = state.classEnrollments.some(e => e.studentId === student.id && e.classId === c.id);
@@ -2419,7 +2345,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                                   onClick={() => {
                                     setProvisionUsername(student.id.toLowerCase().replace(/-/g, '_'));
                                     setProvisionEmail(student.email || `${student.id.toLowerCase().replace(/[^a-z0-9]/g, '')}@portal.infinitytkd.com`);
-                                    setProvisionPassword('Student1234567!');
+                                    setProvisionPassword(generatePassword());
                                     setShowProvisionModal(true);
                                   }}
                                   className="px-4 py-2 bg-[#EF2F38] hover:bg-[#EF2F38]/90 text-white text-[10px] font-bold uppercase tracking-wider rounded-[8px] transition-all shadow-md shadow-[#EF2F38]/20 inline-flex items-center gap-2 cursor-pointer"
@@ -3026,7 +2952,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
 
                     {/* SECTION 3: Torso Girths */}
                     <div className="border-t border-neutral-100 dark:border-[#262626] pt-4">
-                      <h4 className="text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] font-mono tracking-wider mb-2">// Torso Circumferences</h4>
+                      <h4 className="text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] font-mono tracking-wider mb-2">{"// Torso Circumferences"}</h4>
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                         <div>
                           <label className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_neck')}</label>
@@ -3088,7 +3014,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
 
                     {/* SECTION 4: Limbs Girths */}
                     <div className="border-t border-neutral-100 dark:border-[#262626] pt-4">
-                      <h4 className="text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] font-mono tracking-wider mb-2">// Limbs Circumferences</h4>
+                      <h4 className="text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] font-mono tracking-wider mb-2">{"// Limbs Circumferences"}</h4>
                       <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
                         <div>
                           <label className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_left_arm')}</label>
@@ -3269,7 +3195,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                 <div className="flex justify-between items-center border-b border-neutral-200 dark:border-[#262626] pb-4 mb-6 relative z-10">
                   <div>
                     <span className="text-[10px] font-mono text-red-500 uppercase tracking-widest block mb-1">
-                      Diagnostic Scanner // Athlete Development Profile
+                      Diagnostic Scanner {"// Athlete Development Profile"}
                     </span>
                     <h2 className="text-xl font-bold uppercase tracking-wider flex items-center gap-3">
                       <span>{student.englishName}</span>
@@ -3473,7 +3399,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                     </div>
 
                     <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-500/20 p-4 rounded-[8px] text-xs flex flex-col gap-2 font-sans mt-auto">
-                      <span className="text-red-600 dark:text-red-400 font-bold uppercase tracking-widest font-mono text-[9px]">// Diagnostic Analytics Summary</span>
+                      <span className="text-red-600 dark:text-red-400 font-bold uppercase tracking-widest font-mono text-[9px]">{"// Diagnostic Analytics Summary"}</span>
                       <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed text-[11px]">
                         {Object.keys(muscleLoads).length > 0 
                           ? `System registers active load checks in ${Object.keys(muscleLoads).length} muscular sectors. Sync with curriculum checks regularly to monitor student development.`
@@ -3652,18 +3578,18 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
          {showAchievementModal && (
             <Portal>
               <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-                <div className="w-full max-w-3xl bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col overflow-hidden text-neutral-900 dark:text-white max-h-[90dvh]">
+                <div role="dialog" aria-modal="true" aria-label="Tournament achievements" className="w-full max-w-3xl bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col overflow-hidden text-neutral-900 dark:text-white max-h-[90dvh]">
                    <div className="p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#0F0F0F] shrink-0">
                       <h2 className="text-sm font-bold uppercase tracking-widest">
                          {editingAchievementId !== null ? "Edit Tournament Achievement" : t('panel_log_tournament_achievement')}
                       </h2>
-                      <button onClick={handleCloseAchievementModal} className="p-1 text-neutral-400 hover:text-neutral-950 dark:hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+                      <button disabled={isSavingAchievement} onClick={handleCloseAchievementModal} className="p-1 text-neutral-400 hover:text-neutral-950 dark:hover:text-white transition-colors"><X className="w-5 h-5" /></button>
                    </div>
-                   <div className="p-6 overflow-y-auto space-y-6">
+                   <fieldset disabled={isSavingAchievement} className="p-6 overflow-y-auto space-y-6 min-w-0">
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                        <div>
                          <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-500 mb-1">{t('panel_event_name')} *</label>
-                         <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-neutral-700" 
+                         <input aria-label="Achievement event name" disabled={isSavingAchievement} type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-neutral-700" 
                             value={achvForm.eventName} onChange={e => setAchvForm({...achvForm, eventName: e.target.value})} placeholder="e.g. Korean Ambassador's Cup" />
                        </div>
                        <div>
@@ -3836,11 +3762,11 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                          ))}
                        </div>
                      </div>
-                   </div>
+                   </fieldset>
 
                    <div className="p-4 border-t border-neutral-200 dark:border-[#262626] flex justify-end gap-2 text-xs bg-neutral-50 dark:bg-[#0F0F0F] shrink-0">
-                     <button onClick={handleCloseAchievementModal} className="px-4 py-2 min-h-[44px] text-neutral-500 hover:text-neutral-950 dark:hover:text-white font-bold uppercase tracking-widest active:scale-95 touch-manipulation flex items-center justify-center">{t('act_cancel')}</button>
-                     <button onClick={handleAddAchievement} className="px-5 py-2 min-h-[44px] bg-[#EF2F38] hover:opacity-90 text-white rounded-[8px] font-bold uppercase tracking-widest shadow-md shadow-[#EF2F38]/20 active:scale-95 touch-manipulation flex items-center justify-center">{editingAchievementId !== null ? t('act_save') : t('panel_add_achv_btn')}</button>
+                     <button disabled={isSavingAchievement} onClick={handleCloseAchievementModal} className="px-4 py-2 min-h-[44px] text-neutral-500 hover:text-neutral-950 dark:hover:text-white font-bold uppercase tracking-widest active:scale-95 touch-manipulation flex items-center justify-center">{t('act_cancel')}</button>
+                     <button disabled={isSavingAchievement} onClick={handleAddAchievement} className="px-5 py-2 min-h-[44px] bg-[#EF2F38] hover:opacity-90 text-white rounded-[8px] font-bold uppercase tracking-widest shadow-md shadow-[#EF2F38]/20 active:scale-95 touch-manipulation flex items-center justify-center">{isSavingAchievement ? 'Saving…' : editingAchievementId !== null ? t('act_save') : t('panel_add_achv_btn')}</button>
                    </div>
                 </div>
               </div>
@@ -4381,7 +4307,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                             type={showPasswordText ? "text" : "password"} 
                             value={newPassword}
                             onChange={e => setNewPassword(e.target.value)}
-                            placeholder="Min 6 characters (e.g. Student1234!)"
+                            placeholder="At least 12 characters"
                             className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#333] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38] transition-colors pr-10"
                             autoFocus
                           />
@@ -4510,7 +4436,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                             type={showProvisionPasswordText ? "text" : "password"} 
                             value={provisionPassword}
                             onChange={e => setProvisionPassword(e.target.value)}
-                            placeholder="Min 6 characters"
+                            placeholder="At least 12 characters"
                             className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#333] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38] transition-colors pr-10"
                           />
                           <button

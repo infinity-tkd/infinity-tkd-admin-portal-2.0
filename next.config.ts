@@ -3,15 +3,18 @@ if (process.env.NODE_ENV !== 'production' && process.env.ALLOW_INSECURE_TLS === 
 }
 import type { NextConfig } from 'next';
 import path from 'path';
+import { InjectManifest } from '@serwist/webpack-plugin';
 
 const nextConfig: NextConfig = {
+  // Keep development output separate from production release verification.
+  distDir: process.env.NODE_ENV === 'development' ? '.next-dev' : '.next',
   outputFileTracingRoot: path.resolve(__dirname),
   reactStrictMode: true,
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   devIndicators: false,
   images: {
@@ -39,7 +42,9 @@ const nextConfig: NextConfig = {
   compress: true,
   transpilePackages: ['motion'],
   experimental: {
-    optimizePackageImports: ['@phosphor-icons/react', 'lucide-react'],
+    webpackMemoryOptimizations: true,
+    preloadEntriesOnStart: false,
+    optimizePackageImports: ['@phosphor-icons/react', 'lucide-react', '@react-three/drei'],
   },
   async headers() {
     return [
@@ -90,17 +95,13 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
+            value: 'camera=(self), microphone=(), geolocation=()',
           },
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=63072000; includeSubDomains; preload',
           },
-          {
-            key: 'Content-Security-Policy',
-            value:
-              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://picsum.photos https://*.supabase.co https://*.supabase.com https://lh3.googleusercontent.com https://drive.google.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.supabase.com wss://*.supabase.com https: wss:; object-src 'none'; frame-ancestors 'none';",
-          },
+
           {
             key: 'Cross-Origin-Opener-Policy',
             value: 'same-origin-allow-popups',
@@ -114,10 +115,9 @@ const nextConfig: NextConfig = {
     ];
   },
   webpack: (config, { isServer, dev }) => {
-    // Only attach Serwist service worker compiler when PWA compilation flag is explicitly set
-    if (!isServer && process.env.BUILD_PWA_SW === 'true') {
+    // Generate a release-matched service worker for every production build.
+    if (!isServer && !dev) {
       try {
-        const { InjectManifest } = require('@serwist/webpack-plugin');
         config.plugins.push(
           new InjectManifest({
             swSrc: path.resolve(__dirname, 'sw.ts'),
@@ -137,7 +137,7 @@ const nextConfig: NextConfig = {
           })
         );
       } catch (err) {
-        console.warn('[PWA] InjectManifest plugin error:', err);
+        throw err;
       }
     }
     return config;

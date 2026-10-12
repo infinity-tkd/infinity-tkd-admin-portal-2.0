@@ -1,14 +1,39 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
+import { academyDate } from '@/lib/dates';
+
 import React, { useState } from 'react';
 import { useAppStore, User, Role, StaffDanRecord } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  X, UserCircle, Lock, Key, ShieldCheck, Eye, EyeClosed, Phone, EnvelopeSimple, 
-  Copy, Check, MapPin, CalendarBlank, WarningCircle, Trash, ChalkboardTeacher, Heartbeat,
-  Medal, Certificate, CalendarCheck, ClockAfternoon, CheckCircle, Warning, Plus, TrashSimple,
-  PencilSimple, ArrowSquareOut, Sparkle
-} from '@phosphor-icons/react';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { UserCircle } from '@phosphor-icons/react/dist/csr/UserCircle';
+import { Lock } from '@phosphor-icons/react/dist/csr/Lock';
+import { Key } from '@phosphor-icons/react/dist/csr/Key';
+import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { Eye } from '@phosphor-icons/react/dist/csr/Eye';
+import { EyeClosed } from '@phosphor-icons/react/dist/csr/EyeClosed';
+import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
+import { EnvelopeSimple } from '@phosphor-icons/react/dist/csr/EnvelopeSimple';
+import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
+import { CalendarBlank } from '@phosphor-icons/react/dist/csr/CalendarBlank';
+import { WarningCircle } from '@phosphor-icons/react/dist/csr/WarningCircle';
+import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
+import { ChalkboardTeacher } from '@phosphor-icons/react/dist/csr/ChalkboardTeacher';
+import { Heartbeat } from '@phosphor-icons/react/dist/csr/Heartbeat';
+import { Medal } from '@phosphor-icons/react/dist/csr/Medal';
+import { Certificate } from '@phosphor-icons/react/dist/csr/Certificate';
+import { CalendarCheck } from '@phosphor-icons/react/dist/csr/CalendarCheck';
+import { ClockAfternoon } from '@phosphor-icons/react/dist/csr/ClockAfternoon';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { Plus } from '@phosphor-icons/react/dist/csr/Plus';
+import { TrashSimple } from '@phosphor-icons/react/dist/csr/TrashSimple';
+import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { ArrowSquareOut } from '@phosphor-icons/react/dist/csr/ArrowSquareOut';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
 import { cn, sanitizeStringInput, isValidEmail, isValidPhone, isValidDate } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
 import { SafeImage } from '@/components/SafeImage';
@@ -62,7 +87,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
   const [editingDanRecord, setEditingDanRecord] = useState<StaffDanRecord | null>(null);
   const [danModalForm, setDanModalForm] = useState({
     danLevel: 1,
-    issueDate: new Date().toISOString().split('T')[0],
+    issueDate: academyDate(),
     certificateNo: '',
     certificateUrl: '',
     examinerName: '',
@@ -206,7 +231,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
     setEditingDanRecord(null);
     setDanModalForm({
       danLevel: nextDan,
-      issueDate: new Date().toISOString().split('T')[0],
+      issueDate: academyDate(),
       certificateNo: editForm.kukkiwonId || '',
       certificateUrl: editForm.danCertificateUrl || '',
       examinerName: '',
@@ -327,7 +352,6 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
           initial={{ x: '100%' }}
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
-          transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
           className="relative w-full sm:w-[560px] max-w-full bg-white dark:bg-[#0F0F0F] border-l border-neutral-200 dark:border-[#262626] h-full flex flex-col shadow-2xl z-10 text-neutral-900 dark:text-white"
         >
           {/* Header Strip */}
@@ -384,7 +408,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-1 shrink-0">
               {canEdit && (
                 <button 
@@ -736,9 +760,9 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         </div>
                         <div className="w-full bg-neutral-200 dark:bg-[#2E2E2E] h-2.5 rounded-full overflow-hidden shadow-inner">
                           <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${eligibility.progressPercent}%` }}
-                            transition={{ duration: 0.6, ease: 'easeOut' }}
+                            initial={false}
+                            animate={{ scaleX: Math.min(1, Math.max(0, eligibility.progressPercent / 100)) }}
+                            style={{ transformOrigin: 'left', width: '100%' }}
                             className={cn(
                               "h-full rounded-full transition-all",
                               eligibility.status === 'ELIGIBLE' 
@@ -1227,7 +1251,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   </>
                 )}
               </button>
-              
+
               <div className="flex items-center gap-2">
                 <button 
                   type="button"
@@ -1267,9 +1291,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
           <Portal>
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4 animate-in fade-in">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }} 
-                animate={{ opacity: 1, scale: 1 }} 
-                exit={{ opacity: 0, scale: 0.95 }}
+                {...dialogMotion}
                 className="w-full max-w-sm bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-6 text-center shadow-2xl flex flex-col items-center text-neutral-900 dark:text-white"
               >
                 <div className="w-12 h-12 rounded-full bg-[#EF2F38]/10 flex items-center justify-center text-[#EF2F38] mb-4">

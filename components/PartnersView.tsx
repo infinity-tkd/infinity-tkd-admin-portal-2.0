@@ -1,37 +1,38 @@
 'use client';
 
+import { dialogMotion } from '@/lib/motion';
+import { academyDate } from '@/lib/dates';
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { useAppStore, Partner, PartnerType, PartnerStatus } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Handshake, 
-  MagnifyingGlass, 
-  Plus, 
-  X, 
-  PencilSimple, 
-  Trash, 
-  Phone, 
-  Envelope, 
-  PaperPlaneTilt, 
-  Globe, 
-  FileText, 
-  Copy, 
-  Check, 
-  DownloadSimple, 
-  Buildings, 
-  User, 
-  Calendar, 
-  Clock, 
-  ShieldCheck, 
-  Warning, 
-  Sparkle, 
-  ArrowSquareOut,
-  ListDashes,
-  SquaresFour,
-  Funnel,
-  Tag,
-  ArrowsClockwise
-} from '@phosphor-icons/react';
+import { Handshake } from '@phosphor-icons/react/dist/csr/Handshake';
+import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { Plus } from '@phosphor-icons/react/dist/csr/Plus';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
+import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
+import { Envelope } from '@phosphor-icons/react/dist/csr/Envelope';
+import { PaperPlaneTilt } from '@phosphor-icons/react/dist/csr/PaperPlaneTilt';
+import { Globe } from '@phosphor-icons/react/dist/csr/Globe';
+import { FileText } from '@phosphor-icons/react/dist/csr/FileText';
+import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { DownloadSimple } from '@phosphor-icons/react/dist/csr/DownloadSimple';
+import { Buildings } from '@phosphor-icons/react/dist/csr/Buildings';
+import { User } from '@phosphor-icons/react/dist/csr/User';
+import { Calendar } from '@phosphor-icons/react/dist/csr/Calendar';
+import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
+import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { ArrowSquareOut } from '@phosphor-icons/react/dist/csr/ArrowSquareOut';
+import { ListDashes } from '@phosphor-icons/react/dist/csr/ListDashes';
+import { SquaresFour } from '@phosphor-icons/react/dist/csr/SquaresFour';
+import { Funnel } from '@phosphor-icons/react/dist/csr/Funnel';
+import { Tag } from '@phosphor-icons/react/dist/csr/Tag';
+import { ArrowsClockwise } from '@phosphor-icons/react/dist/csr/ArrowsClockwise';
 import { cn } from '@/lib/utils';
 import { Portal } from './Portal';
 import { SafeImage } from './SafeImage';
@@ -69,11 +70,18 @@ export function PartnersView() {
   const [selectedCountry, setSelectedCountry] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [activeKpiFilter, setActiveKpiFilter] = useState<'all' | 'mou' | 'sponsor' | 'expiring' | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchPartners();
-  }, []);
+    let active = true;
+    setIsRefreshing(true);
+    fetchPartners()
+      .then(() => { if (active) setLoadError(null); })
+      .catch((error: unknown) => { if (active) setLoadError(error instanceof Error ? error.message : 'Partners could not be loaded. Please retry.'); })
+      .finally(() => { if (active) setIsRefreshing(false); });
+    return () => { active = false; };
+  }, [fetchPartners]);
 
   // Modal States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -117,14 +125,19 @@ export function PartnersView() {
   const [tagInput, setTagInput] = useState('');
 
   // Permissions
-  const canManage = can('action:partner_create') || can('action:partner_edit') || state.currentUser?.role === 'Root' || state.currentUser?.role === 'Admin';
-  const canDelete = can('action:partner_delete') || state.currentUser?.role === 'Root' || state.currentUser?.role === 'Admin';
+  const canCreate = can('action:partner_create');
+  const canEdit = can('action:partner_edit');
+  const canDelete = can('action:partner_delete');
 
-  const copyToClipboard = (text: string, identifier: string, e?: React.MouseEvent) => {
+  const copyToClipboard = async (text: string, identifier: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    navigator.clipboard.writeText(text);
-    setCopiedId(identifier);
-    setTimeout(() => setCopiedId(null), 1800);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(identifier);
+      setTimeout(() => setCopiedId(null), 1800);
+    } catch {
+      showNotification('Copying is unavailable in this browser. Please select and copy the contact manually.', 'warning');
+    }
   };
 
   // Filtered Partners
@@ -315,7 +328,8 @@ export function PartnersView() {
     ];
 
     const escapeCsv = (val: any) => {
-      const str = String(val ?? '').replace(/"/g, '""');
+      const raw = String(val ?? '');
+      const str = (/^[\s]*[=+\-@\t\r]/.test(raw) ? "'" + raw : raw).replace(/"/g, '""');
       return `"${str}"`;
     };
 
@@ -342,7 +356,7 @@ export function PartnersView() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `infinitytkd-partners-${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `infinitytkd-partners-${academyDate()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -354,7 +368,9 @@ export function PartnersView() {
     setIsRefreshing(true);
     try {
       await fetchPartners();
-      showNotification('Partner directory synchronized.', 'info');
+      setLoadError(null);
+    } catch (error: unknown) {
+      setLoadError(error instanceof Error ? error.message : 'Partners could not be loaded. Please retry.');
     } finally {
       setIsRefreshing(false);
     }
@@ -441,13 +457,14 @@ export function PartnersView() {
             <button
               type="button"
               onClick={handleExportCsv}
+              disabled={isRefreshing || Boolean(loadError && state.partners.length === 0)}
               className="flex-1 sm:flex-none min-h-[42px] px-3.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation transition-all"
             >
               <DownloadSimple className="w-4 h-4" weight="bold" />
               <span>Export CSV</span>
             </button>
 
-            {canManage && (
+            {canCreate && (
               <button
                 type="button"
                 onClick={handleOpenAdd}
@@ -459,6 +476,17 @@ export function PartnersView() {
             )}
           </div>
         </div>
+
+        {loadError && (
+          <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold">Partner directory unavailable</p>
+              <p className="mt-1">{loadError}</p>
+              {state.partners.length > 0 && <p className="mt-1 text-xs">Previously loaded records are shown. Changes may not be up to date.</p>}
+            </div>
+            <button type="button" onClick={handleRefresh} disabled={isRefreshing} className="min-h-11 rounded-md border border-current px-4 font-semibold disabled:opacity-50">{isRefreshing ? 'Retrying…' : 'Retry'}</button>
+          </div>
+        )}
 
         {/* 4 Metric KPI Cards with Click-to-Filter Interaction */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3.5">
@@ -640,15 +668,15 @@ export function PartnersView() {
       </div>
 
       {/* Main Content Area */}
-      <div className="p-4 sm:p-6 flex-1">
+      <div className="p-4 sm:p-6 flex-1" aria-busy={isRefreshing}>
         {filteredPartners.length === 0 ? (
           <div className="py-20 text-center border border-dashed border-neutral-200 dark:border-[#262626] rounded-[8px] bg-neutral-50/50 dark:bg-[#141414]">
             <Handshake className="w-12 h-12 text-neutral-400 dark:text-neutral-500 mx-auto mb-3" />
-            <h3 className="text-sm font-bold text-neutral-900 dark:text-white uppercase tracking-wider">No Partners Found</h3>
+            <h3 className="text-sm font-bold text-neutral-900 dark:text-white uppercase tracking-wider">{isRefreshing ? 'Loading partners…' : loadError ? 'Directory could not be verified' : 'No Partners Found'}</h3>
             <p className="text-xs text-neutral-500 dark:text-neutral-400 font-mono mt-1 max-w-sm mx-auto">
-              No partner records matching your search or filters. Try adjusting your search query or add a new partner.
+              {loadError ? 'Use Retry above after the connection or account setup issue is resolved.' : isRefreshing ? 'Retrieving the latest partner records.' : 'No partner records matching your search or filters. Try adjusting your search query or add a new partner.'}
             </p>
-            {canManage && (
+            {canCreate && !loadError && !isRefreshing && (
               <button
                 type="button"
                 onClick={handleOpenAdd}
@@ -709,7 +737,7 @@ export function PartnersView() {
                       </div>
 
                       {/* Card Action Menu */}
-                      {canManage && (
+                      {canEdit && (
                         <div className="flex items-center gap-1 shrink-0 opacity-100 sm:opacity-80 sm:group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
                           <button
                             type="button"
@@ -877,7 +905,7 @@ export function PartnersView() {
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0" onClick={e => e.stopPropagation()}>
-                      {canManage && (
+                      {canEdit && (
                         <button
                           type="button"
                           onClick={(e) => handleOpenEdit(partner, e)}
@@ -1098,7 +1126,7 @@ export function PartnersView() {
                             >
                               <ArrowSquareOut className="w-4 h-4" />
                             </button>
-                            {canManage && (
+                            {canEdit && (
                               <button
                                 type="button"
                                 onClick={(e) => handleOpenEdit(partner, e)}
@@ -1136,9 +1164,7 @@ export function PartnersView() {
           <Portal>
             <div className="fixed inset-0 bg-neutral-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
               <motion.div
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.96 }}
+                {...dialogMotion}
                 className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] w-full max-w-2xl max-h-[92dvh] my-auto flex flex-col overflow-hidden shadow-2xl text-neutral-900 dark:text-white"
               >
                 {/* Drawer Header */}
@@ -1174,7 +1200,7 @@ export function PartnersView() {
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0">
-                    {canManage && (
+                    {canEdit && (
                       <button
                         type="button"
                         onClick={() => {
@@ -1384,9 +1410,7 @@ export function PartnersView() {
           <Portal>
             <div className="fixed inset-0 bg-neutral-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
               <motion.div
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.96 }}
+                {...dialogMotion}
                 className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] w-full max-w-2xl max-h-[92dvh] my-auto flex flex-col overflow-hidden shadow-2xl text-neutral-900 dark:text-white"
               >
                 {/* Modal Header */}
@@ -1420,7 +1444,7 @@ export function PartnersView() {
                   {/* Section 1: Institution & Brand */}
                   <div className="space-y-3 pb-3 border-b border-neutral-200 dark:border-[#262626]">
                     <h3 className="text-[10px] uppercase font-bold text-[#EF2F38] tracking-wider">1. Institution & Brand Identity</h3>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Legal / Organization Name *</label>

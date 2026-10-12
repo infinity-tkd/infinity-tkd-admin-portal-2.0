@@ -1,0 +1,74 @@
+.shell {
+  --portal-page-gap: clamp(.875rem, 2.5vw, 1.5rem);
+  --portal-layer-navigation: 30;
+  --portal-layer-floating: 35;
+  --portal-layer-backdrop: 40;
+  --portal-layer-drawer: 45;
+}
+.sidebar { position: static; z-index: auto; }
+.compactOnly, .drawerOverlay, .bottomNav { display: none; }
+.header {
+  position: relative;
+  height: 3.5rem;
+  z-index: var(--portal-layer-navigation);
+}
+.scrollContainer {
+  min-height: 0;
+  padding-block: 2rem;
+  scroll-padding-block: 1rem;
+}
+.floatingControl, .floatingNotice {
+  bottom: 1.5rem;
+  z-index: var(--portal-layer-floating);
+}
+.floatingControl { transition: translate var(--motion-panel) var(--motion-ease); }
+.floatingNotice { transition: translate var(--motion-panel) var(--motion-ease); }
+
+/* Match PORTAL_COMPACT_MEDIA, including wide iPads in landscape. */
+@media (max-width: 1279px), (hover: none) and (pointer: coarse) {
+  .compactOnly { display: flex; }
+  .drawerOverlay {
+    display: block;
+    z-index: var(--portal-layer-backdrop);
+    transition: opacity var(--motion-panel) var(--motion-ease), visibility 0s var(--motion-panel);
+  }
+  .drawerOverlay[data-open="false"] { opacity: 0; visibility: hidden; pointer-events: none; }
+  .drawerOverlay[data-open="true"] { opacity: 1; visibility: visible; pointer-events: auto; transition-delay: 0s; }
+  .sidebar {
+    position: fixed;
+    z-index: var(--portal-layer-drawer);
+    max-width: calc(100vw - 2rem);
+    transition: transform var(--motion-panel) var(--motion-ease), visibility 0s var(--motion-panel);
+  }
+  .sidebar[data-open="false"] { transform: translate3d(-100%, 0, 0); visibility: hidden; pointer-events: none; }
+  .sidebar[data-open="true"] { transform: translate3d(0, 0, 0); visibility: visible; transition-delay: 0s; }
+  .header {
+    position: fixed;
+    top: 0;
+    inset-inline: 0;
+    height: calc(3.5rem + var(--portal-safe-top));
+    padding-top: var(--portal-safe-top);
+    transition: transform var(--motion-panel) var(--motion-ease), opacity var(--motion-standard) var(--motion-ease);
+  }
+  .header[data-visible="false"] { transform: translate3d(0, -100%, 0); opacity: 0; pointer-events: none; }
+  .bottomNav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    inset-inline: 0;
+    padding-block: .375rem calc(.5rem + var(--portal-safe-bottom));
+    z-index: var(--portal-layer-navigation);
+    transition: transform var(--motion-panel) var(--motion-ease), opacity var(--motion-standard) var(--motion-ease);
+  }
+  .bottomNav[data-visible="false"] { transform: translate3d(0, 100%, 0); opacity: 0; pointer-events: none; }
+  .scrollContainer {
+    padding-top: calc(var(--portal-header-height) + var(--portal-page-gap));
+    padding-bottom: calc(var(--portal-footer-height) + max(1.5rem, var(--portal-page-gap)));
+    scroll-padding-top: calc(var(--portal-header-height) + .75rem);
+    scroll-padding-bottom: calc(var(--portal-footer-height) + .75rem);
+  }
+  .floatingControl, .floatingNotice { bottom: calc(var(--portal-footer-height) + 1rem); }
+  .shell[data-navigation-visible="false"] :is(.floatingControl, .floatingNotice) {
+    translate: 0 calc(var(--portal-footer-height) - var(--portal-safe-bottom));
+  }
+}

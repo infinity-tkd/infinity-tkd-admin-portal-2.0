@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import { env } from '@/lib/env';
-import { checkApiRateLimit, sanitizeString } from '@/lib/backend-security';
+import { checkApiRateLimit, sanitizeString, validateRequestBody, validateRequestOrigin } from '@/lib/backend-security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -30,10 +30,9 @@ const TelemetryPayloadSchema = z.object({
 export async function POST(req: Request) {
   try {
     // 1. Sliding Window Rate Limiting (20 reports/minute per IP)
-    const ip =
-      req.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
-      req.headers.get('x-real-ip') ||
-      '127.0.0.1';
+    const ip = process.env.TRUST_PROXY_HEADERS === 'true'
+      ? req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
+      : 'untrusted-origin';
 
     const rateLimit = checkApiRateLimit(`telemetry:${ip}`, 20, 60000);
     if (!rateLimit.allowed) {
@@ -44,17 +43,9 @@ export async function POST(req: Request) {
     }
 
     // 2. Body Parsing & Strict Payload Validation
-    const rawPayload = await req.json().catch(() => ({}));
-    const parseResult = TelemetryPayloadSchema.safeParse(rawPayload);
-
-    if (!parseResult.success) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid telemetry schema.' },
-        { status: 400 }
-      );
-    }
-
-    const val = parseResult.data;
+    if(!validateRequestOrigin(req))return NextResponse.json({success:false},{status:403});
+    const {data:val,errorResponse:invalid}=await validateRequestBody(TelemetryPayloadSchema,req);
+    if(invalid || !val)return invalid!;
 
     // 3. Input Sanitization against log injection
     const cleanMessage = sanitizeString(val.message || 'Unknown Client Runtime Error');
@@ -82,25 +73,15 @@ export async function POST(req: Request) {
 
     if (serviceKey && supabaseUrl) {
       const adminClient = createClient(supabaseUrl, serviceKey, {
+        db: { retry: false },
         auth: { persistSession: false },
       });
 
       try {
-        await adminClient.from('audit_logs').insert({
-          action: 'CLIENT_CRASH_REPORTED',
-          performed_by: '00000000-0000-0000-0000-000000000000',
-          details: {
-            message: cleanMessage,
-            stack: cleanStack,
-            route: cleanRoute,
-            component: cleanComponent,
-            userAgent: cleanUserAgent,
-            ip,
-            timestamp: cleanTimestamp,
-          },
-          status: 'FAILURE',
-          created_at: cleanTimestamp,
-        });
+        const {data:allowed,error:rateError}=await adminClient.rpc('portal_take_rate_slot',{p_key:'telemetry:'+ip,p_limit:20,p_seconds:60});
+        if(rateError || !allowed)return NextResponse.json({success:false},{status:rateError ? 503 : 429});
+        const {error}=await adminClient.from('client_telemetry').insert({details:{message:cleanMessage.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'[email]'),stack:cleanStack,route:cleanRoute.split('?')[0],component:cleanComponent,userAgent:cleanUserAgent,timestamp:cleanTimestamp}});
+        if(error)console.error('[TELEMETRY_WRITE_FAILED]',error.code);
       } catch (dbErr: any) {
         console.warn('[CLIENT_TELEMETRY_DB_FALLBACK]', dbErr?.message || dbErr);
       }

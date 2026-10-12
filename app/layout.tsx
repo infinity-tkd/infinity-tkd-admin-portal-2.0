@@ -4,6 +4,7 @@ import './globals.css';
 import { AppProvider } from '@/lib/store';
 import { RootWrapper } from '@/components/RootWrapper';
 import { PwaUpdater } from '@/components/pwa/PwaUpdater';
+import { headers } from 'next/headers';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -58,11 +59,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const nonce = (await headers()).get('x-nonce') || undefined;
   return (
     <html lang="en" className={`${montserrat.variable} ${kantumruy.variable}`} suppressHydrationWarning>
       <head>
         <script
+          nonce={nonce}
+          // Browsers hide nonce content attributes while retaining script.nonce.
+          // This is an intentional, script-local hydration difference.
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
               try {
@@ -79,12 +85,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans antialiased bg-white text-neutral-900 dark:bg-[#0A0A0A] dark:text-[#E4E4E4] min-h-dvh" suppressHydrationWarning>
         <AppProvider>
-          <RootWrapper>
+          <RootWrapper nonce={nonce}>
             {children}
             <PwaUpdater />
           </RootWrapper>
         </AppProvider>
         <script
+          nonce={nonce}
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html:
               process.env.NODE_ENV === 'production' || process.env.ENABLE_PWA_DEV === 'true'

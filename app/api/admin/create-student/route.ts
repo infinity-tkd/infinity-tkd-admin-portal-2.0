@@ -1,3 +1,5 @@
+
+import { academyDate } from '@/lib/dates';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import {
@@ -21,7 +23,7 @@ const AddressSchema = z
 
 const StudentDataSchema = z
   .object({
-    id: z.string().min(1, 'Student ID is required').max(50),
+    id: z.string().max(50).optional(),
     khmerName: z.string().max(100).optional().nullable(),
     englishName: z.string().min(1, 'English name is required').max(100),
     gender: z.enum(['Male', 'Female', 'Other']).optional().nullable(),
@@ -102,10 +104,10 @@ export async function POST(req: Request) {
         ? studentData.scholarshipId
         : parseInt(String(studentData.scholarshipId || '1'), 10) || 1;
 
-    const id = sanitizeString(studentData.id);
+
     const registrationDate = studentData.registrationDate
       ? sanitizeString(studentData.registrationDate)
-      : new Date().toISOString().split('T')[0];
+      : academyDate();
     const notes = studentData.notes ? sanitizeString(studentData.notes) : null;
 
     // Duplicate detection check
@@ -136,9 +138,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1. Insert Student Record
-    const { error: sError } = await adminSupabase.from('students').insert({
-      id,
+    const address = studentData.address;
+    const { data: saved, error: saveError } = await adminSupabase.rpc('portal_create_student', {
+      p_actor: context.userId, p_student: {
       khmer_name: khmerName,
       english_name: englishName,
       gender: studentData.gender || null,
@@ -162,41 +164,13 @@ export async function POST(req: Request) {
       esign_path: esignPath,
       kukkiwon_id: studentData.kukkiwonId ? sanitizeString(studentData.kukkiwonId) : null,
       notes,
+      },
+      p_address: address?.line1 ? { address_line1: sanitizeString(address.line1), address_line2: sanitizeString(address.line2 || ''), district_commune: sanitizeString(address.city || ''), state_province_city: sanitizeString(address.stateProvince || ''), postal_code: sanitizeString(address.postalCode || ''), country: sanitizeString(address.country || 'Cambodia') } : null,
+      p_class_id: studentData.initialClassId || null,
     });
-
-    if (sError) {
-      return formatServerErrorResponse(sError);
-    }
-
-    // 2. Insert Address if provided
-    const address = studentData.address;
-    if (address && address.line1) {
-      await adminSupabase.from('student_addresses').insert({
-        student_id: id,
-        address_line1: sanitizeString(address.line1),
-        address_line2: sanitizeString(address.line2 || ''),
-        district_commune: sanitizeString(address.city || ''),
-        state_province_city: sanitizeString(address.stateProvince || ''),
-        postal_code: sanitizeString(address.postalCode || ''),
-        country: sanitizeString(address.country || 'Cambodia'),
-        is_primary: true,
-      });
-    }
-
-    // 3. Insert class enrollment if provided
-    let enrollmentId: number | undefined;
-    if (studentData.initialClassId) {
-      const { data: enrData } = await adminSupabase
-        .from('class_enrollments')
-        .insert({
-          student_id: id,
-          class_id: studentData.initialClassId,
-          enrollment_date: registrationDate,
-        })
-        .select()
-        .single();
-      if (enrData) enrollmentId = enrData.id;
-    }
+    if (saveError || !saved) return formatServerErrorResponse(saveError || new Error('Registration failed'));
+    const id = saved.id;
+    const enrollmentId = saved.enrollmentId;
 
     await logSecurityAuditEvent({
       action: 'STUDENT_REGISTERED',
