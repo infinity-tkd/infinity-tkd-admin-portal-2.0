@@ -8,3 +8,10 @@ coverage/
 !.env.example
 tsconfig.tsbuildinfo
 scratch/
+supabase/.temp/
+*.pem
+*.key
+*.p12
+*.pfx
+.netrc
+.pgpass
