@@ -60,6 +60,18 @@ export async function refreshNotices(client:SupabaseClient,context:CallerSecurit
  }catch(error){await client.from('portal_notification_refresh').delete().eq('user_id',context.userId);throw error;}
 }
 export function pushConfiguration(){return {ready:Boolean(process.env.WEB_PUSH_PUBLIC_KEY&&process.env.WEB_PUSH_PRIVATE_KEY&&process.env.WEB_PUSH_SUBJECT),publicKey:process.env.WEB_PUSH_PUBLIC_KEY||''};}
+export type StudentPushLanguage='en'|'kh'|'zh';
+// The student portal worker (public/sw.js) drops any push without sourceType plus UUID sourceId/noticeId and renders its
+// own localized lock-screen copy, so student pushes carry references only: no title, body, name or destination URL.
+export function pushPayload(row:Pick<PortalNotice,'id'|'source_type'|'source_id'>,student:boolean,language:StudentPushLanguage='en'){
+ return student?{sourceType:row.source_type,sourceId:row.source_id,noticeId:row.id,language}:{title:'Infinity TKD',body:'You have an academy update. Open the portal to review it.',tag:`infinity:${row.id}`,url:'/profile?notifications=open'};
+}
+// Presentation-only preference: an unreadable or missing row falls back to English rather than blocking delivery.
+async function studentPushLanguage(client:SupabaseClient,userId:string):Promise<StudentPushLanguage>{
+ const result=await client.from('student_portal_preferences').select('language').eq('user_id',userId).maybeSingle();
+ const language=result.error?null:result.data?.language;
+ return language==='kh'||language==='zh'?language:'en';
+}
 export async function dispatchUserPush(client:SupabaseClient,context:CallerSecurityContext,deadline=Date.now()+12000){
  if(!pushConfiguration().ready)return {sent:0,failed:0,configured:false};
  const student=context.role==='Student';
@@ -70,6 +82,7 @@ export async function dispatchUserPush(client:SupabaseClient,context:CallerSecur
  const quiet=student?isStudentQuietTime(pref.data?.student_quiet_start??null,pref.data?.student_quiet_end??null):isQuietHour(preferences);
  if(!preferences.push_enabled||quiet)return {sent:0,failed:0,configured:true};
  const subscriptions=await featureRows(client.from('portal_push_subscriptions').select('*').eq('user_id',context.userId).eq('app_scope',student?'student':'admin'));
+ const language=student&&subscriptions.length?await studentPushLanguage(client,context.userId):'en';
  let sent=0,failed=0,attempts=0;
  for(const subscription of subscriptions){
   if(attempts>=40||Date.now()+5500>deadline)return {sent,failed,configured:true};
@@ -80,7 +93,7 @@ export async function dispatchUserPush(client:SupabaseClient,context:CallerSecur
    if(attempts>=40||Date.now()+5500>deadline)return {sent,failed,configured:true};
    const claim=await client.rpc('portal_claim_push',{p_notification:row.id,p_subscription:subscription.id});if(claim.error)throw claim.error;if(!claim.data)continue;attempts++;
    try{
-    await webpush.sendNotification({endpoint:subscription.endpoint,keys:subscription.keys},JSON.stringify({title:'Infinity TKD',body:'You have an academy update. Open the portal to review it.',tag:`infinity:${row.id}`,url:student?`/calendar?event=${encodeURIComponent(String(row.source_id))}`:'/profile?notifications=open'}),{vapidDetails:{subject:process.env.WEB_PUSH_SUBJECT!,publicKey:process.env.WEB_PUSH_PUBLIC_KEY!,privateKey:process.env.WEB_PUSH_PRIVATE_KEY!},TTL:3600,timeout:5000,urgency:'normal'});
+    await webpush.sendNotification({endpoint:subscription.endpoint,keys:subscription.keys},JSON.stringify(pushPayload(row,student,language)),{vapidDetails:{subject:process.env.WEB_PUSH_SUBJECT!,publicKey:process.env.WEB_PUSH_PUBLIC_KEY!,privateKey:process.env.WEB_PUSH_PRIVATE_KEY!},TTL:3600,timeout:5000,urgency:'normal'});
     const done=await client.from('portal_push_deliveries').update({sent_at:new Date().toISOString(),lease_until:null}).eq('notification_id',row.id).eq('subscription_id',subscription.id);if(done.error)throw done.error;sent++;
    }catch(error){
     failed++;const code=Number((error as {statusCode?:number}).statusCode)||0;

@@ -29,7 +29,8 @@ export function BirthdayWishModal() {
     if (isBirthday) {
       const year = today.getFullYear();
       const storageKey = `birthday_wish_shown_${state.currentUser.id}_${year}`;
-      const hasSeenToday = localStorage.getItem(storageKey);
+      let hasSeenToday: string | null = null;
+      try { hasSeenToday = localStorage.getItem(storageKey); } catch { /* Storage blocked: show the wish without remembering it. */ }
 
       if (!hasSeenToday) {
         // Add a slight delay for better UX after login
@@ -43,7 +44,7 @@ export function BirthdayWishModal() {
     if (!state.currentUser) return;
     const year = new Date().getFullYear();
     const storageKey = `birthday_wish_shown_${state.currentUser.id}_${year}`;
-    localStorage.setItem(storageKey, 'true');
+    try { localStorage.setItem(storageKey, 'true'); } catch { /* Storage blocked: closing still works. */ }
     setShow(false);
   };
 

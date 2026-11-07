@@ -193,6 +193,21 @@ export function calculateStaffAge(dob?: string | null, referenceDate = new Date(
 /**
  * Helper to format remaining time nicely (e.g. "1 yr, 3 mos remaining")
  */
+/** Whole calendar years, months and days from `from` until `to` (UTC dates, matching how issue dates are parsed). */
+export function calendarCountdown(from: Date, to: Date): { years: number; months: number; days: number } {
+  // Step whole months from `from` (clamping to month end, so Jan 31 + 1 month = Feb 28), then count the leftover days.
+  const plusMonths = (count: number) => {
+    const year = from.getUTCFullYear(), month = from.getUTCMonth() + count;
+    return Date.UTC(year, month, Math.min(from.getUTCDate(), new Date(Date.UTC(year, month + 1, 0)).getUTCDate()));
+  };
+  const target = Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), to.getUTCDate());
+  let months = (to.getUTCFullYear() - from.getUTCFullYear()) * 12 + to.getUTCMonth() - from.getUTCMonth();
+  if (plusMonths(months) > target) months -= 1;
+  if (months < 0) return { years: 0, months: 0, days: 0 };
+  return { years: Math.floor(months / 12), months: months % 12, days: Math.round((target - plusMonths(months)) / 86400000) };
+}
+
+/** `days` is what is left after the whole years and months, not the total wait. */
 export function formatRemainingWaitTime(years: number, months: number, days: number): string {
   const parts: string[] = [];
   if (years > 0) parts.push(`${years} ${years === 1 ? 'yr' : 'yrs'}`);
@@ -352,9 +367,12 @@ export function calculateDanEligibility(
   const minAge = rule.minAgeForNextDan;
   const isAgeEligible = minAge === null || currentAge === null || currentAge >= minAge;
 
-  // Rough year & month decomposition for remaining countdown
-  const monthsRemaining = Math.max(0, Math.ceil(daysRemaining / 30.4375) % 12);
-  const yearsRemaining = Math.max(0, Math.floor(daysRemaining / 365.25));
+  // Count the remaining wait on the calendar: whole years, then whole months, then leftover days
+  // (45 days reads "1 mo, 15 days", exactly two years reads "2 yrs").
+  const countdownParts = calendarCountdown(now, earliestTest);
+  const yearsRemaining = countdownParts.years;
+  const monthsRemaining = countdownParts.months;
+  const daysAfterMonths = countdownParts.years || countdownParts.months || countdownParts.days ? countdownParts.days : Math.max(1, daysRemaining);
 
   const earliestTestDateStr = earliestTest.toISOString().split('T')[0];
   const nextDanRank = rule.nextDanLevel;
@@ -374,7 +392,7 @@ export function calculateDanEligibility(
     badgeVariant = 'emerald';
   } else if (!isTimeEligible) {
     status = 'TIME_PENDING';
-    const countdown = formatRemainingWaitTime(yearsRemaining, monthsRemaining, daysRemaining);
+    const countdown = formatRemainingWaitTime(yearsRemaining, monthsRemaining, daysAfterMonths);
     headline = `${countdown} for ${nextDanLabel}`;
     subtext = `Requires ${waitYears} ${waitYears === 1 ? 'year' : 'years'} time-in-grade. Eligible on ${earliestTestDateStr} (${progressPercent}% elapsed).`;
     badgeVariant = 'amber';

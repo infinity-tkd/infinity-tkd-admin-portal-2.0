@@ -1284,8 +1284,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('infinity_pos_catalog_v2');
       localStorage.removeItem('infinity_lms_physical_grades');
 
-        const cachedTheme = (localStorage.getItem('infinity_theme') as 'light' | 'dark') || 'light';
-        const cachedLang = (localStorage.getItem('infinity_lang') as 'en' | 'kh' | 'zh') || 'en';
+        // Stored values are untrusted: anything unexpected falls back to the defaults.
+        const storedTheme = localStorage.getItem('infinity_theme');
+        const storedLang = localStorage.getItem('infinity_lang');
+        const cachedTheme: 'light' | 'dark' = storedTheme === 'dark' ? 'dark' : 'light';
+        const cachedLang: 'en' | 'kh' | 'zh' = storedLang === 'kh' || storedLang === 'zh' ? storedLang : 'en';
         setState(s => ({ ...s, theme: cachedTheme, language: cachedLang, isLoading: true }));
 
       } catch (e) {
@@ -2917,9 +2920,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         fetchPartners,
         setTheme: (theme) => {
           setState((s) => ({ ...s, theme }));
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('infinity_theme', theme);
-          }
+          // A blocked storage write must not stop the page from switching theme below.
+          try { localStorage.setItem('infinity_theme', theme); } catch { /* Not remembered across reloads. */ }
           if (theme === 'dark') {
             document.documentElement.classList.add('dark');
           } else {
@@ -2928,9 +2930,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         setLanguage: (language) => {
           setState((s) => ({ ...s, language }));
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('infinity_lang', language);
-          }
+          try { localStorage.setItem('infinity_lang', language); } catch { /* Not remembered across reloads. */ }
         },
         markAttendance,
         markAttendanceMany,

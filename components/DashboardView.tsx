@@ -5,7 +5,7 @@ import {activeClassEnrollmentCounts} from '@/lib/attendance-roster';
 import { BirthdayWishActionModal } from '@/components/dashboard/BirthdayWishActionModal';
 
 import { dialogMotion } from '@/lib/motion';
-import { academyDate } from '@/lib/dates';
+import { academyDate, addCalendarDays } from '@/lib/dates';
 import { tuitionCycle } from '@/lib/tuition-cycle';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -487,9 +487,8 @@ export function DashboardView() {
     if (activeSts.length === 0) return { trend: 0, baseline: 75 };
 
     // Get list of records from past 30 days, excluding today to avoid today's partial check-in affecting baseline
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
+    // Count back in academy calendar days so the window matches todayDate (UTC dates lag a day before 07:00 in Phnom Penh).
+    const thirtyDaysAgoStr = addCalendarDays(todayDate, -30);
 
     const pastRecords = records.filter(r => r.date >= thirtyDaysAgoStr && r.date < todayDate);
     if (pastRecords.length === 0) return { trend: 0, baseline: 75 };
