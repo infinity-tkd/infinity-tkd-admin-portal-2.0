@@ -1,16 +1,17 @@
 'use client';
+import { copyText } from '@/lib/clipboard';
 
 import Papa from 'papaparse';
 import {runImportRows,validateImportSize,importFailureCsv,ImportFailure,MAX_IMPORT_BYTES,MAX_IMPORT_ROWS} from '@/lib/imports';
 import { generatePassword } from '@/lib/passwords';
 import React, { useState, useRef } from 'react';
-import { useAppStore, User, Role } from '@/lib/store';
+import { useAppStore, Role } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from '@phosphor-icons/react/dist/csr/X';
 import { UploadSimple } from '@phosphor-icons/react/dist/csr/UploadSimple';
 import { Question } from '@phosphor-icons/react/dist/csr/Question';
 import { Info } from '@phosphor-icons/react/dist/csr/Info';
-import { Checks } from '@phosphor-icons/react/dist/csr/Checks';
+
 import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
 import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
 import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
@@ -18,7 +19,7 @@ import { Play } from '@phosphor-icons/react/dist/csr/Play';
 import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
 import { cn, sanitizeStringInput, isValidEmail, isValidPhone, isValidDate } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
-import { useT } from '@/hooks/useTranslation';
+
 
 interface BulkImportStaffModalProps {
   onClose: () => void;
@@ -32,6 +33,7 @@ interface ParsedStaffRow {
     email: string;
     role: Role;
     phone: string;
+    telegramUsername?: string;
     khmerName: string;
     gender: 'Male' | 'Female';
     dob: string;
@@ -44,13 +46,13 @@ interface ParsedStaffRow {
 
 export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
   const { addUser, state, showNotification } = useAppStore();
-  const t = useT();
+
   const [csvText, setCsvText] = useState('');
   const [parsedRows, setParsedRows] = useState<ParsedStaffRow[]>([]);
   const [showHelp, setShowHelp] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [credentials,setCredentials]=useState<{username:string;password:string}[]>([]);
+  const [credentials, setCredentials]=useState<{username:string;password:string}[]>([]);
   const [importSummary, setImportSummary] = useState<{ success: number; failed: number } | null>(null);
   const [copied, setCopied] = useState(false);
   const [fileName, setFileName] = useState('');
@@ -58,7 +60,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
 
   const completedImports=useRef(new Set<string>());
   const importRunning=useRef(false);
-  const [importFailures,setImportFailures]=useState<ImportFailure[]>([]);
+  const [importFailures, setImportFailures]=useState<ImportFailure[]>([]);
   const downloadImportFailures=()=>{
     const errors=[...parsedRows.filter(r=>!r.isValid).map(r=>({row:r.index,message:r.errors.join('; ')})),...importFailures];
     const url=URL.createObjectURL(new Blob([importFailureCsv(errors)],{type:'text/csv;charset=utf-8'}));
@@ -108,9 +110,9 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
   // Template headers & example data for clipboard
   const csvHeaders = "Display Name,Username,Email,Role,Phone,Khmer Name,Gender,Date of Birth,Profile Picture Path,Active Status";
   const csvExampleRow = "Keo Dara,dara_coach,dara@infinitytkd.com,Coach,012999888,កែវ ដារ៉ា,Male,1995-04-20,,True";
-  
-  const handleCopyTemplate = () => {
-    navigator.clipboard.writeText(`${csvHeaders}\n${csvExampleRow}`);
+
+  const handleCopyTemplate = async () => {
+    if (!(await copyText(`${csvHeaders}\n${csvExampleRow}`))) { showNotification('Copying is unavailable. Select the text and copy it manually.', 'warning'); return; }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -129,6 +131,10 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
     'email': 'email',
     'role': 'role',
     'phone': 'phone',
+    'telegram': 'telegramUsername',
+    'telegram username': 'telegramUsername',
+    'telegram_username': 'telegramUsername',
+    'telegramusername': 'telegramUsername',
     'phone number': 'phone',
     'phone_number': 'phone',
     'khmer name': 'khmerName',
@@ -229,13 +235,13 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
     const text = e.clipboardData.getData('text');
     if(importRunning.current)return;
     try {validateImportSize(text);}catch(error){showNotification(error instanceof Error?error.message:'Paste is too large.','error');return;}
-    
+
     // Check if it's a spreadsheet paste (contains tabs or newlines)
     const rawLines = text.split(/\r?\n/);
     if (rawLines.length > 1 && rawLines[rawLines.length - 1] === '') {
       rawLines.pop();
     }
-    
+
     const isMultiCell = rawLines.length > 1 || rawLines[0].includes('\t');
     if (!isMultiCell) {
       // Allow default single cell text paste
@@ -277,7 +283,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
       const sortedRows = [...prev].sort((a, b) => a.index - b.index);
       const startRowObj = sortedRows.find(r => r.index === startRowIndex);
       if (!startRowObj) return prev;
-      
+
       const startSortedRowIndex = sortedRows.indexOf(startRowObj);
 
       for (let r = 0; r < pasteGrid.length; r++) {
@@ -434,7 +440,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
     setParsedRows(prev => prev.map(row => {
       if (row.index !== rowIndex) return row;
       const updatedData = { ...row.data, [field]: value };
-      
+
       // Secondary fields dependent updates
       if (field === 'isActive' && typeof value === 'string') {
         updatedData.isActive = value === 'true';
@@ -461,7 +467,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
     try {
       const summary=await runImportRows(validRows,completedImports.current,async row=>{
         const password=generatePassword();
-        const result=await addUser({password,username:row.data.username,email:row.data.email,displayName:row.data.displayName,role:row.data.role,isActive:row.data.isActive,khmerName:row.data.khmerName || undefined,englishName:row.data.displayName,gender:row.data.gender,dob:row.data.dob || undefined,phone:row.data.phone || undefined,profilePicturePath:row.data.profilePicturePath || undefined} as any);
+        const result=await addUser({password,username:row.data.username,email:row.data.email,displayName:row.data.displayName,role:row.data.role,isActive:row.data.isActive,khmerName:row.data.khmerName || undefined,englishName:row.data.displayName,gender:row.data.gender,dob:row.data.dob || undefined,phone:row.data.phone || undefined,telegramUsername:row.data.telegramUsername || undefined,profilePicturePath:row.data.profilePicturePath || undefined} as any);
         if(result.success)setCredentials(prev=>[...prev,{username:row.data.username,password}]);
         return result;
       },done=>setCurrentIndex(done));
@@ -474,14 +480,14 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
     <Portal>
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in overflow-y-auto">
         <div className="w-full max-w-4xl bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col max-h-[94dvh] overflow-hidden text-neutral-900 dark:text-white">
-          
+
           {/* Header */}
           <div className="p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#0F0F0F] shrink-0">
             <div className="flex items-center gap-2">
               <UploadSimple className="w-5 h-5 text-[#EF2F38]" weight="bold" />
               <h2 className="text-xs sm:text-sm font-black uppercase tracking-widest text-neutral-900 dark:text-white font-mono">Bulk Account Importer</h2>
             </div>
-            <button 
+            <button
               type="button"
               disabled={isProcessing} onClick={onClose}
               aria-label="Close modal"
@@ -492,7 +498,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-neutral-50/50 dark:bg-[#0A0A0A] flex flex-col gap-6">
-            
+
             {/* Template Clipboard Widget */}
             {!parsedRows.length && !importSummary && (
               <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 space-y-4 shadow-xs">
@@ -501,7 +507,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
                     <Info className="w-4 h-4 text-[#EF2F38]" weight="bold" />
                     <span className="text-xs font-bold uppercase tracking-wider font-mono">How to import from Excel</span>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setShowHelp(!showHelp)}
                     className="text-[10px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white uppercase font-bold tracking-widest flex items-center gap-1 font-mono cursor-pointer"
                   >
@@ -514,14 +520,14 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <button 
+                  <button
                     onClick={handleCopyTemplate}
                     className="flex-1 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-300 dark:border-[#262626] hover:border-neutral-400 dark:hover:border-neutral-700 text-neutral-800 dark:text-white rounded-[8px] py-2.5 text-xs font-bold font-mono uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 touch-manipulation"
                   >
                     <Copy className="w-4 h-4" />
                     {copied ? 'Copied to Clipboard!' : 'Copy Grid Template'}
                   </button>
-                  <button 
+                  <button
                     onClick={handleAddManualRow}
                     className="flex-1 bg-[#EF2F38] hover:bg-[#D9222B] text-white rounded-[8px] py-2.5 text-xs font-bold font-mono uppercase tracking-widest transition-all shadow-md shadow-[#EF2F38]/20 cursor-pointer active:scale-95 touch-manipulation"
                   >
@@ -547,8 +553,8 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
             {!parsedRows.length && !importSummary && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Drag and Drop File Selector */}
-                <div 
-                  onClick={() => fileInputRef.current?.click()} 
+                <div
+                  onClick={() => fileInputRef.current?.click()}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
@@ -558,12 +564,12 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
                     isDragging && "border-red-500 bg-red-500/[0.05] scale-[0.99] shadow-inner"
                   )}
                 >
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    onChange={handleFileUpload} 
-                    accept=".csv,.txt" 
-                    className="hidden" 
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    accept=".csv,.txt"
+                    className="hidden"
                   />
                   <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center border border-neutral-200 dark:border-[#262626] mb-3 group-hover:scale-105 transition-transform text-neutral-800 dark:text-white shadow-xs">
                     <UploadSimple className={cn("w-5 h-5 text-[#EF2F38]", isDragging && "animate-bounce")} />
@@ -581,7 +587,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
                   )}
                   <AnimatePresence>
                     {isDragging && (
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -596,7 +602,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
                 {/* Clipboard Paste Box */}
                 <div className="flex flex-col space-y-2">
                   <label className="block text-[11px] uppercase font-black text-neutral-500 dark:text-neutral-400 tracking-wider font-mono">Or Paste Raw CSV Data</label>
-                  <textarea 
+                  <textarea
                     value={csvText}
                     onChange={(e) => {
                       setCsvText(e.target.value);
@@ -621,13 +627,13 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                     <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">Correct any highlighted validation conflicts before committing roster</p>
                   </div>
                   <div className="flex gap-2 w-full sm:w-auto">
-                    <button 
+                    <button
                       onClick={handleAddManualRow}
                       className="flex-1 sm:flex-none px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[8px] text-[10px] font-bold font-mono uppercase tracking-wider transition-colors cursor-pointer active:scale-95"
                     >
                       + Add Row
                     </button>
-                    <button 
+                    <button
                       onClick={() => setParsedRows([])}
                       className="flex-1 sm:flex-none px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-600 dark:text-red-500 rounded-[8px] text-[10px] font-bold font-mono uppercase tracking-wider transition-colors cursor-pointer active:scale-95"
                     >
@@ -650,7 +656,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                         <th className="px-4 py-2.5 w-12 text-center">Del</th>
                       </tr>
                     </thead>
-                    <tbody 
+                    <tbody
                       onPaste={handleTablePaste}
                       className="divide-y divide-neutral-200 dark:divide-[#262626] bg-white dark:bg-[#141414]"
                     >
@@ -666,9 +672,9 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                             )}
                           </td>
                           <td className="px-2 py-1">
-                            <input 
-                              type="text" 
-                              value={row.data.displayName} 
+                            <input
+                              type="text"
+                              value={row.data.displayName}
                               onChange={(e) => handleUpdateCell(row.index, 'displayName', e.target.value)}
                               data-row-index={row.index}
                               data-column-field="displayName"
@@ -679,9 +685,9 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                             />
                           </td>
                           <td className="px-2 py-1">
-                            <input 
-                              type="text" 
-                              value={row.data.username} 
+                            <input
+                              type="text"
+                              value={row.data.username}
                               onChange={(e) => handleUpdateCell(row.index, 'username', e.target.value)}
                               data-row-index={row.index}
                               data-column-field="username"
@@ -692,9 +698,9 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                             />
                           </td>
                           <td className="px-2 py-1">
-                            <input 
-                              type="email" 
-                              value={row.data.email} 
+                            <input
+                              type="email"
+                              value={row.data.email}
                               onChange={(e) => handleUpdateCell(row.index, 'email', e.target.value)}
                               data-row-index={row.index}
                               data-column-field="email"
@@ -705,8 +711,8 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                             />
                           </td>
                           <td className="px-2 py-1 w-40">
-                            <select 
-                              value={row.data.role} 
+                            <select
+                              value={row.data.role}
                               onChange={(e) => handleUpdateCell(row.index, 'role', e.target.value)}
                               data-row-index={row.index}
                               data-column-field="role"
@@ -720,8 +726,8 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                             </select>
                           </td>
                           <td className="px-2 py-1 w-24">
-                            <select 
-                              value={row.data.gender} 
+                            <select
+                              value={row.data.gender}
                               onChange={(e) => handleUpdateCell(row.index, 'gender', e.target.value)}
                               data-row-index={row.index}
                               data-column-field="gender"
@@ -732,9 +738,9 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                             </select>
                           </td>
                           <td className="px-2 py-1 w-32">
-                            <input 
-                              type="date" 
-                              value={row.data.dob} 
+                            <input
+                              type="date"
+                              value={row.data.dob}
                               onChange={(e) => handleUpdateCell(row.index, 'dob', e.target.value)}
                               data-row-index={row.index}
                               data-column-field="dob"
@@ -742,7 +748,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                             />
                           </td>
                           <td className="px-4 py-2.5 text-center">
-                            <button 
+                            <button
                               onClick={() => handleDeleteRow(row.index)}
                               className="text-neutral-400 hover:text-red-500 transition-colors cursor-pointer"
                               title="Delete row"
@@ -812,7 +818,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                     <p className="text-xl font-bold text-red-600 dark:text-red-400 mt-1">{importSummary.failed}</p>
                   </div>
                 </div>
-                <button 
+                <button
                   disabled={isProcessing} onClick={onClose}
                   className="w-full max-w-xs bg-neutral-900 hover:bg-black dark:bg-[#262626] dark:hover:bg-[#383838] text-white rounded-[8px] py-2.5 text-xs font-bold font-mono uppercase tracking-widest transition-colors shadow-md mt-4 cursor-pointer active:scale-95 touch-manipulation"
                 >
@@ -832,13 +838,13 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                 <span>Errors: <strong className="text-red-500 dark:text-red-400">{parsedRows.filter(r => !r.isValid).length}</strong></span>
               </div>
               <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                <button 
+                <button
                   disabled={isProcessing} onClick={onClose}
                   className="px-4 py-2 bg-neutral-200 dark:bg-[#1A1A1A] hover:bg-neutral-300 dark:hover:bg-[#262626] text-neutral-700 dark:text-neutral-300 rounded-[8px] font-bold font-mono uppercase tracking-widest cursor-pointer active:scale-95 touch-manipulation"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={handleImportAll}
                   disabled={parsedRows.filter(r => r.isValid).length === 0}
                   className="px-5 py-2 bg-[#EF2F38] hover:bg-[#D9222B] text-white rounded-[8px] font-bold font-mono uppercase tracking-widest disabled:opacity-50 transition-all shadow-md shadow-[#EF2F38]/20 flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"

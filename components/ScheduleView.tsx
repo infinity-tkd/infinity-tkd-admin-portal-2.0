@@ -1,4 +1,5 @@
 'use client';
+import {useAttendanceActions} from '@/hooks/use-attendance-actions';
 
 import { dialogMotion } from '@/lib/motion';
 import { academyDate } from '@/lib/dates';
@@ -80,10 +81,9 @@ export const CLASS_STYLES: Record<ClassCategory, { bg: string; text: string; bor
 };
 
 export function ScheduleView() {
-  const { state, addBranch, addClassSession, updateClassSession, deleteClassSession, showConfirm, showNotification } = useAppStore();
+  const { state, can, addBranch, addClassSession, updateClassSession, deleteClassSession, showConfirm, showNotification } = useAppStore();
   const t = useT();
-  const role = state.currentUser?.role;
-  const isAdminOrHead = role === 'Root' || role === 'Super Root' || role === 'Admin' || role === 'Head Coach';
+  const canManageSchedule = can('action:schedule_manage');
 
   const [activeBranchId, setActiveBranchId] = useState<number>(state.branches[0]?.id || 0);
   useEffect(() => {
@@ -500,7 +500,7 @@ export function ScheduleView() {
                  );
                })}
 
-               {isAdminOrHead && (
+               {canManageSchedule && (
                  <>
                    {showBranchInput ? (
                       <div className="flex items-center gap-2 animate-in slide-in-from-top-1 duration-150 shrink-0 min-w-[240px] lg:min-w-0 bg-white dark:bg-[#141414] p-1.5 rounded-[8px] border border-neutral-300 dark:border-[#262626] shadow-sm">
@@ -581,7 +581,7 @@ export function ScheduleView() {
                        </select>
                     </div>
 
-                    {isAdminOrHead && (
+                    {canManageSchedule && (
                        <button onClick={() => {
                            setClassForm({ name: '', classType: 'General Class', daysOfWeek: ['Monday'], startTime: '17:00', endTime: '18:30', capacity: 30, coachId: '' });
                            setShowClassModal('new');
@@ -749,7 +749,7 @@ export function ScheduleView() {
                                            >
                                              <CalendarCheck className="w-4 h-4 text-[#EF2F38] shrink-0"/> Take Attendance
                                            </button>
-                                           {isAdminOrHead && (
+                                           {canManageSchedule && (
                                              <div className="flex items-center gap-1 shrink-0">
                                                <button onClick={() => handleEditClass(c)} title={t('act_edit')}
                                                  className="min-w-[40px] min-h-[40px] p-2 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-[8px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors cursor-pointer active:scale-90 touch-manipulation"
@@ -938,7 +938,7 @@ export function ScheduleView() {
 
                                    {/* Quick Capacity Stepper & Roster Action */}
                                    <div className="flex items-center gap-1.5 shrink-0">
-                                      {isAdminOrHead && (
+                                      {canManageSchedule && (
                                         <div className="flex items-center bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-neutral-800 rounded-[8px] p-0.5">
                                           <button
                                             type="button"
@@ -967,7 +967,7 @@ export function ScheduleView() {
                                       >
                                         <Users className="w-4 h-4" />
                                       </button>
-                                      {isAdminOrHead && (
+                                      {canManageSchedule && (
                                         <button
                                           type="button"
                                           onClick={() => handleEditClass(c)}
@@ -1010,7 +1010,7 @@ export function ScheduleView() {
                                   {oc.cls.daysOfWeek?.join(', ') || oc.cls.dayOfWeek} • {oc.cls.startTime}-{oc.cls.endTime}
                                 </p>
                                 <div className="flex items-center gap-2 pt-1">
-                                  {isAdminOrHead && (
+                                  {canManageSchedule && (
                                     <button
                                       type="button"
                                       onClick={() => handleQuickAdjustCapacity(oc.cls.id, 5)}
@@ -1226,7 +1226,8 @@ export function ScheduleView() {
 
 // Enrollment Sub-component with Multi-Select Batch Actions & Rich Analytics
 function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, initialTab: 'unenrolled' | 'enrolled', onClose: () => void }) {
-  const { state, enrollStudent, unenrollStudent, batchEnrollStudents, markAttendance, deleteAttendanceRecords, showConfirm, showNotification } = useAppStore();
+  const attendanceActions=useAttendanceActions();
+  const { state, enrollStudent, unenrollStudent, batchEnrollStudents, showConfirm, showNotification } = useAppStore();
   const t = useT();
 
   const [search, setSearch] = useState('');
@@ -1248,13 +1249,10 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
     return { count: attended, total, pct };
   }, [state.attendanceRecords, classId]);
 
-  const handleQuickAttendance = async (studentId: string, status: 'Present' | 'Absent' | 'Late') => {
-    const existing = state.attendanceRecords.find(r => r.studentId === studentId && r.date === selectedDate && r.classId === classId);
-    if (existing?.status === status) {
-      await deleteAttendanceRecords(selectedDate, [studentId], classId);
-    } else {
-      await markAttendance(studentId, selectedDate, status, classId);
-    }
+  const handleQuickAttendance = async (studentId:string,status:'Present'|'Absent'|'Late') => {
+    const existing=state.attendanceRecords.find(record=>record.studentId===studentId&&record.date===selectedDate&&record.classId===classId);
+    if(existing?.status===status)await attendanceActions.clear(selectedDate,[studentId],classId);
+    else await attendanceActions.mark(studentId,selectedDate,status,classId);
   };
 
   const classObj = state.classSessions.find(c => c.id === classId);
@@ -1562,10 +1560,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                            showConfirm(
                              `Mark all ${filteredStudents.length} enrolled students as Present for ${selectedDate}?`,
                              async () => {
-                                for (const student of filteredStudents) {
-                                   await markAttendance(student.id, selectedDate, 'Present', classId);
-                                }
-                                showNotification(`Marked ${filteredStudents.length} students as Present.`, 'success');
+                                if(await attendanceActions.markMany(filteredStudents.map(student=>({studentId:student.id,date:selectedDate,status:'Present',classId}))))showNotification(`Marked ${filteredStudents.length} students as Present.`, 'success');
                              },
                              'Bulk Attendance Confirmation'
                            );
@@ -1703,7 +1698,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                                          ? "bg-green-500/20 border-green-500/50 text-green-700 dark:text-green-400 font-black shadow-sm"
                                          : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-green-700 dark:hover:text-green-400 hover:bg-green-500/10 font-bold"
                                      )}
-                                     title="Present"
+                                     title="Present" disabled={attendanceActions.busy}
                                    >
                                      <Check className="w-4 h-4" />
                                    </button>
@@ -1716,7 +1711,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                                          ? "bg-amber-500/20 border-amber-500/50 text-amber-700 dark:text-amber-400 font-black shadow-sm"
                                          : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-amber-700 dark:hover:text-amber-400 hover:bg-amber-500/10 font-bold"
                                      )}
-                                     title="Late"
+                                     title="Late" disabled={attendanceActions.busy}
                                    >
                                      <Clock className="w-4 h-4" />
                                    </button>
@@ -1729,7 +1724,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                                          ? "bg-red-500/20 border-red-500/50 text-red-700 dark:text-red-400 font-black shadow-sm"
                                          : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-500/10 font-bold"
                                      )}
-                                     title="Absent"
+                                     title="Absent" disabled={attendanceActions.busy}
                                    >
                                      <X className="w-4 h-4" />
                                    </button>

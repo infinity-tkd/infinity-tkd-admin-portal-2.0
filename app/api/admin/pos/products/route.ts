@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { parseProductQuery, shopPrivateHeaders } from '@/lib/pos-query';
 import { fetchAllRows } from '@/lib/data-access';
+import { validInventoryChange } from '@/lib/pos-catalog';
 import {
   verifyCaller,
   validateRequestBody,
@@ -11,6 +13,10 @@ import {
 const STAFF_ROLES = ['Root', 'Super Root', 'Admin', 'Head Coach', 'Coach', 'Assistant Coach'];
 const CATALOG_ADMIN_ROLES = ['Root', 'Super Root', 'Admin', 'Head Coach'];
 const CATALOG_DESTRUCTIVE_ROLES = ['Root', 'Super Root', 'Admin'];
+const imageUrlSchema=z.string().max(2048).url().or(z.literal('')).refine(value=>{
+  if(!value)return true;
+  try{const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password;}catch{return false;}
+},'Use an HTTPS image URL without embedded credentials.');
 
 const AdjustStockSchema = z.object({
   action: z.literal('ADJUST_STOCK'),
@@ -19,52 +25,57 @@ const AdjustStockSchema = z.object({
   changeQty: z.number().int().refine((val) => val !== 0, 'Change quantity cannot be zero'),
   reason: z.enum(['RESTOCK', 'DAMAGE_WRITE_OFF', 'AUDIT_ADJUSTMENT']),
   notes: z.string().max(500).optional(),
-});
+  requestKey: z.string().uuid().optional(),
+}).refine(value=>validInventoryChange(value.reason,value.changeQty), {message:'Restocks must add stock, write-offs must subtract stock, and audits require a non-zero whole change up to 100000 units.',path:['changeQty']});
 
 const VariantInputSchema = z.object({
   id: z.string().uuid().optional(),
-  sku: z.string().min(1).max(50),
-  size: z.string().min(1).max(50),
+  sku: z.string().trim().min(1).max(50),
+  size: z.string().trim().max(50).nullable().optional(),
   color: z.string().max(50).nullable().optional(),
-  stock: z.number().int().nonnegative().default(0),
+  stock: z.number().int().nonnegative().max(100000).optional(),
   priceOverride: z.number().nonnegative().nullable().optional(),
-  minStockThreshold: z.number().int().nonnegative().default(3),
-});
+  minStockThreshold: z.number().int().nonnegative().max(100000).optional(),
+  isActive: z.boolean().optional(),
+}).strict();
 
 const CreateProductSchema = z.object({
   action: z.literal('CREATE_PRODUCT'),
-  sku: z.string().min(1).max(50),
-  name: z.string().min(1).max(150),
+  sku: z.string().trim().min(1).max(50),
+  name: z.string().trim().min(1).max(150),
   categoryId: z.number().int().positive().nullable().optional(),
-  categoryName: z.string().min(1).max(50),
+  categoryName: z.string().trim().min(1).max(50),
   priceUsd: z.number().nonnegative(),
   costUsd: z.number().nonnegative().default(0),
   stock: z.number().int().nonnegative().default(0),
   minStockThreshold: z.number().int().nonnegative().default(5),
   sizes: z.array(z.string()).optional(),
   hasVariants: z.boolean().default(false),
-  imageUrl: z.string().url().or(z.literal('')).nullable().optional(),
+  imageUrl: imageUrlSchema.nullable().optional(),
   description: z.string().max(1000).nullable().optional(),
   variants: z.array(VariantInputSchema).max(200).optional(),
+  isActive: z.boolean().default(true),
+  allowStudentOrders: z.boolean().default(true),
 });
 
 const UpdateProductSchema = z.object({
   action: z.literal('UPDATE_PRODUCT'),
   productId: z.string().uuid('Invalid product ID'),
-  sku: z.string().min(1).max(50).optional(),
-  name: z.string().min(1).max(150).optional(),
+  sku: z.string().trim().min(1).max(50).optional(),
+  name: z.string().trim().min(1).max(150).optional(),
   categoryId: z.number().int().positive().nullable().optional(),
-  categoryName: z.string().min(1).max(50).optional(),
+  categoryName: z.string().trim().min(1).max(50).optional(),
   priceUsd: z.number().nonnegative().optional(),
   costUsd: z.number().nonnegative().optional(),
   stock: z.number().int().nonnegative().optional(),
   minStockThreshold: z.number().int().nonnegative().optional(),
   sizes: z.array(z.string()).optional(),
   hasVariants: z.boolean().optional(),
-  imageUrl: z.string().url().or(z.literal('')).nullable().optional(),
+  imageUrl: imageUrlSchema.nullable().optional(),
   description: z.string().max(1000).nullable().optional(),
   isActive: z.boolean().optional(),
   allowStudentOrders: z.boolean().optional(),
+  expectedUpdatedAt: z.string().datetime({offset:true}).optional(),
   variants: z.array(VariantInputSchema).max(200).optional(),
 });
 
@@ -89,10 +100,10 @@ export async function GET(req: Request) {
     const { errorResponse: authErr, context, adminSupabase } = await verifyCaller(req, STAFF_ROLES);
     if (authErr || !adminSupabase || !context) return authErr!;
 
-    const { searchParams } = new URL(req.url);
-    const category = searchParams.get('category');
-    const search = searchParams.get('search')?.replace(/[^\p{L}\p{N} _-]/gu, '').slice(0,100).trim();
-    const includeInactive = searchParams.get('include_inactive') === 'true';
+    const parsed=parseProductQuery(new URL(req.url).searchParams);
+    if(!parsed.success)return NextResponse.json({success:false,data:null,error:{code:'VALIDATION_ERROR',message:'Choose valid catalog filters and pagination.'}},{status:422,headers:shopPrivateHeaders});
+    const {category,search,include_inactive:includeInactive,limit,offset=0}=parsed.data;
+    const paginated=limit!==undefined || parsed.data.offset!==undefined;
 
     let query = adminSupabase
       .from('products')
@@ -124,10 +135,10 @@ export async function GET(req: Request) {
           min_stock_threshold,
           is_active
         )
-      `)
+      `,{count:paginated?'exact':undefined})
       .order('name', { ascending: true });
 
-    if (!includeInactive) {
+    if (includeInactive !== 'true') {
       query = query.eq('is_active', true);
     }
     if (category && category !== 'All') {
@@ -137,7 +148,9 @@ export async function GET(req: Request) {
       query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`);
     }
 
-    const { data: products, error } = await fetchAllRows(query);
+    const result=paginated ? await query.order('id',{ascending:true}).range(offset,offset+(limit ?? 100)-1).abortSignal(AbortSignal.any([req.signal,AbortSignal.timeout(15000)])) : await fetchAllRows(query.abortSignal(req.signal));
+    const {data:products,error}=result;
+    const count='count' in result?result.count:null;
     if (error) {
       return formatServerErrorResponse(error);
     }
@@ -146,7 +159,8 @@ export async function GET(req: Request) {
       success: true,
       data: products || [],
       error: null,
-    });
+      ...(paginated?{meta:{contractVersion:'shop-admin-v1',limit:limit ?? 100,offset,total:count,hasMore:typeof count==='number'?offset+(products?.length ?? 0)<count:(products?.length ?? 0)===(limit ?? 100)}}:{}),
+    },{headers:shopPrivateHeaders});
   } catch (error: any) {
     return formatServerErrorResponse(error);
   }
@@ -165,13 +179,14 @@ export async function POST(req: Request) {
     if (valErr || !body) return valErr!;
 
     if (body.action === 'ADJUST_STOCK') {
-      const { data: result, error: rpcError } = await adminSupabase.rpc('portal_adjust_inventory', {
+      const { data: result, error: rpcError } = await adminSupabase.rpc(body.requestKey?'portal_adjust_inventory_once':'portal_adjust_inventory', {
         p_actor: context.userId, p_product_id: body.productId, p_variant_id: body.variantId || null,
         p_change_qty: body.changeQty, p_reason: body.reason, p_notes: body.notes || null,
+        ...(body.requestKey?{p_request_key:body.requestKey}:{}),
       });
       if (rpcError || !result) return formatServerErrorResponse(rpcError || new Error('Stock adjustment failed'));
 
-      await logSecurityAuditEvent({
+      if(result.replayed!==true)await logSecurityAuditEvent({
         action: 'INVENTORY_STOCK_ADJUSTED',
         performedBy: context.userId,
         targetId: body.productId,
@@ -187,12 +202,12 @@ export async function POST(req: Request) {
         success: true,
         data: result,
         error: null,
-      });
+      },{headers:shopPrivateHeaders});
     }
 
     const { data: product, error } = await adminSupabase.rpc('portal_save_product', { p_actor: context.userId, p_payload: body });
-    if (error) return formatServerErrorResponse(error);
-    return NextResponse.json({success:true,data:product,error:null});
+    if (error || !product) return formatServerErrorResponse(error || new Error('The catalog change was not confirmed.'));
+    return NextResponse.json({success:true,data:product,error:null},{headers:shopPrivateHeaders});
   } catch (error: any) {
     return formatServerErrorResponse(error);
   }
@@ -211,48 +226,16 @@ export async function PUT(req: Request) {
     const { data: body, errorResponse: valErr } = await validateRequestBody(PutSchema, req);
     if (valErr || !body) return valErr!;
 
-    const updateFields: Record<string, any> = {
-      updated_at: new Date().toISOString(),
-    };
-    if (body.sku !== undefined) updateFields.sku = body.sku.toUpperCase().trim();
-    if (body.name !== undefined) updateFields.name = body.name.trim();
-    if (body.categoryId !== undefined) updateFields.category_id = body.categoryId;
-    if (body.categoryName !== undefined) updateFields.category_name = body.categoryName;
-    if (body.priceUsd !== undefined) updateFields.price_usd = body.priceUsd;
-    if (body.costUsd !== undefined) updateFields.cost_usd = body.costUsd;
-    if (body.stock !== undefined) updateFields.stock = body.stock;
-    if (body.minStockThreshold !== undefined) updateFields.min_stock_threshold = body.minStockThreshold;
-    if (body.sizes !== undefined) updateFields.sizes = body.sizes;
-    if (body.hasVariants !== undefined) updateFields.has_variants = body.hasVariants;
-    if (body.imageUrl !== undefined) updateFields.image_url = body.imageUrl;
-    if (body.description !== undefined) updateFields.description = body.description;
-    if (body.isActive !== undefined) updateFields.is_active = body.isActive;
-    if (body.allowStudentOrders !== undefined) updateFields.allow_student_orders = body.allowStudentOrders;
-
-    const { data: updatedProd, error: updateError } = await adminSupabase
-      .from('products')
-      .update(updateFields)
-      .eq('id', body.productId)
-      .select()
-      .single();
-
-    if (updateError) {
-      return formatServerErrorResponse(updateError);
-    }
-
-    await logSecurityAuditEvent({
-      action: 'PRODUCT_UPDATED',
-      performedBy: context.userId,
-      targetId: body.productId,
-      details: { sku: updatedProd.sku, updatedFields: Object.keys(updateFields) },
-      status: 'SUCCESS',
+    const { data: updatedProd, error: updateError } = await adminSupabase.rpc('portal_save_product', {
+      p_actor: context.userId, p_payload: { ...body, action: 'UPDATE_PRODUCT' },
     });
+    if (updateError || !updatedProd) return formatServerErrorResponse(updateError || new Error('Product update was not confirmed.'));
 
     return NextResponse.json({
       success: true,
       data: updatedProd,
       error: null,
-    });
+    },{headers:shopPrivateHeaders});
   } catch (error: any) {
     return formatServerErrorResponse(error);
   }
@@ -269,21 +252,21 @@ export async function DELETE(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const productId = searchParams.get('id');
-    if (!productId) {
-      return NextResponse.json({ success: false, data: null, error: { message: 'Missing product ID parameter' } }, { status: 400 });
+    if (!productId || !z.string().uuid().safeParse(productId).success) {
+      return NextResponse.json({ success: false, data: null, error: { message: 'A valid product ID is required.' } }, { status: 422 });
     }
 
-    const { error: deleteError } = await adminSupabase
-      .from('products')
-      .update({ is_active: false, updated_at: new Date().toISOString() })
-      .eq('id', productId);
+    const {data:deletedProduct,error:deleteError}=await adminSupabase.rpc('portal_save_product',{
+      p_actor:context.userId,p_payload:{action:'DELETE_PRODUCT',productId},
+    });
 
     if (deleteError) {
       return formatServerErrorResponse(deleteError);
     }
+    if (!deletedProduct) return NextResponse.json({success:false,error:{message:'Product not found.'}},{status:404});
 
     await logSecurityAuditEvent({
-      action: 'PRODUCT_DELETED',
+      action: 'PRODUCT_ARCHIVED',
       performedBy: context.userId,
       targetId: productId,
       details: { softDelete: true },
@@ -294,7 +277,7 @@ export async function DELETE(req: Request) {
       success: true,
       data: { id: productId, is_active: false },
       error: null,
-    });
+    },{headers:shopPrivateHeaders});
   } catch (error: any) {
     return formatServerErrorResponse(error);
   }

@@ -5,39 +5,18 @@ export * from './permissions';
 /**
  * Validates route access for authorization guards
  */
-export function canAccessRoute(role: Role | undefined | null, pathname: string): boolean {
-  if (!role) return false;
-
-  // Root / Super Root / Admin can access all routes
-  if (role === 'Root' || role === 'Super Root' || role === 'Admin') {
-    return true;
-  }
-
-  if (pathname.startsWith('/financials')) {
-    return hasPermission(role, 'view:financials');
-  }
-
-  if (pathname.startsWith('/pos')) {
-    return hasPermission(role, 'view:pos');
-  }
-
-  if (pathname.startsWith('/members')) {
-    return hasPermission(role, 'manage:users');
-  }
-
-  if (pathname.startsWith('/students')) {
-    return hasPermission(role, 'manage:students') || hasPermission(role, 'view:own_dossier');
-  }
-
-  if (pathname.startsWith('/schedule') || pathname.startsWith('/attendance')) {
-    return hasPermission(role, 'mark:attendance') || hasPermission(role, 'manage:schedule');
-  }
-
-  if (pathname.startsWith('/library') || pathname.startsWith('/lms')) {
-    return true; // Read-only access for logged-in users
-  }
-
-  return true;
+export function canAccessRoute(role: Role | undefined | null, pathname: string, dynamicOverrides?: Record<string, boolean>, userId?: string, userOverrides?: Record<string, boolean>): boolean {
+  if (!role || !['Root','Super Root','Admin','Head Coach','Coach','Assistant Coach'].includes(role)) return false;
+  if (role === 'Root' || role === 'Super Root') return true;
+  const route = pathname.split(/[?#]/)[0].split('/')[1];
+  if (['', 'login', 'profile'].includes(route)) return true;
+  const routes: Record<string, string[]> = {
+    dashboard: ['page:dashboard'], financials: ['page:financials'], pos: ['page:pos'], 'pro-shop': ['page:pos'],
+    members: ['page:staff'], students: ['page:directory'], schedule: ['page:schedule'], attendance: ['page:attendance'],
+    library: ['page:library'], lms: ['page:lms'], calendar: ['page:calendar'], partners: ['page:partners'], settings: ['page:settings'],
+    operations: ['page:dashboard','page:schedule','page:attendance','page:financials','page:lms','page:settings'],
+  };
+  return (routes[route] || []).some(permission => hasPermission(role, permission, dynamicOverrides, userId, userOverrides));
 }
 
 import DOMPurify from 'dompurify';

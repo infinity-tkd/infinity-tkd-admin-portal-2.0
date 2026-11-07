@@ -4,9 +4,10 @@ import { academyDate, isCalendarDate } from './dates';
 export const achievementEntrySchema = z.object({
   id: z.number().int().positive().max(2147483647).optional(),
   eventName: z.string().trim().min(1).max(200),
+  eventId: z.string().uuid().nullable().optional(),
   date: z.string().refine(value => isCalendarDate(value) && value >= '1900-01-01' && value <= academyDate(), 'Use a valid event date that is not in the future.'),
-  category: z.string().trim().min(1).max(150),
-  division: z.string().trim().min(1).max(150),
+  category: z.string().trim().min(1).max(100),
+  division: z.string().trim().min(1).max(100),
   medalRank: z.enum(['Gold', 'Silver', 'Bronze', 'Participation', 'Fourth Place']),
   notes: z.string().max(5000).optional(),
   ageDivision: z.string().max(150).optional(),

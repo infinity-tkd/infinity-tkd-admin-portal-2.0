@@ -1,21 +1,14 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { User, Role, useAppStore } from '@/lib/store';
-import { 
-  PERMISSION_DEFINITIONS, 
-  MODULE_DEFINITIONS,
-  ModuleDefinition,
-  PermissionKey, 
-  AccessType,
-  hasPermission 
-} from '@/lib/security';
-import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { User, useAppStore } from '@/lib/store';
+import { PERMISSION_DEFINITIONS, MODULE_DEFINITIONS, ModuleDefinition, PermissionKey, hasPermission } from '@/lib/security';
+
 import { X } from '@phosphor-icons/react/dist/csr/X';
 import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
 import { Check } from '@phosphor-icons/react/dist/csr/Check';
 import { LockKey } from '@phosphor-icons/react/dist/csr/LockKey';
-import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+
 import { ArrowCounterClockwise } from '@phosphor-icons/react/dist/csr/ArrowCounterClockwise';
 import { FloppyDisk } from '@phosphor-icons/react/dist/csr/FloppyDisk';
 import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
@@ -90,9 +83,9 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
     return PERMISSION_DEFINITIONS.filter(p => {
       const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
       const matchesAccessType = accessTypeFilter === 'all' || p.accessType === accessTypeFilter;
-      const matchesSearch = 
-        !search.trim() || 
-        p.label.toLowerCase().includes(search.toLowerCase()) || 
+      const matchesSearch =
+        !search.trim() ||
+        p.label.toLowerCase().includes(search.toLowerCase()) ||
         p.key.toLowerCase().includes(search.toLowerCase()) ||
         p.description.toLowerCase().includes(search.toLowerCase());
       return matchesCategory && matchesAccessType && matchesSearch;
@@ -104,11 +97,11 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
     let count = 0;
     PERMISSION_DEFINITIONS.forEach(p => {
       const compositeKey = `${user.id}:${p.key}`;
-      const savedVal = typeof state.userPermissions[compositeKey] === 'boolean' 
-        ? state.userPermissions[compositeKey] 
+      const savedVal = typeof state.userPermissions[compositeKey] === 'boolean'
+        ? state.userPermissions[compositeKey]
         : null;
-      const currentVal = stagedOverrides[p.key] !== undefined 
-        ? stagedOverrides[p.key] 
+      const currentVal = stagedOverrides[p.key] !== undefined
+        ? stagedOverrides[p.key]
         : savedVal;
 
       if (currentVal !== savedVal) {
@@ -186,11 +179,11 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
 
       PERMISSION_DEFINITIONS.forEach(p => {
         const compositeKey = `${user.id}:${p.key}`;
-        const savedVal = typeof state.userPermissions[compositeKey] === 'boolean' 
-          ? state.userPermissions[compositeKey] 
+        const savedVal = typeof state.userPermissions[compositeKey] === 'boolean'
+          ? state.userPermissions[compositeKey]
           : null;
-        const currentVal = stagedOverrides[p.key] !== undefined 
-          ? stagedOverrides[p.key] 
+        const currentVal = stagedOverrides[p.key] !== undefined
+          ? stagedOverrides[p.key]
           : savedVal;
 
         if (currentVal !== savedVal) {
@@ -219,11 +212,11 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
 
     PERMISSION_DEFINITIONS.forEach(p => {
       const compositeKey = `${user.id}:${p.key}`;
-      const savedVal = typeof state.userPermissions[compositeKey] === 'boolean' 
-        ? state.userPermissions[compositeKey] 
+      const savedVal = typeof state.userPermissions[compositeKey] === 'boolean'
+        ? state.userPermissions[compositeKey]
         : null;
-      const currentVal = stagedOverrides[p.key] !== undefined 
-        ? stagedOverrides[p.key] 
+      const currentVal = stagedOverrides[p.key] !== undefined
+        ? stagedOverrides[p.key]
         : savedVal;
 
       if (currentVal === true) customGranted++;
@@ -238,14 +231,14 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
     <Portal>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-5 animate-in fade-in">
         <div className="w-full max-w-4xl max-h-[94dvh] my-auto bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col text-neutral-900 dark:text-white overflow-hidden">
-          
+
           {/* Header */}
           <div className="p-4 sm:p-5 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#141414] shrink-0 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-[8px] overflow-hidden bg-purple-500/10 border border-purple-500/30 flex items-center justify-center shrink-0">
                 {user.profilePicturePath ? (
-                  <SafeImage 
-                    src={user.profilePicturePath} 
+                  <SafeImage
+                    src={user.profilePicturePath}
                     alt={user.displayName}
                     containerClassName="w-full h-full object-cover"
                     fallback={<LockKey className="w-5 h-5 text-purple-500" weight="bold" />}
@@ -269,9 +262,9 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
               </div>
             </div>
 
-            <button 
+            <button
               type="button"
-              onClick={onClose} 
+              onClick={onClose}
               aria-label="Close modal"
               className="p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] cursor-pointer active:scale-95 touch-manipulation transition-colors"
             >
@@ -321,7 +314,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                 {MODULE_DEFINITIONS.slice(0, 6).map(mod => {
                   const currentLevel = getModuleCurrentLevel(mod);
                   return (
-                    <div 
+                    <div
                       key={mod.module}
                       className="p-2 rounded-[8px] bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#262626] flex items-center justify-between gap-2 text-xs"
                     >
@@ -395,8 +388,8 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
             {/* Search Input */}
             <div className="relative flex-1 max-w-xs">
               <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search permission or action..."
@@ -475,22 +468,22 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                 const roleBaseline = getRoleBaseline(p.key);
                 const effective = getEffectivePermission(p.key);
                 const compositeKey = `${user.id}:${p.key}`;
-                const savedVal = typeof state.userPermissions[compositeKey] === 'boolean' 
-                  ? state.userPermissions[compositeKey] 
+                const savedVal = typeof state.userPermissions[compositeKey] === 'boolean'
+                  ? state.userPermissions[compositeKey]
                   : null;
-                const currentOverride = stagedOverrides[p.key] !== undefined 
-                  ? stagedOverrides[p.key] 
+                const currentOverride = stagedOverrides[p.key] !== undefined
+                  ? stagedOverrides[p.key]
                   : savedVal;
 
                 const isModified = currentOverride !== savedVal;
 
                 return (
-                  <div 
+                  <div
                     key={p.key}
                     className={cn(
                       "p-3.5 rounded-[8px] border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3",
-                      isModified 
-                        ? "bg-purple-50/50 dark:bg-purple-950/20 border-purple-500/40 shadow-xs" 
+                      isModified
+                        ? "bg-purple-50/50 dark:bg-purple-950/20 border-purple-500/40 shadow-xs"
                         : "bg-white dark:bg-[#141414] border-neutral-200 dark:border-[#262626] hover:border-neutral-300 dark:hover:border-neutral-700"
                     )}
                   >
@@ -519,7 +512,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                         {/* Effective State Badge */}
                         <span className={cn(
                           "px-2 py-0.5 rounded-[6px] text-[9px] font-mono font-bold uppercase",
-                          effective.isGranted 
+                          effective.isGranted
                             ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20"
                             : "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20"
                         )}>

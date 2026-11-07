@@ -1,7 +1,11 @@
 'use client';
+import {useAttendanceActions} from '@/hooks/use-attendance-actions';
+import {activeClassEnrollmentCounts} from '@/lib/attendance-roster';
+import { BirthdayWishActionModal } from '@/components/dashboard/BirthdayWishActionModal';
 
 import { dialogMotion } from '@/lib/motion';
 import { academyDate } from '@/lib/dates';
+import { tuitionCycle } from '@/lib/tuition-cycle';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppStore, Student } from '@/lib/store';
@@ -17,26 +21,26 @@ import { CalendarBlank } from '@phosphor-icons/react/dist/csr/CalendarBlank';
 import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
 import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
 import { PaperPlaneTilt } from '@phosphor-icons/react/dist/csr/PaperPlaneTilt';
-import { Student as StudentIcon } from '@phosphor-icons/react/dist/csr/Student';
+
 import { Crown } from '@phosphor-icons/react/dist/csr/Crown';
 import { Play } from '@phosphor-icons/react/dist/csr/Play';
 import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
 import { ArrowsCounterClockwise } from '@phosphor-icons/react/dist/csr/ArrowsCounterClockwise';
 import { TrendUp } from '@phosphor-icons/react/dist/csr/TrendUp';
 import { Flame } from '@phosphor-icons/react/dist/csr/Flame';
-import { ArrowUpRight } from '@phosphor-icons/react/dist/csr/ArrowUpRight';
+
 import { ChartBar } from '@phosphor-icons/react/dist/csr/ChartBar';
-import { ListNumbers } from '@phosphor-icons/react/dist/csr/ListNumbers';
+
 import { Sparkle as SparkleIcon } from '@phosphor-icons/react/dist/csr/Sparkle';
 import { X } from '@phosphor-icons/react/dist/csr/X';
 import { Question } from '@phosphor-icons/react/dist/csr/Question';
-import { Sliders } from '@phosphor-icons/react/dist/csr/Sliders';
-import { Info } from '@phosphor-icons/react/dist/csr/Info';
+
+
 import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
-import { UserMinus } from '@phosphor-icons/react/dist/csr/UserMinus';
-import { ListChecks } from '@phosphor-icons/react/dist/csr/ListChecks';
+
+
 import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
-import { cn, formatBelt, isBeltMatch, calculatePromotionReadiness, calculateChurnRisk, getBeltKey } from '@/lib/utils';
+import { cn, formatBelt, calculatePromotionReadiness, calculateChurnRisk } from '@/lib/utils';
 import { SafeImage } from '@/components/SafeImage';
 import { Portal } from '@/components/Portal';
 
@@ -69,11 +73,15 @@ const isMonthBeforeEnrollment = (monthStr: string, year: number, enrollmentDateS
 };
 
 export function DashboardView() {
-  const { state, updateStudent, markAttendance, deleteAttendanceRecords, payInvoice, showNotification } = useAppStore();
+  const { state, can, updateStudent, payInvoice, showNotification } = useAppStore();
+  const attendanceActions=useAttendanceActions();
   const t = useT();
-  const role = state.currentUser?.role;
-  const canViewFinancials = role === 'Root' || role === 'Super Root' || role === 'Admin';
-  const canApproveIntake = role === 'Root' || role === 'Super Root' || role === 'Admin' || role === 'Head Coach';
+  const canViewFinancials = can('page:financials');
+  const canApproveIntake = can('action:student_edit');
+  const canMarkAttendance = can('action:attendance_mark');
+  const canDeleteAttendance = can('action:attendance_delete');
+  const activeEnrollmentCounts = useMemo(()=>activeClassEnrollmentCounts(state.students,state.classEnrollments),[state.students,state.classEnrollments]);
+  const activeStudentIds = useMemo(()=>new Set(state.students.filter(student=>student.studentStatus==='Active').map(student=>student.id)),[state.students]);
 
   const translateBeltFormatted = (beltName: string, dob?: string) => {
     const formatted = formatBelt(beltName, dob);
@@ -224,22 +232,15 @@ export function DashboardView() {
     let expectedMonthlyRevenue = 0;
     let actualCollectedRevenue = 0;
 
-    activeStudents.forEach(student => {
+    state.students.filter(student=>['Active','Paused'].includes(student.studentStatus)).forEach(student => {
       if (isMonthBeforeEnrollment(currentMonthName, currentYear, getStudentEnrollDate(student))) {
         return; // Skip, student was not enrolled in this billing month!
       }
 
       const scholarship = state.scholarships.find(s => s.id === student.scholarshipId);
-      const isStudentEarlyGroup = scholarship?.typeName === 'Early Group Student';
-      const baseFee = isStudentEarlyGroup ? state.academyProfile.earlyGroupTuitionUsd : state.academyProfile.standardTuitionUsd;
-      const discountPct = isStudentEarlyGroup ? 0 : (scholarship?.discountPercentage || 0);
-      const fee = baseFee * (1 - discountPct / 100);
-
-      expectedMonthlyRevenue += fee;
       const payment = state.payments.find(p => p.studentId === student.id && p.year === currentYear && p.month === currentMonthName);
-      if (payment?.status === 'Paid') {
-        actualCollectedRevenue += payment.amountUsd !== undefined ? payment.amountUsd : fee;
-      }
+      const cycle=tuitionCycle(student,`${currentYear}-${String(currentMonthIdx+1).padStart(2,'0')}`,payment,scholarship,state.classEnrollments,state.academyProfile);
+      expectedMonthlyRevenue+=cycle.amount;actualCollectedRevenue+=cycle.cash;
     });
 
     const paidRecords = state.payments.filter(p => p.status === 'Paid');
@@ -257,7 +258,7 @@ export function DashboardView() {
       historicalEfficiencyRate: Math.round(historicalEfficiency * 100),
       churnRatioPct: Math.round((1 - activeRatio) * 100)
     };
-  }, [currentMonthIdx, state.students, state.payments, state.scholarships, state.academyProfile.earlyGroupTuitionUsd, state.academyProfile.standardTuitionUsd, currentYear, getStudentEnrollDate]);
+  }, [currentMonthIdx, state.students, state.payments, state.scholarships, state.classEnrollments, state.academyProfile, currentYear, getStudentEnrollDate]);
 
   const expectedMonthlyRevenue = financialForecast.expected;
 
@@ -287,12 +288,12 @@ export function DashboardView() {
     const lastCircleY = 70 - (p5 / maxVal) * 55;
 
     // Mathematically aligned shaded confidence bounds path
-    const shadowPath = `M 10,${70 - (p1 * 0.95 / maxVal * 55)} 
-                        L 62,${70 - (p2 * 0.95 / maxVal * 55)} 
-                        L 114,${70 - (p3 * 0.95 / maxVal * 55)} 
-                        L 166,${70 - (p4 * 0.95 / maxVal * 55)} 
-                        L 218,${70 - (p5 * 1.1 / maxVal * 55)} 
-                        L 218,${70 - (p5 * 0.9 / maxVal * 55)} 
+    const shadowPath = `M 10,${70 - (p1 * 0.95 / maxVal * 55)}
+                        L 62,${70 - (p2 * 0.95 / maxVal * 55)}
+                        L 114,${70 - (p3 * 0.95 / maxVal * 55)}
+                        L 166,${70 - (p4 * 0.95 / maxVal * 55)}
+                        L 218,${70 - (p5 * 1.1 / maxVal * 55)}
+                        L 218,${70 - (p5 * 0.9 / maxVal * 55)}
                         L 166,${70 - (p4 * 1.05 / maxVal * 55)}
                         L 114,${70 - (p3 * 1.05 / maxVal * 55)}
                         L 62,${70 - (p2 * 1.05 / maxVal * 55)}
@@ -589,7 +590,7 @@ export function DashboardView() {
   const filteredChurnHazards = useMemo(() => {
     const q = churnSearch.trim().toLowerCase();
     return churnHazardRoster.filter(h => {
-      const matchesFilter = churnFilter === 'all' || 
+      const matchesFilter = churnFilter === 'all' ||
         (churnFilter === 'high' ? h.riskLevel === 'High' : h.riskLevel === 'Medium');
       const matchesSearch = !q ||
         h.student.englishName.toLowerCase().includes(q) ||
@@ -682,13 +683,13 @@ export function DashboardView() {
 
   const filteredUnpaidTuition = useMemo(() => {
     return unpaidTuition.filter(student => {
-      const matchesSearch = student.englishName.toLowerCase().includes(tuitionSearch.toLowerCase()) || 
+      const matchesSearch = student.englishName.toLowerCase().includes(tuitionSearch.toLowerCase()) ||
                             (student.khmerName && student.khmerName.toLowerCase().includes(tuitionSearch.toLowerCase()));
 
       const scholarship = state.scholarships.find(s => s.id === student.scholarshipId);
       const isEarly = scholarship?.typeName === 'Early Group Student';
-      const matchesGroup = tuitionGroupFilter === 'all' || 
-                            (tuitionGroupFilter === 'early' && isEarly) || 
+      const matchesGroup = tuitionGroupFilter === 'all' ||
+                            (tuitionGroupFilter === 'early' && isEarly) ||
                             (tuitionGroupFilter === 'standard' && !isEarly);
 
       return matchesSearch && matchesGroup;
@@ -758,13 +759,7 @@ export function DashboardView() {
     }
   };
 
-  const handleSendWish = (studentId: string, name: string) => {
-    setWishState(prev => ({ ...prev, [studentId]: 'sending' }));
-    setTimeout(() => {
-      setWishState(prev => ({ ...prev, [studentId]: 'sent' }));
-      showNotification(`🎉 Simulated Happy Birthday Wish sent successfully to ${name}!`, 'success');
-    }, 1200);
-  };
+
 
   const activeClass = state.classSessions.find(c => c.id === selectedClassId);
   const enrolledStudentIds = state.classEnrollments
@@ -812,34 +807,18 @@ export function DashboardView() {
   }, [classStudents, rosterSearch, rosterStatusFilter, state.attendanceRecords, todayDate, selectedClassId]);
 
   const handleMarkAllClassPresent = async () => {
-    if (!classStudents.length) return;
-    const eligibleStudents = classStudents.filter(s => {
-      const enrollDate = getStudentEnrollDate(s)?.split('T')[0];
-      return !(enrollDate && todayDate < enrollDate);
+    if(!canMarkAttendance||selectedClassId===null||attendanceActions.busy)return;
+    const eligibleStudents=classStudents.filter(student=>{
+      const enrollment=getStudentEnrollDate(student)?.split('T')[0];
+      return !(enrollment&&todayDate<enrollment)&&!state.attendanceRecords.some(record=>record.studentId===student.id&&record.date===todayDate&&record.classId===selectedClassId&&record.status==='Present');
     });
-
-    if (eligibleStudents.length === 0) {
-      showNotification('No eligible students to mark present.', 'info');
-      return;
-    }
-
-    try {
-      await Promise.all(eligibleStudents.map(s => markAttendance(s.id, todayDate, 'Present', selectedClassId ?? undefined)));
-      showNotification(`Marked all ${eligibleStudents.length} eligible students as Present.`, 'success');
-    } catch (e) {
-      console.error(e);
-      showNotification('Failed to mark all students present.', 'error');
-    }
+    if(!eligibleStudents.length){showNotification('No unmarked or non-present students need this change.','info');return;}
+    if(await attendanceActions.markMany(eligibleStudents.map(student=>({studentId:student.id,date:todayDate,status:'Present',classId:selectedClassId}))))showNotification('Marked '+eligibleStudents.length+' students as Present.','success');
   };
 
   const handleUnmarkStudent = async (studentId: string) => {
-    try {
-      await deleteAttendanceRecords(todayDate, [studentId], selectedClassId ?? undefined);
-      showNotification('Attendance status reset to Unmarked.', 'info');
-    } catch (e) {
-      console.error(e);
-      showNotification('Failed to reset attendance status.', 'error');
-    }
+    if(!canDeleteAttendance||selectedClassId===null)return;
+    if(await attendanceActions.clear(todayDate,[studentId],selectedClassId))showNotification('Attendance status reset to Unmarked.','info');
   };
 
   return (
@@ -868,8 +847,8 @@ export function DashboardView() {
           onClick={() => setDashboardTab('overview')}
           className={cn(
             "flex-1 sm:flex-none px-3 sm:px-4 py-2 sm:py-1.5 rounded-[6px] sm:rounded-[8px] flex items-center justify-center gap-1.5 text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer",
-            dashboardTab === 'overview' 
-              ? "bg-white dark:bg-[#262626] text-neutral-900 dark:text-white shadow-sm border border-neutral-200 dark:border-neutral-800" 
+            dashboardTab === 'overview'
+              ? "bg-white dark:bg-[#262626] text-neutral-900 dark:text-white shadow-sm border border-neutral-200 dark:border-neutral-800"
               : "text-neutral-500 dark:text-[#666] hover:text-[#EF2F38] dark:hover:text-white"
           )}
         >
@@ -880,8 +859,8 @@ export function DashboardView() {
           onClick={() => setDashboardTab('intelligence')}
           className={cn(
             "flex-1 sm:flex-none px-3 sm:px-4 py-2 sm:py-1.5 rounded-[6px] sm:rounded-[8px] flex items-center justify-center gap-1.5 text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer",
-            dashboardTab === 'intelligence' 
-              ? "bg-white dark:bg-[#262626] text-neutral-900 dark:text-white shadow-sm border border-neutral-200 dark:border-neutral-800" 
+            dashboardTab === 'intelligence'
+              ? "bg-white dark:bg-[#262626] text-neutral-900 dark:text-white shadow-sm border border-neutral-200 dark:border-neutral-800"
               : "text-neutral-500 dark:text-[#666] hover:text-[#EF2F38] dark:hover:text-white"
           )}
         >
@@ -951,8 +930,8 @@ export function DashboardView() {
                 {turnoutTrendStats.trend !== 0 && (
                   <span className={cn(
                     "text-[7.5px] sm:text-[8.5px] font-bold font-mono px-1 py-0.2 rounded flex items-center gap-0.5 leading-none shrink-0",
-                    turnoutTrendStats.trend > 0 
-                      ? "bg-green-500/15 text-green-600 dark:text-green-400 border border-green-500/20" 
+                    turnoutTrendStats.trend > 0
+                      ? "bg-green-500/15 text-green-600 dark:text-green-400 border border-green-500/20"
                       : "bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/20"
                   )}>
                     {turnoutTrendStats.trend > 0 ? '+' : ''}{turnoutTrendStats.trend}%
@@ -1014,15 +993,15 @@ export function DashboardView() {
                 </span>
                 {todayClasses.length > 0 ? (
                   <select
-                    value={selectedClassId || ''}
+                    aria-label="Dashboard class" value={selectedClassId || ''}
                     onChange={(e) => setSelectedClassId(Number(e.target.value))}
                     className="w-full sm:w-auto bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[8px] px-2.5 py-1.5 text-xs sm:text-[11px] min-h-[38px] sm:min-h-0 font-bold focus:outline-none focus:border-[#EF2F38]/50 shadow-sm cursor-pointer"
                   >
                     {todayClasses.map(c => {
-                      const enrolled = state.classEnrollments.filter(e => e.classId === c.id).length;
+                      const enrolled = activeEnrollmentCounts.get(c.id) ?? 0;
                       return (
                         <option key={c.id} value={c.id}>
-                          {c.name} ({c.startTime} - {c.endTime}) • {enrolled}/{c.capacity || 0} Enrolled
+                          {c.name} ({c.startTime} - {c.endTime}) • {enrolled}/{c.capacity || 0} Active
                         </option>
                       );
                     })}
@@ -1051,11 +1030,10 @@ export function DashboardView() {
                 <div className="space-y-2 max-h-[190px] lg:max-h-[360px] overflow-y-auto pr-1">
                   {todayClasses.map(cls => {
                     const isSelected = cls.id === selectedClassId;
-                    const activeIds = new Set(state.students.filter(student => student.studentStatus === 'Active').map(student => student.id));
-                    const enrolled = state.classEnrollments.filter(e => e.classId === cls.id && activeIds.has(e.studentId)).length;
+                    const enrolled = activeEnrollmentCounts.get(cls.id) ?? 0;
 
                     // Turnout for this specific class
-                    const clsStudentIds = state.classEnrollments.filter(e => e.classId === cls.id && activeIds.has(e.studentId)).map(e => e.studentId);
+                    const clsStudentIds = [...new Set(state.classEnrollments.filter(e => e.classId === cls.id && activeStudentIds.has(e.studentId)).map(e => e.studentId))];
                     const presentForCls = state.students.filter(s => clsStudentIds.includes(s.id) && s.studentStatus === 'Active').filter(s => {
                       const att = state.attendanceRecords.find(a => a.studentId === s.id && a.date === todayDate && a.classId === cls.id);
                       return att?.status === 'Present' || att?.status === 'Late';
@@ -1092,8 +1070,8 @@ export function DashboardView() {
                           </div>
                           <span className={cn(
                             "text-[8px] font-mono font-bold px-1.5 py-0.5 rounded-full shrink-0 uppercase tracking-wider",
-                            isSelected 
-                              ? "bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20" 
+                            isSelected
+                              ? "bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20"
                               : "bg-neutral-100 dark:bg-[#1E1E1E] text-neutral-600 dark:text-neutral-400"
                           )}>
                             {isSelected ? 'Active' : 'Select'}
@@ -1178,6 +1156,7 @@ export function DashboardView() {
                   </div>
                 </div>
 
+                {activeClass && classStudents.length > activeClass.capacity && <p role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">Roster review required: {classStudents.length} active students are enrolled; this class has a capacity of {activeClass.capacity}.</p>}
                 {/* Filter Bar: Search, Status Filter Pills, and Bulk "Mark All Present" Action */}
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-neutral-50 dark:bg-[#141414] p-2 rounded-[8px] border border-neutral-200 dark:border-[#262626]">
                   {/* Search bar */}
@@ -1227,15 +1206,15 @@ export function DashboardView() {
                   </div>
 
                   {/* Mark All Present Batch Action */}
-                  <button
+                  {canMarkAttendance && <button
                     onClick={handleMarkAllClassPresent}
-                    disabled={classStudents.length === 0}
+                    disabled={attendanceActions.busy || (classStudents.length === 0)}
                     className="w-full sm:w-auto px-2.5 h-8 sm:h-auto py-1.5 bg-green-600 hover:bg-green-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-[6px] text-[9px] sm:text-[8.5px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1 shadow-sm shrink-0 cursor-pointer active:scale-95 touch-manipulation"
                     title="Mark all eligible enrolled students as Present"
                   >
                     <CheckCircle className="w-3 h-3" />
                     <span>Mark All Present</span>
-                  </button>
+                  </button>}
                 </div>
 
                 {/* Student Roster List */}
@@ -1294,9 +1273,9 @@ export function DashboardView() {
 
                         {/* Action Buttons: Present, Late, Absent, Unmark */}
                         <div className="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-start pt-1.5 sm:pt-0 border-t sm:border-t-0 border-neutral-100 dark:border-[#202020] shrink-0">
-                          <button
-                            disabled={isNotYetEnrolled}
-                            onClick={() => markAttendance(student.id, todayDate, 'Present', selectedClassId ?? undefined)}
+                          {canMarkAttendance && <><button
+                            disabled={attendanceActions.busy || (isNotYetEnrolled)}
+                            onClick={() => attendanceActions.mark(student.id, todayDate, 'Present', selectedClassId ?? undefined)}
                             className={cn(
                               "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[8.5px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation",
                               isNotYetEnrolled
@@ -1309,8 +1288,8 @@ export function DashboardView() {
                             Present
                           </button>
                           <button
-                            disabled={isNotYetEnrolled}
-                            onClick={() => markAttendance(student.id, todayDate, 'Late', selectedClassId ?? undefined)}
+                            disabled={attendanceActions.busy || (isNotYetEnrolled)}
+                            onClick={() => attendanceActions.mark(student.id, todayDate, 'Late', selectedClassId ?? undefined)}
                             className={cn(
                               "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[8.5px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation",
                               isNotYetEnrolled
@@ -1323,8 +1302,8 @@ export function DashboardView() {
                             Late
                           </button>
                           <button
-                            disabled={isNotYetEnrolled}
-                            onClick={() => markAttendance(student.id, todayDate, 'Absent', selectedClassId ?? undefined)}
+                            disabled={attendanceActions.busy || (isNotYetEnrolled)}
+                            onClick={() => attendanceActions.mark(student.id, todayDate, 'Absent', selectedClassId ?? undefined)}
                             className={cn(
                               "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[8.5px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation",
                               isNotYetEnrolled
@@ -1335,12 +1314,12 @@ export function DashboardView() {
                             )}
                           >
                             Absent
-                          </button>
-                          {currentStatus !== 'Unmarked' && (
+                          </button></>}
+                          {canDeleteAttendance && currentStatus !== 'Unmarked' && (
                             <button
                               onClick={() => handleUnmarkStudent(student.id)}
                               className="px-2 py-1 min-h-[32px] sm:min-h-[28px] text-[8px] font-bold uppercase tracking-wider rounded-[6px] border border-neutral-200 dark:border-[#2D2D2D] bg-white dark:bg-[#1A1A1A] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation shrink-0"
-                              title="Reset back to Unmarked"
+                              title="Reset back to Unmarked" disabled={attendanceActions.busy}
                             >
                               <ArrowsCounterClockwise className="w-3.5 h-3.5" />
                             </button>
@@ -1395,9 +1374,9 @@ export function DashboardView() {
                       {pendingIntake.slice(0, 4).map(student => (
                         <div key={student.id} className="p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-neutral-50 dark:hover:bg-[#1A1A1A] transition-colors">
                           <div className="flex items-center gap-2.5">
-                            <SafeImage 
-                              src={student.profilePicturePath} 
-                              alt={student.englishName} 
+                            <SafeImage
+                              src={student.profilePicturePath}
+                              alt={student.englishName}
                               containerClassName="w-7.5 h-7.5 rounded-[8px] bg-neutral-100 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 shadow-sm"
                               fallback={<span className="font-bold text-neutral-500 dark:text-neutral-400 text-[10px]">{student.englishName.charAt(0)}</span>}
                             />
@@ -1406,7 +1385,7 @@ export function DashboardView() {
                               <p className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">{student.id} • {t('stu_reg_date')} {student.registrationDate}</p>
                             </div>
                           </div>
-                          <button 
+                          <button
                             onClick={() => handleApproveStudent(student.id)}
                             className="px-3 py-1.5 h-7.5 sm:h-8 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-black text-[9px] sm:text-[8.5px] font-black uppercase tracking-widest rounded-[6px] sm:rounded-[8px] transition-colors flex items-center justify-center sm:justify-start sm:w-fit gap-1 shadow-sm w-full cursor-pointer active:scale-95 touch-manipulation"
                           >
@@ -1451,9 +1430,9 @@ export function DashboardView() {
                         <span className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none text-neutral-400 dark:text-neutral-500">
                           <Users className="w-3.5 h-3.5" />
                         </span>
-                        <input 
-                          type="text" 
-                          placeholder="Search name..." 
+                        <input
+                          type="text"
+                          placeholder="Search name..."
                           value={tuitionSearch}
                           onChange={(e) => setTuitionSearch(e.target.value)}
                           className="w-full bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[6px] sm:rounded-[8px] pl-7 pr-2.5 h-8 sm:h-8.5 text-[11px] sm:text-xs font-semibold focus:outline-none focus:border-[#EF2F38]/50 placeholder-neutral-400 dark:placeholder-neutral-500 shadow-inner"
@@ -1501,16 +1480,16 @@ export function DashboardView() {
                     const remindMessageText = `Hello! Friendly reminder from Infinity Taekwondo Academy: monthly tuition of $${studentOwed.toFixed(2)} for ${student.englishName} is currently outstanding for ${currentMonthName}. You can settle this during the next training class. Thank you! 🙏🥋`;
 
                     return (
-                      <div 
-                        key={student.id} 
+                      <div
+                        key={student.id}
                         className="group relative p-2 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] hover:border-red-500/30 dark:hover:border-red-500/25 transition-all duration-150 flex flex-col md:flex-row md:items-center justify-between gap-2.5 border-l-3 border-l-[#EF2F38] dark:border-l-red-500/70"
                       >
                         {/* Student Identity and Information */}
                         <div className="flex items-center gap-2.5 min-w-0 flex-1">
                           <div className="relative shrink-0">
-                            <SafeImage 
-                              src={student.profilePicturePath} 
-                              alt={student.englishName} 
+                            <SafeImage
+                              src={student.profilePicturePath}
+                              alt={student.englishName}
                               containerClassName="w-7.5 h-7.5 rounded-full bg-neutral-100 dark:bg-[#0A0A0A] border border-red-500/20 flex items-center justify-center overflow-hidden shadow-inner"
                               fallback={<span className="font-bold text-neutral-500 dark:text-neutral-400 text-[10px]">{student.englishName.charAt(0)}</span>}
                             />
@@ -1539,7 +1518,7 @@ export function DashboardView() {
                                 <>
                                   <span className="text-neutral-300 dark:text-neutral-800">•</span>
                                   <div className="flex items-center gap-1 pl-0.5">
-                                    <a 
+                                    <a
                                       href={`tel:${student.emergencyContactPhone}`}
                                       className="hover:text-[#EF2F38] transition-colors flex items-center gap-0.5"
                                       title={`Call Guardian: ${student.emergencyContactName} (${student.emergencyContactPhone})`}
@@ -1548,7 +1527,7 @@ export function DashboardView() {
                                       <span>Call {student.emergencyContactName}</span>
                                     </a>
 
-                                    <a 
+                                    <a
                                       href={`https://api.whatsapp.com/send?phone=${student.emergencyContactPhone.replace(/\D/g, '')}&text=${encodeURIComponent(remindMessageText)}`}
                                       target="_blank"
                                       rel="noopener noreferrer"
@@ -1581,7 +1560,7 @@ export function DashboardView() {
                             </span>
                           </div>
 
-                          <button
+                          {can('action:finance_record_payment') && <button
                             onClick={async () => {
                               const currentMonthNameShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][currentMonthIdx];
                               try {
@@ -1596,7 +1575,7 @@ export function DashboardView() {
                           >
                             <Coins className="w-3 h-3" />
                             <span>{t('dash_quick_pay')}</span>
-                          </button>
+                          </button>}
                         </div>
                       </div>
                     );
@@ -1626,8 +1605,8 @@ export function DashboardView() {
                   </div>
 
                   {/* Dynamic Month Selector Toggles */}
-                  <select 
-                    value={selectedMonth} 
+                  <select
+                    value={selectedMonth}
                     onChange={(e) => setSelectedMonth(parseInt(e.target.value, 10))}
                     className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[6px] sm:rounded-[8px] px-2.5 h-8 sm:h-8.5 text-[10px] sm:text-[9px] uppercase font-bold focus:outline-none focus:border-[#444] font-mono shadow-sm cursor-pointer"
                   >
@@ -1645,15 +1624,15 @@ export function DashboardView() {
                       const age = calculateAge(student.dob);
 
                       return (
-                        <motion.div 
+                        <motion.div
                           key={student.id}
                           initial={{ opacity: 0, y: 5 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, scale: 0.95 }}
                           className={cn(
                             "p-2 rounded-[8px] border transition-all flex items-center justify-between gap-2 shadow-sm",
-                            isBirthdayToday 
-                              ? "bg-red-50 dark:bg-[#1E1111] border-red-500/40 dark:border-[#EF2F38]/40 shadow-[0_0_12px_rgba(239,47,56,0.15)] relative overflow-hidden" 
+                            isBirthdayToday
+                              ? "bg-red-50 dark:bg-[#1E1111] border-red-500/40 dark:border-[#EF2F38]/40 shadow-[0_0_12px_rgba(239,47,56,0.15)] relative overflow-hidden"
                               : "bg-white dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626]"
                           )}
                         >
@@ -1666,8 +1645,8 @@ export function DashboardView() {
                           <div className="flex items-center gap-2.5 min-w-0 flex-1">
                             <div className={cn(
                               "w-6.5 h-6.5 rounded-full flex items-center justify-center font-black text-[10px] font-mono border shrink-0",
-                              isBirthdayToday 
-                                ? "bg-[#EF2F38] text-white border-[#EF2F38]" 
+                              isBirthdayToday
+                                ? "bg-[#EF2F38] text-white border-[#EF2F38]"
                                 : "bg-neutral-50 dark:bg-[#141414] text-neutral-500 dark:text-neutral-400 border-neutral-200 dark:border-[#262626]"
                             )}>
                               {bDay}
@@ -1689,9 +1668,10 @@ export function DashboardView() {
                             </div>
                           </div>
 
-                          <button 
+                          <button
                             disabled={wishState[student.id] === 'sent'}
                             onClick={() => setWishStudent(student)}
+                            aria-label={`Open birthday greeting for ${student.englishName}`}
                             className={cn(
                               "p-2.5 sm:p-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-[8px] border transition-all cursor-pointer flex items-center justify-center shadow-sm shrink-0",
                               isBirthdayToday
@@ -1852,7 +1832,7 @@ export function DashboardView() {
                   </span>
                 </div>
                 <div className="w-full bg-neutral-200 dark:bg-neutral-800 h-1.5 sm:h-2 rounded-full overflow-hidden mt-2.5">
-                  <div 
+                  <div
                     className="bg-indigo-500 h-full rounded-full transition-all duration-500"
                     style={{ width: `${healthScoreMetrics.turnoutScore}%` }}
                   />
@@ -1874,7 +1854,7 @@ export function DashboardView() {
                   </span>
                 </div>
                 <div className="w-full bg-neutral-200 dark:bg-neutral-800 h-1.5 sm:h-2 rounded-full overflow-hidden mt-2.5">
-                  <div 
+                  <div
                     className="bg-emerald-500 h-full rounded-full transition-all duration-500"
                     style={{ width: `${healthScoreMetrics.financialScore}%` }}
                   />
@@ -1896,7 +1876,7 @@ export function DashboardView() {
                   </span>
                 </div>
                 <div className="w-full bg-neutral-200 dark:bg-neutral-800 h-1.5 sm:h-2 rounded-full overflow-hidden mt-2.5">
-                  <div 
+                  <div
                     className="bg-amber-500 h-full rounded-full transition-all duration-500"
                     style={{ width: `${healthScoreMetrics.testingPipelineScore}%` }}
                   />
@@ -1918,7 +1898,7 @@ export function DashboardView() {
                   </span>
                 </div>
                 <div className="w-full bg-neutral-200 dark:bg-neutral-800 h-1.5 sm:h-2 rounded-full overflow-hidden mt-2.5">
-                  <div 
+                  <div
                     className={cn("h-full rounded-full transition-all duration-500", healthScoreMetrics.highRiskCount > 0 ? "bg-[#EF2F38]" : "bg-green-500")}
                     style={{ width: `${healthScoreMetrics.retentionScore}%` }}
                   />
@@ -2100,14 +2080,14 @@ export function DashboardView() {
                   {weeklyDensityBarData.map((d, idx) => (
                     <div key={idx} className="flex flex-col items-center flex-1 group space-y-1.5">
                       <div className="w-6 sm:w-8 md:w-10 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-[#262626] rounded-t-[8px] h-18 sm:h-22 flex items-end overflow-hidden relative">
-                        <div 
+                        <div
                           className={cn(
                             "w-full rounded-t-[8px] transition-all duration-500",
                             d.rate >= 80 ? "bg-green-500/85 group-hover:bg-green-500" :
                             d.rate >= 65 ? "bg-amber-500/85 group-hover:bg-amber-500" :
                             "bg-red-500/85 group-hover:bg-red-500"
                           )}
-                          style={{ height: `${d.rate || 6}%` }} 
+                          style={{ height: `${d.rate || 6}%` }}
                         />
                         <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] sm:text-[10px] font-bold font-mono opacity-0 group-hover:opacity-100 transition-opacity bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-1 rounded shadow pointer-events-none">
                           {d.rate}%
@@ -2198,9 +2178,9 @@ export function DashboardView() {
                     <div key={candidate.student.id} className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-2.5 sm:p-3 rounded-[8px] flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 shadow-sm hover:border-neutral-300 dark:hover:border-[#383838] transition-all">
                       {/* Student Identity */}
                       <div className="flex items-center gap-2.5 sm:gap-3">
-                        <SafeImage 
-                          src={candidate.student.profilePicturePath} 
-                          alt={candidate.student.englishName} 
+                        <SafeImage
+                          src={candidate.student.profilePicturePath}
+                          alt={candidate.student.englishName}
                           containerClassName="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-neutral-100 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 shadow-sm"
                           fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-[10px] sm:text-xs">{candidate.student.englishName.charAt(0)}</span>}
                         />
@@ -2350,9 +2330,9 @@ export function DashboardView() {
                     <div key={hazard.student.id} className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-2.5 sm:p-3 rounded-[8px] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm hover:border-neutral-300 dark:hover:border-[#383838] transition-all">
                       {/* Student Details */}
                       <div className="flex items-center gap-2.5 sm:gap-3">
-                        <SafeImage 
-                          src={hazard.student.profilePicturePath} 
-                          alt={hazard.student.englishName} 
+                        <SafeImage
+                          src={hazard.student.profilePicturePath}
+                          alt={hazard.student.englishName}
                           containerClassName="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-neutral-100 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 shadow-sm"
                           fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-[10px] sm:text-xs">{hazard.student.englishName.charAt(0)}</span>}
                         />
@@ -2401,8 +2381,8 @@ export function DashboardView() {
                             </a>
                           )}
                           {hazard.student.emergencyContactPhone && (
-                            <a 
-                              href={`tel:${hazard.student.emergencyContactPhone}`} 
+                            <a
+                              href={`tel:${hazard.student.emergencyContactPhone}`}
                               className="px-2.5 py-1 min-h-[28px] bg-[#EF2F38]/10 hover:bg-[#EF2F38] text-[#EF2F38] hover:text-white border border-[#EF2F38]/20 hover:border-transparent rounded-[6px] text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95 touch-manipulation"
                               title={`Call: ${hazard.student.emergencyContactPhone}`}
                             >
@@ -2464,7 +2444,7 @@ export function DashboardView() {
                   </div>
                   <div className="space-y-1">
                     <div className="w-full bg-neutral-200 dark:bg-neutral-800 h-1.5 sm:h-2 rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className={cn("h-full rounded-full transition-all duration-500", belt.barColor)}
                         style={{ width: `${belt.pct}%` }}
                       />
@@ -2484,7 +2464,7 @@ export function DashboardView() {
       {activeHelpSection && (
         <Portal>
           <div className="fixed inset-0 bg-neutral-950/75 backdrop-blur-sm z-[120] flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setActiveHelpSection(null)}>
-            <motion.div 
+            <motion.div
               {...dialogMotion}
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-lg bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl p-6 relative overflow-hidden flex flex-col space-y-5 text-neutral-900 dark:text-white max-h-[90dvh] overflow-y-auto"
@@ -2558,120 +2538,16 @@ export function DashboardView() {
       {/* Birthday Greeting Modal */}
       <AnimatePresence>
         {wishStudent && (
-          <BirthdayWishActionModal 
-            student={wishStudent} 
-            onClose={() => setWishStudent(null)} 
+          <BirthdayWishActionModal
+            student={wishStudent}
+            onClose={() => setWishStudent(null)}
             onMarkSent={() => {
               setWishState(prev => ({ ...prev, [wishStudent.id]: 'sent' }));
               setWishStudent(null);
-            }} 
+            }}
           />
         )}
       </AnimatePresence>
     </div>
-  );
-}
-
-function BirthdayWishActionModal({ student, onClose, onMarkSent }: { student: Student, onClose: () => void, onMarkSent: () => void }) {
-  const t = useT();
-  const [copied, setCopied] = useState(false);
-  const birthYear = parseInt(student.dob.split('-')[0], 10);
-  const currentYear = new Date().getFullYear();
-  const age = currentYear - birthYear;
-
-  const messageText = t('dash_birthday_greeting_text').replace('{name}', student.englishName);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(messageText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const telegramUrl = `https://telegram.me/share/url?text=${encodeURIComponent(messageText)}`;
-  const whatsAppUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(messageText)}`;
-
-  return (
-    <Portal>
-      <div className="fixed inset-0 bg-neutral-950/75 backdrop-blur-sm z-[110] flex items-center justify-center p-4 animate-in fade-in duration-200">
-        <motion.div 
-          {...dialogMotion}
-          className="w-full max-w-md bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl p-6 relative overflow-hidden flex flex-col space-y-6 text-neutral-900 dark:text-white max-h-[90dvh] overflow-y-auto"
-        >
-          {/* Header */}
-          <div className="flex justify-between items-start border-b border-neutral-200 dark:border-[#262626] pb-3">
-            <div>
-              <span className="text-[8px] font-bold uppercase tracking-widest text-[#EF2F38] font-mono">{t('dash_birthday_wizard')}</span>
-              <h3 className="text-sm font-bold text-neutral-800 dark:text-white mt-1">{t('dash_send_birthday_greeting')}</h3>
-            </div>
-            <button 
-              type="button"
-              onClick={onClose} 
-              aria-label="Close Birthday Wizard"
-              className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:text-neutral-500 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1C1C1C] rounded-full transition-colors cursor-pointer active:scale-95 touch-manipulation"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Student Profile Preview */}
-          <div className="flex items-center gap-3 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] p-3 rounded-[8px]">
-            <div className="w-10 h-10 rounded-full bg-[#EF2F38] text-white flex items-center justify-center font-black text-sm">
-              {student.englishName.charAt(0)}
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-neutral-900 dark:text-white">{student.englishName}</h4>
-              <p className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
-                Turning {age} • DOB: {student.dob} • Belt: {student.currentBelt}
-              </p>
-            </div>
-          </div>
-
-          {/* Message Preview Textbox */}
-          <div className="space-y-2">
-            <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider font-mono">{t('dash_greeting_preview')}</label>
-            <div className="bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 text-xs font-mono leading-relaxed text-neutral-800 dark:text-neutral-300 select-all whitespace-pre-wrap">
-              {messageText}
-            </div>
-          </div>
-
-          {/* Action Links */}
-          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-            <a 
-              href={telegramUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              onClick={onMarkSent}
-              className="h-10 sm:h-11 bg-sky-500 hover:bg-sky-600 text-white rounded-[6px] sm:rounded-[8px] text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md shadow-sky-500/10 cursor-pointer active:scale-95 touch-manipulation"
-            >
-              {t('dash_send_telegram')}
-            </a>
-            <a 
-              href={whatsAppUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              onClick={onMarkSent}
-              className="h-10 sm:h-11 bg-green-500 hover:bg-green-600 text-white rounded-[6px] sm:rounded-[8px] text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md shadow-green-500/10 cursor-pointer active:scale-95 touch-manipulation"
-            >
-              {t('dash_send_whatsapp')}
-            </a>
-          </div>
-
-          <div className="flex gap-2.5 sm:gap-3">
-            <button 
-              onClick={handleCopy}
-              className="flex-1 h-9 sm:h-10 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-white rounded-[6px] sm:rounded-[8px] text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all active:scale-95 touch-manipulation cursor-pointer flex items-center justify-center"
-            >
-              {copied ? t('dash_copied_msg') : t('dash_copy_clipboard')}
-            </button>
-            <button 
-              onClick={onMarkSent}
-              className="flex-1 h-9 sm:h-10 bg-[#EF2F38] hover:bg-[#D0252D] text-white rounded-[6px] sm:rounded-[8px] text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all shadow-md shadow-[#EF2F38]/20 active:scale-95 touch-manipulation cursor-pointer flex items-center justify-center"
-            >
-              {t('dash_mark_sent')}
-            </button>
-          </div>
-        </motion.div>
-      </div>
-    </Portal>
   );
 }

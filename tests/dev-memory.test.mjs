@@ -5,7 +5,9 @@ import { developmentNodeOptions } from '../scripts/lib/dev-memory.mjs';
 const GiB=1024**3;
 
 test('development budget leaves room for native compiler allocations and respects explicit limits',()=>{
- assert.equal(developmentNodeOptions('',16*GiB).heapMiB,2048);
+ assert.equal(developmentNodeOptions('',16*GiB).heapMiB,3072);
+ assert.equal(developmentNodeOptions('',15.5*GiB).heapMiB,3072,'hardware-reserved memory on a 16 GB workstation retains the compiler budget');
+ assert.equal(developmentNodeOptions('',32*GiB).heapMiB,4096);
  assert.equal(developmentNodeOptions('',8*GiB).heapMiB,2048);
  assert.equal(developmentNodeOptions('',4*GiB).heapMiB,1024);
  for(const option of ['--max-old-space-size=3072','--max_old_space_size=3072','--max-old-space-size 3072']) {

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { parseOrderQuery, shopPrivateHeaders } from '@/lib/pos-query';
+import { POS_MAX_LINE_QUANTITY, POS_MAX_CART_LINES, POS_MAX_ORDER_NOTES } from '@/lib/pos-cart';
 import {
   verifyCaller,
   validateRequestBody,
@@ -11,25 +13,25 @@ const STAFF_ROLES = ['Root', 'Super Root', 'Admin', 'Head Coach', 'Coach', 'Assi
 
 // Zod Schema for Direct POS Counter Sale
 const PosSaleItemSchema = z.object({
-  productId: z.string().min(1),
+  productId: z.string().uuid(),
   variantId: z.string().uuid().nullable().optional(),
   sku: z.string().min(1).max(50),
   name: z.string().min(1).max(150),
   size: z.string().max(50).nullable().optional(),
   color: z.string().max(50).nullable().optional(),
   price: z.number().nonnegative(),
-  qty: z.number().int().positive().max(1000),
+  qty: z.number().int().positive().max(POS_MAX_LINE_QUANTITY),
 });
 
 const DirectPosSaleSchema = z.object({
   studentId: z.string().max(50).nullable().optional(),
-  customerName: z.string().min(1).max(100),
+  customerName: z.string().trim().min(1).max(100),
   branchId: z.number().int().positive().nullable().optional(),
   subtotal: z.number().nonnegative(),
   discountPercentage: z.number().min(0).max(100).default(0),
-  paymentMethod: z.enum(['ABA Bank KHQR', 'Cash', 'Credit Card', 'Bank Transfer', 'Pay at Counter']),
-  adminNotes: z.string().max(500).optional(),
-  items: z.array(PosSaleItemSchema).min(1, 'Cart cannot be empty').max(100),
+  paymentMethod: z.enum(['ABA Bank KHQR', 'Cash', 'Credit Card', 'Bank Transfer']),
+  adminNotes: z.string().max(POS_MAX_ORDER_NOTES).optional(),
+  items: z.array(PosSaleItemSchema).min(1, 'Cart cannot be empty').max(POS_MAX_CART_LINES),
   requestKey: z.string().uuid(),
 });
 
@@ -38,8 +40,10 @@ const UpdateOrderStatusSchema = z.object({
   orderId: z.string().uuid('Invalid order UUID'),
   newOrderStatus: z.enum(['CONFIRMED', 'PREPARING', 'READY_FOR_PICKUP', 'COMPLETED']),
   paymentStatus: z.enum(['PENDING', 'PAID']).optional(),
-  adminNotes: z.string().max(500).optional(),
-});
+  adminNotes: z.string().max(POS_MAX_ORDER_NOTES).optional(),
+  expectedUpdatedAt: z.string().datetime({offset:true}).optional(),
+  paymentReference: z.string().trim().min(3).max(150).optional(),
+}).strict();
 
 /**
  * GET /api/admin/pos/orders
@@ -50,12 +54,9 @@ export async function GET(req: Request) {
     const { errorResponse: authErr, context, adminSupabase } = await verifyCaller(req, STAFF_ROLES);
     if (authErr || !adminSupabase || !context) return authErr!;
 
-    const { searchParams } = new URL(req.url);
-    const status = searchParams.get('status');
-    const channel = searchParams.get('channel');
-    const search = searchParams.get('search')?.replace(/[^\p{L}\p{N} _-]/gu, '').slice(0,100).trim();
-    const limit = Math.min(100, Math.max(1, Number(searchParams.get('limit')) || 50));
-    const offset = Math.max(0, Math.floor(Number(searchParams.get('offset')) || 0));
+    const parsed=parseOrderQuery(new URL(req.url).searchParams);
+    if(!parsed.success)return NextResponse.json({success:false,data:null,error:{code:'VALIDATION_ERROR',message:'Choose valid order filters and pagination.'}},{status:422,headers:shopPrivateHeaders});
+    const {status,channel,payment,search,from,to,limit,offset}=parsed.data;
 
     let query = adminSupabase
       .from('pos_orders')
@@ -73,6 +74,7 @@ export async function GET(req: Request) {
         total_usd,
         payment_method,
         payment_status,
+        payment_recorded_at,
         order_status,
         student_notes,
         admin_notes,
@@ -98,7 +100,7 @@ export async function GET(req: Request) {
           quantity,
           total_price_usd
         )
-      `)
+      `, {count:'exact'})
       .order('created_at', { ascending: false })
       .order('id', { ascending: false })
       .range(offset, offset + limit - 1);
@@ -109,11 +111,14 @@ export async function GET(req: Request) {
     if (channel && channel !== 'All') {
       query = query.eq('order_channel', channel);
     }
+    if (payment && payment !== 'All') query=query.eq('payment_status',payment);
+    if (from) query=query.gte('created_at',from+'T00:00:00+07:00');
+    if (to) query=query.lte('created_at',to+'T23:59:59.999999+07:00');
     if (search) {
       query = query.or(`order_number.ilike.%${search}%,customer_name.ilike.%${search}%`);
     }
 
-    const { data: orders, error } = await query;
+    const { data: orders, error, count } = await query.abortSignal(AbortSignal.any([req.signal,AbortSignal.timeout(15000)]));
     if (error) {
       return formatServerErrorResponse(error);
     }
@@ -122,7 +127,8 @@ export async function GET(req: Request) {
       success: true,
       data: orders || [],
       error: null,
-    });
+      meta:{contractVersion:'shop-admin-v1',limit,offset,total:count ?? null,hasMore:count!==null?offset+(orders?.length ?? 0)<count:(orders?.length ?? 0)===limit},
+    },{headers:shopPrivateHeaders});
   } catch (error: any) {
     return formatServerErrorResponse(error);
   }
@@ -140,11 +146,26 @@ export async function POST(req: Request) {
     const { data: body, errorResponse: valErr } = await validateRequestBody(DirectPosSaleSchema, req);
     if (valErr || !body) return valErr!;
 
-    const { data: result, error: rpcError } = await adminSupabase.rpc('portal_place_order', {
-      p_actor: context.userId, p_channel: 'ADMIN_POS', p_payload: body,
+    const { data: result, error: rpcError } = await adminSupabase.rpc('portal_place_counter_order', {
+      p_actor: context.userId, p_payload: body,
       p_request_key: body.requestKey || null,
     });
-    if (rpcError || !result) return formatServerErrorResponse(rpcError || new Error('Checkout failed'));
+    if (rpcError?.code === 'P0001' && rpcError.message === 'POS_QUOTE_CHANGED') {
+      return NextResponse.json({ success: false, data: null, error: {
+        code: 'POS_QUOTE_CHANGED', message: 'Product prices changed. Refresh the catalog and review the total before recording payment.',
+      } }, { status: 409 });
+    }
+    if (rpcError || !result || !z.string().uuid().safeParse(result.order_id).success) return formatServerErrorResponse(rpcError || new Error('Checkout could not be confirmed. Read the order before retrying.'));
+
+    // The order is already confirmed by its atomic RPC. A follow-up metadata
+    // outage must not turn that completed sale into an apparent failed write.
+    let paymentRecordedAt:string|null=null;
+    try{
+      const receipt=await adminSupabase.from('pos_orders').select('payment_recorded_at').eq('id',result.order_id)
+        .abortSignal(AbortSignal.timeout(3000)).maybeSingle();
+      if(receipt.error)console.warn('[POS_COLLECTION_TIME_UNAVAILABLE]',receipt.error.code || 'READ_FAILURE');
+      else paymentRecordedAt=receipt.data?.payment_recorded_at ?? null;
+    }catch{console.warn('[POS_COLLECTION_TIME_UNAVAILABLE]','READ_FAILURE');}
 
     await logSecurityAuditEvent({
       action: 'POS_COUNTER_SALE_EXECUTED',
@@ -160,9 +181,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      data: result,
+      data: {...result,payment_recorded_at:paymentRecordedAt},
       error: null,
-    });
+    },{headers:shopPrivateHeaders});
   } catch (error: any) {
     return formatServerErrorResponse(error);
   }
@@ -180,20 +201,21 @@ export async function PUT(req: Request) {
     const { data: body, errorResponse: valErr } = await validateRequestBody(UpdateOrderStatusSchema, req);
     if (valErr || !body) return valErr!;
 
-    const { data: result, error: rpcError } = await adminSupabase.rpc('portal_update_order', {
+    const { data: result, error: rpcError } = await adminSupabase.rpc('portal_transition_order', {
       p_actor: context.userId,
       p_order_id: body.orderId,
       p_new_order_status: body.newOrderStatus,
       p_payment_status: body.paymentStatus || null,
-      p_admin_notes: body.adminNotes || null,
+      p_admin_notes: body.adminNotes ?? null,
+      p_expected_updated_at: body.expectedUpdatedAt ?? null,
+      p_payment_reference: body.paymentReference ?? null,
     });
 
-    if (rpcError) {
-      return formatServerErrorResponse(rpcError);
-    }
+    if(rpcError?.code==='40001')return NextResponse.json({success:false,data:null,error:{code:'ORDER_CHANGED',message:'This order changed. Refresh the queue before updating it.'}},{status:409,headers:shopPrivateHeaders});
+    if(rpcError || !result)return formatServerErrorResponse(rpcError || new Error('The order update was not confirmed.'));
 
     await logSecurityAuditEvent({
-      action: 'POS_ORDER_CONFIRMED',
+      action: 'POS_ORDER_UPDATED',
       performedBy: context.userId,
       targetId: body.orderId,
       details: {
@@ -207,7 +229,7 @@ export async function PUT(req: Request) {
       success: true,
       data: result,
       error: null,
-    });
+    },{headers:shopPrivateHeaders});
   } catch (error: any) {
     return formatServerErrorResponse(error);
   }

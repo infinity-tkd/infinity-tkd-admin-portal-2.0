@@ -16,6 +16,7 @@ export type PermissionKey =
   | 'page:directory'
   | 'page:attendance'
   | 'page:schedule'
+  | 'page:calendar'
   | 'page:lms'
   | 'page:library'
   | 'page:staff'
@@ -34,6 +35,10 @@ export type PermissionKey =
   | 'action:curriculum_edit'
   | 'action:finance_record_payment'
   | 'action:schedule_manage'
+  | 'action:events_create'
+  | 'action:events_edit'
+  | 'action:events_publish'
+  | 'action:announcements_send'
   | 'action:staff_manage'
   | 'action:partner_create'
   | 'action:partner_edit'
@@ -62,6 +67,7 @@ export type SecurityModule =
   | 'attendance'
   | 'financials'
   | 'schedule'
+  | 'calendar'
   | 'lms'
   | 'library'
   | 'staff'
@@ -87,6 +93,11 @@ export const PERMISSION_DEFINITIONS: PermissionDefinition[] = [
   { key: 'page:directory', label: 'Student Directory', category: 'Navigation & Pages', module: 'directory', accessType: 'read', description: 'View student database, addresses, and physical evaluations' },
   { key: 'page:attendance', label: 'Attendance Check-in', category: 'Navigation & Pages', module: 'attendance', accessType: 'read', description: 'View class attendance rosters, kiosk history, and logs' },
   { key: 'page:schedule', label: 'Master Schedule', category: 'Navigation & Pages', module: 'schedule', accessType: 'read', description: 'View dojo schedule, class sessions, and student enrollments' },
+  { key: 'page:calendar', label: 'Calendar & Events', category: 'Navigation & Pages', module: 'calendar', accessType: 'read', description: 'View academy events, student-facing publications and calendar updates' },
+  { key: 'action:events_create', label: 'Create Academy Events', category: 'Operations & Staff', module: 'calendar', accessType: 'write', description: 'Prepare private event drafts and student audiences' },
+  { key: 'action:events_edit', label: 'Edit Academy Events', category: 'Operations & Staff', module: 'calendar', accessType: 'write', description: 'Edit event drafts; non-administrators may change only their own events' },
+  { key: 'action:events_publish', label: 'Publish Academy Events', category: 'Operations & Staff', module: 'calendar', accessType: 'write', description: 'Publish reviewed content to the student calendar' },
+  { key: 'action:announcements_send', label: 'Notify Students', category: 'Operations & Staff', module: 'calendar', accessType: 'write', description: 'Announce a published event to its authorized student audience' },
   { key: 'page:lms', label: 'E-Learning & LMS', category: 'Navigation & Pages', module: 'lms', accessType: 'read', description: 'View syllabus progression, video lessons, and completion tracking' },
   { key: 'page:library', label: 'Asset Library & Anatomy', category: 'Navigation & Pages', module: 'library', accessType: 'read', description: 'View video technique library, 2D/3D anatomy muscle maps' },
   { key: 'page:staff', label: 'Staff Directory', category: 'Navigation & Pages', module: 'staff', accessType: 'read', description: 'View instructor list, roles, and emergency contact details' },
@@ -127,6 +138,7 @@ export interface ModuleDefinition {
 }
 
 export const MODULE_DEFINITIONS: ModuleDefinition[] = [
+  { module:'calendar',label:'Calendar & Events',readKey:'page:calendar',writeKeys:['action:events_create','action:events_edit','action:events_publish','action:announcements_send'],description:'Academy calendar, event publication and targeted student notifications' },
   {
     module: 'pos',
     label: 'Point-of-Sale (POS)',
@@ -214,6 +226,12 @@ export function getModuleAccessLevel(
   if (!canFn(def.readKey)) return 'none';
   const hasWrite = def.writeKeys.some(k => canFn(k));
   return hasWrite ? 'write' : 'read';
+}
+
+export function canWriteModule(module: SecurityModule, canFn: (key: string) => boolean, action?: string): boolean {
+  const definition = MODULE_DEFINITIONS.find(item => item.module === module);
+  if (!definition || !canFn(definition.readKey)) return false;
+  return action ? definition.writeKeys.includes(action as PermissionKey) && canFn(action) : definition.writeKeys.some(canFn);
 }
 
 export const ROLE_PERMISSIONS: Record<Role, PermissionKey[]> = {
@@ -405,6 +423,26 @@ export const ROLE_PERMISSIONS: Record<Role, PermissionKey[]> = {
     'view:own_dossier',
   ],
 };
+for (const role of ['Root','Super Root','Admin','Head Coach','Coach','Assistant Coach'] as const) ROLE_PERMISSIONS[role].push('page:calendar');
+for (const role of ['Root','Super Root','Admin','Head Coach'] as const) ROLE_PERMISSIONS[role].push('action:events_create','action:events_edit');
+for (const role of ['Root','Super Root','Admin'] as const) ROLE_PERMISSIONS[role].push('action:events_publish','action:announcements_send');
+
+const legacyPermissionKeys: Partial<Record<PermissionKey, PermissionKey>> = {
+  'manage:users': 'action:staff_manage', 'manage:students': 'action:student_edit',
+  'manage:finances': 'action:finance_record_payment', 'manage:pos': 'action:pos_create_order',
+  'manage:curriculum': 'action:curriculum_edit', 'manage:branches': 'action:schedule_manage',
+  'manage:schedule': 'action:schedule_manage', 'view:financials': 'page:financials',
+  'view:pos': 'page:pos', 'view:analytics': 'page:dashboard',
+  'mark:attendance': 'action:attendance_mark', 'grade:evaluations': 'action:evaluations_grade',
+};
+
+/** Shared by browser and API checks so a granted action cannot bypass a denied module. */
+export function permissionDependencies(permission: PermissionKey | string): string[] {
+  const canonical = legacyPermissionKeys[permission as PermissionKey] || permission;
+  const parents = MODULE_DEFINITIONS.filter(module => module.writeKeys.includes(canonical as PermissionKey)).map(module => module.readKey);
+  return [...new Set([permission, canonical, ...parents])];
+}
+
 
 /**
  * Checks if a given user/role has explicit permission key.
@@ -421,28 +459,25 @@ export function hasPermission(
   userId?: string,
   userOverrides?: Record<string, boolean>
 ): boolean {
-  if (!role) return false;
+  if (!role || !Object.hasOwn(ROLE_PERMISSIONS, role)) return false;
   // Root and Super Root always have full privileges
   if (role === 'Root' || role === 'Super Root') return true;
 
-  // 1. Check user-specific discretionary override: "userId:permissionKey" (Highest Precedence)
-  if (userId && userOverrides) {
-    const userKey = `${userId}:${permission}`;
-    if (typeof userOverrides[userKey] === 'boolean') {
-      return userOverrides[userKey];
-    }
-  }
+  const canonical = legacyPermissionKeys[permission as PermissionKey] || permission;
+  // Students use the separate, ownership-scoped portal services. Discretionary
+  // grants cannot turn a student account into a staff mutation actor.
+  if (role === 'Student' && canonical.startsWith('action:')) return false;
 
-  // 2. Check custom dynamic matrix role override: "role:permissionKey"
-  if (dynamicOverrides) {
-    const overrideKey = `${role}:${permission}`;
-    if (typeof dynamicOverrides[overrideKey] === 'boolean') {
-      return dynamicOverrides[overrideKey];
-    }
-  }
-
-  // 3. Fall back to static baseline role permissions
-  const permissions = ROLE_PERMISSIONS[role] || [];
-  return permissions.includes(permission as PermissionKey);
+  const resolve = (key: string): boolean => {
+    const userValue = userId ? userOverrides?.[`${userId}:${key}`] : undefined;
+    if (typeof userValue === 'boolean') return userValue;
+    const roleValue = dynamicOverrides?.[`${role}:${key}`];
+    if (typeof roleValue === 'boolean') return roleValue;
+    return (ROLE_PERMISSIONS[role] || []).includes(key as PermissionKey);
+  };
+  if (!resolve(permission)) return false;
+  if (canonical !== permission && !resolve(canonical)) return false;
+  const parents = MODULE_DEFINITIONS.filter(module => module.writeKeys.includes(canonical as PermissionKey)).map(module => module.readKey);
+  return parents.length === 0 || parents.some(resolve);
 }
 

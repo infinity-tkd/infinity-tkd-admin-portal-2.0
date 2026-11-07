@@ -16,13 +16,13 @@ const clientEnvSchema = z.object({
     }),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z
     .string()
-    .min(20, 'NEXT_PUBLIC_SUPABASE_ANON_KEY must be a valid JWT token'),
+    .min(20, 'NEXT_PUBLIC_SUPABASE_ANON_KEY must contain a publishable or compatible public key'),
 });
 
 const serverEnvSchema = clientEnvSchema.extend({
   SUPABASE_SERVICE_ROLE_KEY: z
     .string()
-    .min(20, 'SUPABASE_SERVICE_ROLE_KEY must be a valid JWT service role token')
+    .min(20, 'SUPABASE_SERVICE_ROLE_KEY must contain a server secret or compatible service role key')
     .refine((key) => !key.startsWith('NEXT_PUBLIC_'), {
       message: 'SUPABASE_SERVICE_ROLE_KEY must NEVER be prefixed with NEXT_PUBLIC_',
     }),

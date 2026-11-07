@@ -1,4 +1,6 @@
 'use client';
+import { copyText } from '@/lib/clipboard';
+import NextImage from 'next/image';
 
 import { dialogMotion } from '@/lib/motion';
 import React, { useState, useEffect, useRef } from 'react';
@@ -12,11 +14,11 @@ import { ShieldWarning } from '@phosphor-icons/react/dist/csr/ShieldWarning';
 import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
 import { Sun } from '@phosphor-icons/react/dist/csr/Sun';
 import { Moon } from '@phosphor-icons/react/dist/csr/Moon';
-import { Globe } from '@phosphor-icons/react/dist/csr/Globe';
+
 import { Question } from '@phosphor-icons/react/dist/csr/Question';
 import { TelegramLogo } from '@phosphor-icons/react/dist/csr/TelegramLogo';
 import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
-import { EnvelopeSimple } from '@phosphor-icons/react/dist/csr/EnvelopeSimple';
+
 import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
 import { Check } from '@phosphor-icons/react/dist/csr/Check';
 import { X } from '@phosphor-icons/react/dist/csr/X';
@@ -174,7 +176,7 @@ const LoginBackground = () => {
 };
 
 export function LoginView() {
-  const { login, state, setTheme, setLanguage } = useAppStore();
+  const { login, state, setTheme, setLanguage, showNotification } = useAppStore();
   const t = useT();
 
   const [identifier, setIdentifier] = useState('');
@@ -244,9 +246,9 @@ export function LoginView() {
     }
   };
 
-  const handleCopy = (text: string, type: 'telegram' | 'phone') => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text);
+  const handleCopy = async (text: string, type: 'telegram' | 'phone') => {
+
+      if (!(await copyText(text))) { showNotification('Copying is unavailable. Select the text and copy it manually.', 'warning'); return; }
       if (type === 'telegram') {
         setCopiedTelegram(true);
         setTimeout(() => setCopiedTelegram(false), 2000);
@@ -254,7 +256,7 @@ export function LoginView() {
         setCopiedPhone(true);
         setTimeout(() => setCopiedPhone(false), 2000);
       }
-    }
+
   };
 
   return (
@@ -344,14 +346,12 @@ export function LoginView() {
           {/* Academy Brand Logo & Header */}
           <div className="text-center">
             <div className="mb-4 relative flex justify-center">
-              <img
-                src="/icons/logo.svg"
+              <NextImage unoptimized src="/icons/logo.svg"
                 alt="Infinity TKD Crest Logo"
                 width={160}
                 height={55}
                 fetchPriority="high"
-                className="mx-auto h-auto w-32 sm:w-36 object-contain filter drop-shadow-sm transition-transform duration-300 hover:scale-105"
-              />
+                className="mx-auto h-auto w-32 sm:w-36 object-contain filter drop-shadow-sm transition-transform duration-300 hover:scale-105" />
             </div>
             <h1 className="text-lg sm:text-xl font-black tracking-widest text-neutral-900 dark:text-white uppercase leading-tight">
               {t('login_title')}
@@ -548,9 +548,9 @@ export function LoginView() {
                 <div className="space-y-2 pt-1 font-mono text-xs">
                   {/* Telegram Channel */}
                   <div className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-neutral-800 rounded-[8px]">
-                    <a 
-                      href="https://t.me/infinity_taekwondo" 
-                      target="_blank" 
+                    <a
+                      href="https://t.me/infinity_taekwondo"
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2.5 group cursor-pointer"
                     >
@@ -572,7 +572,7 @@ export function LoginView() {
 
                   {/* Academy Hotline */}
                   <div className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-neutral-800 rounded-[8px]">
-                    <a 
+                    <a
                       href="tel:012220124"
                       className="flex items-center gap-2.5 group cursor-pointer"
                     >

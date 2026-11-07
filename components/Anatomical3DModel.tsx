@@ -1,230 +1,143 @@
 'use client';
 
-import React, { useState } from 'react';
-import {
-  Maximize2,
-  X,
-  Layers,
-  Sparkles,
-} from 'lucide-react';
-import { AnatomyAtlasExplorer } from './atlas/AnatomyAtlasExplorer';
+import React, { useEffect, useId, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { Layers, Maximize2, RotateCcw, X } from 'lucide-react';
 import { Biomechanical2DScanner } from './2d/Biomechanical2DScanner';
 import { Portal } from './Portal';
+import { detectAnatomyWebGL } from '@/lib/anatomy-webgl';
+import type { AnatomyContext } from '@/lib/anatomy-integration';
 
-// Re-exports
-export { AnatomyAtlasExplorer } from './atlas/AnatomyAtlasExplorer';
 export { Biomechanical2DScanner } from './2d/Biomechanical2DScanner';
 export { ANATOMY_DATABASE, TKD_KICK_PRESETS } from '@/lib/anatomyData';
 export { useAnatomyStore } from '@/lib/useAnatomyStore';
 
-export type AnatomicalGender = 'Male' | 'Female';
+const AnatomyAtlasExplorer = dynamic(
+  () => import('./atlas/AnatomyAtlasExplorer').then((module) => module.AnatomyAtlasExplorer),
+  { ssr: false, loading: () => <div role="status" className="flex h-full items-center justify-center p-6 text-sm text-neutral-500">Opening 3D anatomy…</div> },
+);
 
+class AnatomyViewBoundary extends React.Component<{ children: React.ReactNode; onFailure: () => void }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() { this.props.onFailure(); }
+  render() { return this.state.failed ? null : this.props.children; }
+}
+
+export type AnatomicalGender = 'Male' | 'Female';
 export interface Anatomical3DModelProps {
   muscleLoads?: Record<string, number>;
   maxLoad?: number;
   gender?: AnatomicalGender;
-  modelUrl?: string; // Maintained for backwards-compatibility
+  modelUrl?: string;
   className?: string;
-  studentStatus?: Record<string, any>;
+  studentStatus?: Record<string, unknown>;
   onSelectMuscle?: (muscle: string | null) => void;
   defaultViewMode?: '3d' | '2d';
+  active?: boolean;
+  allowFullscreen?: boolean;
+  focusedMuscle?: string | null;
+  context?: AnatomyContext;
 }
 
-const isWebGLSupported = (): boolean => {
-  if (typeof window === 'undefined') return true;
-  try {
-    const c = document.createElement('canvas');
-    return !!(
-      window.WebGLRenderingContext &&
-      (c.getContext('webgl2', { powerPreference: 'default', failIfMajorPerformanceCaveat: false }) ||
-       c.getContext('webgl', { powerPreference: 'default', failIfMajorPerformanceCaveat: false }) ||
-       (c as any).getContext('experimental-webgl', { powerPreference: 'default', failIfMajorPerformanceCaveat: false }))
-    );
-  } catch {
-    return false;
-  }
-};
-
 export function Anatomical3DModel({
-  muscleLoads = {},
-  maxLoad = 1.0,
-  gender = 'Male',
-  modelUrl,
-  className = 'h-[440px]',
-  studentStatus,
-  onSelectMuscle,
-  defaultViewMode = '3d',
+  muscleLoads = {}, maxLoad = 1, gender = 'Male', className = 'h-[440px]',
+  onSelectMuscle, defaultViewMode = '2d', active = true, allowFullscreen = true,
+  focusedMuscle, context,
 }: Anatomical3DModelProps) {
-  const [hasWebGL] = useState<boolean>(isWebGLSupported);
-  const [viewMode, setViewMode] = useState<'3d' | '2d'>(() => {
-    if (!isWebGLSupported()) return '2d';
-    return defaultViewMode;
-  });
+  const [viewMode, setViewMode] = useState<'3d' | '2d'>(defaultViewMode);
+  const [hasWebGL, setHasWebGL] = useState<boolean | null>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [selectedMuscleName, setSelectedMuscleName] = useState<string | null>(null);
+  const [selectedMuscle, setSelectedMuscle] = useState<string | null>(focusedMuscle ?? null);
+  const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
 
-  const handleSelect = (name: string | null) => {
-    setSelectedMuscleName(name);
-    if (onSelectMuscle) onSelectMuscle(name);
+  useEffect(() => { setSelectedMuscle(focusedMuscle ?? null); }, [focusedMuscle]);
+  useEffect(() => { if (!active) setIsFullScreen(false); }, [active]);
+  useEffect(() => {
+    if (!active || viewMode !== '3d' || hasWebGL !== null) return;
+    const supported = detectAnatomyWebGL();
+    setHasWebGL(supported);
+    if (!supported) {
+      setError('3D is unavailable on this device. The muscle map is ready to use.');
+      setViewMode('2d');
+    }
+  }, [active, viewMode, hasWebGL]);
+  useEffect(() => {
+    if (!active || !isFullScreen) return;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    dialogRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); setIsFullScreen(false); }
+      if (event.key !== 'Tab') return;
+      const elements = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), [tabindex="0"]',
+      ) ?? []).filter((element) => element.getClientRects().length > 0);
+      const first = elements[0]; const last = elements[elements.length - 1];
+      if (!first) { event.preventDefault(); dialogRef.current?.focus(); }
+      else if (event.shiftKey && (document.activeElement === first || document.activeElement === dialogRef.current)) {
+        event.preventDefault(); last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown, true);
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [active, isFullScreen]);
+
+  const selectMuscle = (name: string | null) => { setSelectedMuscle(name); onSelectMuscle?.(name); };
+  const fail3D = () => {
+    setError('The 3D view could not open. Your records are unchanged; use the muscle map or retry.');
+    setViewMode('2d');
   };
-
-  return (
-    <div className={`relative w-full h-full min-h-[380px] bg-white dark:bg-[#0A0B0D] border border-neutral-200/80 dark:border-neutral-800/80 rounded-[8px] overflow-hidden flex flex-col shadow-xs ${className}`}>
-      {/* Top HUD Toolbar */}
-      <div className="absolute top-3 left-3 right-3 z-30 flex items-center justify-between pointer-events-auto">
-        {/* 3D Atlas vs 2D Scanner Switcher */}
-        <div className="flex items-center p-1 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md rounded-[8px] border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs text-[10px] font-mono">
-          <button
-            type="button"
-            onClick={() => hasWebGL && setViewMode('3d')}
-            disabled={!hasWebGL}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-[8px] font-bold transition-all cursor-pointer ${
-              !hasWebGL
-                ? 'opacity-40 cursor-not-allowed text-neutral-400'
-                : viewMode === '3d'
-                ? 'bg-[#EF2F38] text-white shadow-xs'
-                : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'
-            }`}
-            title={!hasWebGL ? '3D requires WebGL hardware acceleration' : undefined}
-          >
-            <Layers size={12} />
-            <span>3D BodyParts3D</span>
-            {!hasWebGL && <span className="text-[8px] uppercase tracking-tighter opacity-70">(N/A)</span>}
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('2d')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-[8px] font-bold transition-all cursor-pointer ${
-              viewMode === '2d'
-                ? 'bg-[#EF2F38] text-white shadow-xs'
-                : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'
-            }`}
-          >
-            <Sparkles size={12} />
-            <span>2D Scanner</span>
-          </button>
+  const open3D = () => {
+    setError('');
+    if (hasWebGL === false) setHasWebGL(null);
+    setAttempt((value) => value + 1);
+    setViewMode('3d');
+  };
+  const controls = (
+    <div className="flex min-w-0 items-center gap-1 rounded-lg bg-neutral-100 p-1 dark:bg-neutral-900" role="group" aria-label="Anatomy view">
+      <button type="button" onClick={() => setViewMode('2d')} aria-pressed={viewMode === '2d'} className={`min-h-11 rounded-md px-3 text-xs font-semibold transition-colors ${viewMode === '2d' ? 'bg-white text-red-700 shadow-sm dark:bg-neutral-800 dark:text-red-400' : 'text-neutral-600 dark:text-neutral-400'}`}>Muscle map</button>
+      <button type="button" onClick={open3D} aria-pressed={viewMode === '3d'} className={`flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs font-semibold transition-colors ${viewMode === '3d' ? 'bg-white text-red-700 shadow-sm dark:bg-neutral-800 dark:text-red-400' : 'text-neutral-600 dark:text-neutral-400'}`}><Layers size={15} />3D anatomy</button>
+    </div>
+  );
+  const viewport = (enlarged: boolean) => (
+    <div className="relative min-h-0 flex-1 overflow-auto">
+      {error && <div role="status" className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-200 bg-neutral-50 px-4 py-3 text-xs text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300"><span className="max-w-xl">{error}</span><button type="button" onClick={open3D} className="flex min-h-11 items-center gap-2 rounded-md px-3 font-semibold text-red-700 dark:text-red-400"><RotateCcw size={14} />Retry 3D</button></div>}
+      {viewMode === '3d' && hasWebGL === true ? (
+        <AnatomyViewBoundary key={attempt} onFailure={fail3D}>
+          <AnatomyAtlasExplorer muscleLoads={muscleLoads} maxLoad={maxLoad} initialSelectedMuscle={selectedMuscle ?? undefined} onSelectMuscle={selectMuscle} context={context} compact={!enlarged && allowFullscreen} className="h-full min-h-[360px] w-full" onError={fail3D} onFallbackTo2D={() => setViewMode('2d')} />
+        </AnatomyViewBoundary>
+      ) : viewMode === '3d' ? (
+        <div role="status" className="flex h-full min-h-64 items-center justify-center p-6 text-sm text-neutral-500">Checking 3D availability…</div>
+      ) : (
+        <div className="mx-auto flex min-h-full w-full max-w-4xl items-center justify-center p-3 sm:p-5">
+          <Biomechanical2DScanner muscleLoads={muscleLoads} maxLoad={maxLoad} gender={gender} selectedMuscle={selectedMuscle} scale={enlarged ? 1.2 : 1} interactive onSelectMuscle={selectMuscle} showControls />
         </div>
-
-        {/* View Fullscreen Toggle */}
-        <button
-          type="button"
-          onClick={() => setIsFullScreen(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/90 dark:bg-neutral-900/90 hover:bg-neutral-100 dark:hover:bg-neutral-800 backdrop-blur-md border border-neutral-200/80 dark:border-neutral-800/80 rounded-[8px] text-[10px] font-mono font-bold text-neutral-600 dark:text-neutral-300 transition-all cursor-pointer shadow-xs"
-          title="Open Fullscreen Anatomy Explorer"
-        >
-          <Maximize2 size={13} />
-          <span className="hidden sm:inline">EXPLORE FULLSCREEN</span>
-        </button>
-      </div>
-
-      {/* Main Viewport Content */}
-      <div className="w-full h-full flex-1 relative pt-12">
-        {viewMode === '3d' ? (
-          <AnatomyAtlasExplorer
-            muscleLoads={muscleLoads}
-            maxLoad={maxLoad}
-            initialSelectedMuscle={selectedMuscleName || undefined}
-            onSelectMuscle={handleSelect}
-            className="w-full h-full"
-            compact={true}
-            onError={() => setViewMode('2d')}
-            onFallbackTo2D={() => setViewMode('2d')}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center p-4">
-            <Biomechanical2DScanner
-              muscleLoads={muscleLoads}
-              maxLoad={maxLoad}
-              gender={gender}
-              scale={1.1}
-              interactive={true}
-              onSelectMuscle={handleSelect}
-              showControls={true}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Fullscreen Modal Viewport */}
-      {isFullScreen && (
-        <Portal>
-          <div className="fixed inset-0 z-[9999] bg-[#0A0B0D] flex flex-col animate-in fade-in duration-200">
-            {/* Fullscreen Header Bar */}
-            <header className="h-14 border-b border-neutral-800/80 px-6 flex items-center justify-between bg-[#0A0B0D]/95 backdrop-blur-md z-50">
-              <div className="flex items-center gap-3">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#EF2F38] shadow-[0_0_10px_#EF2F38]" />
-                <span className="text-sm font-bold tracking-wider text-white font-mono uppercase">
-                  BodyParts3D Anatomy Explorer · Infinity TKD 2.0
-                </span>
-                <span className="text-xs text-neutral-500 font-mono hidden md:inline">
-                  (2,234 Meshes · 15 Systems · 3,432 Concepts)
-                </span>
-              </div>
-
-              <div className="flex items-center gap-4">
-                {/* 3D vs 2D Switch in modal */}
-                <div className="flex items-center p-1 bg-neutral-900 rounded-[8px] border border-neutral-800 text-xs font-mono">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('3d')}
-                    className={`px-3 py-1 rounded-[8px] font-bold transition-all cursor-pointer ${
-                      viewMode === '3d' ? 'bg-[#EF2F38] text-white' : 'text-neutral-400 hover:text-white'
-                    }`}
-                  >
-                    3D Atlas
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('2d')}
-                    className={`px-3 py-1 rounded-[8px] font-bold transition-all cursor-pointer ${
-                      viewMode === '2d' ? 'bg-[#EF2F38] text-white' : 'text-neutral-400 hover:text-white'
-                    }`}
-                  >
-                    2D Scanner
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setIsFullScreen(false)}
-                  className="p-2 rounded-[8px] bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-400 hover:text-white transition-colors cursor-pointer"
-                  title="Close Fullscreen (Esc)"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            </header>
-
-            {/* Modal Body */}
-            <div className="flex-1 w-full h-full relative overflow-hidden">
-              {viewMode === '3d' ? (
-                <AnatomyAtlasExplorer
-                  muscleLoads={muscleLoads}
-                  maxLoad={maxLoad}
-                  initialSelectedMuscle={selectedMuscleName || undefined}
-                  onSelectMuscle={handleSelect}
-                  className="w-full h-full"
-                  compact={false}
-                  onError={() => setViewMode('2d')}
-                  onFallbackTo2D={() => setViewMode('2d')}
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center p-6 bg-[#0A0B0D]">
-                  <Biomechanical2DScanner
-                    muscleLoads={muscleLoads}
-                    maxLoad={maxLoad}
-                    gender={gender}
-                    scale={1.4}
-                    interactive={true}
-                    onSelectMuscle={handleSelect}
-                    showControls={true}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </Portal>
       )}
+    </div>
+  );
+
+  if (!active) return null;
+  return (
+    <div className={`relative flex min-h-[320px] min-w-0 w-full flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white text-neutral-900 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 ${className}`}>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-200 px-3 py-2 dark:border-neutral-800">
+        {controls}
+        {allowFullscreen && <button type="button" onClick={() => { setIsFullScreen(true); open3D(); }} className="flex min-h-11 items-center gap-2 rounded-lg px-3 text-xs font-semibold text-neutral-600 transition-colors hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-900" aria-label="Open enlarged anatomy view"><Maximize2 size={16} /><span className="hidden sm:inline">Expand</span></button>}
+      </div>
+      {/* Enlarged replaces inline: only one viewport, and one GPU scene, exists. */}
+      {!isFullScreen && viewport(false)}
+      {isFullScreen && <Portal><div className="fixed inset-0 z-[9999] bg-black/30 p-2 sm:p-5"><div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className="mx-auto flex h-full min-h-0 w-full max-w-[1600px] flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white text-neutral-900 shadow-xl outline-none dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-100">
+        <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-neutral-200 px-3 py-2 dark:border-neutral-800"><h2 id={titleId} className="text-sm font-semibold">{context?.title ?? 'Infinity TKD · Muscle explorer'}</h2><div className="flex items-center gap-2">{controls}<button type="button" onClick={() => setIsFullScreen(false)} className="flex min-h-11 min-w-11 items-center justify-center rounded-lg transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-900" aria-label="Close anatomy view"><X size={19} /></button></div></header>
+        {viewport(true)}
+      </div></div></Portal>}
     </div>
   );
 }

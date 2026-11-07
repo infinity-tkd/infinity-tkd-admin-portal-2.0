@@ -3,7 +3,7 @@
  * Infinity Admin Portal
  */
 
-import { z, ZodType } from 'zod';
+import { ZodType } from 'zod';
 import { supabase } from '@/lib/supabase';
 import { translateSupabaseError } from '@/lib/errors/supabaseErrorTranslator';
 import {
@@ -38,10 +38,7 @@ export function createSafeAction<TInput, TOutput>(
 
       // 1. Authentication Check
       if (options.requireAuth !== false) {
-        const {
-          data: { user },
-          error: authError,
-        } = await supabase.auth.getUser();
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
 
         if (authError || !user) {
           return createErrorResponse(

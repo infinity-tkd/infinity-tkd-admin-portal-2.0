@@ -3,10 +3,12 @@
 import { useEffect, useRef } from 'react';
 import * as T from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { createExplosionLayout } from '@/lib/atlas/explosion-layout';
-import { decodeModelResponse } from '@/lib/atlas/model-download';
+import { loadModelChunk } from '@/lib/atlas/model-download';
+import { anatomyPixelRatio, requestedAtlasParts, validatePartBuffer, yieldToBrowser } from '@/lib/atlas/model-loading';
+import { createDemandRenderLoop } from '@/lib/atlas/render-loop';
+import { normalizeMuscleNameFor3D } from '@/lib/anatomyUtils';
 import { PointerTap } from '@/lib/atlas/pointer-tap';
 import { SYSTEMS, type Atlas, type SceneState } from '@/lib/atlas/anatomy';
 
@@ -17,23 +19,32 @@ interface Props {
   onProgress: (n: number) => void;
   onError: (s: string) => void;
   isDark?: boolean;
+  muscleLoads?: Record<string, number>;
 }
 
-export default function AnatomyScene({ atlas, state, onSelect, onProgress, onError, isDark }: Props) {
+export default function AnatomyScene({ atlas, state, onSelect, onProgress, onError, isDark, muscleLoads = {} }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const latest = useRef(state);
+  const loads = useRef(muscleLoads);
+  const wake = useRef<(() => void) | null>(null);
+  loads.current = muscleLoads;
   const select = useRef(onSelect);
   const callbacks = useRef({ onProgress, onError });
   latest.current = state;
   select.current = onSelect;
   callbacks.current = { onProgress, onError };
 
+  useEffect(() => { wake.current?.(); }, [state, muscleLoads]);
+
   useEffect(() => {
     const el = host.current;
     if (!el) return;
 
     let disposed = false;
-    let frame = 0;
+    let invalidate = () => { dirty = true; };
+    let paused = document.hidden;
+    let failed = false;
+    let lastLoads: Record<string, number> | null = null;
     let dirty = true;
     let ready = false;
     let lastView = '';
@@ -71,13 +82,21 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
         failIfMajorPerformanceCaveat: false,
       });
     } catch {
+      (glContext as WebGLRenderingContext | WebGL2RenderingContext).getExtension('WEBGL_lose_context')?.loseContext();
       callbacks.current.onError('This browser could not start the 3D viewer. Switching to 2D Biomechanical Scanner.');
       return;
     }
 
+    renderer.debug.onShaderError = () => {
+      if (disposed || failed) return;
+      failed = true;
+      abort.abort();
+      callbacks.current.onError('This device could not draw the 3D muscle view. Use the 2D view or reopen the viewer.');
+    };
+
     const dark = isDark ?? (typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
     const clearColor = dark ? '#0a0b0d' : '#f2f3f3';
-    renderer.setPixelRatio(Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, el.clientWidth < 768 ? 1.5 : 2));
+    renderer.setPixelRatio(anatomyPixelRatio(window.devicePixelRatio, el.clientWidth < 768));
     renderer.setClearColor(clearColor);
     renderer.outputColorSpace = T.SRGBColorSpace;
     renderer.toneMapping = T.ACESFilmicToneMapping;
@@ -98,16 +117,9 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
     controls.minDistance = 0.07;
     controls.maxDistance = 40;
     controls.maxPolarAngle = Math.PI * 0.96;
-    controls.addEventListener('change', () => {
-      dirty = true;
-    });
-
-    const pmrem = new T.PMREMGenerator(renderer);
-    const room = new RoomEnvironment();
-    const env = pmrem.fromScene(room, 0.04);
-    scene.environment = env.texture;
-    room.dispose();
-    pmrem.dispose();
+    const controlChanged = () => { dirty = true; invalidate(); };
+    controls.addEventListener('change', controlChanged);
+    controls.addEventListener('start', controlChanged);
 
     scene.add(new T.HemisphereLight(0xffffff, dark ? 0x22262d : 0xa7acb2, dark ? 1.2 : 1.05));
     const key = new T.DirectionalLight(0xfffaf4, 2.3);
@@ -165,6 +177,8 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
     const centers = atlas.parts.map((p) =>
       new T.Vector3().fromArray(p.bounds[0]).add(new T.Vector3().fromArray(p.bounds[1])).multiplyScalar(0.5)
     );
+    const muscleGroups = atlas.parts.map((part) => normalizeMuscleNameFor3D(part.name).toLowerCase());
+    let groupLoads = new Map<string, number>();
     const offsets: T.Vector3[] = [];
     const bounds = atlas.parts.map((p) => new T.Box3(new T.Vector3().fromArray(p.bounds[0]), new T.Vector3().fromArray(p.bounds[1])));
     let packingWidth = 1;
@@ -235,20 +249,20 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
         shader.uniforms.selectionState = { value: selectionTexture };
         shader.uniforms.stateWidth = { value: width };
         shader.vertexShader =
-          'attribute float partIndex; uniform sampler2D partState; uniform sampler2D selectionState; uniform float stateWidth; varying float partVisible; varying float partSelected;\n' +
+          'attribute float partIndex; uniform sampler2D partState; uniform sampler2D selectionState; uniform float stateWidth; varying float partVisible; varying float partSelected; varying float partLoad;\n' +
           shader.vertexShader;
         shader.vertexShader = shader.vertexShader.replace(
           '#include <begin_vertex>',
-          '#include <begin_vertex>\nvec2 stateUv = vec2((partIndex + 0.5) / stateWidth, 0.5); vec4 state = texture2D(partState, stateUv); transformed += state.xyz; partVisible = state.w; partSelected = texture2D(selectionState, stateUv).r;'
+          '#include <begin_vertex>\nvec2 stateUv = vec2((partIndex + 0.5) / stateWidth, 0.5); vec4 state = texture2D(partState, stateUv); transformed += state.xyz; partVisible = state.w; vec4 training = texture2D(selectionState, stateUv); partSelected = training.r; partLoad = training.g;'
         );
-        shader.fragmentShader = 'varying float partVisible; varying float partSelected;\n' + shader.fragmentShader;
+        shader.fragmentShader = 'varying float partVisible; varying float partSelected; varying float partLoad;\n' + shader.fragmentShader;
         shader.fragmentShader = shader.fragmentShader.replace(
           '#include <clipping_planes_fragment>',
           '#include <clipping_planes_fragment>\nif (partVisible < 0.5) discard;'
         );
         shader.fragmentShader = shader.fragmentShader.replace(
           '#include <color_fragment>',
-          '#include <color_fragment>\ndiffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.94, 0.18, 0.22), partSelected * 0.85);'
+          '#include <color_fragment>\nvec3 trainingColor = mix(vec3(0.93, 0.65, 0.22), vec3(0.88, 0.16, 0.20), partLoad); diffuseColor.rgb = mix(diffuseColor.rgb, trainingColor, step(0.001, partLoad) * (0.3 + partLoad * 0.55)); diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.98, 0.91, 0.69), partSelected * 0.75);'
         );
       };
       materials.push(m);
@@ -256,80 +270,107 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
     };
 
     const mats = new Map(SYSTEMS.map((s) => [s.id, materialFor(s.id)]));
-    let loaded = 0;
-
-    const loadChunk = async (ci: number) => {
-      const chunk = atlas.chunks[ci];
-      const compressed = !!chunk.gzip && typeof DecompressionStream !== 'undefined';
-      const response = await fetch(compressed ? chunk.gzip! : chunk.url, { signal: abort.signal });
-      const buffer = await decodeModelResponse(response, chunk.bytes, compressed);
-      if (disposed) return;
-      const groups = new Map<string, T.BufferGeometry[]>();
-
-      atlas.parts.forEach((p, i) => {
-        if (p.chunk !== ci) return;
-        const g = new T.BufferGeometry();
-        g.setAttribute('position', new T.BufferAttribute(new Float32Array(buffer, p.positions, p.vertexCount * 3), 3));
-        g.setAttribute('normal', new T.BufferAttribute(new Int16Array(buffer, p.normals, p.vertexCount * 3), 3, true));
-        g.setIndex(new T.BufferAttribute(new Uint32Array(buffer, p.indices, p.indexCount), 1));
-        g.boundingBox = bounds[i].clone();
-        g.computeBoundingSphere();
-        const pick = new T.Mesh(g);
-        pick.matrixAutoUpdate = false;
-        pickers[i] = pick;
-        geometries.push(g);
-        g.setAttribute('partIndex', new T.BufferAttribute(new Float32Array(p.vertexCount).fill(i), 1));
-        const list = groups.get(p.system) ?? [];
-        list.push(g);
-        groups.set(p.system, list);
-      });
-
-      groups.forEach((gs, system) => {
-        const geometry = mergeGeometries(gs, false);
-        if (!geometry) throw new Error('Could not assemble anatomy geometry.');
-        geometries.push(geometry);
-        const mesh = new T.Mesh(geometry, mats.get(system as never));
-        mesh.frustumCulled = false;
-        scene.add(mesh);
-      });
-
-      lastState = null;
-      loaded++;
-      callbacks.current.onProgress(Math.round((loaded / atlas.chunks.length) * 100));
-      dirty = true;
-    };
-
-    (async () => {
+    const chunkMeshes: { mesh: T.Mesh; indices: number[] }[] = [];
+    const builtSystems = new Set<string>();
+    let loading = false;
+    const partIndex = new Map(atlas.parts.map((part, index) => [part.id, index]));
+    const partsByChunk = atlas.chunks.map((_, chunk) => atlas.parts.filter((part) => part.chunk === chunk));
+    const requestedSystems = () => new Set(requestedAtlasParts(atlas, latest.current).map((part) => part.system));
+    const loadRequested = async () => {
+      if (loading || disposed || failed) return;
+      loading = true;
+      ready = false;
       try {
-        let cursor = 0;
-        await Promise.all(
-          Array.from({ length: 3 }, async () => {
-            while (cursor < atlas.chunks.length) {
-              const i = cursor++;
-              await loadChunk(i);
+        let systems = requestedSystems();
+        let pending = atlas.chunks.map((_, index) => index).filter((index) =>
+          partsByChunk[index].some((part) => systems.has(part.system) && !builtSystems.has(index + ':' + part.system)));
+        while (pending.length && !disposed) {
+          let cursor = 0;
+          let completed = 0;
+          const total = pending.length;
+          callbacks.current.onProgress(0);
+          await Promise.all(Array.from({ length: Math.min(2, total) }, async () => {
+            while (cursor < pending.length && !disposed) {
+              const ci = pending[cursor++];
+              const buffer = await loadModelChunk(atlas.chunks[ci], abort.signal);
+              const buildSystems = requestedSystems();
+              const groups = new Map<string, T.BufferGeometry[]>();
+              const groupIndices = new Map<string, number[]>();
+              let batchStarted = performance.now();
+              for (const part of partsByChunk[ci]) {
+                if (disposed) return;
+                if (!buildSystems.has(part.system) || builtSystems.has(ci + ':' + part.system)) continue;
+                validatePartBuffer(part, buffer);
+                const i = partIndex.get(part.id)!;
+                const geometry = new T.BufferGeometry();
+                geometry.setAttribute('position', new T.BufferAttribute(new Float32Array(buffer, part.positions, part.vertexCount * 3), 3));
+                geometry.setAttribute('normal', new T.BufferAttribute(new Int16Array(buffer, part.normals, part.vertexCount * 3), 3, true));
+                geometry.setIndex(new T.BufferAttribute(new Uint32Array(buffer, part.indices, part.indexCount), 1));
+                geometry.boundingBox = bounds[i].clone();
+                geometry.boundingSphere = bounds[i].getBoundingSphere(new T.Sphere());
+                const picker = new T.Mesh(geometry, mats.get(part.system as never));
+                picker.matrixAutoUpdate = false;
+                pickers[i] = picker;
+                geometries.push(geometry);
+                geometry.setAttribute('partIndex', new T.BufferAttribute(new Float32Array(part.vertexCount).fill(i), 1));
+                const list = groups.get(part.system) ?? [];
+                list.push(geometry);
+                groups.set(part.system, list);
+                const indices = groupIndices.get(part.system) ?? [];
+                indices.push(i);
+                groupIndices.set(part.system, indices);
+                if (performance.now() - batchStarted > 8) {
+                  await yieldToBrowser(abort.signal);
+                  batchStarted = performance.now();
+                }
+              }
+              for (const [system, gs] of groups) {
+                if (disposed) return;
+                const geometry = mergeGeometries(gs, false);
+                if (!geometry) throw new Error('Could not assemble the training anatomy.');
+                // The merged GPU buffer owns partIndex; CPU picking does not need it.
+                gs.forEach((part) => part.deleteAttribute('partIndex'));
+                geometries.push(geometry);
+                const mesh = new T.Mesh(geometry, mats.get(system as never));
+                mesh.frustumCulled = false;
+                mesh.visible = false;
+                scene.add(mesh);
+                chunkMeshes.push({ mesh, indices: groupIndices.get(system)! });
+                builtSystems.add(ci + ':' + system);
+                await yieldToBrowser(abort.signal);
+              }
+              lastState = null;
+              dirty = true;
+              invalidate();
+              completed++;
+              callbacks.current.onProgress(Math.round((completed / total) * 99));
             }
-          })
-        );
+          }));
+          systems = requestedSystems();
+          pending = atlas.chunks.map((_, index) => index).filter((index) =>
+            partsByChunk[index].some((part) => systems.has(part.system) && !builtSystems.has(index + ':' + part.system)));
+        }
         if (!disposed) {
           ready = true;
+          callbacks.current.onProgress(100);
           dirty = true;
+          invalidate();
         }
-      } catch (e) {
-        if (!disposed) callbacks.current.onError(e instanceof Error ? e.message : 'Could not load the anatomy.');
+      } catch (error) {
+        if (!disposed && !abort.signal.aborted) {
+          failed = true;
+          abort.abort();
+          callbacks.current.onError(error instanceof Error ? error.message : 'Could not load the training anatomy.');
+        }
+      } finally {
+        loading = false;
       }
-    })();
+    };
 
     const fit = (view: string, extent = 0) => {
-      const mobile = el.clientWidth < 768;
-      const normalDistance = mobile
-        ? Math.max(4.5, (1.8 * el.clientHeight) / Math.max(160, el.clientHeight - 350) / (2 * Math.tan(T.MathUtils.degToRad(camera.fov / 2))))
-        : 4;
-      const reservedHeight = mobile ? 350 : 270;
-      const availableAspect = Math.max(0.35, (el.clientWidth - (mobile ? 40 : 340)) / Math.max(160, el.clientHeight - reservedHeight));
-      const atlasDistance =
-        (Math.max(packingHeight, packingWidth / availableAspect) / (2 * Math.tan(T.MathUtils.degToRad(camera.fov / 2)))) *
-        (el.clientHeight / Math.max(160, el.clientHeight - reservedHeight)) *
-        1.08;
+      const aspect = Math.max(0.25, camera.aspect);
+      const normalDistance = (Math.max(1.85, 0.8 / aspect) / (2 * Math.tan(T.MathUtils.degToRad(camera.fov / 2)))) * 1.14;
+      const atlasDistance = (Math.max(packingHeight, packingWidth / aspect) / (2 * Math.tan(T.MathUtils.degToRad(camera.fov / 2)))) * 1.1;
       const distance = T.MathUtils.lerp(normalDistance, Math.max(0.2, atlasDistance), extent);
       if (extent > 0.8) view = 'front';
       const direction =
@@ -340,7 +381,7 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
           : view === 'side'
           ? new T.Vector3(1, 0.02, 0)
           : new T.Vector3(0.35, 0.06, 1).normalize();
-      controls.target.set(extent > 0.1 && el.clientWidth > 767 ? -packingWidth * 0.12 : 0, extent > 0.1 || mobile ? 0.85 : 0.68, 0);
+      controls.target.set(0, 0.85, 0);
       camera.position.copy(controls.target).addScaledVector(direction, distance);
       controls.update();
       dirty = true;
@@ -349,11 +390,13 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
     const resize = () => {
       layoutKey = '';
       lastState = null;
-      renderer.setPixelRatio(Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, el.clientWidth < 768 || el.clientHeight < 600 ? 1.5 : 2));
+      if (el.clientWidth < 1 || el.clientHeight < 1) return;
+      renderer.setPixelRatio(anatomyPixelRatio(window.devicePixelRatio, el.clientWidth < 768 || el.clientHeight < 600));
       camera.aspect = el.clientWidth / el.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(el.clientWidth, el.clientHeight);
       fit(latest.current.view, amount);
+      invalidate();
     };
     const observer = new ResizeObserver(resize);
     observer.observe(el);
@@ -400,16 +443,24 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
       let found = -1;
       const hasSolid = atlas.parts.some((p, i) => p.system !== 'integumentary' && data[i * 4 + 3] > 0.5);
 
+      const candidates: { mesh: T.Mesh; index: number; distance: number }[] = [];
       pickers.forEach((mesh, i) => {
         if (!mesh || data[i * 4 + 3] < 0.5 || (hasSolid && atlas.parts[i].system === 'integumentary')) return;
         worldBox.copy(bounds[i]).translate(mesh.position);
         if (!raycaster.ray.intersectBox(worldBox, hitPoint)) return;
-        const hits = raycaster.intersectObject(mesh, false);
+        candidates.push({ mesh, index: i, distance: worldBox.containsPoint(raycaster.ray.origin) ? 0 : raycaster.ray.origin.distanceTo(hitPoint) });
+      });
+      // Once a closer triangle is found, farther bounding boxes cannot win.
+      // This avoids raycasting every back-facing muscle under a foreground tap.
+      candidates.sort((a, b) => a.distance - b.distance);
+      for (const candidate of candidates) {
+        if (candidate.distance > nearest) break;
+        const hits = raycaster.intersectObject(candidate.mesh, false);
         if (hits[0] && hits[0].distance < nearest) {
           nearest = hits[0].distance;
-          found = i;
+          found = candidate.index;
         }
-      });
+      }
 
       if (found < 0 && amount > 0.45) found = findTarget(e.clientX - rect.left, e.clientY - rect.top, e.pointerType === 'touch' ? 24 : 16);
       if (found >= 0) {
@@ -423,22 +474,33 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
     renderer.domElement.addEventListener('pointerup', up);
     renderer.domElement.addEventListener('pointercancel', cancel);
 
-    const clock = new T.Clock();
+    let lastTime = 0;
     const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
     let lastExtent = -1;
 
-    const animate = () => {
-      if (disposed) return;
-      frame = requestAnimationFrame(animate);
-      const dt = Math.min(clock.getDelta(), 0.05);
+    const animate = (time: number) => {
+      if (disposed || paused || failed) return false;
+      const dt = Math.min(lastTime ? (time - lastTime) / 1000 : 1 / 60, 0.05);
+      lastTime = time;
       const s = latest.current;
       const changed = lastState?.visible !== s.visible || lastState?.selected !== s.selected || lastState?.isolate !== s.isolate;
+      if (changed) void loadRequested();
+      const loadsChanged = lastLoads !== loads.current;
+      if (loadsChanged) {
+        groupLoads = new Map();
+        for (const [name, load] of Object.entries(loads.current)) {
+          if (!Number.isFinite(load)) continue;
+          const group = normalizeMuscleNameFor3D(name).toLowerCase();
+          groupLoads.set(group, Math.max(groupLoads.get(group) ?? 0, Math.min(1, Math.max(0, load))));
+        }
+      }
       const moving = Math.abs(amount - s.explode) > 0.0001;
       if (moving) {
         amount = motionPreference.matches ? s.explode : T.MathUtils.damp(amount, s.explode, 8, dt);
+        if (Math.abs(amount - s.explode) <= 0.0001) amount = s.explode;
         dirty = true;
       }
-      if (changed || moving || lastExtent < 0) {
+      if (changed || moving || loadsChanged || lastExtent < 0) {
         const visible = new Set(s.visible);
         const selection = new Set(s.selected);
         const visibleParts = atlas.parts.filter((p) =>
@@ -481,6 +543,8 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
           const selected = selection.has(p.id);
           data.set([dx, dy, dz, (s.isolate ? selected : visible.has(p.system) || selected) ? 1 : 0], i * 4);
           selectedData[i * 4] = selected ? 255 : 0;
+          const score = p.system === 'muscular' ? groupLoads.get(muscleGroups[i]) ?? 0 : 0;
+          selectedData[i * 4 + 1] = Math.round(score * 255);
           markerPositions.set(data[i * 4 + 3] > 0.5 ? [c.x + dx, c.y + dy, c.z + dz] : [10000, 10000, 10000], i * 3);
           const mesh = pickers[i];
           if (mesh) {
@@ -492,7 +556,9 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
         partTexture.needsUpdate = true;
         selectionTexture.needsUpdate = true;
         markerGeometry.attributes.position.needsUpdate = true;
+        chunkMeshes.forEach(({ mesh, indices }) => { mesh.visible = indices.some((i) => data[i * 4 + 3] > 0.5); });
         lastState = s;
+        lastLoads = loads.current;
         lastExtent = amount;
         dirty = true;
       }
@@ -502,7 +568,7 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
         lastReset = s.reset;
       }
       if (moving && !s.isolate) fit(amount > 0.5 ? 'front' : s.view, Math.max(0, (amount - 0.3) / 0.7));
-      const isolateKey = s.isolate ? s.selected.join(',') + ':' + s.reset + ':' + s.inspectorOpen + ':' + camera.aspect : '';
+      const isolateKey = s.isolate ? s.selected.join(',') + ':' + s.reset + ':' + s.view + ':' + camera.aspect : '';
       if (isolateKey !== lastIsolate || (s.isolate && moving)) {
         if (s.isolate) {
           const box = new T.Box3();
@@ -512,43 +578,16 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
           if (!box.isEmpty()) {
             const center = box.getCenter(new T.Vector3());
             const size = box.getSize(new T.Vector3());
-            const w = el.clientWidth;
-            const h = el.clientHeight;
-            const mobile = w < 768;
-            const landscape = w > h && h <= 600;
-            let left = 20;
-            let right = w - 20;
-            let top = mobile ? 175 : 110;
-            let bottom = h - 170;
-            if (s.inspectorOpen) {
-              if (landscape) {
-                right = w - 335;
-                top = 100;
-                bottom = h - 125;
-              } else if (mobile) {
-                const sheet = document.querySelector('.detail-sheet')?.getBoundingClientRect();
-                const header = document.querySelector('.identity')?.getBoundingClientRect();
-                top = (header?.bottom ?? 94) + 16;
-                bottom = (sheet?.top ?? h * 0.58 - 139) - 16;
-              } else {
-                right = w - 370;
-                left = w > 1100 ? 285 : 25;
-              }
-            }
-            const availableWidth = Math.max(150, right - left);
-            const availableHeight = Math.max(40, bottom - top);
-            camera.setViewOffset(w, h, w / 2 - (left + right) / 2, h / 2 - (top + bottom) / 2, w, h);
-            const distance = Math.max(
-              0.07,
-              (Math.max((size.y * h) / availableHeight, (size.x * w) / availableWidth / camera.aspect, size.z) /
-                (2 * Math.tan(T.MathUtils.degToRad(camera.fov / 2)))) *
-                1.35
-            );
+            camera.clearViewOffset();
+            const distance = Math.max(0.07,
+              (Math.max(size.y, size.x / Math.max(0.25, camera.aspect), size.z) /
+              (2 * Math.tan(T.MathUtils.degToRad(camera.fov / 2)))) * 1.3);
             controls.maxDistance = Math.max(40, distance * 2);
             controls.target.copy(center);
-            camera.position
-              .copy(center)
-              .add(new T.Vector3(0.2, 0.1, 1).normalize().multiplyScalar(distance));
+            const direction = s.view === 'back' ? new T.Vector3(0, 0, -1) :
+              s.view === 'side' ? new T.Vector3(1, 0, 0) :
+              s.view === 'front' ? new T.Vector3(0, 0, 1) : new T.Vector3(0.2, 0.1, 1).normalize();
+            camera.position.copy(center).addScaledVector(direction, distance);
             controls.update();
             dirty = true;
           }
@@ -566,10 +605,13 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
       controls.autoRotate = s.rotate && !motionPreference.matches && !s.isolate && amount < 0.4;
       controls.enableDamping = !motionPreference.matches;
       controls.autoRotateSpeed = 0.65;
-      controls.update();
+      const cameraMoving = controls.update(dt);
       if (controls.autoRotate) dirty = true;
       if (dirty) {
         renderer.render(scene, camera);
+        el.dataset.renderFrames = String(Number(el.dataset.renderFrames ?? 0) + 1);
+        el.dataset.renderTriangles = String(renderer.info.render.triangles);
+        el.dataset.drawCalls = String(renderer.info.render.calls);
         targets = [];
         if (amount > 0.45) {
           const hasSolid = atlas.parts.some((p, i) => p.system !== 'integumentary' && data[i * 4 + 3] > 0.5);
@@ -601,20 +643,55 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
         }
         dirty = false;
       }
+      return moving || cameraMoving || controls.autoRotate;
     };
-    animate();
+    const loop = createDemandRenderLoop((time) => {
+      try { return animate(time); }
+      catch {
+        failed = true;
+        abort.abort();
+        callbacks.current.onError('The 3D view could not continue on this device. Use the 2D muscle view or reopen the viewer.');
+        return false;
+      }
+    });
+    invalidate = loop.invalidate;
+    wake.current = () => { dirty = true; invalidate(); };
+    const visibilityChanged = () => {
+      paused = document.hidden;
+      lastTime = 0;
+      loop.pause(paused);
+    };
+    const motionChanged = () => { dirty = true; invalidate(); };
+    document.addEventListener('visibilitychange', visibilityChanged);
+    motionPreference.addEventListener('change', motionChanged);
+    resize();
+    loop.pause(paused);
+    invalidate();
 
     const contextLost = (e: Event) => {
       e.preventDefault();
-      callbacks.current.onError('The 3D session was paused by your device. Reload to continue.');
+      failed = true;
+      abort.abort();
+      loop.pause(true);
+      callbacks.current.onError('The device paused the 3D view. Use the 2D muscle view or reopen the viewer.');
     };
     renderer.domElement.addEventListener('webglcontextlost', contextLost);
 
     return () => {
       disposed = true;
       abort.abort();
-      cancelAnimationFrame(frame);
+      wake.current = null;
+      loop.dispose();
+      document.removeEventListener('visibilitychange', visibilityChanged);
+      motionPreference.removeEventListener('change', motionChanged);
+      renderer.domElement.removeEventListener('webglcontextlost', contextLost);
+      renderer.domElement.removeEventListener('pointerdown', down);
+      renderer.domElement.removeEventListener('pointermove', move);
+      renderer.domElement.removeEventListener('pointerup', up);
+      renderer.domElement.removeEventListener('pointercancel', cancel);
       observer.disconnect();
+      controls.removeEventListener('change', controlChanged);
+      controls.removeEventListener('start', controlChanged);
       controls.dispose();
       geometries.forEach((g) => g.dispose());
       materials.forEach((m) => m.dispose());
@@ -625,13 +702,13 @@ export default function AnatomyScene({ atlas, state, onSelect, onProgress, onErr
           ms.forEach((m) => m.dispose());
         }
       });
-      env.dispose();
       partTexture.dispose();
       selectionTexture.dispose();
       markerGeometry.dispose();
       markerMaterial.dispose();
       hover.remove();
       renderer.dispose();
+      renderer.forceContextLoss();
       renderer.domElement.remove();
     };
   }, [atlas, isDark]);

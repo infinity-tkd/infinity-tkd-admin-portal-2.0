@@ -1,219 +1,102 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { motion, AnimatePresence } from 'motion/react';
+import { useRouter } from 'next/navigation';
 import { X } from '@phosphor-icons/react/dist/csr/X';
-import { User } from '@phosphor-icons/react/dist/csr/User';
-import { Flame } from '@phosphor-icons/react/dist/csr/Flame';
-import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
-import { Stack } from '@phosphor-icons/react/dist/csr/Stack';
-import { Layers } from 'lucide-react';
-import { CurriculumVideo, useAppStore } from '@/lib/store';
+import { CurriculumVideo, Student, useAppStore } from '@/lib/store';
 import { Portal } from '@/components/Portal';
-import { useT } from '@/hooks/useTranslation';
 import { resolveAssetMuscleLoads } from '@/lib/anatomyUtils';
-import { cn, formatBeltLocalized } from '@/lib/utils';
+import { AnatomyContext, resolveStudentMuscleLoads } from '@/lib/anatomy-integration';
+import { cn } from '@/lib/utils';
 
-// Dynamically import Anatomical3DModel with SSR disabled
 const Anatomical3DModel = dynamic(
   () => import('@/components/Anatomical3DModel').then(mod => mod.Anatomical3DModel),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-950 p-8">
-        <span className="w-10 h-10 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin mb-4" />
-        <span className="text-xs text-neutral-400 font-mono uppercase tracking-widest animate-pulse">
-          Initializing 3D BodyParts3D Engine...
-        </span>
-        <span className="text-[10px] text-neutral-600 font-mono mt-2">Loading 2,234 anatomical meshes</span>
-      </div>
-    )
-  }
+  { ssr: false, loading: () => <div role="status" className="flex h-full items-center justify-center text-sm text-neutral-500">Opening muscle explorer…</div> },
 );
 
 export interface AnatomyStudioModalProps {
   isOpen: boolean;
   onClose: () => void;
   asset?: CurriculumVideo | null;
+  student?: Student | null;
   initialGender?: 'Male' | 'Female';
+  onOpenMaterial?: (assetId: number) => void;
 }
 
-export function AnatomyStudioModal({
-  isOpen,
-  onClose,
-  asset = null,
-  initialGender = 'Male',
-}: AnatomyStudioModalProps) {
+/** Shared teaching workspace for saved materials and student learning coverage. */
+export function AnatomyStudioModal({ isOpen, onClose, asset = null, student = null, initialGender = 'Male', onOpenMaterial }: AnatomyStudioModalProps) {
   const { state } = useAppStore();
-  const t = useT();
-  const [gender, setGender] = useState<'Male' | 'Female'>(initialGender);
-  const [selectedMuscleToFocus, setSelectedMuscleToFocus] = useState<string | null>(null);
+  const router = useRouter();
+  const titleId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const [focusedMuscle, setFocusedMuscle] = useState<string | null>(null);
+  const { muscles, assetMuscleRelations, videoProgress } = state;
+  const material = useMemo(() => resolveAssetMuscleLoads(asset, { muscles, assetMuscleRelations }), [asset, muscles, assetMuscleRelations]);
+  const coverage = useMemo(() => resolveStudentMuscleLoads(student?.id ?? '', { muscles, assetMuscleRelations, videoProgress }), [student?.id, videoProgress, muscles, assetMuscleRelations]);
+  const studentView = Boolean(student && !asset);
+  const loads = studentView ? coverage.muscleLoads : material.muscleLoads;
+  const title = asset?.title ?? (student ? `${student.englishName} · Muscle explorer` : 'Muscle explorer');
+  const sourceLabel = studentView ? 'Completed learning materials' : asset ? (material.source === 'database' ? 'Saved material mapping' : material.source === 'none' ? 'No muscle mapping saved' : 'Teaching reference') : 'Academy muscle library';
+  const context: AnatomyContext = {
+    kind: studentView ? 'student' : asset ? 'material' : 'library', title,
+    studentId: student?.id, assetId: asset?.id,
+    completedAssetIds: student ? coverage.completedAssetIds : undefined,
+    sourceLabel,
+    onOpenMaterial: id => {
+      onCloseRef.current();
+      if (onOpenMaterial) onOpenMaterial(id);
+      else router.push(`/lms?material=${id}`);
+    },
+  };
 
-  // Close on Escape key
+  useEffect(() => { setFocusedMuscle(null); }, [isOpen, asset?.id, student?.id]);
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
+    if (!isOpen) return;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const frame = requestAnimationFrame(() => closeRef.current?.focus());
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); onCloseRef.current(); return; }
+      if (event.key !== 'Tab') return;
+      const dialog = dialogRef.current;
+      const controls = dialog ? [...dialog.querySelectorAll<HTMLElement>('button,input,select,a[href],[tabindex]')].filter(item => item.tabIndex >= 0 && !item.hasAttribute('disabled') && item.getClientRects().length) : [];
+      const first = controls[0]; const last = controls[controls.length - 1];
+      if (!first) { event.preventDefault(); dialog?.focus(); }
+      else if (event.shiftKey && (document.activeElement === first || !dialog?.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && (document.activeElement === last || !dialog?.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+    document.addEventListener('keydown', keydown, true);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener('keydown', keydown, true);
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus();
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
-
-  const { muscleLoads, primaryMuscles, secondaryMuscles } = resolveAssetMuscleLoads(asset, state);
-
-  return (
-    <Portal>
-      <div className="fixed inset-0 z-[10000] bg-black/90 backdrop-blur-md flex flex-col animate-in fade-in duration-200">
-        {/* Top Studio Header Bar */}
-        <header className="h-14 border-b border-neutral-800/90 px-4 sm:px-6 flex items-center justify-between bg-[#0A0B0D]/95 backdrop-blur-md shrink-0 z-50">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#EF2F38] shadow-[0_0_10px_#EF2F38] shrink-0" />
-            <div className="flex items-center gap-2 truncate">
-              {asset ? (
-                <>
-                  <span className="text-xs sm:text-sm font-black tracking-wide text-white uppercase truncate font-mono">
-                    {asset.title}
-                  </span>
-                  <span className="px-2 py-0.5 rounded-[6px] text-[9px] font-bold uppercase tracking-wider bg-red-500/10 border border-red-500/30 text-[#EF2F38] shrink-0">
-                    {formatBeltLocalized(asset.minBeltLevel, state.language)}
-                  </span>
-                  <span className="hidden md:inline px-2 py-0.5 rounded-[6px] text-[9px] font-medium bg-neutral-800 text-neutral-300 border border-neutral-700 shrink-0">
-                    {asset.category}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className="text-xs sm:text-sm font-bold tracking-wider text-white font-mono uppercase">
-                    BodyParts3D Anatomy Explorer · Infinity TKD 2.0
-                  </span>
-                  <span className="text-xs text-neutral-500 font-mono hidden lg:inline">
-                    (2,234 Meshes · 15 Systems · 3,432 Concepts)
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Gender Switcher */}
-            <div className="flex items-center p-0.5 bg-neutral-900 rounded-[8px] border border-neutral-800 text-[10px] font-mono">
-              <button
-                type="button"
-                onClick={() => setGender('Male')}
-                className={cn(
-                  "flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-[6px] font-bold transition-all cursor-pointer",
-                  gender === 'Male'
-                    ? "bg-[#EF2F38] text-white shadow-xs"
-                    : "text-neutral-400 hover:text-white"
-                )}
-              >
-                <User size={11} />
-                <span>Male</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setGender('Female')}
-                className={cn(
-                  "flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-[6px] font-bold transition-all cursor-pointer",
-                  gender === 'Female'
-                    ? "bg-[#EF2F38] text-white shadow-xs"
-                    : "text-neutral-400 hover:text-white"
-                )}
-              >
-                <User size={11} />
-                <span>Female</span>
-              </button>
-            </div>
-
-            {/* Close Studio Button */}
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[8px] bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-400 hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation"
-              title="Close 3D Anatomy Studio (Esc)"
-              aria-label="Close 3D Anatomy Studio"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </header>
-
-        {/* Biomechanical HUD Bar (if technique asset is specified) */}
-        {asset && (primaryMuscles.length > 0 || secondaryMuscles.length > 0) && (
-          <div className="bg-[#121316] border-b border-neutral-800/80 px-4 sm:px-6 py-2 flex items-center justify-between gap-4 overflow-x-auto shrink-0 z-40">
-            <div className="flex items-center gap-2 sm:gap-4 shrink-0 flex-wrap">
-              {/* Primary Muscles */}
-              {primaryMuscles.length > 0 && (
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[9px] font-mono font-black uppercase text-red-400 tracking-wider flex items-center gap-1">
-                    <Flame className="w-3 h-3 text-[#EF2F38]" weight="fill" />
-                    {t('lib_primary_muscles')}:
-                  </span>
-                  {primaryMuscles.map(m => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setSelectedMuscleToFocus(m)}
-                      className={cn(
-                        "px-2 py-0.5 rounded-[6px] text-[10px] font-mono font-bold transition-all border cursor-pointer",
-                        selectedMuscleToFocus === m
-                          ? "bg-[#EF2F38] text-white border-[#EF2F38] shadow-xs"
-                          : "bg-red-500/10 border-red-500/25 text-red-300 hover:bg-red-500/20"
-                      )}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* Secondary Stabilizers */}
-              {secondaryMuscles.length > 0 && (
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[9px] font-mono font-black uppercase text-amber-400 tracking-wider flex items-center gap-1">
-                    <Sparkle className="w-3 h-3 text-amber-500" weight="fill" />
-                    {t('lib_secondary_muscles')}:
-                  </span>
-                  {secondaryMuscles.map(m => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setSelectedMuscleToFocus(m)}
-                      className={cn(
-                        "px-2 py-0.5 rounded-[6px] text-[10px] font-mono font-bold transition-all border cursor-pointer",
-                        selectedMuscleToFocus === m
-                          ? "bg-amber-500 text-black border-amber-500 shadow-xs"
-                          : "bg-amber-500/10 border-amber-500/25 text-amber-300 hover:bg-amber-500/20"
-                      )}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="text-[10px] text-neutral-500 font-mono hidden md:block shrink-0">
-              {t('lib_tap_to_focus')}
-            </div>
-          </div>
-        )}
-
-        {/* Main Viewport Container */}
-        <div className="flex-1 w-full h-full relative overflow-hidden bg-[#0A0B0D]">
-          <Anatomical3DModel
-            muscleLoads={muscleLoads}
-            maxLoad={1.0}
-            gender={gender}
-            className="w-full h-full border-0 rounded-none bg-transparent"
-            onSelectMuscle={(m) => setSelectedMuscleToFocus(m)}
-          />
+  const chips = studentView ? Object.keys(loads).sort((a, b) => loads[b] - loads[a]) : [...material.primaryMuscles, ...material.secondaryMuscles];
+  return <Portal>
+    <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} data-testid="anatomy-studio" className="fixed inset-0 z-[10000] flex h-[100dvh] min-h-0 flex-col bg-white font-sans text-neutral-900 dark:bg-[#0A0A0A] dark:text-white motion-safe:animate-in motion-safe:fade-in motion-safe:duration-150">
+      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-neutral-200 px-4 py-3 pt-[max(.75rem,env(safe-area-inset-top))] dark:border-neutral-800 sm:px-6">
+        <div className="min-w-0 border-l-4 border-[#EF2F38] pl-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Infinity TKD · {sourceLabel}</p>
+          <h2 id={titleId} className="truncate text-base font-semibold sm:text-lg">{title}</h2>
         </div>
+        <button ref={closeRef} type="button" onClick={onClose} aria-label="Close muscle explorer" className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-red-500 dark:border-neutral-800 dark:hover:bg-neutral-900"><X size={20} /></button>
+      </header>
+      <div className="shrink-0 border-b border-neutral-200 bg-neutral-50 px-4 py-2.5 dark:border-neutral-800 dark:bg-neutral-950 sm:px-6">
+        <p className="text-xs leading-relaxed text-neutral-500">{studentView ? `${coverage.completedAssetIds.length} completed learning material${coverage.completedAssetIds.length === 1 ? '' : 's'}. Colour shows mapped training coverage, not measured muscle fatigue or strength.` : asset ? 'Explore the muscles used in this material, then open related learning resources.' : 'Select a muscle to explore its role in Taekwondo and the academy’s related learning materials.'}</p>
+        {chips.length > 0 && <div className="mt-2 flex max-h-24 flex-wrap gap-1.5 overflow-y-auto" aria-label="Focus a mapped muscle">{chips.map(name => <button key={name} type="button" onClick={() => setFocusedMuscle(name)} aria-pressed={focusedMuscle === name} className={cn('min-h-11 rounded-lg border px-3 text-xs font-medium transition-colors', focusedMuscle === name ? 'border-[#EF2F38] bg-[#EF2F38] text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-red-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-200')}>{name}</button>)}</div>}
       </div>
-    </Portal>
-  );
+      <div className="min-h-0 flex-1 pb-[env(safe-area-inset-bottom)]">
+        <Anatomical3DModel muscleLoads={loads} maxLoad={studentView ? coverage.maxLoad : 1} gender={student?.gender ?? initialGender} defaultViewMode="3d" allowFullscreen={false} focusedMuscle={focusedMuscle} context={context} className="h-full w-full rounded-none border-0" />
+      </div>
+    </div>
+  </Portal>;
 }

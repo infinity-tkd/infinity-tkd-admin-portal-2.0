@@ -2,24 +2,16 @@
 
 import React, { useState, useMemo } from 'react';
 import { useAppStore, Role, User } from '@/lib/store';
-import { 
-  PERMISSION_DEFINITIONS, 
-  ROLE_PERMISSIONS, 
-  PermissionKey, 
-  PermissionDefinition,
-  hasPermission,
-  MODULE_DEFINITIONS,
-  ModuleDefinition
-} from '@/lib/security';
-import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { PERMISSION_DEFINITIONS, ROLE_PERMISSIONS, PermissionKey, hasPermission, MODULE_DEFINITIONS, ModuleDefinition } from '@/lib/security';
+
 import { Check } from '@phosphor-icons/react/dist/csr/Check';
 import { X } from '@phosphor-icons/react/dist/csr/X';
 import { ArrowCounterClockwise } from '@phosphor-icons/react/dist/csr/ArrowCounterClockwise';
 import { FloppyDisk } from '@phosphor-icons/react/dist/csr/FloppyDisk';
 import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
 import { Sliders } from '@phosphor-icons/react/dist/csr/Sliders';
-import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
-import { Info } from '@phosphor-icons/react/dist/csr/Info';
+
+
 import { LockKey } from '@phosphor-icons/react/dist/csr/LockKey';
 import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
 import { Eye } from '@phosphor-icons/react/dist/csr/Eye';
@@ -83,9 +75,9 @@ export function RolePermissionsMatrixPanel() {
     return PERMISSION_DEFINITIONS.filter(p => {
       const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
       const matchesAccessType = accessTypeFilter === 'all' || p.accessType === accessTypeFilter;
-      const matchesSearch = 
-        !search.trim() || 
-        p.label.toLowerCase().includes(search.toLowerCase()) || 
+      const matchesSearch =
+        !search.trim() ||
+        p.label.toLowerCase().includes(search.toLowerCase()) ||
         p.key.toLowerCase().includes(search.toLowerCase()) ||
         p.description.toLowerCase().includes(search.toLowerCase());
       return matchesCategory && matchesAccessType && matchesSearch;
@@ -210,8 +202,8 @@ export function RolePermissionsMatrixPanel() {
               disabled={isSaving || modifiedCount === 0}
               className={cn(
                 "px-4 py-2 text-xs font-mono font-black uppercase tracking-wider rounded-[8px] flex items-center gap-2 transition-all cursor-pointer shadow-sm active:scale-95 touch-manipulation",
-                modifiedCount > 0 
-                  ? "bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/30" 
+                modifiedCount > 0
+                  ? "bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/30"
                   : "bg-neutral-100 dark:bg-neutral-800 text-neutral-400 dark:text-neutral-500 cursor-not-allowed border border-neutral-200 dark:border-neutral-700"
               )}
             >
@@ -284,7 +276,7 @@ export function RolePermissionsMatrixPanel() {
         {showRolePresets && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-2 border-t border-neutral-200 dark:border-[#222]">
             {MODULE_DEFINITIONS.map(mod => (
-              <div 
+              <div
                 key={mod.module}
                 className="p-2.5 rounded-[8px] bg-white dark:bg-[#181818] border border-neutral-200 dark:border-[#282828] flex items-center justify-between gap-2 shadow-xs"
               >
@@ -416,7 +408,7 @@ export function RolePermissionsMatrixPanel() {
         ) : (
           filteredPermissions.map(p => {
             return (
-              <div 
+              <div
                 key={p.key}
                 className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 shadow-xs space-y-3"
               >
@@ -491,8 +483,8 @@ export function RolePermissionsMatrixPanel() {
                           </span>
                           <span className={cn(
                             "w-5 h-5 rounded-[6px] flex items-center justify-center text-[10px] font-black shrink-0 border",
-                            isGranted 
-                              ? "bg-emerald-500 text-white border-emerald-600" 
+                            isGranted
+                              ? "bg-emerald-500 text-white border-emerald-600"
                               : "bg-neutral-200 dark:bg-[#242424] text-neutral-400 border-neutral-300 dark:border-[#333]"
                           )}>
                             {isGranted ? <Check className="w-3 h-3" weight="bold" /> : <X className="w-3 h-3" weight="bold" />}
@@ -545,7 +537,7 @@ export function RolePermissionsMatrixPanel() {
               ) : (
                 filteredPermissions.map(p => {
                   return (
-                    <tr 
+                    <tr
                       key={p.key}
                       className="hover:bg-neutral-50/50 dark:hover:bg-[#171717] transition-colors"
                     >
@@ -591,8 +583,8 @@ export function RolePermissionsMatrixPanel() {
                               onClick={() => handleToggle(role, p.key)}
                               className={cn(
                                 "w-7 h-7 rounded-[8px] transition-all inline-flex items-center justify-center cursor-pointer border active:scale-95 touch-manipulation",
-                                isGranted 
-                                  ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/25" 
+                                isGranted
+                                  ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/25"
                                   : "bg-neutral-100 dark:bg-[#1a1a1a] text-neutral-400 border-neutral-300 dark:border-[#2a2a2a] hover:bg-neutral-200 dark:hover:bg-[#252525]",
                                 isLocallyModified && "ring-2 ring-purple-500 ring-offset-1 dark:ring-offset-[#141414]"
                               )}

@@ -1,3 +1,8 @@
+import { directImageSource } from './google-drive-media';
+import { lessonYouTubeId, resolveLessonMedia } from './lesson-media';
+import { isPrivateLibraryDraft } from './library-publication';
+import { physicalGradeScore } from './physical-grades';
+import { academyDate, daysBetween, isCalendarDate } from './dates';
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -34,7 +39,7 @@ export function isValidDate(dateStr: string): boolean {
   const month = parseInt(parts[1], 10);
   const day = parseInt(parts[2], 10);
   if (month < 1 || month > 12 || day < 1 || day > 31) return false;
-  
+
   const date = new Date(year, month - 1, day);
   return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
 }
@@ -70,30 +75,7 @@ export function checkPasswordStrength(password: string): PasswordStrengthResult 
 
 // Converts generic URLs and Google Drive file shares into clean direct image links
 export function getDirectImageUrl(url: string | null | undefined): string {
-  if (!url) return '';
-  const trimmed = String(url).trim();
-  if (!trimmed) return '';
-  
-  // Google Drive url format parsing (drive.google.com or lh3.googleusercontent.com/d/)
-  if (trimmed.includes('drive.google.com') || trimmed.includes('lh3.googleusercontent.com/d/')) {
-    let fileId = '';
-    const dMatch = trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    if (dMatch && dMatch[1]) {
-      fileId = dMatch[1];
-    } else {
-      const idMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      if (idMatch && idMatch[1]) {
-        fileId = idMatch[1];
-      }
-    }
-    if (fileId) {
-      // Route through local image proxy to prevent ORB (Opaque Response Blocking),
-      // Referer-based 429 rate limits, and Firefox NS_ERROR_DOM_NETWORK_ERR
-      return `/api/image-proxy?id=${fileId}`;
-    }
-  }
-  
-  return trimmed;
+  return directImageSource(url);
 }
 
 // Dynamically formats black belts to Poom (under 15 years old) or Dan (15+ years old)
@@ -110,15 +92,15 @@ export function formatBelt(beltName: string, dob?: string): string {
       age--;
     }
 
-    const isBlackBelt = 
-      beltName.includes('Poom/Dan') || 
-      beltName.toLowerCase().includes('poom') || 
+    const isBlackBelt =
+      beltName.includes('Poom/Dan') ||
+      beltName.toLowerCase().includes('poom') ||
       beltName.toLowerCase().includes('dan') ||
       beltName.toLowerCase() === 'black';
 
     if (isBlackBelt) {
       const term = age < 15 ? 'Poom' : 'Dan';
-      
+
       // Match formats like "1st Poom/Dan" or "1st Poom" or "1st Dan"
       const degreeMatch = beltName.match(/^(\d+)(st|nd|rd|th)?\s+(Poom\/Dan|Poom|Dan)/i);
       if (degreeMatch) {
@@ -127,13 +109,13 @@ export function formatBelt(beltName: string, dob?: string): string {
         const suffixLabel = suffix ? `${degreeNumber}${suffix}` : degreeNumber;
         return `${suffixLabel} ${term}`;
       }
-      
+
       return beltName.replace(/Poom\/Dan/i, term).replace(/Poom/i, term).replace(/Dan/i, term);
     }
   } catch (e) {
     console.warn('Error formatting belt:', e);
   }
-  
+
   return beltName;
 }
 
@@ -157,12 +139,32 @@ export function formatBeltLocalized(beltName: string, dob?: string, t?: (key: an
 
 // Centralized helper to check if a curriculum video belt level matches a student's current belt level
 // Handles conversions and matches like "1st Poom" matching "1st Poom/Dan" or "1st Dan"
+/** A lesson set for "All belts" (the same spellings the student portal accepts). */
+export function isAllBeltsLesson(videoBelt: string | null | undefined): boolean {
+  return ['all', 'allbelts', 'alllevels'].includes((videoBelt || '').toLowerCase().replace(/[^a-z0-9]/g, ''));
+}
+
+/**
+ * Whether a lesson is part of the required syllabus for a belt: a published
+ * (or legacy) Taekwondo lesson set for that belt or for all belts. Fitness and
+ * dance materials and never-published private drafts are never required.
+ */
+export function isSyllabusLessonFor(
+  video: { minBeltLevel: string; category?: string | null; studentCurriculumId?: number | null; publishedRevision?: number | null },
+  belt: string,
+): boolean {
+  if (video.minBeltLevel === 'Fitness' || video.minBeltLevel === 'Dance') return false;
+  if (video.category?.startsWith('Fitness:') || video.category?.startsWith('Dance:')) return false;
+  if (isPrivateLibraryDraft(video)) return false;
+  return isAllBeltsLesson(video.minBeltLevel) || isBeltMatch(video.minBeltLevel, belt);
+}
+
 export function isBeltMatch(videoBelt: string, studentBelt: string): boolean {
   if (!videoBelt || !studentBelt) return false;
-  
+
   const vClean = videoBelt.toLowerCase().replace(' belt', '').trim();
   const sClean = studentBelt.toLowerCase().replace(' belt', '').trim();
-  
+
   if (vClean === sClean) return true;
 
   // Extract degrees, e.g. "1st" in "1st Poom/Dan" or "1st Dan"
@@ -173,7 +175,7 @@ export function isBeltMatch(videoBelt: string, studentBelt: string): boolean {
 
   const vDegree = getDegree(vClean);
   const sDegree = getDegree(sClean);
-  
+
   if (vDegree && sDegree && vDegree === sDegree) {
     const isVBlack = vClean.includes('poom') || vClean.includes('dan') || vClean.includes('black');
     const isSBlack = sClean.includes('poom') || sClean.includes('dan') || sClean.includes('black');
@@ -258,7 +260,7 @@ export function calculatePromotionReadiness(
   beltTechniques: any[]
 ): PromotionReadinessReport {
   const studentHistories = beltHistories.filter(h => h.studentId === student.id);
-  
+
   let latestPromotion = null;
   if (studentHistories.length > 0) {
     latestPromotion = [...studentHistories].sort((a, b) => {
@@ -268,21 +270,22 @@ export function calculatePromotionReadiness(
       return b.id - a.id;
     })[0];
   }
-  
-  const rawStartDate = latestPromotion ? latestPromotion.promotionDate : (student.registrationDate || new Date().toISOString().split('T')[0]);
-  const parsedStart = new Date(rawStartDate);
-  const isValidStart = !isNaN(parsedStart.getTime());
-  const startDate = isValidStart ? rawStartDate : new Date().toISOString().split('T')[0];
-  
-  const attendanceSince = attendanceRecords.filter(a => 
-    a.studentId === student.id && 
-    a.date >= startDate && 
+
+  // Promotion and attendance dates are academy calendar days, so elapsed time is
+  // counted in the academy timezone rather than UTC or the staff device clock.
+  const today = academyDate();
+  const rawStartDate = String(latestPromotion ? latestPromotion.promotionDate : (student.registrationDate || today)).slice(0, 10);
+  const startDate = isCalendarDate(rawStartDate) ? rawStartDate : today;
+
+  const attendanceSince = attendanceRecords.filter(a =>
+    a.studentId === student.id &&
+    a.date >= startDate &&
     (a.status === 'Present' || a.status === 'Late')
   ).length;
-  
-  const daysElapsed = Math.max(0, Math.floor((Date.now() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)));
-  
-  const currentBeltVideos = curriculumVideos.filter(v => isBeltMatch(v.minBeltLevel, student.currentBelt) && v.minBeltLevel !== 'Fitness');
+
+  const daysElapsed = Math.max(0, daysBetween(startDate, today));
+
+  const currentBeltVideos = curriculumVideos.filter(v => isSyllabusLessonFor(v, student.currentBelt));
   const currentBeltVideoIds = currentBeltVideos.map(v => v.id);
   const completedVideosCount = videoProgress.filter(
     p => p.studentId === student.id && p.status === 'Completed' && currentBeltVideoIds.includes(p.videoId)
@@ -299,30 +302,27 @@ export function calculatePromotionReadiness(
     .map(x => x.techniqueName);
 
   const targetSkills = dynamicSkills.length > 0 ? dynamicSkills : (DEFAULT_BELT_TECHNIQUES[beltKey] || []);
-  
+
   let gradedCount = 0;
   let totalScore = 0;
-  
+
   targetSkills.forEach(skillName => {
     const dbMatch = physicalEvaluations.find(e => e.studentId === student.id && e.skillName === skillName);
-    if (dbMatch) {
+    const score = physicalGradeScore(dbMatch?.grade);
+    if (score !== null) {
       gradedCount++;
-      const grade = dbMatch.grade;
-      if (grade === 'Outstanding' || grade === 'A') totalScore += 4;
-      else if (grade === 'Proficient' || grade === 'B') totalScore += 3;
-      else if (grade === 'Developing' || grade === 'C') totalScore += 2;
-      else if (grade === 'Needs Work' || grade === 'F') totalScore += 1;
+      totalScore += score;
     }
   });
 
   const physicalAverageScore = gradedCount > 0 ? Number((totalScore / gradedCount).toFixed(2)) : 0;
-  const physicalAverageGradeLabel = 
+  const physicalAverageGradeLabel =
     physicalAverageScore >= 3.5 ? 'Outstanding' :
     physicalAverageScore >= 2.5 ? 'Proficient' :
     physicalAverageScore >= 1.5 ? 'Developing' :
     physicalAverageScore > 0 ? 'Needs Work' : 'Unrated';
 
-  const physicalEligible = targetSkills.length > 0 
+  const physicalEligible = targetSkills.length > 0
     ? (gradedCount === targetSkills.length && physicalAverageScore >= req.minPhysicalAverageScore)
     : true; // if no skills are defined, default to true
 
@@ -342,14 +342,14 @@ export function calculatePromotionReadiness(
   // Attendance progress (capped at 100)
   // Syllabus progress (capped at 100)
   // Physical grades progress (scaled to 100, i.e., averageScore / 4.0 * 100)
-  const physicalProgress = targetSkills.length > 0 
+  const physicalProgress = targetSkills.length > 0
     ? Math.round((gradedCount / targetSkills.length) * 50 + (physicalAverageScore / 4.0) * 50)
     : 100;
 
   const pri = Math.round(
-    daysProgress * 0.25 + 
-    attendanceProgress * 0.25 + 
-    syllabusCompletedPct * 0.25 + 
+    daysProgress * 0.25 +
+    attendanceProgress * 0.25 +
+    syllabusCompletedPct * 0.25 +
     physicalProgress * 0.25
   );
 
@@ -444,7 +444,7 @@ export function calculateChurnRisk(
     .map(e => e.classSessionId);
 
   const enrolledSessions = classSessions.filter(s => enrolledSessionIds.includes(s.id));
-  
+
   let expectedWeeklyFrequency = 0;
   enrolledSessions.forEach(s => {
     const days = Array.isArray(s.daysOfWeek) ? s.daysOfWeek : [s.dayOfWeek || ''];
@@ -481,8 +481,8 @@ export function calculateChurnRisk(
   // Recommended actions
   let recommendedAction = 'Maintain Standard Engagement';
   if (riskLevel === 'High') {
-    recommendedAction = student.phone 
-      ? 'Call Emergency Contact / Instructor Outreach' 
+    recommendedAction = student.phone
+      ? 'Call Emergency Contact / Instructor Outreach'
       : 'Send High-Priority Check-in Message';
   } else if (riskLevel === 'Medium') {
     recommendedAction = 'Send Class Catch-up / Support Message';
@@ -577,12 +577,12 @@ export function mapCategoryToDbEnum(category: string | null | undefined): 'Pooms
 export function getCategoryTranslationKey(cat: string | null | undefined): any {
   if (!cat) return null;
   const c = cat.replace('Fitness: ', '').replace('Dance: ', '').trim().toLowerCase();
-  
+
   if (c === 'hiphop') return 'cat_dance_hiphop';
   if (c === 'popping') return 'cat_dance_popping';
   if (c === 'tutorials') return 'cat_dance_tutorials';
   if (c === 'resources') return 'cat_dance_resources';
-  
+
   if (c.includes('poomsae') || c.includes('forms')) return 'cat_poomsae';
   if (c.includes('kyorugi') || c.includes('sparring')) return 'cat_kyorugi';
   if (c.includes('chagi') || c.includes('kicks') || c.includes('kicking')) return 'cat_chagi';
@@ -594,7 +594,7 @@ export function getCategoryTranslationKey(cat: string | null | undefined): any {
   if (c.includes('blocks') || (c.includes('makki') && !c.includes('jirugi') && !c.includes('strike'))) return 'cat_blocks';
   if (c.includes('jirugi') || c.includes('makki') || c.includes('strikes') || c.includes('blocks')) return 'cat_jirugi_makki';
   if (c.includes('tricking') || c.includes('acrobatics')) return 'cat_tricking_acrobatics';
-  
+
   // Fitness categories
   if (c === 'strength') return 'cat_strength';
   if (c === 'explosive') return 'cat_explosive';
@@ -612,38 +612,12 @@ export function getCategoryTranslationKey(cat: string | null | undefined): any {
 }
 
 export function getYouTubeId(url: string | null | undefined): string | null {
-  if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
+  return lessonYouTubeId(url);
 }
 
 export function getEmbedVideoUrl(url: string | null | undefined): string {
-  if (!url) return '';
-  const trimmed = url.trim();
-  
-  const ytId = getYouTubeId(trimmed);
-  if (ytId) {
-    return `https://www.youtube.com/embed/${ytId}`;
-  }
-  
-  if (trimmed.includes('drive.google.com')) {
-    let fileId = '';
-    const dMatch = trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    if (dMatch && dMatch[1]) {
-      fileId = dMatch[1];
-    } else {
-      const idMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      if (idMatch && idMatch[1]) {
-        fileId = idMatch[1];
-      }
-    }
-    if (fileId) {
-      return `https://drive.google.com/file/d/${fileId}/preview`;
-    }
-  }
-  
-  return trimmed;
+  const media = resolveLessonMedia(url);
+  return media.kind === 'iframe' ? media.src : '';
 }
 
 export interface MistakeCorrection {
@@ -679,11 +653,22 @@ export interface AssetDetails {
   studyGuide?: QuestionAnswerItem[];
 }
 
+const ASSET_DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced', 'Elite'] as const;
+const assetText = (value: unknown) => typeof value === 'string' ? value : '';
+/** Text lists may be legacy newline-separated strings; non-text entries are dropped. */
+const assetTextList = (value: unknown): string[] => typeof value === 'string'
+  ? value.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
+  : Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+const assetRecords = (value: unknown): Record<string, unknown>[] => Array.isArray(value)
+  ? value.filter((item): item is Record<string, unknown> => !!item && typeof item === 'object' && !Array.isArray(item))
+  : [];
+
 export function parseAssetDescription(description: string): AssetDetails {
   try {
     if (description && description.trim().startsWith('{') && description.trim().endsWith('}')) {
       const parsed = JSON.parse(description);
-      
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Not lesson metadata.');
+
       let normalizedMistakes: MistakeCorrection[] = [];
       if (parsed.mistakes && Array.isArray(parsed.mistakes)) {
         normalizedMistakes = parsed.mistakes.map((item: any) => {
@@ -705,25 +690,33 @@ export function parseAssetDescription(description: string): AssetDetails {
             return { mistake: item, correction: '' };
           }
           return {
-            mistake: item?.mistake || '',
-            correction: item?.correction || ''
+            mistake: assetText(item?.mistake),
+            correction: assetText(item?.correction)
           };
         });
       }
 
+      // Every field the editors and viewers read is normalised here, so a
+      // legacy or hand-imported row can be displayed and re-saved safely.
       return {
         ...parsed,
-        principles: Array.isArray(parsed.principles) ? parsed.principles : [],
-        prerequisites: Array.isArray(parsed.prerequisites) ? parsed.prerequisites : [],
-        drillingMethods: Array.isArray(parsed.drillingMethods) ? parsed.drillingMethods : [],
+        text: assetText(parsed.text),
+        difficulty: ASSET_DIFFICULTIES.includes(parsed.difficulty) ? parsed.difficulty : undefined,
+        instructions: assetTextList(parsed.instructions),
+        focusZones: assetTextList(parsed.focusZones),
+        repsSets: assetText(parsed.repsSets),
+        thumbnailUrl: assetText(parsed.thumbnailUrl),
+        principles: assetTextList(parsed.principles),
+        prerequisites: assetTextList(parsed.prerequisites),
+        drillingMethods: assetTextList(parsed.drillingMethods),
         mistakes: normalizedMistakes,
-        performance: Array.isArray(parsed.performance) ? parsed.performance : [],
-        fitnessSolutions: Array.isArray(parsed.fitnessSolutions) ? parsed.fitnessSolutions.map(Number) : [],
-        terminology: Array.isArray(parsed.terminology) ? parsed.terminology : [],
-        studyGuide: Array.isArray(parsed.studyGuide) ? parsed.studyGuide : []
+        performance: assetTextList(parsed.performance),
+        fitnessSolutions: Array.isArray(parsed.fitnessSolutions) ? parsed.fitnessSolutions.map(Number).filter(Number.isSafeInteger) : [],
+        terminology: assetRecords(parsed.terminology).map(item => ({ korean: assetText(item.korean), english: assetText(item.english), khmer: assetText(item.khmer) })),
+        studyGuide: assetRecords(parsed.studyGuide).map(item => ({ question: assetText(item.question), answer: assetText(item.answer) }))
       };
     }
-  } catch (e) {
+  } catch {
     // ignore and fallback
   }
   return {

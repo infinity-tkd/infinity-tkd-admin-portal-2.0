@@ -8,6 +8,8 @@ export async function fetchAllRows(query: any, pageSize = 500): Promise<{data: a
     role_permissions:['role','permission_key'],user_permissions:['user_id','permission_key'],
     household_students:['household_id','student_id'],
     library_asset_muscles:['asset_id','muscle_id'],biomechanical_skill_linkage:['skill_name','muscle_id'],
+    class_occurrence_roster:['occurrence_id','student_id'],membership_allocations:['receipt_id','invoice_id'],
+    portal_job_leases:['job_name'],data_quality_reviews:['finding_key'],
   };
   // Stable tie breakers keep offset pagination from skipping rows with equal dates/names.
   for (const key of keys[table] || ['id']) query = query.order(key, { ascending:true });
@@ -28,20 +30,20 @@ export async function fetchAllRows(query: any, pageSize = 500): Promise<{data: a
   return { data: null, error: { message: 'Data exceeds the supported snapshot size. Narrow the date or branch filters.' } };
 }
 
-/** Load paginated route results without silently discarding older orders. */
-export async function fetchApiRows(path: string, token: string): Promise<any[]> {
+/** Load complete private route results; retain access errors so cached data is discarded. */
+export async function fetchApiRows(path: string, token: string, signal?: AbortSignal): Promise<any[]> {
   const rows: any[] = [];
   for (let offset = 0; offset < 100000; offset += 100) {
     const url = new URL(path, window.location.origin);
     url.searchParams.set('limit', '100');
     url.searchParams.set('offset', String(offset));
-    const response = await fetch(url, { headers: { Authorization: 'Bearer ' + token }, signal: AbortSignal.timeout(15000), cache: 'no-store' });
+    const response = await fetch(url, { headers: { Authorization: 'Bearer ' + token }, signal: signal ? AbortSignal.any([signal,AbortSignal.timeout(15000)]) : AbortSignal.timeout(15000), cache: 'no-store' });
     let result;
     try { result = await response.json(); }
-    catch { throw new Error('Order history returned an invalid response. Please retry.'); }
-    if (!response.ok || !Array.isArray(result.data)) throw new Error(result.error?.message || 'Could not load the complete order history.');
+    catch { throw Object.assign(new Error('Portal records returned an invalid response. Please retry.'), { code: String(response.status) }); }
+    if (!response.ok || !Array.isArray(result.data)) throw Object.assign(new Error(result.error?.message || 'Could not load the complete portal records.'), { code: String(response.status) });
     rows.push(...result.data);
     if (result.data.length < 100) return rows;
   }
-  throw new Error('Order history exceeds the snapshot limit. Use a narrower date range.');
+  throw new Error('Portal records exceed the snapshot limit. Use a narrower date range.');
 }

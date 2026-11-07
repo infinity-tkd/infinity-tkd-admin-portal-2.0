@@ -7,9 +7,9 @@ await mkdir('scratch', { recursive: true });
 const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : {}) });
 // Fictional identities and mocked services: no real credentials or database writes.
 const id = '70000000-0000-4000-8000-000000000099';
-const user = { id, aud: 'authenticated', role: 'authenticated', email: 'regression@example.test', app_metadata: { provider: 'email' }, user_metadata: {} };
+const user = { id, aud: 'authenticated', role: 'authenticated',aal:'aal2', email: 'regression@example.test', app_metadata: { provider: 'email' }, user_metadata: {} };
 const profile = { id, username: 'regression_admin', email: user.email, display_name: 'Regression Admin', role: 'Root', is_active: true, must_change_password: false };
-const token = `${Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url')}.${Buffer.from(JSON.stringify({ sub: id, exp: Math.floor(Date.now() / 1000) + 3600, role: 'authenticated' })).toString('base64url')}.${Buffer.from('test-signature').toString('base64url')}`;
+const token = `${Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url')}.${Buffer.from(JSON.stringify({ sub: id, exp: Math.floor(Date.now() / 1000) + 3600, role: 'authenticated',aal:'aal2' })).toString('base64url')}.${Buffer.from('test-signature').toString('base64url')}`;
 let stored = { id: 'default', academy_name: 'Infinity Taekwondo', contact_phone: '123', support_email: 'support@example.test', updated_at: '2026-10-11T01:00:00.000Z' };
 let failure = false; let conflict = false; let denied = false; let userFailure = false; let partnerFailure = true;
 const saves = []; const errors = [];
@@ -33,6 +33,10 @@ try {
         return json({ success: true, data: stored });
       }
       if (url.pathname === '/api/admin/update-user' && userFailure) return json({ success: false, error: { message: 'Fictional account outage' } }, 503);
+      if (url.pathname === '/api/admin/branches/hours') {
+        if (route.request().method() === 'POST') { const body = route.request().postDataJSON(); return json({ success: true, data: { id: body.branchId, openingHours: body.openingHours } }); }
+        return json({ success: true, data: { available: true, branches: [{ id: 1, name: 'Fixture branch', isActive: true, openingHours: [{ day: 'Mon', opens: '08:00', closes: '20:00' }, { day: 'Sun', closed: true }] }] } });
+      }
       if (url.pathname.startsWith('/api/admin/')) return json({ success: true, data: [] });
       return route.continue();
     }

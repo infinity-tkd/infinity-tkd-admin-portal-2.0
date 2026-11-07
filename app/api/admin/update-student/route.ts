@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { telegramUsernameSchema } from '@/lib/contact-validation';
 import { academyDate,isCalendarDate } from '@/lib/dates';
 import {
   verifyCaller,
@@ -18,29 +19,29 @@ const AddressUpdateSchema = z
     postalCode: z.string().max(20).optional().nullable(),
     country: z.string().max(100).optional().nullable(),
   })
-  .passthrough();
+  .strict();
 
 const StudentUpdatePayloadSchema = z
   .object({
-    englishName: z.string().min(1).max(100).optional(),
-    khmerName: z.string().max(100).optional().nullable(),
-    gender: z.enum(['Male', 'Female', 'Other']).optional().nullable(),
+    englishName: z.string().trim().min(1).max(100).optional(),
+    khmerName: z.string().trim().min(1).max(100).optional(),
+    gender: z.enum(['Male', 'Female']).optional(),
     dob: z.string().refine(d=>isCalendarDate(d)&&d>='1900-01-01'&&d<=academyDate(),'Invalid birth date').optional(),
     phone: z.string().max(50).optional().nullable(),
+    telegramUsername: telegramUsernameSchema,
     email: z.string().max(100).email().or(z.literal('')).optional().nullable(),
     emergencyContactName: z.string().max(100).optional().nullable(),
     emergencyContactPhone: z.string().max(50).optional().nullable(),
     emergencyContactRelation: z.string().max(50).optional().nullable(),
     medicalNotes: z.string().max(2000).optional().nullable(),
     allergies: z.string().max(1000).optional().nullable(),
-    scholarshipId: z.number().int().positive().optional().nullable(),
+    scholarshipId: z.number().int().positive().max(2147483647).optional(),
     heightCm: z.number().finite().positive().max(300).optional().nullable(),
     weightKg: z.number().finite().positive().max(600).optional().nullable(),
-    homeBranchId: z.number().int().positive().optional().nullable(),
+    homeBranchId: z.number().int().positive().max(2147483647).optional(),
     currentBelt: z.string().max(50).optional(),
     studentStatus: z.enum(['Active','Paused','Inactive','Suspended','Graduated']).optional(),
     statusReason: z.string().max(255).optional().nullable(),
-    statusChangedAt: z.string().optional().nullable(),
     pauseEndDate: z.string().refine(d=>d==='' || isCalendarDate(d),'Invalid pause end date').optional().nullable(),
     profilePicturePath: z.string().max(500).optional().nullable(),
     esignPath: z.string().max(500).optional().nullable(),
@@ -52,14 +53,14 @@ const StudentUpdatePayloadSchema = z
     classEnrollmentDate: z.string().refine(d=>d==='' || isCalendarDate(d)&&d>='1900-01-01'&&d<=academyDate(),'Invalid enrollment date').optional(),
     enrollmentId: z.number().int().positive().optional(),
   })
-  .passthrough();
+  .strict();
 
 const UpdateStudentRequestSchema = z
   .object({
     id: z.string().min(1, 'Target student id is required').max(50),
     data: StudentUpdatePayloadSchema,
   })
-  .passthrough();
+  .strict();
 
 export async function POST(req: Request) {
   try {
@@ -83,9 +84,10 @@ export async function POST(req: Request) {
       .from('students')
       .select('id, home_branch_id, english_name, profile_id, student_status')
       .eq('id', id)
-      .single();
+      .maybeSingle();
 
-    if (fetchErr || !currentStudent) {
+    if (fetchErr) return formatServerErrorResponse(fetchErr);
+    if (!currentStudent) {
       return NextResponse.json(
         {
           success: false,
@@ -102,9 +104,11 @@ export async function POST(req: Request) {
     const memberPayload: any = {};
     if (data.englishName !== undefined) memberPayload.english_name = sanitizeString(data.englishName);
     if (data.khmerName !== undefined) memberPayload.khmer_name = sanitizeString(data.khmerName);
+    if (memberPayload.english_name === '' || memberPayload.khmer_name === '') return NextResponse.json({success:false,error:{code:'VALIDATION_FAILED',message:'Invalid input. Student names are required.'}},{status:422});
     if (data.gender !== undefined) memberPayload.gender = data.gender;
     if (data.dob !== undefined) memberPayload.dob = data.dob;
     if (data.phone !== undefined) memberPayload.phone = sanitizeString(data.phone);
+    if (data.telegramUsername !== undefined) memberPayload.telegram_username = data.telegramUsername;
     if (data.email !== undefined) memberPayload.email = sanitizeString(data.email);
     if (data.emergencyContactName !== undefined) memberPayload.emergency_contact_name = sanitizeString(data.emergencyContactName);
     if (data.emergencyContactPhone !== undefined) memberPayload.emergency_contact_phone = sanitizeString(data.emergencyContactPhone);

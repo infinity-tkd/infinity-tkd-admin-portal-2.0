@@ -9,16 +9,18 @@ import { LoginView } from '@/components/LoginView';
 export default function RootPage() {
   const { state } = useAppStore();
   const router = useRouter();
+  const userId = state.currentUser?.id;
+  const role = state.currentUser?.role;
 
   useEffect(() => {
-    if (state.currentUser && !state.isLoading) {
-      if (state.currentUser.role === 'Student') {
-        router.push('/lms');
+    if (userId && !state.isLoading) {
+      if (role === 'Student') {
+        router.replace('/lms');
       } else {
-        router.push('/dashboard');
+        router.replace('/dashboard');
       }
     }
-  }, [state.currentUser, state.isLoading, router]);
+  }, [userId, role, state.isLoading, router]);
 
   if (state.isLoading) {
     return (

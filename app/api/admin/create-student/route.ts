@@ -1,7 +1,8 @@
 
-import { academyDate } from '@/lib/dates';
+import { academyDate, isCalendarDate } from '@/lib/dates';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { telegramUsernameSchema } from '@/lib/contact-validation';
 import {
   verifyCaller,
   validateRequestBody,
@@ -12,7 +13,7 @@ import {
 
 const AddressSchema = z
   .object({
-    line1: z.string().min(1).max(255),
+    line1: z.string().trim().min(1).max(255),
     line2: z.string().max(255).optional().nullable(),
     city: z.string().max(100).optional().nullable(),
     stateProvince: z.string().max(100).optional().nullable(),
@@ -23,13 +24,13 @@ const AddressSchema = z
 
 const StudentDataSchema = z
   .object({
-    id: z.string().max(50).optional(),
-    khmerName: z.string().max(100).optional().nullable(),
-    englishName: z.string().min(1, 'English name is required').max(100),
-    gender: z.enum(['Male', 'Female', 'Other']).optional().nullable(),
-    dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'DOB must be YYYY-MM-DD').optional().nullable(),
+    khmerName: z.string().trim().min(1, 'Khmer name is required').max(100),
+    englishName: z.string().trim().min(1, 'English name is required').max(100),
+    gender: z.enum(['Male', 'Female']),
+    dob: z.string().refine(d => isCalendarDate(d) && d >= '1900-01-01' && d <= academyDate(), 'Enter a valid birth date that is not in the future'),
     email: z.string().email('Invalid email').or(z.literal('')).optional().nullable(),
     phone: z.string().max(30).optional().nullable(),
+    telegramUsername: telegramUsernameSchema,
     emergencyContactName: z.string().max(100).optional().nullable(),
     emergencyContactPhone: z.string().max(30).optional().nullable(),
     emergencyContactRelation: z.string().max(50).optional().nullable(),
@@ -37,16 +38,16 @@ const StudentDataSchema = z
     allergies: z.string().max(500).optional().nullable(),
     nationality: z.string().max(50).optional().nullable(),
     currentBelt: z.string().max(50).optional().nullable(),
-    studentStatus: z.string().max(30).optional().nullable(),
+    studentStatus: z.enum(['Active', 'Paused', 'Inactive', 'Suspended', 'Graduated']).optional(),
     profilePicturePath: z.string().max(500).optional().nullable(),
     esignPath: z.string().max(500).optional().nullable(),
     kukkiwonId: z.string().max(50).optional().nullable(),
     notes: z.string().max(2000).optional().nullable(),
-    heightCm: z.union([z.number().positive(), z.string()]).optional().nullable(),
-    weightKg: z.union([z.number().positive(), z.string()]).optional().nullable(),
-    homeBranchId: z.union([z.number().int().positive(), z.string()]).optional().nullable(),
-    scholarshipId: z.union([z.number().int().positive(), z.string()]).optional().nullable(),
-    registrationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+    heightCm: z.number().finite().positive().max(300).optional().nullable(),
+    weightKg: z.number().finite().positive().max(600).optional().nullable(),
+    homeBranchId: z.number().int().positive().max(2147483647).optional(),
+    scholarshipId: z.number().int().positive().max(2147483647).optional(),
+    registrationDate: z.string().refine(d => isCalendarDate(d) && d >= '1900-01-01' && d <= academyDate(), 'Enter a valid registration date that is not in the future').optional(),
     address: AddressSchema.optional().nullable(),
     initialClassId: z.number().int().positive().optional().nullable(),
   })
@@ -88,21 +89,10 @@ export async function POST(req: Request) {
     const studentStatus = sanitizeString(studentData.studentStatus || 'Active');
     const esignPath = studentData.esignPath ? sanitizeString(studentData.esignPath) : null;
 
-    const rawHeight = typeof studentData.heightCm === 'number' ? studentData.heightCm : parseFloat(String(studentData.heightCm));
-    const heightCm = rawHeight && rawHeight > 0 ? rawHeight : null;
-
-    const rawWeight = typeof studentData.weightKg === 'number' ? studentData.weightKg : parseFloat(String(studentData.weightKg));
-    const weightKg = rawWeight && rawWeight > 0 ? rawWeight : null;
-
-    const homeBranchId =
-      typeof studentData.homeBranchId === 'number'
-        ? studentData.homeBranchId
-        : parseInt(String(studentData.homeBranchId || '1'), 10) || 1;
-
-    const scholarshipId =
-      typeof studentData.scholarshipId === 'number'
-        ? studentData.scholarshipId
-        : parseInt(String(studentData.scholarshipId || '1'), 10) || 1;
+    const heightCm = studentData.heightCm ?? null;
+    const weightKg = studentData.weightKg ?? null;
+    const homeBranchId = studentData.homeBranchId ?? 1;
+    const scholarshipId = studentData.scholarshipId ?? 1;
 
 
     const registrationDate = studentData.registrationDate
@@ -110,33 +100,9 @@ export async function POST(req: Request) {
       : academyDate();
     const notes = studentData.notes ? sanitizeString(studentData.notes) : null;
 
-    // Duplicate detection check
-    const { data: existingStudent, error: checkError } = await adminSupabase
-      .from('students')
-      .select('id')
-      .eq('khmer_name', khmerName)
-      .eq('english_name', englishName)
-      .eq('dob', dob)
-      .eq('gender', studentData.gender)
-      .maybeSingle();
-
-    if (checkError) {
-      console.error('[create-student API] Error checking duplicate student:', checkError.message);
-    }
-
-    if (existingStudent) {
-      return NextResponse.json(
-        {
-          success: false,
-          data: null,
-          error: {
-            code: 'DUPLICATE_STUDENT',
-            message: `Duplicate Student: A record with Name '${englishName}', DOB '${dob}', and Gender '${studentData.gender}' already exists (ID: ${existingStudent.id}).`,
-          },
-        },
-        { status: 400 }
-      );
-    }
+    // The transaction checks duplicates under a lock and ignores archived records.
+    // A separate preflight query can race or incorrectly block re-registration.
+    if (!englishName || !khmerName) return NextResponse.json({success:false,error:{code:'VALIDATION_FAILED',message:'Invalid input. Student names are required.'}},{status:422});
 
     const address = studentData.address;
     const { data: saved, error: saveError } = await adminSupabase.rpc('portal_create_student', {
@@ -154,6 +120,7 @@ export async function POST(req: Request) {
       student_status: studentStatus,
       email,
       phone,
+      telegram_username: studentData.telegramUsername ?? null,
       emergency_contact_name: emergencyContactName,
       emergency_contact_phone: emergencyContactPhone,
       emergency_contact_relation: emergencyContactRelation,
@@ -190,6 +157,7 @@ export async function POST(req: Request) {
         dob,
         email,
         phone,
+        telegramUsername: studentData.telegramUsername ?? null,
         emergencyContactName,
         emergencyContactPhone,
         emergencyContactRelation,

@@ -10,6 +10,8 @@ import { useAppStore } from '@/lib/store';
 import { NetworkStatusProvider } from '@/components/providers/NetworkStatusProvider';
 import { ToastProvider } from '@/components/ui/Toast';
 import { PortalMotionProvider } from '@/components/providers/PortalMotionProvider';
+import { AdminMfaBoundary } from './AdminMfaBoundary';
+import { PerformanceReporter } from './operations/PerformanceReporter';
 
 export function RootWrapper({ children, nonce }: { children: React.ReactNode; nonce?: string }) {
   const pathname = usePathname();
@@ -61,8 +63,7 @@ export function RootWrapper({ children, nonce }: { children: React.ReactNode; no
     <PortalMotionProvider nonce={nonce}>
     <NetworkStatusProvider showConnectionBanners={isPlainPath}>
       <ToastProvider>
-        {isPlainPath ? <>{children}</> : <PortalLayout>{children}</PortalLayout>}
-        <DataLists />
+        <AdminMfaBoundary><PerformanceReporter/>{isPlainPath ? <>{children}</> : <PortalLayout>{children}</PortalLayout>}<DataLists /></AdminMfaBoundary>
         <SystemNotificationModal />
         <SystemConfirmModal />
       </ToastProvider>

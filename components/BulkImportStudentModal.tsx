@@ -1,4 +1,5 @@
 'use client';
+import { copyText } from '@/lib/clipboard';
 
 import { dialogMotion } from '@/lib/motion';
 import { academyDate } from '@/lib/dates';
@@ -6,7 +7,7 @@ import { academyDate } from '@/lib/dates';
 import Papa from 'papaparse';
 import {runImportRows,validateImportSize,importFailureCsv,ImportFailure,MAX_IMPORT_BYTES,MAX_IMPORT_ROWS} from '@/lib/imports';
 import React, { useState, useRef } from 'react';
-import { useAppStore, Student } from '@/lib/store';
+import { useAppStore } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from '@phosphor-icons/react/dist/csr/X';
 import { UploadSimple } from '@phosphor-icons/react/dist/csr/UploadSimple';
@@ -22,7 +23,7 @@ import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
 import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
 import { cn, sanitizeStringInput, isValidEmail, isValidPhone, isValidDate } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
-import { SafeImage } from '@/components/SafeImage';
+
 import { useT } from '@/hooks/useTranslation';
 
 interface BulkImportStudentModalProps {
@@ -51,7 +52,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
   const completedImports=useRef(new Set<string>());
   const importRunning=useRef(false);
-  const [importFailures,setImportFailures]=useState<ImportFailure[]>([]);
+  const [importFailures, setImportFailures]=useState<ImportFailure[]>([]);
   const downloadImportFailures=()=>{
     const errors=[...parsedRows.filter(r=>!r.isValid).map(r=>({row:r.index,message:r.errors.join('; ')})),...importFailures];
     const url=URL.createObjectURL(new Blob([importFailureCsv(errors)],{type:'text/csv;charset=utf-8'}));
@@ -64,8 +65,8 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
   const csvHeaders = "English Name,Khmer Name,Gender,Date of Birth,Phone,Email,Current Belt,Home Branch ID,Scholarship ID,Height Cm,Weight Kg,Profile Picture Path,Kukkiwon ID,Nationality,Address Line 1,District Commune,State Province City,Emergency Contact Name,Emergency Contact Phone,Emergency Contact Relation,Medical Notes,Allergies,Enrollment Date,Migration Notes";
   const csvExampleRow = "Chan Dara,ចាន់ ដារ៉ា,Male,2010-08-12,012345678,dara@gmail.com,Yellow,1,1,142,38,https://drive.google.com/file/d/1lBmAnT-53eMCmhIc0tjwv9Hb1V9gfvsG/view,,Cambodian,St. 105 House 22B,Chamkar Mon,Phnom Penh,Chan Sothea,099888777,Father,None,Peanuts,2026-03-01,Migrated from old list";
 
-  const handleCopyTemplate = () => {
-    navigator.clipboard.writeText(`${csvHeaders}\n${csvExampleRow}`);
+  const handleCopyTemplate = async () => {
+    if (!(await copyText(`${csvHeaders}\n${csvExampleRow}`))) { showNotification('Copying is unavailable. Select the text and copy it manually.', 'warning'); return; }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -90,6 +91,10 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
     'tel': 'phone',
     'telephone': 'phone',
     'email': 'email',
+    'telegram': 'telegramUsername',
+    'telegram username': 'telegramUsername',
+    'telegram_username': 'telegramUsername',
+    'telegramusername': 'telegramUsername',
     'current belt': 'currentBelt',
     'belt': 'currentBelt',
     'current_belt': 'currentBelt',
@@ -181,28 +186,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
     'comments': 'notes'
   };
 
-  const parseCSVLine = (line: string): string[] => {
-    const result: string[] = [];
-    let current = '';
-    let inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if (char === ',' && !inQuotes) {
-        result.push(current.trim());
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-    result.push(current.trim());
-    return result.map(val => 
-      val.startsWith('"') && val.endsWith('"') 
-        ? val.substring(1, val.length - 1).trim() 
-        : val
-    );
-  };
+
 
   // Central validation checklist logic
   const validateRecord = (data: any): string[] => {
@@ -446,6 +430,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
         dob: sanitizeStringInput(rawData.dob || ''),
         phone: sanitizeStringInput(rawData.phone || ''),
         email: sanitizeStringInput(rawData.email || ''),
+        telegramUsername: rawData.telegramUsername || '',
         emergencyContactName: sanitizeStringInput(rawData.emergencyContactName || ''),
         emergencyContactPhone: sanitizeStringInput(rawData.emergencyContactPhone || ''),
         emergencyContactRelation: sanitizeStringInput(rawData.emergencyContactRelation || ''),
@@ -716,13 +701,13 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button 
-                onClick={() => setShowHelp(true)} 
+              <button
+                onClick={() => setShowHelp(true)}
                 className="p-1.5 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-[8px] text-neutral-600 dark:text-[#999] hover:text-neutral-950 dark:hover:text-white hover:border-neutral-300 dark:hover:border-[#444] transition-all flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider px-3"
               >
                 <Question className="w-3.5 h-3.5" /> {t('bulk_tutorial_btn')}
               </button>
-              <button 
+              <button
                 type="button"
                 disabled={isProcessing} onClick={onClose}
                 aria-label="Close modal"
@@ -740,8 +725,8 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 {/* Drag and Drop File Selector */}
-                <div 
-                  onClick={() => fileInputRef.current?.click()} 
+                <div
+                  onClick={() => fileInputRef.current?.click()}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
@@ -751,12 +736,12 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                     isDragging && "border-red-500 bg-red-500/[0.05] scale-[0.99] shadow-inner"
                   )}
                 >
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    onChange={handleFileUpload} 
-                    accept=".csv,.txt" 
-                    className="hidden" 
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    accept=".csv,.txt"
+                    className="hidden"
                   />
                   <div className="w-12 h-12 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 mb-4 group-hover:scale-105 transition-transform text-neutral-600 dark:text-white">
                     <UploadSimple className={cn("w-5 h-5", isDragging && "animate-bounce")} />
@@ -776,7 +761,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                   {/* Active Drag Backdrop indicator */}
                   <AnimatePresence>
                     {isDragging && (
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -791,8 +776,8 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                 {/* Paste Area */}
                 <div className="flex flex-col space-y-2">
                   <label className="block text-[11px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('bulk_or_paste')}</label>
-                  <textarea 
-                    value={csvText} 
+                  <textarea
+                    value={csvText}
                     onChange={handlePasteChange}
                     placeholder={`English Name,Khmer Name,Gender,Date of Birth\nChan Dara,ចាន់ ដារ៉ា,Male,2010-08-12\nSophal Phalla,សុផល ផាឡា,Female,2012-05-19`}
                     className="w-full h-[154px] bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/25 resize-none placeholder:text-neutral-400 dark:placeholder:text-neutral-500 transition-all shadow-inner"
@@ -874,7 +859,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                         <th className="px-4 py-3 w-20 text-center">Action</th>
                       </tr>
                     </thead>
-                    <tbody 
+                    <tbody
                       onPaste={handleTablePaste}
                       className="divide-y divide-neutral-200 dark:divide-neutral-800 bg-neutral-50/30 dark:bg-[#0A0A0A]/50"
                     >
@@ -887,9 +872,9 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* English Name Input */}
                           <td className="px-3 py-2 min-w-[160px]">
-                            <input 
-                              type="text" 
-                              value={row.data.englishName} 
+                            <input
+                              type="text"
+                              value={row.data.englishName}
                               onChange={e => handleEditRow(row.index, 'englishName', e.target.value)}
                               data-row-index={row.index}
                               data-column-field="englishName"
@@ -899,9 +884,9 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Khmer Name Input */}
                           <td className="px-3 py-2 min-w-[160px]">
-                            <input 
-                              type="text" 
-                              value={row.data.khmerName} 
+                            <input
+                              type="text"
+                              value={row.data.khmerName}
                               onChange={e => handleEditRow(row.index, 'khmerName', e.target.value)}
                               data-row-index={row.index}
                               data-column-field="khmerName"
@@ -911,8 +896,8 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Gender Select */}
                           <td className="px-3 py-2 min-w-[100px] w-28">
-                            <select 
-                              value={row.data.gender} 
+                            <select
+                              value={row.data.gender}
                               onChange={e => handleEditRow(row.index, 'gender', e.target.value)}
                               data-row-index={row.index}
                               data-column-field="gender"
@@ -925,9 +910,9 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* DOB Input */}
                           <td className="px-3 py-2 min-w-[120px] w-32">
-                            <input 
-                              type="text" 
-                              value={row.data.dob} 
+                            <input
+                              type="text"
+                              value={row.data.dob}
                               onChange={e => handleEditRow(row.index, 'dob', e.target.value)}
                               placeholder="YYYY-MM-DD"
                               data-row-index={row.index}
@@ -941,9 +926,9 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Phone Input */}
                           <td className="px-3 py-2 min-w-[130px] w-36">
-                            <input 
-                              type="text" 
-                              value={row.data.phone} 
+                            <input
+                              type="text"
+                              value={row.data.phone}
                               onChange={e => handleEditRow(row.index, 'phone', e.target.value)}
                               placeholder="—"
                               data-row-index={row.index}
@@ -954,9 +939,9 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Email Input */}
                           <td className="px-3 py-2 min-w-[200px]">
-                            <input 
-                              type="email" 
-                              value={row.data.email} 
+                            <input
+                              type="email"
+                              value={row.data.email}
                               onChange={e => handleEditRow(row.index, 'email', e.target.value)}
                               placeholder="—"
                               data-row-index={row.index}
@@ -967,9 +952,9 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Height Cm Input */}
                           <td className="px-3 py-2 min-w-[90px] w-24">
-                            <input 
-                              type="number" 
-                              value={row.data.heightCm || ''} 
+                            <input
+                              type="number"
+                              value={row.data.heightCm || ''}
                               onChange={e => handleEditRow(row.index, 'heightCm', parseFloat(e.target.value) || 0)}
                               placeholder="—"
                               data-row-index={row.index}
@@ -980,9 +965,9 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Weight Kg Input */}
                           <td className="px-3 py-2 min-w-[90px] w-24">
-                            <input 
-                              type="number" 
-                              value={row.data.weightKg || ''} 
+                            <input
+                              type="number"
+                              value={row.data.weightKg || ''}
                               onChange={e => handleEditRow(row.index, 'weightKg', parseFloat(e.target.value) || 0)}
                               placeholder="—"
                               data-row-index={row.index}
@@ -993,9 +978,9 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Current Belt Input */}
                           <td className="px-3 py-2 min-w-[120px] w-32">
-                            <input 
-                              type="text" 
-                              value={row.data.currentBelt} 
+                            <input
+                              type="text"
+                              value={row.data.currentBelt}
                               onChange={e => handleEditRow(row.index, 'currentBelt', e.target.value)}
                               data-row-index={row.index}
                               data-column-field="currentBelt"
@@ -1005,9 +990,9 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Nationality Input */}
                           <td className="px-3 py-2 min-w-[120px] w-32">
-                            <input 
-                              type="text" 
-                              value={row.data.nationality} 
+                            <input
+                              type="text"
+                              value={row.data.nationality}
                               onChange={e => handleEditRow(row.index, 'nationality', e.target.value)}
                               data-row-index={row.index}
                               data-column-field="nationality"
@@ -1017,9 +1002,9 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Profile Picture Path Input */}
                           <td className="px-3 py-2 min-w-[220px]">
-                            <input 
-                              type="text" 
-                              value={row.data.profilePicturePath} 
+                            <input
+                              type="text"
+                              value={row.data.profilePicturePath}
                               onChange={e => handleEditRow(row.index, 'profilePicturePath', e.target.value)}
                               placeholder={t('panel_profile_pic_placeholder')}
                               data-row-index={row.index}
@@ -1030,9 +1015,9 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* E-Signature Path Input */}
                           <td className="px-3 py-2 min-w-[220px]">
-                            <input 
-                              type="text" 
-                              value={row.data.esignPath} 
+                            <input
+                              type="text"
+                              value={row.data.esignPath}
                               onChange={e => handleEditRow(row.index, 'esignPath', e.target.value)}
                               placeholder={t('panel_profile_pic_placeholder')}
                               data-row-index={row.index}
@@ -1043,9 +1028,9 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Enrollment Date Input */}
                           <td className="px-3 py-2 min-w-[125px] w-32">
-                            <input 
-                              type="text" 
-                              value={row.data.registrationDate} 
+                            <input
+                              type="text"
+                              value={row.data.registrationDate}
                               onChange={e => handleEditRow(row.index, 'registrationDate', e.target.value)}
                               placeholder="YYYY-MM-DD"
                               data-row-index={row.index}
@@ -1059,9 +1044,9 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Migration Notes Input */}
                           <td className="px-3 py-2 min-w-[200px]">
-                            <input 
-                              type="text" 
-                              value={row.data.notes} 
+                            <input
+                              type="text"
+                              value={row.data.notes}
                               onChange={e => handleEditRow(row.index, 'notes', e.target.value)}
                               placeholder={t('panel_migration_notes')}
                               data-row-index={row.index}
@@ -1119,7 +1104,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                   </p>
                 </div>
                 <div className="w-full max-w-sm bg-neutral-100 dark:bg-[#141414] h-2 rounded-full overflow-hidden border border-neutral-200 dark:border-[#262626]">
-                  <div 
+                  <div
                     className="bg-[#EF2F38] h-full rounded-full transition-all duration-300"
                     style={{ width: `${(currentIndex / totalValid) * 100}%` }}
                   />
@@ -1151,7 +1136,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                   </div>
                 </div>
 
-                <button 
+                <button
                   disabled={isProcessing} onClick={onClose}
                   className="w-full py-2.5 bg-white text-black font-bold uppercase tracking-widest text-[10px] rounded-[8px] hover:bg-gray-200 transition-colors"
                 >
@@ -1167,13 +1152,13 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
             <div className="p-4 border-t border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#141414]">
               <div>
                 {parsedRows.length > 0 && (
-                  <button 
+                  <button
                     onClick={() => {
                       setParsedRows([]);
                       setCsvText('');
                       setFileName('');
                       if (fileInputRef.current) fileInputRef.current.value = '';
-                    }} 
+                    }}
                     className="text-xs text-red-500 hover:text-red-600 font-bold uppercase tracking-wider flex items-center gap-1 transition-colors"
                   >
                     <Trash className="w-4 h-4" /> {t('act_delete')}
@@ -1181,19 +1166,19 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                 )}
               </div>
               <div className="flex gap-3">
-                <button 
+                <button
                   disabled={isProcessing} onClick={onClose}
                   className="px-4 py-2 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#999] hover:text-neutral-950 dark:hover:text-white rounded-[8px] text-[10px] font-bold uppercase tracking-widest transition-all"
                 >
                   {t('act_cancel')}
                 </button>
-                <button 
+                <button
                   disabled={totalValid === 0}
-                  onClick={handleStartImport} 
+                  onClick={handleStartImport}
                   className={cn(
                     "px-5 py-2 rounded-[8px] text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-1.5 shadow-lg shadow-black/20",
-                    totalValid > 0 
-                      ? "bg-[#EF2F38] text-white hover:bg-red-600 active:scale-95 cursor-pointer" 
+                    totalValid > 0
+                      ? "bg-[#EF2F38] text-white hover:bg-red-600 active:scale-95 cursor-pointer"
                       : "bg-neutral-100 text-neutral-400 dark:bg-[#1E1E1E] dark:text-[#666] border border-neutral-200 dark:border-neutral-800 cursor-not-allowed"
                   )}
                 >
@@ -1211,7 +1196,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
         {showHelp && (
           <Portal>
             <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in">
-              <motion.div 
+              <motion.div
                 {...dialogMotion}
                 className="w-full max-w-lg bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col overflow-hidden max-h-[85dvh]"
               >
@@ -1245,15 +1230,15 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                 </div>
 
                 <div className="p-4 border-t border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0A0A0A] flex justify-end gap-3">
-                  <button 
-                    onClick={handleCopyTemplate} 
+                  <button
+                    onClick={handleCopyTemplate}
                     className="px-4 py-2 bg-neutral-100 dark:bg-[#1A1A1A] hover:bg-neutral-200 dark:hover:bg-[#262626] border border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-white rounded-[8px] text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
                     {copied ? <Checks className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
                     {copied ? t('bulk_copied_success') : t('bulk_copy_template')}
                   </button>
-                  <button 
-                    onClick={() => setShowHelp(false)} 
+                  <button
+                    onClick={() => setShowHelp(false)}
                     className="px-4 py-2 bg-[#EF2F38] hover:bg-red-600 text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors cursor-pointer"
                   >
                     {t('bulk_got_it')}

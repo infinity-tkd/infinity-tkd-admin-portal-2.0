@@ -1,0 +1,9 @@
+'use client';
+import { useState } from 'react';
+import { useOperations } from '@/hooks/use-operations';
+import { OperationSection } from './shared';
+interface Timeline { events: { id: string; category: string; title: string; created_at: string; recorded_by?: string }[]; enrollmentHistory: { id: string; class_id: number; event_type: string; created_at: string }[] }
+export function StudentTimeline({ studentId }: { studentId: string }) {
+  const [open, setOpen] = useState(false); const api = useOperations<Timeline>('timeline', { studentId }, open);
+  return <div className="operations-panel rounded-xl border p-4 dark:border-neutral-800"><button type="button" className="min-h-11 w-full text-left text-sm font-semibold" aria-expanded={open} onClick={() => setOpen(!open)}>Student activity and enrollment history</button>{open && <OperationSection title="Student activity timeline" {...api} onRefresh={() => void api.refresh()}><p className="text-xs text-neutral-500">Financial, attendance and grading events follow your permissions. Imported enrollment baselines are identified as baseline records.</p><ol className="space-y-3">{api.data?.events.map(event => <li key={event.id} className="border-l-2 border-red-200 pl-3"><p className="text-sm font-medium">{event.title}</p><p className="text-xs text-neutral-500">{event.category} · {event.created_at.slice(0, 19).replace('T', ' ')} UTC</p></li>)}</ol><h3 className="text-sm font-semibold">Enrollment events</h3>{api.data?.enrollmentHistory.map(event => <p key={event.id} className="text-xs">Class {event.class_id} · {event.event_type} · {event.created_at.slice(0, 10)}</p>)}{api.data && !api.data.events.length && <p className="text-xs text-neutral-500">New activity appears here as operations are recorded. Earlier audit records remain in the system audit log.</p>}</OperationSection>}</div>;
+}

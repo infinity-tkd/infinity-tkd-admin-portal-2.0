@@ -1,4 +1,5 @@
 'use client';
+import { TelegramContactField } from './ContactActions';
 
 import { dialogMotion } from '@/lib/motion';
 import React, { useState } from 'react';
@@ -30,7 +31,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
     englishName: '',
     gender: 'Male' as 'Male' | 'Female',
     dob: '',
-    phone: '',
+    phone: '', telegramUsername: '',
     emergencyContactName: '',
     emergencyContactPhone: '',
     emergencyContactRelation: '',
@@ -52,16 +53,16 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
     const email = sanitizeStringInput(form.email);
     const displayName = sanitizeStringInput(form.displayName);
     const password = sanitizeStringInput(form.password);
-    const khmerName = sanitizeStringInput(form.khmerName);
-    const englishName = sanitizeStringInput(form.englishName);
+
+
     const dob = sanitizeStringInput(form.dob);
     const phone = sanitizeStringInput(form.phone);
-    const emergencyContactName = sanitizeStringInput(form.emergencyContactName);
+
     const emergencyContactPhone = sanitizeStringInput(form.emergencyContactPhone);
-    const emergencyContactRelation = sanitizeStringInput(form.emergencyContactRelation);
-    const medicalNotes = sanitizeStringInput(form.medicalNotes);
-    const allergies = sanitizeStringInput(form.allergies);
-    const nationality = sanitizeStringInput((form as any).nationality);
+
+
+
+
 
     // 2. Validate mandatory credentials
     if (!username || !email || !displayName) {
@@ -140,6 +141,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
         gender: form.gender,
         dob,
         phone,
+        telegramUsername: form.telegramUsername,
         emergencyContactName,
         emergencyContactPhone,
         emergencyContactRelation,
@@ -177,9 +179,9 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
     return (
       <Portal>
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 pt-[env(safe-area-inset-top)] pb-[calc(1rem+env(safe-area-inset-bottom))]">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }} 
-            animate={{ opacity: 1, scale: 1 }} 
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
             className="w-full max-w-sm bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl p-6 flex flex-col items-center text-center text-neutral-900 dark:text-white"
           >
             <div className="w-12 h-12 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center mb-4 border border-green-500/30">
@@ -191,7 +193,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
             <p className="text-xs text-neutral-500 dark:text-[#999] mb-6">
               {t('usr_provision_staff_success_desc').replace('{name}', form.displayName)}
             </p>
-            <button 
+            <button
               onClick={onClose}
               className="w-full py-2.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333] text-neutral-700 dark:text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-colors"
             >
@@ -206,7 +208,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
   return (
     <Portal>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 pt-[env(safe-area-inset-top)] pb-[calc(1rem+env(safe-area-inset-bottom))]">
-        <motion.div 
+        <motion.div
           {...dialogMotion}
           className="w-full max-w-4xl bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col max-h-[90dvh] text-neutral-900 dark:text-white"
         >
@@ -215,9 +217,9 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
               <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-white">{t('usr_add_account')}</h2>
               <p className="text-[10px] text-neutral-500 dark:text-[#666] mt-0.5">{t('usr_add_account_desc')}</p>
             </div>
-            <button 
+            <button
               type="button"
-              onClick={onClose} 
+              onClick={onClose}
               aria-label="Close modal"
               className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[8px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation"
             >
@@ -272,9 +274,9 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                   />
                   {form.profilePicturePath && (
                     <div className="flex flex-col items-center shrink-0">
-                      <SafeImage 
-                        src={form.profilePicturePath} 
-                        alt="Preview" 
+                      <SafeImage
+                        src={form.profilePicturePath}
+                        alt="Preview"
                         containerClassName="w-10 h-10 rounded-[8px] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] overflow-hidden flex items-center justify-center shadow-md dark:shadow-black/40"
                         fallback={<span className="text-[8px] text-red-500 uppercase font-black tracking-tighter bg-red-500/10 border border-red-500/20 px-1 py-0.5 rounded">Err / Private</span>}
                       />
@@ -371,6 +373,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                 </div>
               </div>
 
+              <TelegramContactField id="new-staff-telegram" value={form.telegramUsername} onChange={telegramUsername => setForm({...form, telegramUsername})} />
               {/* Address Section */}
               <div className="space-y-4 pt-4 border-t border-neutral-200 dark:border-[#262626]">
                 <div className="flex items-center gap-2 border-b border-neutral-200 dark:border-[#262626] pb-2">
@@ -381,12 +384,12 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_address_line_1')} *</label>
-                    <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                    <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                        value={(form as any).addressLine1} onChange={e => setForm({...form, addressLine1: e.target.value})} placeholder={t('panel_address_line_1_placeholder')} required />
                   </div>
                   <div>
                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_address_line_2_opt')}</label>
-                    <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                    <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                        value={(form as any).addressLine2} onChange={e => setForm({...form, addressLine2: e.target.value})} placeholder={t('panel_address_line_2_placeholder')} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -467,12 +470,12 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_postal_code')}</label>
-                      <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                      <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                          value={(form as any).postalCode} onChange={e => setForm({...form, postalCode: e.target.value})} />
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_country')}</label>
-                      <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                      <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                          value={(form as any).country} onChange={e => setForm({...form, country: e.target.value})} />
                     </div>
                   </div>
@@ -553,7 +556,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                   {t('usr_staff_confirm_desc')}
                 </p>
                 <div className="flex gap-3 w-full">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowConfirm(false)}
                     disabled={isSaving}
@@ -561,7 +564,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                   >
                     {t('act_cancel')}
                   </button>
-                  <button 
+                  <button
                     type="button"
                     onClick={executeSave}
                     disabled={isSaving}

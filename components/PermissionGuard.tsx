@@ -2,7 +2,7 @@
 
 import React, { ReactNode } from 'react';
 import { useAppStore } from '@/lib/store';
-import { PermissionKey, hasPermission } from '@/lib/security';
+import { PermissionKey } from '@/lib/security';
 import { ShieldWarning } from '@phosphor-icons/react/dist/csr/ShieldWarning';
 
 interface PermissionGuardProps {

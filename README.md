@@ -4,15 +4,19 @@ Infinity Taekwondo Admin Portal brings the academy's daily operations into one p
 
 The portal supports desktop, tablet and mobile layouts. Access depends on the signed-in staff member's role and permissions, with account and database checks protecting administrative operations.
 
+Calendar & Events now includes private drafts, publication history, protected files and student inbox notices. Its database upgrades are installed, and the separate student application's local gateway is configured. See the [calendar and student integration release guide](docs/CALENDAR_STUDENT_INTEGRATION_2026-11-01.md) for the current workflow, real-data gaps and remaining deployment checks.
+
 ## Features
 
 | Area | What it covers |
 | --- | --- |
 | Dashboard | Academy overview, activity and quick access to daily tasks |
+| Operations | Assigned follow-ups, dated sessions, membership pauses, invoice allocations, bank reconciliation, grading and job health |
 | Students | Registration, contact details, household links, medical information, belt history and achievements |
 | Staff | Instructor records, staff accounts, permissions and Dan history |
 | Attendance | Class attendance, student check-in and attendance history |
 | Schedule | Branches, class times, coaches, enrollment and capacity |
+| Calendar & Events | Academy events, audiences, private drafts, public revisions and student notices |
 | Financials | Monthly tuition, payment records, household payments, receipts and reporting |
 | Shop and POS | Products, variants, stock, counter sales and student order management |
 | Learning resources | Curriculum, training materials, progress tracking and an interactive anatomy viewer |
@@ -21,6 +25,20 @@ The portal supports desktop, tablet and mobile layouts. Access depends on the si
 | My profile | Personal account details and password changes |
 
 On phones and touch tablets, the header and bottom navigation hide while scrolling down and return when scrolling up. The layout accounts for device safe areas and reserves room for the bottom menu. Shared transitions are brief, and reduced-motion preferences are respected.
+
+### Contacting students and staff
+
+Add a public Telegram username when registering or editing a student or staff member. Enter `@username` or an `https://t.me/username` profile link. The portal stores the username separately from the person's login details; leave it blank when no Telegram contact is available.
+
+Student profiles, staff cards and staff tables offer contact links. Finance includes the same links in the tuition ledger, renewal alerts, renewal calendar and selected-student dossier. Click a student's name in the ledger or calendar to open their financial details. Telegram opens the person's profile, email opens a draft in your mail app, and Call uses the recorded phone number.
+
+CSV imports accept a `telegram`, `telegram_username`, or `Telegram username` column. Contacts are optional and do not need to be unique, so siblings can share a guardian's contact. Confirm the username with the person before using it.
+
+### Reviewing attendance by student
+
+Open a student's details on the attendance page and choose **Attendance calendar**. Browse months, jump to a date, and filter by class or daily record. Select a day to mark Present, Late or Absent. When several classes share a date, each keeps its own mark. **Clear mark** removes only the selected record after confirmation.
+
+New marks must fall on or after registration and class enrollment, through the academy's current date. Off-schedule class dates require a make-up-session checkbox. Existing historical records remain correctable when enrollment details change. Staff without attendance permissions can browse the calendar, and the **Attendance Insights** tab keeps the existing statistics and history.
 
 ## Technology
 
@@ -34,6 +52,32 @@ On phones and touch tablets, the header and bottom navigation hide while scrolli
 | Verification | Node.js tests, PGlite and Playwright |
 
 The browser renders the interface and reads data permitted by database policies. Next.js API routes handle protected administrative workflows. Database functions keep related operations, such as payment recording and inventory changes, within transactions.
+
+### Component structure and shared rules
+
+Feature views live in `components/students`, `components/attendance`, `components/finance`, `components/library`, `components/pos` and `components/dashboard`. Student profiles, promotion history, reporting panels, inventory forms and larger dialogs load when opened. Pages coordinate shared state and actions; their feature components render the selected view.
+
+Keep billing calculations in `lib/billing.ts`, `lib/tuition-cycle.ts` and `lib/invoice-status.ts`. Receipt presentation uses `lib/tuition-receipt.ts` to distinguish recorded collections, invoice summaries and unpaid previews. Historical receipts use saved amounts; current tuition settings do not rewrite them.
+
+Currency rounding is shared in `lib/money.ts`. Prepayments use `lib/tuition-payments.ts` to validate the month range and allocate whole cents to each cycle. Existing invoices, historical balances and membership pauses go through the invoice ledger. Billing-day labels follow effective schedule changes and the selected month, regardless of the device timezone.
+
+POS cart totals use `lib/pos-cart.ts`; checkout remains authoritative on the server. Workout phases use the elapsed-time rules in `lib/workout-clock.ts`. Shared library categories live in `lib/library-catalog.ts`. Add business-rule changes to these modules and their regression tests before connecting them to another screen.
+
+Student belt records use the shared payload mapping and validation in `lib/student-records.ts`. Bulk entries use one database insert, so a rejected row rolls back the batch. Incomplete drafts stay open for correction. If the connection drops and the result cannot be confirmed, reload the history before retrying.
+
+Inventory presets, signed stock adjustments and minimum-stock thresholds live in `lib/pos-catalog.ts`. Physical audits accept positive or negative corrections; restocking adds stock and damage write-offs deduct it. A zero minimum-stock threshold is valid. Clipboard actions use `lib/clipboard.ts` and show success only after copying succeeds.
+
+Variant requests use `lib/pos-product.ts` so prices, including zero-price overrides, reach the API unchanged. Style-only variations may omit a size. Product details show stock for reference; use **Stock Adjustment** to change quantities and keep the movement log. Checkout controls stay locked while a sale is saving. If a stock adjustment loses its connection before confirmation, review the balance and movement log before submitting again; stock changes are not automatically retried.
+
+Attendance writes use `lib/attendance-write.ts`. Bulk marking sends one statement; a rejected row rolls back the batch. Clearing records removes only confirmed deletions from the screen. Clearing without a selected class targets daily check-ins and preserves class marks. Select a class before finalizing absences. Finalization uses saved session rosters through `lib/attendance-roster.ts`, preserving existing marks and excluding cancelled sessions. If no dated session exists, review session generation and rescheduling in **Operations → Dated classes** first.
+
+Dashboard and schedule shortcuts share `hooks/use-attendance-actions.ts` for pending states and error feedback. Their bulk actions use the same atomic attendance write as the main roster. Calendar editors retain their own draft and inline feedback.
+
+Cart quantity limits are shared with the counter-sale API. Checkout rejects changed prices before recording the sale, refreshes the cart and asks staff to confirm the new amount. Test workers are limited to two concurrent files to keep database rehearsals within a predictable memory budget.
+
+For local browser verification after a production build, start the application and run `npm run test:refactor-browser -- http://localhost:3000`. This checks receipt amounts, responsive dialogs, keyboard controls, workout pause/resume and manual bank-payment confirmation using fictional records. It does not submit live payments.
+
+Run `npm run test:component-browser -- http://localhost:3000` for inventory permissions, duplicate-submit prevention, zero thresholds, stock audits, belt-batch retries and clipboard failures. These checks use fictional records and mock every write. `npm run lint` must finish without warnings; CI also enforces this requirement.
 
 ## Getting started
 
@@ -124,6 +168,10 @@ The main upgrade files are:
 | `supabase/production-upgrade-20261009.sql` | Combined baseline of nine upgrade migrations through 11 October 2026 |
 | `supabase/migrations/20261011215930_portal_realtime_sync.sql` | Separate follow-up for realtime publication |
 | `supabase/migrations/20261012065927_portal_achievement_integrity.sql` | Separate follow-up for achievement transactions and validation |
+| `supabase/migrations/20261013052326_portal_telegram_contacts_and_access.sql` | Student and staff Telegram contacts, compatible student IDs and roster read permissions |
+| `supabase/migrations/20261023155619_membership_makeup_notifications.sql` | Audited billing dates, makeup attendance and notification delivery |
+| `supabase/migrations/20261025164318_academy_operations_workflows.sql` | Dated sessions, enrollment history, invoice ledger, pauses, tasks, grading, job health and administrator MFA |
+| `supabase/migrations/20261027190551_counter_sale_quote_validation.sql` | Server-only counter checkout that locks and validates quoted prices before settlement |
 | `supabase/postflight-20261009.sql` | Verification queries after the baseline upgrade |
 
 Apply the baseline bundle **or** its individual migrations, then the missing follow-ups in chronological order. Do not apply both versions of the baseline. The connected Infinity TKD database already has these upgrades; the full bundle should not be reapplied there.
@@ -171,6 +219,8 @@ npm run test:data-load-browser -- http://127.0.0.1:3000
 npm run test:pos-recovery-browser -- http://127.0.0.1:3000
 npm run test:motion-browser -- http://127.0.0.1:3000
 npm run test:business-browser -- http://127.0.0.1:3000
+npm run test:contacts-browser -- http://127.0.0.1:3000
+npm run test:attendance-calendar-browser -- http://127.0.0.1:3000
 ```
 
 These browser regressions use fictional accounts and mocked provider responses. They cover account sessions, failed reads and saves, permissions, draft retention, reporting, navigation and reduced motion.
@@ -229,16 +279,47 @@ tests/                  Regression tests and isolated database fixtures
 .github/workflows/      Continuous verification workflow
 ```
 
+## Muscle explorer
+
+Student details, the library and learning materials share the same muscle explorer. Previews open as a lightweight 2D map; choose **3D anatomy** or expand the explorer when you need to inspect individual structures. Muscle, bone and connective-tissue layers load separately. Compact quality is the default; Detailed loads the reference geometry.
+
+Material highlights use saved primary and secondary muscle relationships. Student highlights show the muscle groups represented in completed learning materials. They describe learning coverage, rather than measured strength or fatigue. Selecting a muscle shows its function and related academy materials.
+
+The viewer releases its graphics resources when closed and falls back to 2D if 3D is unavailable. Regenerate its public training bundles with `npm run build:anatomy`; run the browser checks against a local server with `npm run test:anatomy-browser -- http://127.0.0.1:3000`.
+
+## Membership and makeup attendance
+
+Monthly renewal dates follow the first enrollment date and remain stable when a student moves classes. Administrators can change a billing day with a reason and effective month; every change stays in the student's billing history. Finance and its renewal calendar use the same schedule.
+
+Attendance includes a makeup review list for absent and unmarked scheduled classes. Coaches can record a linked makeup on another completed date, with a reason, without replacing the original mark. Corrections are voided with an audit trail.
+
+The header notification inbox brings together attendance reviews, membership follow-ups and student orders. Background device alerts require permission, production push configuration and a running notification worker. See the [setup and verification guide](MEMBERSHIP_MAKEUP_NOTIFICATIONS_2026-10-24.md) for the SQL migration, permissions, device support and worker commands.
+
+## Working in Operations
+
+Use **Operations → Today** to review assigned work and record follow-up outcomes. **Dated classes** keeps actual sessions separate from the weekly timetable, including holidays and rescheduling. The attendance page links directly to this workspace.
+
+**Invoices & pauses** records administrator-approved pauses, partial payments and tuition credits. Complete cycles covered by an approved pause are waived; partial cycles remain payable. Original invoice fees and existing paid receipts are preserved. **Reconciliation** matches imported USD bank records to verified receipts without initiating a transfer.
+
+**Job health** shows whether background work is completing and stores renewal reminder lead time separately from late-payment grace. Administrators now verify sign-in with an authenticator. See the [operations release guide](OPERATIONS_RELEASE_2026-10-25.md) for workflows, permissions, worker setup and verification limits. The separate student application now connects through the server-only calendar gateway; authenticated release acceptance and production configuration remain necessary.
+
 ## Further documentation
 
 | Guide | Covers |
 | --- | --- |
+| [Calendar and student integration](docs/CALENDAR_STUDENT_INTEGRATION_2026-11-01.md) | Installed release, actual API routes, publication/notification workflow, storage, configuration and remaining acceptance |
+| [Student data producer review](docs/STUDENT_PORTAL_DATA_AUDIT_2026-11-01.md) | Resource mappings, real-data gaps and protected admin-to-student producers |
+| [Calendar & Events design](docs/design/ACADEMY_EVENTS_2026-11-01.md) | Original design direction and broader future scope; current implementation is described in the release guide |
+| [Student-portal calendar handoff](docs/design/STUDENT_PORTAL_CALENDAR_HANDOFF.md) | Feature responsibilities and original integration proposal, with current release status links |
+| [Academy operations](OPERATIONS_RELEASE_2026-10-25.md) | Daily work, session history, pause rules, reconciliation, grading, MFA and release acceptance |
 | [Production readiness](PRODUCTION_READINESS.md) | Deployment requirements, database upgrades and operational checks |
 | [System audit](DEEP_AUDIT_2026-10-12.md) | Business-rule fixes, database verification and remaining release work |
 | [Database review](DATABASE_REVIEW_2026-10-11.md) | Schema, access policies, integrity and historical reconciliation |
 | [Settings guide](SETTINGS_REVIEW_2026-10-11.md) | Settings behavior, permissions and validation |
 | [Data-loading guide](DATA_LOAD_WARNING_2026-10-11.md) | Incomplete-data notices, diagnostics and recovery |
 | [Navigation and motion](NAVIGATION_MOTION_2026-10-12.md) | Phone/tablet navigation, spacing, accessibility and performance observations |
+| [Muscle explorer review](ANATOMY_REVIEW_2026-10-14.md) | Student/material integration, rendering changes, data semantics and verification |
+| [Membership, makeup and notifications](MEMBERSHIP_MAKEUP_NOTIFICATIONS_2026-10-24.md) | Audited billing dates, makeup attendance, notification inbox and production push setup |
 
 ## License
 

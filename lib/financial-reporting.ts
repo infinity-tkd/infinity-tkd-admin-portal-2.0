@@ -1,6 +1,6 @@
 /** Open invoices and pending collections cannot contribute to cash collected. */
-export function tuitionCollectionStats(payments: Array<{ status: string; amountUsd: number }>) {
-  const settled = payments.filter(payment => payment.status === 'Paid');
+export function tuitionCollectionStats(payments: Array<{ status: string; amountUsd: number; verifiedCollection?: boolean }>) {
+  const settled = payments.filter(payment => payment.status === 'Paid'||payment.verifiedCollection);
   const totalCollected = settled.reduce((sum, payment) => sum + payment.amountUsd, 0);
   return {
     count: payments.length, paidCount: settled.length, totalCollected,

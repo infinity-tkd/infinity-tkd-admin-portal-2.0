@@ -1,14 +1,15 @@
 'use client';
 
 import { academyDate } from '@/lib/dates';
+import { TelegramContactField } from './ContactActions';
 
-import React, { useState, useEffect } from 'react';
-import { useAppStore, Student } from '@/lib/store';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState, useRef } from 'react';
+import { useAppStore } from '@/lib/store';
+import { motion } from 'motion/react';
 import { X } from '@phosphor-icons/react/dist/csr/X';
 import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
 import { Check } from '@phosphor-icons/react/dist/csr/Check';
-import { Users } from '@phosphor-icons/react/dist/csr/Users';
+
 import { cn, sanitizeStringInput, isValidEmail, isValidPhone, isValidDate } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
 import { CAMBODIA_LOCATIONS } from './DataLists';
@@ -46,8 +47,8 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
   const { addStudent, state } = useAppStore();
   const t = useT();
   const [form, setForm] = useState({
-    englishName: '', khmerName: '', gender: 'Male', dob: '', 
-    phone: '', email: '',
+    englishName: '', khmerName: '', gender: 'Male', dob: '',
+    phone: '', email: '', telegramUsername: '',
     emergencyContactName: '', emergencyContactPhone: '', emergencyContactRelation: '', medicalNotes: '', allergies: '',
     studentStatus: 'Active',
     homeBranchId: 1, currentBelt: 'White', scholarshipId: 1, heightCm: 0, weightKg: 0,
@@ -59,9 +60,12 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const submitting = useRef(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting.current) return;
 
     // 1. Sanitize all string fields to prevent XSS / malicious scripts
     const englishName = sanitizeStringInput(form.englishName);
@@ -111,6 +115,9 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
     }
 
     setError('');
+    submitting.current = true;
+    setIsSubmitting(true);
+    try {
     const result = await addStudent({
       ...form,
       englishName,
@@ -134,9 +141,9 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
         country: sanitizeStringInput(form.country)
       },
       nationality,
-      homeBranchId: form.homeBranchId, 
-      scholarshipId: form.scholarshipId, 
-      heightCm: form.heightCm, 
+      homeBranchId: form.homeBranchId,
+      scholarshipId: form.scholarshipId,
+      heightCm: form.heightCm,
       weightKg: form.weightKg,
       profilePicturePath: form.profilePicturePath ? sanitizeStringInput(form.profilePicturePath) : undefined,
       initialClassId: form.classId ? parseInt(form.classId) : undefined,
@@ -153,15 +160,19 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
     }
 
     setSuccess(true);
+    } finally {
+      submitting.current = false;
+      setIsSubmitting(false);
+    }
   };
 
   if (success) {
     return (
       <Portal>
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 pt-[env(safe-area-inset-top)] pb-[calc(1rem+env(safe-area-inset-bottom))]">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }} 
-            animate={{ opacity: 1, scale: 1 }} 
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
             className="w-full max-w-sm bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl p-6 flex flex-col items-center text-center text-neutral-900 dark:text-white"
           >
             <div className="w-12 h-12 rounded-full bg-emerald-500/10 dark:bg-green-500/20 text-emerald-600 dark:text-green-500 flex items-center justify-center mb-4 border border-emerald-500/30">
@@ -173,7 +184,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
             <p className="text-xs text-neutral-600 dark:text-[#999] mb-6">
               {t('usr_provision_success_desc').replace('{name}', form.englishName)}
             </p>
-            <button 
+            <button
               type="button"
               onClick={onClose}
               className="w-full min-h-[44px] py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-[#262626] dark:hover:bg-[#333] rounded-[8px] text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation shadow-xs"
@@ -192,9 +203,9 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
          <div className="w-full max-w-2xl bg-white dark:bg-[#0F0F0F] sm:border border-neutral-200 dark:border-[#262626] sm:rounded-[8px] shadow-2xl flex flex-col sm:my-8 max-h-full sm:max-h-[90dvh] absolute sm:relative inset-0 sm:inset-auto overflow-hidden text-neutral-900 dark:text-white">
             <div className="p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#0F0F0F] z-10 shrink-0">
              <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-white">{t('dir_add_student')}</h2>
-             <button 
-               type="button" 
-               onClick={onClose} 
+             <button
+               type="button"
+               onClick={onClose}
                aria-label="Close modal"
                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[8px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation"
              >
@@ -203,11 +214,11 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
           </div>
           <form onSubmit={submit} className="p-6 space-y-6 overflow-y-auto flex-1 bg-white dark:bg-[#0A0A0A]">
              {error && (
-               <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-[8px] text-xs text-red-600 dark:text-red-400 font-bold uppercase tracking-widest text-center">
+               <div role="alert" className="p-3 bg-red-500/10 border border-red-500/50 rounded-[8px] text-xs text-red-600 dark:text-red-400 font-bold uppercase tracking-widest text-center">
                  {error}
                </div>
              )}
-             
+
              <div className="space-y-4">
                 <h3 className="text-[10px] text-red-500 uppercase font-bold tracking-widest border-b border-neutral-200 dark:border-[#262626] pb-2">{t('usr_account_details')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -249,9 +260,9 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                      <input className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 flex-1" value={form.profilePicturePath} onChange={(e) => setForm({...form, profilePicturePath: e.target.value})} placeholder={t('panel_profile_pic_placeholder')} />
                      {form.profilePicturePath && (
                        <div className="flex flex-col items-center shrink-0">
-                         <SafeImage 
-                           src={form.profilePicturePath} 
-                           alt="Preview" 
+                         <SafeImage
+                           src={form.profilePicturePath}
+                           alt="Preview"
                            containerClassName="w-10 h-10 rounded-[8px] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] overflow-hidden flex items-center justify-center shadow-md dark:shadow-black/40"
                            fallback={<span className="text-[8px] text-red-500 uppercase font-black tracking-tighter bg-red-500/10 border border-red-500/20 px-1 py-0.5 rounded">Err / Private</span>}
                          />
@@ -263,18 +274,19 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
 
               <div className="space-y-4 pt-6 border-t border-neutral-200 dark:border-[#262626]">
                 <h3 className="text-xs font-black uppercase tracking-widest text-neutral-500 dark:text-[#666]">{t('usr_system_access')}</h3>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_phone')}</label>
-                    <input type="tel" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                    <input type="tel" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                        value={form.phone || ''} onChange={e => setForm({...form, phone: e.target.value})} placeholder="012 345 678" />
                   </div>
                   <div>
                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_email')}</label>
-                    <input type="email" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                    <input type="email" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                        value={form.email || ''} onChange={e => setForm({...form, email: e.target.value})} placeholder="student@example.com" />
                   </div>
+                  <TelegramContactField id="new-student-telegram" value={form.telegramUsername} onChange={telegramUsername => setForm({...form, telegramUsername})} />
                 </div>
               </div>
 
@@ -287,12 +299,12 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_address_line_1')} *</label>
-                    <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                    <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                        value={form.addressLine1} onChange={e => setForm({...form, addressLine1: e.target.value})} placeholder={t('panel_address_line_1_placeholder')} required />
                   </div>
                   <div>
                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_address_line_2_opt')}</label>
-                     <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                     <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                         value={form.addressLine2} onChange={e => setForm({...form, addressLine2: e.target.value})} placeholder={t('panel_address_line_2_placeholder')} />
                    </div>
                    <div className="grid grid-cols-2 gap-4">
@@ -373,18 +385,18 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_postal_code')}</label>
-                      <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                      <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                          value={form.postalCode} onChange={e => setForm({...form, postalCode: e.target.value})} placeholder="e.g. 12000" />
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_country')}</label>
-                      <input list="countries" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                      <input list="countries" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                          value={form.country} onChange={e => setForm({...form, country: e.target.value})} />
                     </div>
                   </div>
                 </div>
               </div>
- 
+
               <div className="space-y-4 pt-6 border-t border-neutral-200 dark:border-[#262626]">
                  <h3 className="text-[10px] text-red-500 uppercase font-bold tracking-widest border-b border-neutral-200 dark:border-[#262626] pb-2">{t('stu_emergency_contact')}</h3>
                  <div>
@@ -415,22 +427,22 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                  </div>
                   <div>
                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_allergies')}</label>
-                    <textarea className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 resize-none h-16" 
+                    <textarea className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 resize-none h-16"
                        value={form.allergies} onChange={e => setForm({...form, allergies: e.target.value})} placeholder={t('panel_emergency_allergies_placeholder')} />
                   </div>
                   <div>
                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">Migration & Administration Notes</label>
-                    <textarea className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 resize-none h-16" 
+                    <textarea className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 resize-none h-16"
                        value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder={t('panel_migration_placeholder')} />
                   </div>
                 </div>
- 
+
                 <div className="space-y-4 pt-6 border-t border-neutral-200 dark:border-[#262626]">
                    <h3 className="text-[10px] text-red-500 uppercase font-bold tracking-widest border-b border-neutral-200 dark:border-[#262626] pb-2">{t('usr_role_snapshot')}</h3>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_branch')}</label>
-                        <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                        <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                            value={form.homeBranchId} onChange={e => setForm({...form, homeBranchId: Number(e.target.value), classId: ''})}>
                            {state.branches.map(b => (
                              <option key={b.id} value={b.id}>{b.name}</option>
@@ -439,7 +451,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_belt')}</label>
-                        <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                        <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                            value={form.currentBelt} onChange={e => setForm({...form, currentBelt: e.target.value})}>
                            <option value="White">White</option>
                            <option value="Yellow">Yellow</option>
@@ -459,12 +471,12 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                    <div className="space-y-2">
                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('nav_schedule')} / class enrollment</label>
                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-1">
-                       <div 
+                       <div
                          onClick={() => setForm({...form, classId: ''})}
                          className={cn(
                            "cursor-pointer p-3 rounded-[8px] border transition-all duration-200 flex flex-col justify-between h-[80px]",
-                           form.classId === '' 
-                             ? "bg-neutral-900 dark:bg-white border-neutral-950 dark:border-white text-white dark:text-black shadow-sm" 
+                           form.classId === ''
+                             ? "bg-neutral-900 dark:bg-white border-neutral-950 dark:border-white text-white dark:text-black shadow-sm"
                              : "bg-white dark:bg-[#1A1A1A] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-800"
                          )}
                        >
@@ -483,15 +495,15 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                          const capacityPct = c.capacity > 0 ? Math.min(100, Math.round((enrolledCount / c.capacity) * 100)) : 0;
                          const isFull = enrolledCount >= c.capacity;
                          const style = CLASS_STYLES[c.classType || 'General Class'] || CLASS_STYLES['General Class'];
-                         
+
                          return (
-                           <div 
+                           <div
                              key={c.id}
                              onClick={() => setForm({...form, classId: c.id.toString()})}
                              className={cn(
                                "cursor-pointer p-3 rounded-[8px] border transition-all duration-200 flex flex-col justify-between h-[80px]",
-                               isSelected 
-                                 ? "bg-neutral-900 dark:bg-white border-neutral-950 dark:border-white text-white dark:text-black shadow-sm" 
+                               isSelected
+                                 ? "bg-neutral-900 dark:bg-white border-neutral-950 dark:border-white text-white dark:text-black shadow-sm"
                                  : "bg-white dark:bg-[#1A1A1A] border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-800"
                              )}
                            >
@@ -502,7 +514,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                                )}>
                                  {c.classType}
                                </span>
-                               
+
                                <div className="flex items-center gap-1.5 shrink-0">
                                  {isFull && (
                                    <span className="bg-red-500/10 text-red-500 border border-red-500/20 px-1 py-0.5 rounded-[8px] text-[7px] font-black tracking-wider leading-none">FULL</span>
@@ -521,8 +533,8 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                              <div className="w-full bg-neutral-200 dark:bg-[#262626] rounded-full h-1 overflow-hidden mt-1 relative">
                                <div className={cn(
                                  "h-full rounded-full transition-all duration-300",
-                                 isSelected 
-                                   ? "bg-emerald-500" 
+                                 isSelected
+                                   ? "bg-emerald-500"
                                    : capacityPct >= 90 ? 'bg-red-500' : capacityPct >= 70 ? 'bg-amber-500' : 'bg-emerald-500'
                                 )} style={{ width: `${capacityPct}%` }} />
                              </div>
@@ -534,7 +546,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_scholarship')}</label>
-                      <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                      <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                          value={form.scholarshipId} onChange={e => setForm({...form, scholarshipId: Number(e.target.value)})}>
                          {state.scholarships.map(s => (
                            <option key={s.id} value={s.id}>{s.typeName} ({s.discountPercentage}%)</option>
@@ -543,12 +555,12 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_height')}</label>
-                      <input type="number" step="0.1" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                      <input type="number" step="0.1" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                          value={form.heightCm || ''} onChange={e => setForm({...form, heightCm: Number(e.target.value)})} placeholder="0" />
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_weight')}</label>
-                      <input type="number" step="0.1" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" 
+                      <input type="number" step="0.1" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                          value={form.weightKg || ''} onChange={e => setForm({...form, weightKg: Number(e.target.value)})} placeholder="0" />
                     </div>
                     {(form.currentBelt.includes('Poom') || form.currentBelt.includes('Dan')) && (
@@ -556,7 +568,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                         <label className="block text-[10px] uppercase font-bold mb-1 transition-colors text-red-500">
                           {t('panel_kukkiwon_global_id')}
                         </label>
-                        <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 font-mono" 
+                        <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 font-mono"
                            value={(form as any).kukkiwonId || ''} onChange={e => setForm({...form, kukkiwonId: e.target.value})} placeholder={t('panel_kukkiwon_placeholder')} />
                       </div>
                     )}
@@ -565,7 +577,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
              </form>
              <div className="p-4 border-t border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 sm:gap-2 shrink-0">
                 <button type="button" onClick={onClose} className="w-full sm:w-auto px-6 py-2.5 min-h-[44px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] text-neutral-700 dark:text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation">{t('act_cancel')}</button>
-                <button type="button" onClick={submit} className="w-full sm:w-auto px-6 py-2.5 min-h-[44px] bg-[#EF2F38] hover:bg-[#D9222B] text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation shadow-md shadow-red-500/20">{t('usr_provision_account')}</button>
+                <button type="button" onClick={submit} disabled={isSubmitting} aria-busy={isSubmitting} className="w-full sm:w-auto px-6 py-2.5 min-h-[44px] bg-[#EF2F38] hover:bg-[#D9222B] text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation shadow-md shadow-red-500/20 disabled:opacity-60 disabled:cursor-wait">{isSubmitting ? 'Saving…' : t('usr_provision_account')}</button>
              </div>
             </div>
          </div>

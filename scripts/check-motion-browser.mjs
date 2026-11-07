@@ -6,9 +6,9 @@ const base = process.argv[2] || 'http://127.0.0.1:3100';
 await mkdir('scratch', { recursive: true });
 const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : {}) });
 const id = '50000000-0000-4000-8000-000000000099';
-const user = { id, aud: 'authenticated', role: 'authenticated', email: 'motion@example.test', app_metadata: { provider: 'email' }, user_metadata: {} };
+const user = { id, aud: 'authenticated', role: 'authenticated',aal:'aal2', email: 'motion@example.test', app_metadata: { provider: 'email' }, user_metadata: {} };
 const profile = { id, username: 'motion_admin', email: user.email, display_name: 'Motion Admin', role: 'Root', is_active: true, must_change_password: false };
-const token = `${Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url')}.${Buffer.from(JSON.stringify({ sub: id, exp: Math.floor(Date.now() / 1000) + 3600, role: 'authenticated' })).toString('base64url')}.${Buffer.from('fictional-signature').toString('base64url')}`;
+const token = `${Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url')}.${Buffer.from(JSON.stringify({ sub: id, exp: Math.floor(Date.now() / 1000) + 3600, role: 'authenticated',aal:'aal2' })).toString('base64url')}.${Buffer.from('fictional-signature').toString('base64url')}`;
 const errors = []; const performance = [];
 async function session(reducedMotion, touch = false) {
   const context = await browser.newContext({ serviceWorkers: 'block', viewport: touch ? {width:390,height:844} : { width: 1440, height: 1000 }, reducedMotion, hasTouch:touch, isMobile:touch });

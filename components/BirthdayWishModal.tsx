@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from '@phosphor-icons/react/dist/csr/X';
-import { Confetti } from '@phosphor-icons/react/dist/csr/Confetti';
+
 import { Portal } from '@/components/Portal';
 
 export function BirthdayWishModal() {
@@ -51,7 +51,7 @@ export function BirthdayWishModal() {
       {show && (
         <Portal>
           <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 pt-[env(safe-area-inset-top)] pb-[calc(1rem+env(safe-area-inset-bottom))] animate-in fade-in">
-            <motion.div 
+            <motion.div
               {...dialogMotion}
 
               className="w-full max-w-sm bg-[#0F0F0F] border border-[#262626] rounded-[8px] shadow-2xl relative overflow-hidden flex flex-col items-center text-center p-8 max-h-[90dvh] overflow-y-auto"
@@ -63,8 +63,8 @@ export function BirthdayWishModal() {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-blue-500 rounded-full mix-blend-screen filter blur-[50px] animate-pulse" style={{ animationDelay: '0.5s' }}></div>
               </div>
 
-              <button 
-                onClick={handleClose} 
+              <button
+                onClick={handleClose}
                 className="absolute top-4 right-4 p-2 text-[#666] hover:text-white bg-[#1A1A1A] hover:bg-[#262626] rounded-full transition-colors z-10"
               >
                 <X className="w-4 h-4" />
@@ -83,7 +83,7 @@ export function BirthdayWishModal() {
                 Wishing you a fantastic day, <strong className="text-white">{state.currentUser?.displayName}</strong>! Thank you for being a part of the Infinity TKD team.
               </p>
 
-              <button 
+              <button
                 onClick={handleClose}
                 className="w-full py-3.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-all shadow-[0_4px_14px_rgba(239,47,56,0.4)] hover:shadow-[0_6px_20px_rgba(239,47,56,0.6)] relative z-10"
               >

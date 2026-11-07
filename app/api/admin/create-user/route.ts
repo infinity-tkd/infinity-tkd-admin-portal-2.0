@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { telegramUsernameSchema, optionalContactAddressSchema } from '@/lib/contact-validation';
 import { isCalendarDate } from '@/lib/dates';
 import { 
   verifyCaller, 
@@ -15,7 +16,7 @@ const CreateUserRequestSchema = z
     email: z.string().email('Invalid email address').optional().nullable(),
     studentId: z.string().max(50).optional().nullable(),
     password: z.string().min(12, 'Password must be at least 12 characters long').max(256).optional(),
-    username: z.string().min(3).max(50).regex(/^[a-zA-Z0-9._-]+$/, 'Use letters, numbers, dots, underscores or hyphens.'),
+    username: z.string().trim().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/, 'Use letters, numbers or underscores.'),
     displayName: z.string().max(100).optional().nullable(),
     role: z.enum([
       'Root',
@@ -29,9 +30,10 @@ const CreateUserRequestSchema = z
     isActive: z.boolean().optional(),
     khmerName: z.string().max(100).optional().nullable(),
     englishName: z.string().max(100).optional().nullable(),
-    gender: z.enum(['Male', 'Female', 'Other']).optional().nullable(),
+    gender: z.enum(['Male', 'Female']).optional().nullable(),
     dob: z.string().refine(isCalendarDate, 'Invalid date of birth').optional().nullable(),
     phone: z.string().max(30).optional().nullable(),
+    telegramUsername: telegramUsernameSchema,
     emergencyContactName: z.string().max(100).optional().nullable(),
     emergencyContactPhone: z.string().max(30).optional().nullable(),
     emergencyContactRelation: z.string().max(50).optional().nullable(),
@@ -39,17 +41,7 @@ const CreateUserRequestSchema = z
     allergies: z.string().max(500).optional().nullable(),
     profilePicturePath: z.string().max(500).optional().nullable(),
     nationality: z.string().max(50).optional().nullable(),
-    address: z
-      .object({
-        line1: z.string().max(100).optional().nullable(),
-        line2: z.string().max(100).optional().nullable(),
-        city: z.string().max(50).optional().nullable(),
-        stateProvince: z.string().max(50).optional().nullable(),
-        postalCode: z.string().max(20).optional().nullable(),
-        country: z.string().max(50).optional().nullable(),
-      })
-      .optional()
-      .nullable(),
+    address: optionalContactAddressSchema,
   })
   .strict();
 
@@ -95,8 +87,8 @@ export async function POST(req: Request) {
     const username = sanitizeString(body.username);
     const displayName = sanitizeString(body.displayName || '');
 
-    // Role escalation guard: Admins cannot provision Root / Super Root accounts
-    if (context.role === 'Admin' && (role === 'Root' || role === 'Super Root')) {
+    // Root authority is required before any Auth-provider account is created.
+    if (!['Root', 'Super Root'].includes(context.role) && (role === 'Root' || role === 'Super Root')) {
       await logSecurityAuditEvent({
         action: 'PRIVILEGE_ESCALATION_BLOCKED',
         performedBy: context.userId,
@@ -109,7 +101,7 @@ export async function POST(req: Request) {
           data: null,
           error: {
             code: 'AUTH_FORBIDDEN_ESCALATION',
-            message: 'Forbidden: Admin role cannot provision Root or Super Root accounts.',
+            message: 'Forbidden: Only Root administrators can provision Root or Super Root accounts.',
           },
         },
         { status: 403 }
@@ -143,6 +135,7 @@ export async function POST(req: Request) {
       gender: body.gender || null,
       dob: body.dob || null,
       phone: sanitizeString(body.phone || '') || null,
+      telegram_username: body.telegramUsername ?? null,
       emergency_contact_name: sanitizeString(body.emergencyContactName || '') || null,
       emergency_contact_phone: sanitizeString(body.emergencyContactPhone || '') || null,
       emergency_contact_relation: sanitizeString(body.emergencyContactRelation || '') || null,

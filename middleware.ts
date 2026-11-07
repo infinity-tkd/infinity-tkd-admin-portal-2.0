@@ -27,8 +27,10 @@ export function middleware(request: NextRequest) {
     "worker-src 'self' blob:",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com data:",
-    "img-src 'self' data: blob: https://picsum.photos https://*.supabase.co https://*.supabase.com https://lh3.googleusercontent.com https://drive.google.com",
+    // Catalog images can use staff-selected HTTPS image hosts; SafeImage uses no-referrer.
+    "img-src 'self' data: blob: https:",
     "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.supabase.com wss://*.supabase.com https://lh3.googleusercontent.com https://drive.google.com",
+    "media-src 'self' https: blob:",
     "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://drive.google.com",
     "object-src 'none'",
     "frame-ancestors 'none'",
@@ -66,7 +68,7 @@ export function middleware(request: NextRequest) {
         try {
           const originUrl = new URL(origin);
           const isLocalhost = process.env.NODE_ENV !== 'production' && (originUrl.hostname === 'localhost' || originUrl.hostname === '127.0.0.1');
-          const hostHostname = host.split(':')[0];
+
 
           if (!isLocalhost && (originUrl.host !== host || process.env.NODE_ENV === 'production' && originUrl.protocol !== 'https:')) {
             return new NextResponse(
@@ -154,7 +156,7 @@ export function middleware(request: NextRequest) {
               message: 'Unauthorized: Missing or malformed Bearer authorization token.',
             },
           }),
-          { status: 401, headers: { 'Content-Type': 'application/json' } }
+          { status: 401, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'private, no-store', Vary: 'Authorization, Cookie' } }
         );
       }
     }

@@ -1,0 +1,17 @@
+{
+  "projectRef": "lyjxmkyvqazqxkzoeszr",
+  "appliedOn": "2026-11-01",
+  "status": "applied",
+  "localVersionsAlignedToSupabase": true,
+  "versions": [
+    "20261101030518",
+    "20261101030526",
+    "20261101033142",
+    "20261101033150",
+    "20261101033250",
+    "20261101042452",
+    "20261101042503"
+  ],
+  "businessDataCreated": false,
+  "flowReview": "docs/CALENDAR_NOTIFICATIONS_REVIEW_2026-11-01.md"
+}

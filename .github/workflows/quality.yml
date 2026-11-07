@@ -31,8 +31,16 @@ jobs:
           node scripts/smoke-production.mjs http://127.0.0.1:3100
           node scripts/check-hydration.mjs http://127.0.0.1:3100
           node scripts/check-auth-browser.mjs http://127.0.0.1:3100
+          node scripts/check-mfa-browser.mjs http://127.0.0.1:3100
           node scripts/check-settings-browser.mjs http://127.0.0.1:3100
           node scripts/check-data-load-browser.mjs http://127.0.0.1:3100
           node scripts/check-pos-recovery-browser.mjs http://127.0.0.1:3100
           node scripts/check-motion-browser.mjs http://127.0.0.1:3100
           node scripts/check-business-browser.mjs http://127.0.0.1:3100
+          node scripts/check-contacts-browser.mjs http://127.0.0.1:3100
+          node scripts/check-attendance-calendar-browser.mjs http://127.0.0.1:3100
+          node scripts/check-anatomy-browser.mjs http://127.0.0.1:3100
+          node scripts/check-membership-notifications-browser.mjs http://127.0.0.1:3100
+          node scripts/check-operations-browser.mjs http://127.0.0.1:3100
+          node scripts/check-refactor-browser.mjs http://127.0.0.1:3100
+          node scripts/check-component-refactor-browser.mjs http://127.0.0.1:3100

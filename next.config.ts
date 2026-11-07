@@ -5,9 +5,12 @@ import type { NextConfig } from 'next';
 import path from 'path';
 import { InjectManifest } from '@serwist/webpack-plugin';
 
+const isolatedDistDir = process.env.PORTAL_NEXT_DIST_DIR;
 const nextConfig: NextConfig = {
   // Keep development output separate from production release verification.
-  distDir: process.env.NODE_ENV === 'development' ? '.next-dev' : '.next',
+  distDir: isolatedDistDir && /^\.next(?:-[a-zA-Z0-9_-]+)?$/.test(isolatedDistDir)
+    ? isolatedDistDir
+    : process.env.NODE_ENV === 'development' ? '.next-dev' : '.next',
   outputFileTracingRoot: path.resolve(__dirname),
   reactStrictMode: true,
   eslint: {
