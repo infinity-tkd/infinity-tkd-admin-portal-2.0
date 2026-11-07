@@ -112,6 +112,35 @@ const serwist = new Serwist({
 
 serwist.addEventListeners();
 
+// Notification payloads never contain student details or authentication tokens.
+(self as any).addEventListener('push', (event: any) => {
+  let payload: { title?: string; body?: string; tag?: string; url?: string } = {};
+  try { payload = event.data?.json() || {}; } catch { /* Show a safe generic update. */ }
+  const url = typeof payload.url === 'string' && payload.url.startsWith('/') && !payload.url.startsWith('//') && !payload.url.includes('\\') ? payload.url : '/profile?notifications=open';
+  event.waitUntil(Promise.resolve().then(() => (self as any).registration.showNotification('Infinity TKD', {
+    body: 'You have an academy update. Open the portal to review it.',
+    icon: '/icons/icon-192x192.png', badge: '/icons/icon-192x192.png',
+    tag: typeof payload.tag === 'string' ? payload.tag.slice(0,100) : 'infinity-update',
+    data: { url },
+  })).catch(() => { /* Permission may have been revoked while the app was closed. */ }));
+});
+(self as any).addEventListener('notificationclick', (event: any) => {
+  event.notification.close();
+  const target = new URL('/profile?notifications=open', (self as any).location.origin);
+  event.waitUntil((async () => {
+    const windows = await (self as any).clients.matchAll({type:'window',includeUncontrolled:true});
+    const existing = windows.find((client: any) => new URL(client.url).origin === target.origin);
+    if (existing) {
+      // navigate() rejects for windows this worker does not control (for
+      // example a tab opened before installation). Open a fresh window then.
+      try { await existing.navigate(target.href); }
+      catch { return (self as any).clients.openWindow(target.href); }
+      return existing.focus();
+    }
+    return (self as any).clients.openWindow(target.href);
+  })());
+});
+
 // Diagnostic & Lifecycle Message Listener
 (self as any).addEventListener('message', (event: any) => {
   if (event.data?.type === 'GET_SW_DIAGNOSTICS') {

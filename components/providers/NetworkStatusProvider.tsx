@@ -7,7 +7,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { openDB, IDBPDatabase } from 'idb';
-import { WifiOff, Wifi, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { WifiOff, RefreshCw, CheckCircle2 } from 'lucide-react';
 
 export interface QueuedMutation {
   id: string;

@@ -16,8 +16,8 @@ client.auth.dispose();
 const base = process.argv[2] || 'http://localhost:3000';
 const id='60000000-0000-4000-8000-000000000099';
 const profile={id,username:'readonly_render',email:'readonly@example.test',display_name:'Read-only Verification',role:'Root',is_active:true,must_change_password:false};
-const user={id,aud:'authenticated',role:'authenticated',email:profile.email,app_metadata:{provider:'email'},user_metadata:{}};
-const token=`${Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url')}.${Buffer.from(JSON.stringify({sub:id,role:'authenticated',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url')}.${Buffer.from('fictional-signature').toString('base64url')}`;
+const user={id,aud:'authenticated',role:'authenticated',aal:'aal2',email:profile.email,app_metadata:{provider:'email'},user_metadata:{}};
+const token=`${Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url')}.${Buffer.from(JSON.stringify({sub:id,role:'authenticated',aal:'aal2',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url')}.${Buffer.from('fictional-signature').toString('base64url')}`;
 const browser=await chromium.launch({headless:true,...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE}:{})});
 try {
  const context=await browser.newContext({serviceWorkers:'block',viewport:{width:1440,height:1000}});

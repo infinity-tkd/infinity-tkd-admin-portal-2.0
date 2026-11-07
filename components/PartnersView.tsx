@@ -22,21 +22,20 @@ import { Check } from '@phosphor-icons/react/dist/csr/Check';
 import { DownloadSimple } from '@phosphor-icons/react/dist/csr/DownloadSimple';
 import { Buildings } from '@phosphor-icons/react/dist/csr/Buildings';
 import { User } from '@phosphor-icons/react/dist/csr/User';
-import { Calendar } from '@phosphor-icons/react/dist/csr/Calendar';
-import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
+
+
 import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
 import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
 import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
 import { ArrowSquareOut } from '@phosphor-icons/react/dist/csr/ArrowSquareOut';
 import { ListDashes } from '@phosphor-icons/react/dist/csr/ListDashes';
 import { SquaresFour } from '@phosphor-icons/react/dist/csr/SquaresFour';
-import { Funnel } from '@phosphor-icons/react/dist/csr/Funnel';
-import { Tag } from '@phosphor-icons/react/dist/csr/Tag';
+
+
 import { ArrowsClockwise } from '@phosphor-icons/react/dist/csr/ArrowsClockwise';
 import { cn } from '@/lib/utils';
 import { Portal } from './Portal';
 import { SafeImage } from './SafeImage';
-import { useT } from '@/hooks/useTranslation';
 
 const PARTNER_TYPES: PartnerType[] = [
   'MOU',
@@ -62,7 +61,7 @@ const PARTNER_STATUSES: PartnerStatus[] = [
 
 export function PartnersView() {
   const { state, createPartner, updatePartner, deletePartner, fetchPartners, showNotification, showConfirm, can } = useAppStore();
-  const t = useT();
+
 
   const [search, setSearch] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
@@ -691,9 +690,9 @@ export function PartnersView() {
           /* GRID VIEW */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
             {filteredPartners.map(partner => {
-              const isTelegramCopied = copiedId === `tg-${partner.id}`;
-              const isPhoneCopied = copiedId === `ph-${partner.id}`;
-              const isEmailCopied = copiedId === `em-${partner.id}`;
+
+
+
 
               return (
                 <div
@@ -1283,8 +1282,8 @@ export function PartnersView() {
                           {detailPartner.phone && (
                             <div className="flex items-center justify-between">
                               <span className="text-neutral-400 dark:text-neutral-500">Phone:</span>
-                              <a 
-                                href={`tel:${detailPartner.phone}`} 
+                              <a
+                                href={`tel:${detailPartner.phone}`}
                                 className="text-neutral-700 dark:text-neutral-300 hover:text-[#EF2F38] min-h-[34px] flex items-center active:scale-95 touch-manipulation"
                               >
                                 {detailPartner.phone}
@@ -1294,8 +1293,8 @@ export function PartnersView() {
                           {detailPartner.email && (
                             <div className="flex items-center justify-between">
                               <span className="text-neutral-400 dark:text-neutral-500">Email:</span>
-                              <a 
-                                href={`mailto:${detailPartner.email}`} 
+                              <a
+                                href={`mailto:${detailPartner.email}`}
                                 className="text-neutral-700 dark:text-neutral-300 hover:text-[#EF2F38] truncate max-w-[180px] min-h-[34px] flex items-center active:scale-95 touch-manipulation"
                               >
                                 {detailPartner.email}
@@ -1673,9 +1672,9 @@ export function PartnersView() {
                         {formData.tags?.map(t => (
                           <span key={t} className="px-2.5 py-1 rounded-[6px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 text-[11px] flex items-center gap-1">
                             <span>#{t}</span>
-                            <button 
-                              type="button" 
-                              onClick={() => handleRemoveTag(t)} 
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTag(t)}
                               className="min-w-[20px] min-h-[20px] flex items-center justify-center text-neutral-400 hover:text-red-500 rounded-[4px] active:scale-90 touch-manipulation cursor-pointer"
                             >
                               ×

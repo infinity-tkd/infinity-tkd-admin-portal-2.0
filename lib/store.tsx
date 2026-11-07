@@ -1,9 +1,22 @@
 'use client';
+import { beltHistoryPayload, mapBeltHistory, insertBeltHistoryBatch } from './student-records';
+import { isCoachScore } from './physical-grades';
 import { academyProfileChanges } from '@/lib/academy-profile';
+import { createStudentPayload, updateStudentPayload } from './student-payload';
+import { readApiResponse, unwrapApiError } from './api-response';
+import { normalizeTelegramUsername } from './contacts';
+import { clearAttendanceMark, clearAttendanceBatch, saveAttendanceBatch, attendanceRemovalIds, type AttendanceDraft } from './attendance-write';
+import { unmarkedSessionRoster, type SavedSessionRoster } from './attendance-roster';
+import { detachPushDevice } from './push-client';
+import { needsAdministratorMfa } from './auth-assurance';
+import { usePathname } from 'next/navigation';
+import { portalDatasets, portalLoadPlan, portalDeniedDatasets, portalStudentSelect, portalStudentPurpose } from './portal-load-plan';
+import { validateWorkoutTemplate } from './workout-structure';
+export { unwrapApiError } from './api-response';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { fetchAllRows } from './data-access';
-import { dataLoadIssue, preserveUnavailableData, type DataLoadIssue } from './data-load-status';
+import { fetchAllRows, fetchApiRows } from './data-access';
+import { dataLoadIssue, preserveUnavailableData, restrictPortalData, type DataLoadIssue } from './data-load-status';
 import { membershipBilling } from './billing';
 import { invoiceKey, indexPaymentReceipts } from './payment-receipts';
 import { academyDate } from './dates';
@@ -11,15 +24,15 @@ import { partnerField } from './partners';
 import { supabase } from './supabase';
 import { observePortalSession } from './auth-session';
 import { createReadRecovery, settleReads, PORTAL_REALTIME_TABLES } from './read-recovery';
-import { sanitizeStringInput, mapCategoryToDbEnum, normalizeCategory } from './utils';
+import { mapCategoryToDbEnum, normalizeCategory } from './utils';
 import { normalizeError, NormalizedError } from './error-handler';
 import { reportClientError } from './client-telemetry';
-import { 
-  hasPermission, 
-  SecurityModule, 
-  AccessLevel, 
-  MODULE_DEFINITIONS, 
-  getModuleAccessLevel 
+import {
+  hasPermission,
+  canWriteModule,
+  SecurityModule,
+  AccessLevel,
+  getModuleAccessLevel
 } from './security';
 
 // --- Cryptographic Cache Codecs (XOR + UTF-8 Byte Stream) ---
@@ -63,16 +76,6 @@ export function decryptCache(encryptedStr: string | null): any {
     console.error('Cache decryption failed:', e);
     return null;
   }
-}
-
-export function unwrapApiError(errData: any, fallback = 'Operation failed'): string {
-  if (!errData) return fallback;
-  if (typeof errData === 'string') return errData;
-  if (typeof errData?.error === 'string') return errData.error;
-  if (typeof errData?.error?.message === 'string') return errData.error.message;
-  if (typeof errData?.message === 'string') return errData.message;
-  if (typeof errData?.error?.code === 'string') return `${errData.error.code}: ${fallback}`;
-  return fallback;
 }
 
 // --- Types based on Schema ---
@@ -119,6 +122,7 @@ export interface User {
   gender?: 'Male' | 'Female';
   dob?: string;
   phone?: string;
+  telegramUsername?: string;
   emergencyContactName?: string;
   emergencyContactPhone?: string;
   emergencyContactRelation?: string;
@@ -150,6 +154,10 @@ export interface StaffDanRecord {
 export type StudentStatus = 'Active' | 'Paused' | 'Inactive' | 'Suspended' | 'Graduated';
 
 export interface Student {
+  billingInvoices?: import('./billing').BillingInvoiceSummary[];
+  membershipPauses?: import('./billing').BillingPauseSummary[];
+  billingSchedule?: import('./billing').BillingScheduleChange[];
+  membershipStartDate?: string;
   id: string;
   profileId?: string;
   khmerName: string;
@@ -168,6 +176,7 @@ export interface Student {
   pauseEndDate?: string;
   email?: string;
   phone?: string;
+  telegramUsername?: string;
   emergencyContactName?: string;
   emergencyContactPhone?: string;
   emergencyContactRelation?: string;
@@ -193,6 +202,7 @@ export interface BeltHistory {
 }
 
 export interface Achievement {
+  eventId?: string | null;
   id: number;
   studentId: string;
   eventName: string;
@@ -214,6 +224,8 @@ export interface Attendance {
 }
 
 export interface Payment {
+  invoiceProjection?: boolean;
+  verifiedCollection?: boolean;
   receiptNumber?: string;
   paymentMethod?: string;
   paymentDate?: string;
@@ -221,7 +233,7 @@ export interface Payment {
   studentId: string;
   year: number;
   month: string; // 'Jan', 'Feb', etc.
-  status: 'Paid' | 'Unpaid' | 'Pending';
+  status: 'Paid' | 'Unpaid' | 'Pending' | 'Waived';
   amountUsd: number;
 }
 
@@ -262,6 +274,8 @@ export interface AcademyProfile {
   currency: 'USD' | 'KHR';
   currencySymbol: string;
   tuitionGracePeriodDays: number;
+  renewalReminderDays?: number;
+  latePaymentGraceDays?: number;
   earlyGroupTuitionUsd: number;
   standardTuitionUsd: number;
   taxRatePercentage: number;
@@ -325,6 +339,8 @@ export function mapDbRowToAcademyProfile(row: any): AcademyProfile {
     currency: (row.currency as 'USD' | 'KHR') || 'USD',
     currencySymbol: row.currency_symbol || (row.currency === 'KHR' ? '៛' : '$'),
     tuitionGracePeriodDays: row.tuition_grace_period_days ?? 5,
+    renewalReminderDays: row.renewal_reminder_days ?? 5,
+    latePaymentGraceDays: row.late_payment_grace_days ?? 5,
     earlyGroupTuitionUsd: Number(row.early_group_tuition_usd ?? 25),
     standardTuitionUsd: Number(row.standard_tuition_usd ?? 45),
     taxRatePercentage: Number(row.tax_rate_percentage) || 0,
@@ -363,10 +379,14 @@ export interface CurriculumVideo {
   id: number;
   title: string;
   description: string;
-  category: string; 
+  category: string;
   minBeltLevel: string;
-  videoUrl?: string; 
+  videoUrl?: string;
   createdAt: string;
+  revision?: number;
+  publishedRevision?: number | null;
+  studentCurriculumId?: number | null;
+  updatedAt?: string;
 }
 
 export interface StudentVideoProgress {
@@ -512,13 +532,16 @@ interface AppContextType {
   deletePartner: (id: string) => Promise<{ success: boolean; error?: string }>;
   fetchPartners: () => Promise<Partner[]>;
   markAttendance: (studentId: string, date: string, status: 'Present' | 'Absent' | 'Late', classId?: number) => Promise<void>;
+  markAttendanceMany: (rows: AttendanceDraft[]) => Promise<void>;
   deleteAttendanceRecords: (date: string, studentIds: string[], classId?: number) => Promise<void>;
+  deleteAttendanceRecord: (id: number, studentId: string) => Promise<void>;
   payInvoice: (studentId: string, year: number, month: string, amount: number, method?: string) => Promise<void>;
   prepayInvoiceBulk: (studentId: string, prepayments: { year: number; month: string; amount: number }[]) => Promise<void>;
   addStudent: (student: Omit<Student, 'id' | 'registrationDate'>) => Promise<{ success: boolean; error?: string }>;
   updateStudent: (id: string, data: Partial<Student>) => Promise<void>;
   deleteStudent: (id: string) => Promise<void>;
   addBeltHistory: (history: Omit<BeltHistory, 'id'>) => Promise<void>;
+  addBeltHistories: (histories: Omit<BeltHistory, 'id'>[]) => Promise<void>;
   updateBeltHistory: (id: number, data: Partial<BeltHistory>) => Promise<void>;
   deleteBeltHistory: (id: number, studentId: string) => Promise<void>;
   addAchievement: (achievement: Omit<Achievement, 'id'>) => Promise<void>;
@@ -543,15 +566,15 @@ interface AppContextType {
   commitRoster: (date: string, branchId: number | 'all', classId: number | 'all') => Promise<{ count: number }>;
   addWorkoutTemplate: (template: any) => Promise<void>;
   updateWorkoutTemplate: (id: string, template: any) => Promise<void>;
-  deleteWorkoutTemplate: (id: string) => Promise<void>;
-  upsertPhysicalEvaluation: (studentId: string, skillName: string, beltLevel: string, grade: string) => Promise<void>;
+  deleteWorkoutTemplate: (id: string, expectedRevision?: number) => Promise<void>;
+  upsertPhysicalEvaluation: (studentId: string, skillName: string, beltLevel: string, grade: string, score?: number | null) => Promise<void>;
   addBodyComposition: (composition: any) => Promise<void>;
   addBeltTechnique: (beltLevel: string, techniqueName: string, category: string) => Promise<void>;
   deleteBeltTechnique: (id: string) => Promise<void>;
   reconcileAllStudentBelts: () => Promise<{ success: boolean; scanned: number; corrected: number; details: string[] }>;
   showNotification: (
-    message: string, 
-    type?: 'success' | 'error' | 'info' | 'warning', 
+    message: string,
+    type?: 'success' | 'error' | 'info' | 'warning',
     title?: string,
     code?: string,
     details?: string
@@ -662,6 +685,10 @@ function initialAppState(): AppState {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname() || '/';
+  const route = React.useRef(pathname);
+  route.current = pathname;
+  const previousPath = React.useRef(pathname);
   const [state, setState] = useState<AppState>(initialAppState);
   const sessionRevision = React.useRef(0);
   const logoutInFlight = React.useRef<Promise<void> | null>(null);
@@ -683,6 +710,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [invalidateSessionLoads]);
 
   const fetchInitialData = useCallback(async (userId: string) => {
+    previousPath.current = route.current;
     const revision = ++sessionRevision.current;
     const isCurrentSession = () => revision === sessionRevision.current;
     let failureDataset = 'profiles';
@@ -708,29 +736,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     try {
       // 1. Fetch Current User Profile & Member Details (independently, members 500 must not block login)
-      const [profileResult, memberResult] = await Promise.allSettled([
-        supabase.from('profiles').select('*').eq('id', userId).abortSignal(profileSignal).single(),
-        supabase.from('members').select('*').eq('id', userId).abortSignal(profileSignal).maybeSingle() as any
+      const [profileResult] = await Promise.allSettled([
+        supabase.from('profiles').select('*').eq('id', userId).abortSignal(profileSignal).single()
       ]);
 
       if (!isCurrentSession()) return;
 
       const profile = profileResult.status === 'fulfilled' ? profileResult.value.data : null;
-      const memberProfile = memberResult.status === 'fulfilled' ? memberResult.value.data : null;
       // An outage is not evidence that an account was deleted or suspended.
       if (profileResult.status === 'rejected') throw profileResult.reason;
       if (profileResult.value.error && profileResult.value.error.code !== 'PGRST116') throw profileResult.value.error;
-
-      if (memberResult.status === 'rejected' || (memberResult.status === 'fulfilled' && memberResult.value.error)) {
-        console.warn('[Store] Members fetch error (non-blocking):', 
-          memberResult.status === 'rejected' ? memberResult.reason : memberResult.value.error?.message);
-      }
 
       if (!profile || !profile.is_active || !['Root', 'Super Root', 'Admin', 'Head Coach', 'Coach', 'Assistant Coach'].includes(profile.role)) {
         clearTimeout(timeoutId);
         await supabase.auth.signOut({ scope: 'local' });
         if (isCurrentSession()) clearSessionState();
         return;
+      }
+      const { data: { session: verifiedSession } } = await supabase.auth.getSession();
+      if (!isCurrentSession()) return;
+      const mfaPending = needsAdministratorMfa(profile.role, verifiedSession?.access_token ?? '');
+      const [memberResult] = await Promise.allSettled([
+        mfaPending ? Promise.resolve({data:null,error:null}) : supabase.from('members').select('*').eq('id', userId).abortSignal(profileSignal).maybeSingle() as any
+      ]);
+      if (!isCurrentSession()) return;
+      const memberProfile = memberResult.status === 'fulfilled' ? memberResult.value.data : null;
+      if (memberResult.status === 'rejected' || (memberResult.status === 'fulfilled' && memberResult.value.error)) {
+        console.warn('[Store] Members fetch error (non-blocking):', memberResult.status === 'rejected' ? memberResult.reason : memberResult.value.error?.code);
       }
       const mSelf = (memberProfile || {}) as any;
       const currentUser: User = {
@@ -747,6 +779,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         gender: mSelf.gender,
         dob: mSelf.dob || '',
         phone: mSelf.phone || '',
+        telegramUsername: mSelf.telegram_username || '',
         emergencyContactName: mSelf.emergency_contact_name || '',
         emergencyContactPhone: mSelf.emergency_contact_phone || '',
         emergencyContactRelation: mSelf.emergency_contact_relation || '',
@@ -762,14 +795,61 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
 
       // Set currentUser and clear loading state immediately so user is authenticated instantly without waiting for global table downloads
-      setState(s => ({ ...s, currentUser, isLoading: false }));
+      setState(s => ({ ...(s.currentUser?.id === currentUser.id && s.currentUser.role === currentUser.role && !currentUser.mustChangePassword ? s : {
+        ...initialAppState(), theme: s.theme, language: s.language, academyProfile: s.academyProfile,
+      }), currentUser, isLoading: false, isRefreshingData: true }));
+
+      if (mfaPending || currentUser.mustChangePassword) return;
+
+      // A fresh access snapshot must precede business-data reads. A role change
+      // or permission outage must not reuse grants from a previous refresh.
+      failureDataset = 'role_permissions';
+      const permissionResults = await Promise.allSettled([
+        fetchAllRows(supabase.from('role_permissions').select('*').abortSignal(dataSignal)),
+        fetchAllRows(supabase.from('user_permissions').select('*').abortSignal(dataSignal)),
+      ]);
+      if (!isCurrentSession()) return;
+      for (const [index, result] of permissionResults.entries()) {
+        failureDataset = index === 0 ? 'role_permissions' : 'user_permissions';
+        if (result.status === 'rejected') throw result.reason;
+        if (result.value.error) throw result.value.error;
+      }
+      const rolePermissionResult = (permissionResults[0] as PromiseFulfilledResult<any>).value;
+      const userPermissionResult = (permissionResults[1] as PromiseFulfilledResult<any>).value;
+      const mappedRolePermissions: Record<string, boolean> = {};
+      for (const rule of rolePermissionResult.data || []) mappedRolePermissions[`${rule.role}:${rule.permission_key}`] = rule.is_granted;
+      const mappedUserPermissions: Record<string, boolean> = {};
+      for (const rule of userPermissionResult.data || []) mappedUserPermissions[`${rule.user_id}:${rule.permission_key}`] = rule.is_granted;
+      const permitted = (key: string) => hasPermission(currentUser.role, key, mappedRolePermissions, currentUser.id, mappedUserPermissions);
+      const deniedDatasets = portalDeniedDatasets(permitted);
+      const staffDetailsAllowed = permitted('page:staff');
+      const accountDetailsAllowed = permitted('page:settings') && permitted('action:staff_manage');
+      setState(s => ({ ...restrictPortalData(s, deniedDatasets, accountDetailsAllowed), rolePermissions: mappedRolePermissions, userPermissions: mappedUserPermissions, permissionsReady: true }));
 
       // 2. Bound simultaneous database requests while retaining independent failures.
       failureDataset = 'data';
+      previousPath.current = route.current;
+      const plan = portalLoadPlan(previousPath.current, permitted);
+      const summaryPurpose = portalStudentPurpose(previousPath.current, permitted);
+      const readStudents = async () => {
+        if (permitted('page:directory')) return fetchAllRows(supabase.from('students').select(portalStudentSelect(permitted)).is('deleted_at', null).abortSignal(dataSignal));
+        if (!summaryPurpose) return {data:[],error:null};
+        const {data:{session}}=await supabase.auth.getSession();
+        if(!session||session.user.id!==userId)throw Object.assign(new Error('Sign in again to load this student summary.'),{code:'401'});
+        return {data:await fetchApiRows('/api/admin/student-summaries?purpose='+summaryPurpose,session.access_token,dataSignal),error:null};
+      };
+      const unrequested = portalDatasets.filter(dataset => !plan.has(dataset));
+      const readProfiles = async () => {
+        if (staffDetailsAllowed) return fetchAllRows(supabase.from('profiles').select('*').abortSignal(dataSignal));
+        const {data:{session}} = await supabase.auth.getSession();
+        if (!session || session.user.id !== userId) throw Object.assign(new Error('Sign in again to load staff labels.'), {code:'401'});
+        const endpoint = accountDetailsAllowed && previousPath.current.split('/')[1] === 'settings' ? '/api/admin/account-summaries' : '/api/admin/staff-summaries';
+        return {data:await fetchApiRows(endpoint, session.access_token, dataSignal),error:null};
+      };
       const globalResults = await settleReads<any>([
-        () => fetchAllRows(supabase.from('profiles').select('*').abortSignal(dataSignal)),
+        readProfiles,
         () => fetchAllRows(supabase.from('members').select('*, member_addresses(*)').abortSignal(dataSignal)),
-        () => fetchAllRows(supabase.from('students').select('*, student_addresses(*)').is('deleted_at', null).abortSignal(dataSignal)),
+        readStudents,
         () => fetchAllRows(supabase.from('branches').select('*').abortSignal(dataSignal)),
         () => fetchAllRows(supabase.from('class_sessions').select('*').abortSignal(dataSignal)),
         () => fetchAllRows(supabase.from('class_enrollments').select('*').abortSignal(dataSignal)),
@@ -787,12 +867,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
         () => fetchAllRows(supabase.from('library_asset_muscles').select('*').abortSignal(dataSignal)),
         () => fetchAllRows(supabase.from('student_body_compositions').select('*').abortSignal(dataSignal)),
         () => supabase.from('academy_profile').select('*').abortSignal(dataSignal).maybeSingle(),
-        () => fetchAllRows(supabase.from('role_permissions').select('*').abortSignal(dataSignal)),
-        () => fetchAllRows(supabase.from('user_permissions').select('*').abortSignal(dataSignal)),
+        () => Promise.resolve(rolePermissionResult),
+        () => Promise.resolve(userPermissionResult),
         () => fetchAllRows(supabase.from('staff_dan_history').select('*').order('dan_level', { ascending: true }).abortSignal(dataSignal)),
         () => fetchAllRows(supabase.from('partners').select('*').order('created_at', { ascending: false }).abortSignal(dataSignal)),
-        () => fetchAllRows(supabase.from('payment_transactions').select('*').abortSignal(dataSignal))
-      ]);
+        () => fetchAllRows(supabase.from('payment_transactions').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('academy_operations_policy').select('*').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('membership_invoices').select('id,student_id,cycle_month,amount_usd,waiver_usd,balance_usd').abortSignal(dataSignal)),
+        () => fetchAllRows(supabase.from('membership_pauses').select('id,student_id,start_date,resume_date,voided_at').abortSignal(dataSignal)),
+      ].map((load,index)=>plan.has(portalDatasets[index])?load:async()=>({data:null,error:null,unrequested:true})));
 
       if (!isCurrentSession()) return;
       const loadIssues: DataLoadIssue[] = [];
@@ -832,11 +915,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const assetMuscleRelationsData = getVal(globalResults[17], 'library_asset_muscles');
       const bodyCompositionsData = getVal(globalResults[18], 'student_body_compositions');
       const academyProfileData = getVal(globalResults[19], 'academy_profile');
-      const rolePermissionsData = getVal(globalResults[20], 'role_permissions');
-      const userPermissionsData = getVal(globalResults[21], 'user_permissions');
+      getVal(globalResults[20], 'role_permissions');
+      getVal(globalResults[21], 'user_permissions');
       const staffDanData = getVal(globalResults[22], 'staff_dan_history');
       const partnersData = getVal(globalResults[23], 'partners');
       const transactionsData = getVal(globalResults[24], 'payment_transactions');
+      const timingPolicyData = getVal(globalResults[25], 'academy_operations_policy');
+      const invoiceSummaryData = getVal(globalResults[26], 'membership_invoices');
+      const membershipPausesData = getVal(globalResults[27], 'membership_pauses');
+      const effectiveAcademyProfile=mapDbRowToAcademyProfile({...academyProfileData,renewal_reminder_days:timingPolicyData?.[0]?.reminder_lead_days??5,late_payment_grace_days:timingPolicyData?.[0]?.late_grace_days??5});
       const receiptsByInvoice = indexPaymentReceipts(transactionsData || []);
 
       const mappedStaffDanRecords: StaffDanRecord[] = Array.isArray(staffDanData) ? staffDanData.map((d: any) => ({
@@ -861,7 +948,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         : [];
 
       let finalPartners = mappedPartners;
-      if (finalPartners.length === 0 && userId) {
+      if (plan.has('partners') && permitted('page:partners') && finalPartners.length === 0 && userId) {
         try {
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.access_token) {
@@ -883,34 +970,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      const mappedRolePermissions: Record<string, boolean> = {};
-      if (Array.isArray(rolePermissionsData)) {
-        rolePermissionsData.forEach((rp: any) => {
-          mappedRolePermissions[`${rp.role}:${rp.permission_key}`] = rp.is_granted;
-        });
-      }
-
-      const mappedUserPermissions: Record<string, boolean> = {};
-      if (Array.isArray(userPermissionsData)) {
-        userPermissionsData.forEach((up: any) => {
-          mappedUserPermissions[`${up.user_id}:${up.permission_key}`] = up.is_granted;
-        });
-      }
-
       const membersMap = new Map(((membersData as any[]) || []).map((m: any) => [m.id, m]));
 
       let mappedUsers: User[] = [];
       if (profilesData && profilesData.length > 0) {
         mappedUsers = profilesData.map((u: any) => {
-          const m = (membersMap.get(u.id) || {}) as any;
+          const m = (membersMap.get(u.id) || u.member_summary || {}) as any;
           const ma = Array.isArray(m.member_addresses) ? m.member_addresses.find((a: any) => a.is_primary) || m.member_addresses[0] : null;
           const addressObj = ma ? { id: ma.address_id, line1: ma.address_line1, line2: ma.address_line2, city: ma.district_commune, stateProvince: ma.state_province_city, postalCode: ma.postal_code, country: ma.country } : undefined;
-          return { 
-            id: u.id, 
-            username: u.username, 
-            email: u.email, 
-            displayName: u.display_name, 
-            role: u.role as Role, 
+          return {
+            id: u.id,
+            username: u.username,
+            email: u.email,
+            displayName: u.display_name,
+            role: u.role as Role,
             isActive: u.is_active,
             studentId: u.student_id || undefined,
             khmerName: m.khmer_name || '',
@@ -918,6 +991,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             gender: m.gender,
             dob: m.dob || '',
             phone: m.phone || '',
+            telegramUsername: m.telegram_username || '',
             emergencyContactName: m.emergency_contact_name || '',
             emergencyContactPhone: m.emergency_contact_phone || '',
             emergencyContactRelation: m.emergency_contact_relation || '',
@@ -946,6 +1020,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
           gender: s.gender,
           dob: s.dob,
           registrationDate: s.registration_date,
+          billingSchedule: Array.isArray(s.billing_schedule) ? s.billing_schedule : [],
+          membershipStartDate: s.membership_start_date || undefined,
+          billingInvoices:(invoiceSummaryData||[]).filter((invoice:any)=>invoice.student_id===s.id).map((invoice:any)=>({cycleMonth:invoice.cycle_month,amount:Number(invoice.amount_usd),waiver:Number(invoice.waiver_usd??0),balance:Number(invoice.balance_usd)})),
+          membershipPauses:(membershipPausesData||[]).filter((pause:any)=>pause.student_id===s.id).map((pause:any)=>({startDate:pause.start_date,resumeDate:pause.resume_date,voidedAt:pause.voided_at})),
           scholarshipId: s.scholarship_id,
           heightCm: s.height_cm,
           weightKg: s.weight_kg,
@@ -957,6 +1035,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           pauseEndDate: s.pause_end_date,
           email: s.email,
           phone: s.phone,
+          telegramUsername: s.telegram_username || '',
           emergencyContactName: s.emergency_contact_name,
           emergencyContactPhone: s.emergency_contact_phone,
           emergencyContactRelation: s.emergency_contact_relation,
@@ -974,22 +1053,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const mappedBranches = (branchesData || []).map((b: any) => ({ id: b.id, name: b.branch_name }));
       const mappedVideos = (curriculumData || []).map((c: any) => {
         const isFitness = c.library_type === 'Fitness';
-        let actualCategory = isFitness ? `Fitness: ${c.fitness_category}` : c.tkd_category;
-        
-        if (c.description) {
+        // Every view filters on category text, so a row with no category must
+        // still map to one instead of crashing the library.
+        let actualCategory: string = isFitness ? `Fitness: ${c.fitness_category || 'Conditioning'}` : (c.tkd_category || '');
+
+        if (typeof c.description === 'string') {
           try {
             if (c.description.trim().startsWith('{') && c.description.trim().endsWith('}')) {
               const details = JSON.parse(c.description);
-              if (details.actualCategory) {
-                actualCategory = details.actualCategory;
+              if (typeof details?.actualCategory === 'string' && details.actualCategory.trim()) {
+                actualCategory = details.actualCategory.trim();
               }
             }
-          } catch (e) {
-            // ignore
+          } catch {
+            // Plain-text descriptions keep the column category.
           }
         }
-        
-        if (!isFitness && actualCategory) {
+
+        if (!isFitness) {
           actualCategory = normalizeCategory(actualCategory);
         }
 
@@ -1000,7 +1081,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
           category: actualCategory,
           minBeltLevel: isFitness ? 'Fitness' : c.target_level,
           videoUrl: c.video_url || '',
-          createdAt: c.created_at || new Date().toISOString()
+          createdAt: c.created_at || new Date().toISOString(),
+          revision: c.revision ?? 1,
+          publishedRevision: c.published_revision ?? null,
+          studentCurriculumId: c.student_curriculum_id ?? null,
+          updatedAt: c.updated_at ?? c.created_at,
         };
       });
 
@@ -1013,6 +1098,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         creator: t.creator_name || 'Coach',
         structure: t.structure
       }));
+      const assetIdsByCurriculum=new Map<number,number>((curriculumData||[]).map((asset:any)=>[Number(asset.student_curriculum_id??asset.id),Number(asset.id)] as [number,number]));
 
       const mappedMuscles = (musclesData || []).map((m: any) => {
         let meta: any = {};
@@ -1074,21 +1160,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
         attendanceRecords: (attendanceData || []).map((a: any) => ({ id: a.id, studentId: a.student_id, date: a.date, status: a.status, classId:a.class_id ?? undefined })),
         payments: (paymentsData || []).map((p: any) => {
           const receipt = receiptsByInvoice.get(invoiceKey(p.student_id, p.year, p.for_month));
-          return { id: p.id, studentId: p.student_id, year: p.year, month: p.for_month, status: p.status, amountUsd: p.amount_usd, paymentDate: p.payment_date, receiptNumber: receipt?.receipt_number, paymentMethod: receipt?.payment_method };
+          return { id: p.id, studentId: p.student_id, year: p.year, month: p.for_month, status: p.status, amountUsd: p.amount_usd, paymentDate: p.payment_date, receiptNumber: receipt?.receipt_number, paymentMethod: receipt?.payment_method,invoiceProjection:typeof p.notes==='string'&&p.notes.startsWith('INV-'),verifiedCollection:typeof p.notes==='string'&&p.notes.startsWith('INV-')&&Number(p.amount_usd)>0 };
         }),
-        beltHistories: (beltHistoryData || []).map((b: any) => ({ 
-          id: b.id, 
-          studentId: b.student_id, 
-          beltLevel: b.belt_level, 
-          promotionDate: b.promotion_date, 
+        beltHistories: (beltHistoryData || []).map((b: any) => ({
+          id: b.id,
+          studentId: b.student_id,
+          beltLevel: b.belt_level,
+          promotionDate: b.promotion_date,
           testScore: b.test_score,
           program: b.program,
           certificateRef: b.certificate_id,
           kukkiwonDanCardId: b.kukkiwon_dan_card_id
         })),
-        achievements: (achievementsData || []).map((a: any) => ({ id: a.id, studentId: a.student_id, eventName: a.event_name, date: a.date, category: a.category, division: a.division, medalRank: a.medal_rank, notes: a.notes, ageDivision: a.age_division || undefined, beltDivision: a.belt_division || undefined })),
+        achievements: (achievementsData || []).map((a: any) => ({ id: a.id, studentId: a.student_id, eventName: a.event_name, eventId: a.event_id ?? null, date: a.date, category: a.category, division: a.division, medalRank: a.medal_rank, notes: a.notes, ageDivision: a.age_division || undefined, beltDivision: a.belt_division || undefined })),
         curriculumVideos: mappedVideos,
-        videoProgress: (progressData || []).map((p: any) => ({ id: p.id, studentId: p.student_id, videoId: p.curriculum_id, status: p.status, lastWatchedAt: p.last_watched_at })),
+        videoProgress: (progressData || []).map((p: any) => ({ id: p.id, studentId: p.student_id, videoId: assetIdsByCurriculum.get(Number(p.curriculum_id))??p.curriculum_id, status: p.status, lastWatchedAt: p.last_watched_at })),
         workoutTemplates: mappedTemplates,
         physicalEvaluations: (physicalEvalData || []).map((pe: any) => ({
           id: pe.id,
@@ -1096,6 +1182,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           skillName: pe.skill_name,
           beltLevel: pe.belt_level,
           grade: pe.grade,
+          score: pe.score == null ? null : Number(pe.score),
           evaluatedBy: pe.evaluated_by,
           updatedAt: pe.updated_at
         })),
@@ -1131,7 +1218,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         })),
         muscles: mappedMuscles,
         assetMuscleRelations: mappedAssetMuscleRelations,
-        academyProfile: mapDbRowToAcademyProfile(academyProfileData),
+        academyProfile: effectiveAcademyProfile,
         rolePermissions: mappedRolePermissions,
         permissionsReady: !loadIssues.some(issue => ['role_permissions', 'user_permissions'].includes(issue.dataset)),
         userPermissions: mappedUserPermissions,
@@ -1140,10 +1227,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         dataLoadIssues: loadIssues,
         partners: finalPartners,
         isLoading: false
-      }, loadIssues));
+      }, loadIssues, unrequested, deniedDatasets, accountDetailsAllowed));
 
       if (academyProfileData && typeof window !== 'undefined') {
-        try { localStorage.setItem('infinity_academy_profile', JSON.stringify(mapDbRowToAcademyProfile(academyProfileData))); }
+        try { localStorage.setItem('infinity_academy_profile', JSON.stringify(effectiveAcademyProfile)); }
         catch { /* Disabled browser storage must not mark a successful download as failed. */ }
       }
 
@@ -1153,7 +1240,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       console.warn('[Portal data unavailable]', issue.dataset, issue.code, issue.reason);
       setState(s => {
         const issues = [issue, ...(s.dataLoadIssues || []).filter(item => item.dataset !== issue.dataset)];
-        return { ...s, isLoading: false, dataLoadIssues: issues, dataLoadErrors: issues.map(item => item.dataset) };
+        const safe = ['role_permissions', 'user_permissions'].includes(failureDataset) ? {
+          ...initialAppState(), currentUser: s.currentUser, theme: s.theme, language: s.language, academyProfile: s.academyProfile,
+        } : s;
+        return { ...safe, isLoading: false, dataLoadIssues: issues, dataLoadErrors: issues.map(item => item.dataset) };
       });
     } finally {
       clearTimeout(timeoutId);
@@ -1216,6 +1306,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       invalidateSessionLoads();
     };
   }, [clearSessionState, fetchInitialData, invalidateSessionLoads]);
+
+  useEffect(()=>{
+    if(previousPath.current===pathname || state.isRefreshingData)return;
+    previousPath.current=pathname;
+    if(state.currentUser)void refreshData().catch(()=>{});
+  },[pathname,state.currentUser,state.isRefreshingData,refreshData]);
 
   // Realtime events invalidate the canonical RLS snapshot. Partial event rows
   // cannot safely reconstruct joined addresses, receipts or revoked visibility.
@@ -1304,8 +1400,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const showNotification = useCallback((
-    message: string, 
-    type: 'success' | 'error' | 'info' | 'warning' = 'info', 
+    message: string,
+    type: 'success' | 'error' | 'info' | 'warning' = 'info',
     title?: string,
     code?: string,
     details?: string
@@ -1342,7 +1438,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // An older sign-out must finish before a new session can be established.
       await logoutInFlight.current;
       const response = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ identifier, password: pass }), signal: AbortSignal.timeout(20000) });
-      const result = await response.json();
+      const result = await readApiResponse(response);
       if (!response.ok || !result.success) return { success: false, error: result.error?.message || 'Unable to sign in.' };
       const { error } = await supabase.auth.setSession(result.data);
       if (error) return { success: false, error: 'Unable to establish a secure session.' };
@@ -1353,6 +1449,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     if (logoutInFlight.current) return logoutInFlight.current;
     const task = (async () => {
+      await detachPushDevice();
       invalidateSessionLoads();
       try {
         const { error } = await supabase.auth.signOut({ scope: 'global' });
@@ -1373,20 +1470,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return task;
   };
 
-  const markAttendance = async (studentId:string,date:string,status:'Present'|'Absent'|'Late',classId?:number) => {
+  const markAttendanceMany = async (rows: AttendanceDraft[]) => {
     if(!can('action:attendance_mark')) throw new Error('You do not have permission to mark attendance.');
-    const {data,error}=await supabase.from('attendance').upsert({student_id:studentId,date,status,class_id:classId || null,marked_by:state.currentUser?.id},{onConflict:'student_id,date,class_id'}).select().single();
-    if(error || !data){showNotification('Attendance was not saved. Please retry.','error');throw error || new Error('Attendance was not saved.');}
-    const record={id:data.id,studentId:data.student_id,date:data.date,status:data.status,classId:data.class_id ?? undefined};
-    setState(prev=>({...prev,attendanceRecords:[...prev.attendanceRecords.filter(r=>!(r.studentId===studentId && r.date===date && r.classId===record.classId)),record]}));
+    const actorId=state.currentUser?.id??'';
+    const records=await saveAttendanceBatch(supabase,rows,actorId);
+    const keys=new Set(records.map(record=>`${record.studentId}/${record.date}/${record.classId??'daily'}`));
+    setState(prev=>prev.currentUser?.id!==actorId?prev:({...prev,attendanceRecords:[...prev.attendanceRecords.filter(record=>!keys.has(`${record.studentId}/${record.date}/${record.classId??'daily'}`)),...records]}));
   };
+  const markAttendance = async (studentId:string,date:string,status:'Present'|'Absent'|'Late',classId?:number) => markAttendanceMany([{studentId,date,status,classId}]);
 
   const deleteAttendanceRecords = async (date:string,studentIds:string[],classId?:number) => {
     if(!can('action:attendance_delete'))throw new Error('Permission denied.');
-    let query=supabase.from('attendance').delete().eq('date',date).in('student_id',studentIds);
-    if(classId)query=query.eq('class_id',classId);
-    const {error}=await query;if(error)throw error;
-    setState(prev=>({...prev,attendanceRecords:prev.attendanceRecords.filter(r=>!(r.date===date&&studentIds.includes(r.studentId)&&(!classId||r.classId===classId)))}));
+    const actorId=state.currentUser?.id;
+    const ids=attendanceRemovalIds(state.attendanceRecords,date,studentIds,classId);
+    if(!ids.length)throw new Error('No attendance records were selected. Reload the roster.');
+    const removed=new Set(await clearAttendanceBatch(supabase,ids));
+    setState(prev=>prev.currentUser?.id!==actorId?prev:({...prev,attendanceRecords:prev.attendanceRecords.filter(record=>!removed.has(record.id))}));
+    if(removed.size!==new Set(ids).size)throw new Error(`Cleared ${removed.size} of ${new Set(ids).size} selected marks. Some records changed or access was denied. Reload the roster to review the remaining marks.`);
+  };
+
+  const deleteAttendanceRecord = async (id: number, studentId: string) => {
+    if (!can('action:attendance_delete')) throw new Error('You do not have permission to clear attendance.');
+    const actorId=state.currentUser?.id;
+    await clearAttendanceMark(supabase, id, studentId);
+    setState(prev => prev.currentUser?.id!==actorId?prev:({...prev, attendanceRecords:prev.attendanceRecords.filter(record => record.id !== id)}));
   };
 
   const pendingPaymentKeys = React.useRef(new Map<string, string>());
@@ -1399,16 +1506,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const requestKey = pendingPaymentKeys.current.get(signature) || crypto.randomUUID();
     pendingPaymentKeys.current.set(signature, requestKey);
     const response = await fetch('/api/admin/payments', { method: 'POST', headers: { 'Content-Type':'application/json', Authorization: 'Bearer ' + session.access_token }, body: JSON.stringify({ studentId, entries, method, requestKey }) });
-    const result = await response.json();
+    const result = await readApiResponse(response);
     if (!response.ok) throw new Error(unwrapApiError(result, 'Payment was not recorded.'));
-    pendingPaymentKeys.current.delete(signature);
     await fetchInitialData(session.user.id);
+    pendingPaymentKeys.current.delete(signature);
   };
   const payInvoice = async (studentId: string, year: number, month: string, amount: number, method = 'Cash') => recordPayments(studentId, [{year,month,amount}], amount === 0 ? 'Waived' : method);
   const prepayInvoiceBulk = async (studentId: string, prepayments: { year: number; month: string; amount: number }[]) => recordPayments(studentId, prepayments);
 
   const addStudent = async (student: Omit<Student, 'id' | 'registrationDate'>) => {
-    const role = state.currentUser?.role;
+
     if (!can('action:student_create')) {
       return { success: false, error: 'Unauthorized Access: You do not have permission to provision new student accounts.' };
     }
@@ -1417,24 +1524,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const token = session?.access_token;
       if (!token) return { success: false, error: 'Authentication session expired. Please log in again.' };
 
+      const studentPayload = createStudentPayload({ ...student });
       const res = await fetch('/api/admin/create-student', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ studentData: { ...student } })
+        body: JSON.stringify({ studentData: studentPayload })
       });
-      const resData = await res.json();
+      const resData = await readApiResponse(res);
       if (!res.ok) {
         const errStr = unwrapApiError(resData, 'Failed to create student.');
         const normalized = reportError(errStr, 'Failed to Register Student');
         return { success: false, error: normalized.message };
       }
       const d = resData.data;
+      if (!d || typeof d.id !== 'string' || !/^STU-[MF]-[0-9]+$/.test(d.id)) throw new Error('The registration response was incomplete. Reload students to check whether registration completed before trying again.');
       setState(t => {
         const newStu = {
-          ...student,
+          ...studentPayload,
           id: d.id,
           registrationDate: d.registrationDate,
           khmerName: d.khmerName,
@@ -1442,6 +1551,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           dob: d.dob,
           email: d.email,
           phone: d.phone,
+          telegramUsername: d.telegramUsername || '',
           emergencyContactName: d.emergencyContactName,
           emergencyContactPhone: d.emergencyContactPhone,
           emergencyContactRelation: d.emergencyContactRelation,
@@ -1470,7 +1580,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const updateStudent = async (id: string, data: Partial<Student>) => {
-    const role = state.currentUser?.role;
+
     if (!can('action:student_edit')) {
       showNotification('Unauthorized Access: You do not have permissions to modify student records.', 'warning');
       throw new Error('You do not have permission to edit student records.');
@@ -1486,15 +1596,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ id, data: {...data,...((data as any).classEnrollmentDate?{enrollmentId:state.classEnrollments.find(e=>e.studentId===id)?.id}: {})} })
+        body: JSON.stringify({ id, data: updateStudentPayload({...data,...((data as any).classEnrollmentDate?{enrollmentId:state.classEnrollments.find(e=>e.studentId===id)?.id}: {})}) })
       });
-      const resData = await res.json();
+      const resData = await readApiResponse(res);
       if (!res.ok) throw new Error(unwrapApiError(resData, 'Failed to update student details.'));
 
       const existing=state.students.find(s=>s.id===id);
       const profileUser=state.users.find(u=>u.role==='Student' && (u.id===existing?.profileId || u.studentId===id));
       setState(s => {
-        const students = s.students.map(x => x.id === id ? { ...x, ...data } : x);
+        const students = s.students.map(x => x.id === id ? { ...x, ...data, ...(data.telegramUsername !== undefined ? {telegramUsername:normalizeTelegramUsername(data.telegramUsername) || ''} : {}) } : x);
         let users = s.users;
         if (profileUser) {
           users = s.users.map(u => u.id === profileUser.id ? {
@@ -1527,7 +1637,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({ id })
       });
-      const resData = await res.json();
+      const resData = await readApiResponse(res);
       if (!res.ok) throw new Error(unwrapApiError(resData, 'Failed to delete student record.'));
 
       const existing=state.students.find(s=>s.id===id);
@@ -1548,31 +1658,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const refreshStudentBelt = async (studentId:string) => {
-    const {data,error}=await supabase.from('students').select('current_belt').eq('id',studentId).single();
+    const { data, error }=await supabase.from('students').select('current_belt').eq('id',studentId).single();
     if(error){showNotification('Promotion was saved, but the displayed rank could not refresh. Reload the student profile.','warning');return;}
     setState(prev=>({...prev,students:prev.students.map(student=>student.id===studentId?{...student,currentBelt:data.current_belt}:student)}));
   };
-  const beltHistoryPayload = (history:Partial<BeltHistory>) => {
-    const row:any={};
-    const keys={studentId:'student_id',beltLevel:'belt_level',promotionDate:'promotion_date',testScore:'test_score',program:'program',certificateRef:'certificate_id',kukkiwonDanCardId:'kukkiwon_dan_card_id'};
-    for(const [key,column] of Object.entries(keys))if(history[key as keyof BeltHistory]!==undefined) {
-      const value = history[key as keyof BeltHistory];
-      row[column] = (key === 'certificateRef' || key === 'kukkiwonDanCardId') && value === '' ? null : value;
-    }
-    return row;
+  const addBeltHistories = async (histories: Omit<BeltHistory, 'id'>[]) => {
+    if (!can('action:evaluations_grade')) throw new Error('Permission denied.');
+    const saved = await insertBeltHistoryBatch(supabase, histories);
+    setState(previous => ({ ...previous, beltHistories: [...previous.beltHistories.filter(row => !saved.some(item => item.id === row.id)), ...saved] }));
+    await refreshStudentBelt(histories[0].studentId);
+    showNotification(saved.length === 1 ? 'Promotion logged successfully.' : saved.length + ' promotion records logged successfully.', 'success');
   };
-  const mapBeltHistory = (row:any):BeltHistory => ({id:row.id,studentId:row.student_id,beltLevel:row.belt_level,promotionDate:row.promotion_date,testScore:row.test_score,program:row.program,certificateRef:row.certificate_id,kukkiwonDanCardId:row.kukkiwon_dan_card_id});
-  const addBeltHistory = async (history:Omit<BeltHistory,'id'>) => {
-    if(!can('action:evaluations_grade'))throw new Error('Permission denied.');
-    const {data,error}=await supabase.from('belt_histories').insert(beltHistoryPayload(history)).select().single();
-    if(error || !data)throw error || new Error('Promotion was not saved.');
-    setState(prev=>({...prev,beltHistories:[...prev.beltHistories.filter(h=>h.id!==data.id),mapBeltHistory(data)]}));
-    await refreshStudentBelt(history.studentId);
-    showNotification('Promotion logged successfully.','success');
-  };
+  const addBeltHistory = async (history: Omit<BeltHistory, 'id'>) => addBeltHistories([history]);
   const updateBeltHistory = async (id:number,history:Partial<BeltHistory>) => {
     if(!can('action:evaluations_grade'))throw new Error('Permission denied.');
-    const {data,error}=await supabase.from('belt_histories').update(beltHistoryPayload(history)).eq('id',id).select().single();
+    const { data, error }=await supabase.from('belt_histories').update(beltHistoryPayload(history)).eq('id',id).select().single();
     if(error || !data)throw error || new Error('Promotion was not saved.');
     setState(prev=>({...prev,beltHistories:prev.beltHistories.map(h=>h.id===id?mapBeltHistory(data):h)}));
     await refreshStudentBelt(data.student_id);
@@ -1580,17 +1680,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
   const deleteBeltHistory = async (id:number,studentId:string) => {
     if(!can('action:evaluations_grade'))throw new Error('Permission denied.');
-    const {data,error}=await supabase.from('belt_histories').delete().eq('id',id).eq('student_id',studentId).select('id');
+    const { data, error }=await supabase.from('belt_histories').delete().eq('id',id).eq('student_id',studentId).select('id');
     if(error || !data?.length)throw error || new Error('Promotion was already removed or could not be deleted.');
     setState(prev=>({...prev,beltHistories:prev.beltHistories.filter(h=>h.id!==id)}));
     await refreshStudentBelt(studentId);
     showNotification('Promotion record deleted successfully.','success');
   };
   const reconcileAllStudentBelts = async () => {
-    const {data:{session}}=await supabase.auth.getSession();
+    const { data:{session} }=await supabase.auth.getSession();
     if(!session)throw new Error('Please sign in again.');
     const response=await fetch('/api/admin/promotions/reconcile',{method:'POST',headers:{Authorization:'Bearer '+session.access_token}});
-    const result=await response.json();
+    const result=await readApiResponse(response);
     if(!response.ok)throw new Error(unwrapApiError(result,'Belts could not be reconciled.'));
     await fetchInitialData(session.user.id);
     return result.data;
@@ -1615,7 +1715,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     pendingAchievementKeys.current.delete(signature);
     if (revision !== sessionRevision.current) throw new Error('Your session changed. Reload to verify the saved achievements.');
     const records: Achievement[] = result.data.records.map((row: any) => ({
-      id: row.id, studentId: row.student_id, eventName: row.event_name, date: row.date, category: row.category,
+      id: row.id, studentId: row.student_id, eventName: row.event_name, eventId: row.event_id ?? null, date: row.date, category: row.category,
       division: row.division, medalRank: row.medal_rank, notes: row.notes ?? undefined,
       ageDivision: row.age_division ?? undefined, beltDivision: row.belt_division ?? undefined,
     }));
@@ -1664,9 +1764,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addClassSession = async (session: Omit<ClassSession, 'id'>): Promise<{ success: boolean; error?: string }> => {
-    const role = state.currentUser?.role;
-    if (role !== 'Root' && role !== 'Super Root' && role !== 'Admin' && role !== 'Head Coach') {
-      showNotification("Permission Denied: Only Head Coaches or Admins can add class sessions.", 'error');
+    if (!can('action:schedule_manage')) {
+      showNotification("You do not have permission to add class sessions.", 'error');
       return { success: false, error: 'Permission denied' };
     }
     try {
@@ -1679,7 +1778,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify(session)
       });
-      const data = await res.json();
+      const data = await readApiResponse(res);
       if (!res.ok) throw new Error(unwrapApiError(data, 'Failed to add class session.'));
 
       const newSession = { ...session, id: data.data.id };
@@ -1696,9 +1795,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const updateClassSession = async (id: number, data: Partial<ClassSession>): Promise<{ success: boolean; error?: string }> => {
-    const role = state.currentUser?.role;
-    if (role !== 'Root' && role !== 'Super Root' && role !== 'Admin' && role !== 'Head Coach') {
-      showNotification("Permission Denied: Only Head Coaches or Admins can update class sessions.", 'error');
+    if (!can('action:schedule_manage')) {
+      showNotification("You do not have permission to update class sessions.", 'error');
       return { success: false, error: 'Permission denied' };
     }
     try {
@@ -1711,7 +1809,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({ id, data })
       });
-      const resData = await res.json();
+      const resData = await readApiResponse(res);
       if (!res.ok) throw new Error(unwrapApiError(resData, 'Failed to update class session.'));
 
       setState(s => ({
@@ -1727,9 +1825,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteClassSession = async (id: number): Promise<{ success: boolean; error?: string }> => {
-    const role = state.currentUser?.role;
-    if (role !== 'Root' && role !== 'Super Root' && role !== 'Admin' && role !== 'Head Coach') {
-      showNotification("Permission Denied: Only Head Coaches or Admins can delete class sessions.", 'error');
+    if (!can('action:schedule_manage')) {
+      showNotification("You do not have permission to delete class sessions.", 'error');
       return { success: false, error: 'Permission denied' };
     }
     try {
@@ -1740,7 +1837,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           Authorization: `Bearer ${authSession?.access_token}`
         }
       });
-      const data = await res.json();
+      const data = await readApiResponse(res);
       if (!res.ok) throw new Error(unwrapApiError(data, 'Failed to delete class session.'));
 
       setState(s => ({
@@ -1757,6 +1854,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const enrollStudent = async (studentId: string, classId: number): Promise<{ success: boolean; error?: string }> => {
+    if (!can('action:schedule_manage')) return { success: false, error: 'You do not have permission to manage enrollments.' };
     try {
       const session = state.classSessions.find(s => s.id === classId);
       if (!session) {
@@ -1792,6 +1890,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           ...s,
           classEnrollments: [...s.classEnrollments.filter(x => x.id !== data.id), newEnrollment]
         }));
+        await refreshMembershipAnchors([studentId]);
         showNotification("Student enrolled successfully.", 'success');
         return { success: true };
       }
@@ -1803,7 +1902,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const refreshMembershipAnchors = async (studentIds: string[]) => {
+    const revision = sessionRevision.current;
+    try {
+    const read = async () => {
+      if (can('page:directory')) return supabase.from('students').select('id,membership_start_date').in('id', studentIds).abortSignal(AbortSignal.timeout(15000));
+      const {data:{session}} = await supabase.auth.getSession();
+      if (!session || session.user.id !== state.currentUser?.id) throw new Error('Your session changed.');
+      const rows = await fetchApiRows('/api/admin/student-summaries?purpose=schedule', session.access_token);
+      return {data:rows.filter(row=>studentIds.includes(row.id)),error:null};
+    };
+    const { data, error } = await read();
+    if (error) { showNotification('Enrollment saved. Reload to refresh the membership dates.', 'warning'); return; }
+    if (revision !== sessionRevision.current) return;
+    const dates = new Map((data || []).map(row => [row.id, row.membership_start_date]));
+    setState(previous => ({ ...previous, students: previous.students.map(student => dates.has(student.id) ? { ...student, membershipStartDate: dates.get(student.id) || undefined } : student) }));
+    } catch {
+      if (revision === sessionRevision.current) showNotification('Enrollment saved. Reload to refresh the membership dates.', 'warning');
+    }
+  };
+
   const unenrollStudent = async (studentId: string, classId: number): Promise<{ success: boolean; error?: string }> => {
+    if (!can('action:schedule_manage')) return { success: false, error: 'You do not have permission to manage enrollments.' };
     try {
       const { data, error } = await supabase
         .from('class_enrollments')
@@ -1816,6 +1936,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...s,
         classEnrollments: s.classEnrollments.filter(x => x.studentId !== studentId || x.classId !== classId)
       }));
+      await refreshMembershipAnchors([studentId]);
       showNotification("Student unenrolled successfully.", 'success');
       return { success: true };
     } catch (e: any) {
@@ -1826,6 +1947,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const batchEnrollStudents = async (studentIds: string[], classId: number): Promise<{ success: boolean; enrolledCount: number; error?: string }> => {
+    if (!can('action:schedule_manage')) return { success: false, enrolledCount: 0, error: 'You do not have permission to manage enrollments.' };
     try {
       const session = state.classSessions.find(s => s.id === classId);
       if (!session) {
@@ -1889,6 +2011,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           ]
         }));
 
+        await refreshMembershipAnchors(newEnrollments.map(row => row.studentId));
         showNotification(`Successfully enrolled ${newEnrollments.length} student(s).`, 'success');
         return { success: true, enrolledCount: newEnrollments.length };
       }
@@ -1903,11 +2026,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const pendingLibraryKeys = React.useRef(new Map<string,string>());
   const libraryRequest = async (path:string,payload:unknown) => {
-    const {data:{session}}=await supabase.auth.getSession();
+    const { data:{session} }=await supabase.auth.getSession();
     if(!session)throw new Error('Please sign in again.');
-    const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify(payload)});
-    const result=await response.json();
+    const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify(payload),signal:AbortSignal.timeout(20000),cache:'no-store'});
+    const result=await readApiResponse(response);
     if(!response.ok)throw new Error(unwrapApiError(result,'Library update failed.'));
+    const {data:{session:current}}=await supabase.auth.getSession();
+    if(current?.user.id!==session.user.id)throw new Error('Your account changed. Reload the library to check the saved result.');
     return result.data;
   };
   const saveLibraryVideo = async (id:number|null, video:Partial<CurriculumVideo> & {muscleRelations?:Omit<AssetMuscleRelation,'assetId'>[]}) => {
@@ -1918,20 +2043,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const category=merged.category || 'Forms (Poomsae)';
     const fitness=merged.minBeltLevel==='Fitness'||category.startsWith('Fitness:');
     let description=merged.description || '';
-    try {const parsed=JSON.parse(description);description=JSON.stringify({...parsed,actualCategory:category});}
-    catch {description=JSON.stringify({text:description,actualCategory:category});}
+    // Only structured lesson metadata is merged. Plain text that happens to be
+    // valid JSON (for example "10", "true" or a quoted phrase) must stay text.
+    let parsed: unknown = null;
+    try { parsed = JSON.parse(description); } catch { parsed = null; }
+    description = parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? JSON.stringify({ ...(parsed as Record<string, unknown>), actualCategory: category })
+      : JSON.stringify({ text: description, actualCategory: category });
     const asset={title:merged.title || '',description,library_type:fitness?'Fitness':'Taekwondo',tkd_category:fitness?null:mapCategoryToDbEnum(category),fitness_category:fitness?category.replace('Fitness: ',''):null,target_level:fitness?'All':merged.minBeltLevel || 'White',video_url:merged.videoUrl || '',...(video.muscleRelations!==undefined?{muscleRelations:video.muscleRelations}:{})};
     const signature=JSON.stringify([state.currentUser?.id,asset]);
     const requestKey=pendingLibraryKeys.current.get(signature)||crypto.randomUUID();
     if(id===null)pendingLibraryKeys.current.set(signature,requestKey);
-    const result=await libraryRequest('/api/admin/library-assets',id===null?{action:'CREATE',asset,requestKey}:{action:'UPDATE',id,asset});
+    const result=await libraryRequest('/api/admin/library-assets',id===null?{action:'CREATE',asset,requestKey}:{action:'UPDATE',id,asset,expectedRevision:video.revision??current?.revision??1});
     const data=result.asset;
     if(!data||!Array.isArray(result.relations))throw new Error('Library save was not confirmed.');
     if(id===null)pendingLibraryKeys.current.delete(signature);
-    const mapped={id:data.id,title:data.title,description:data.description || '',category,minBeltLevel:fitness?'Fitness':data.target_level,videoUrl:data.video_url || '',createdAt:data.created_at};
+    const mapped={id:data.id,title:data.title,description:data.description || '',category,minBeltLevel:fitness?'Fitness':data.target_level,videoUrl:data.video_url || '',createdAt:data.created_at,revision:data.revision??1,publishedRevision:data.published_revision??null,studentCurriculumId:data.student_curriculum_id??null,updatedAt:data.updated_at??data.created_at};
     const relations=result.relations.map((r:any)=>({assetId:r.asset_id,muscleId:r.muscle_id,role:r.role}));
-    setState(s=>({...s,curriculumVideos:[...s.curriculumVideos.filter(v=>v.id!==mapped.id),mapped],assetMuscleRelations:[...s.assetMuscleRelations.filter(r=>r.assetId!==mapped.id),...relations]}));
-    showNotification(id===null?'Video added successfully.':'Video updated successfully.','success');
+    // Replace an edited lesson in place so it keeps its position in the library grid.
+    setState(s=>({...s,curriculumVideos:s.curriculumVideos.some(v=>v.id===mapped.id)?s.curriculumVideos.map(v=>v.id===mapped.id?mapped:v):[...s.curriculumVideos,mapped],assetMuscleRelations:[...s.assetMuscleRelations.filter(r=>r.assetId!==mapped.id),...relations]}));
+    showNotification(id===null?'Lesson draft saved. Publish it when ready for students.':'Lesson draft saved. The published version stays unchanged until you publish.','success');
   };
   const addCurriculumVideo = async (video:Omit<CurriculumVideo,'id'|'createdAt'> & {muscleRelations?:Omit<AssetMuscleRelation,'assetId'>[]}) => {
     try {await saveLibraryVideo(null,video);}catch(e){showNotification(e instanceof Error?e.message:'Video save failed.','error');throw e;}
@@ -1942,108 +2073,53 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const deleteCurriculumVideo = async (id:number) => {
     try {
       if(!can('action:curriculum_edit'))throw new Error('You do not have permission to edit the library.');
-      await libraryRequest('/api/admin/library-assets',{action:'DELETE',id});
+      const current=state.curriculumVideos.find(video=>video.id===id);
+      if(!current)throw new Error('Reload the library before removing this lesson.');
+      await libraryRequest('/api/admin/library-assets',{action:'DELETE',id,expectedRevision:current.revision??1});
       setState(s=>({...s,curriculumVideos:s.curriculumVideos.filter(v=>v.id!==id),assetMuscleRelations:s.assetMuscleRelations.filter(r=>r.assetId!==id)}));
       showNotification('Video deleted successfully.','success');
     }catch(e){showNotification(e instanceof Error?e.message:'Video deletion failed.','error');throw e;}
   };
 
-  const addWorkoutTemplate = async (template: any) => {
+  const pendingWorkoutCommands = React.useRef(new Map<string,{id:string;key:string}>());
+  const saveManagedWorkout = async (id:string|null, raw:any) => {
     if(!can('action:curriculum_edit'))throw new Error('You do not have permission to edit routines.');
-    try {
-      const { data, error } = await supabase
-        .from('workout_templates')
-        .insert({
-          title: template.title,
-          description: template.description,
-          difficulty: template.difficulty,
-          duration_mins: template.duration,
-          creator_name: template.creator,
-          structure: template.structure
-        })
-        .select()
-        .single();
-
-      if (error || !data) throw error || new Error('Routine save was not confirmed.');
-      if (data) {
-        const mapped = {
-          id: data.id,
-          title: data.title,
-          description: data.description || '',
-          difficulty: data.difficulty,
-          duration: data.duration_mins || 15,
-          creator: data.creator_name || 'Coach',
-          structure: data.structure
-        };
-        setState(s => ({
-          ...s,
-          workoutTemplates: [...s.workoutTemplates.filter(x => x.id !== mapped.id), mapped]
-        }));
-        showNotification("Workout template saved successfully.", 'success');
-      }
-    } catch (e: any) {
-      console.error("[Store] addWorkoutTemplate error:", e);
-      showNotification("Failed to save workout template: " + e.message, 'error');
-      throw e;
+    const template=validateWorkoutTemplate({title:raw.title,description:raw.description,difficulty:raw.difficulty,creator:raw.creator,structure:raw.structure,duration:raw.duration});
+    const action=raw.publicationAction==='PUBLISH'?'PUBLISH':'SAVE_DRAFT';
+    const expectedRevision=Number.isInteger(raw.revision)?raw.revision:0;
+    const reason=typeof raw.publicationReason==='string'?raw.publicationReason.trim():'';
+    if(action==='PUBLISH'&&reason.length<5)throw new Error('Record a publication reason of at least 5 characters.');
+    const signature=JSON.stringify([state.currentUser?.id,id,expectedRevision,action,template,reason]);
+    const command=pendingWorkoutCommands.current.get(signature)||{id:id||crypto.randomUUID(),key:crypto.randomUUID()};
+    pendingWorkoutCommands.current.set(signature,command);
+    const result=await libraryRequest('/api/admin/workout-templates',{action,id:command.id,expectedRevision,requestKey:command.key,template,reason});
+    if(!result.template||result.id!==command.id)throw new Error('Routine save was not confirmed.');
+    pendingWorkoutCommands.current.delete(signature);
+    if(result.published){
+      const data=result.template;
+      const mapped={id:data.id,title:data.title,description:data.description||'',difficulty:data.difficulty,duration:data.duration_mins,creator:data.creator_name,structure:data.structure};
+      setState(previous=>({...previous,workoutTemplates:[...previous.workoutTemplates.filter(row=>row.id!==mapped.id),mapped]}));
     }
+    showNotification(result.published?'Routine published to the student portal.':'Routine draft saved. Students still see the published version.','success');
   };
-
-  const updateWorkoutTemplate = async (id: string, template: any) => {
-    if(!can('action:curriculum_edit'))throw new Error('You do not have permission to edit routines.');
-    try {
-      const { data, error } = await supabase
-        .from('workout_templates')
-        .update({
-          title: template.title,
-          description: template.description,
-          difficulty: template.difficulty,
-          duration_mins: template.duration,
-          creator_name: template.creator,
-          structure: template.structure
-        })
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error || !data) throw error || new Error('Routine save was not confirmed.');
-      if (data) {
-        const mapped = {
-          id: data.id,
-          title: data.title,
-          description: data.description || '',
-          difficulty: data.difficulty,
-          duration: data.duration_mins || 15,
-          creator: data.creator_name || 'Coach',
-          structure: data.structure
-        };
-        setState(s => ({
-          ...s,
-          workoutTemplates: s.workoutTemplates.map(x => x.id === id ? mapped : x)
-        }));
-        showNotification("Workout template updated successfully.", 'success');
-      }
-    } catch (e: any) {
-      console.error("[Store] updateWorkoutTemplate error:", e);
-      showNotification("Failed to update workout template: " + e.message, 'error');
-      throw e;
-    }
+  const addWorkoutTemplate = async (template:any) => {
+    try{await saveManagedWorkout(null,template);}catch(error){showNotification(error instanceof Error?error.message:'Routine save failed.','error');throw error;}
   };
-
-  const deleteWorkoutTemplate = async (id: string) => {
-    if(!can('action:curriculum_edit'))throw new Error('You do not have permission to edit routines.');
-    try {
-      const { error } = await supabase.from('workout_templates').delete().eq('id', id).select('id').single();
-      if (error) throw error;
-      setState(s => ({
-        ...s,
-        workoutTemplates: s.workoutTemplates.filter(x => x.id !== id)
-      }));
-      showNotification("Workout template deleted successfully.", 'success');
-    } catch (e: any) {
-      console.error("[Store] deleteWorkoutTemplate error:", e);
-      showNotification("Failed to delete workout template: " + e.message, 'error');
-      throw e;
-    }
+  const updateWorkoutTemplate = async (id:string,template:any) => {
+    try{await saveManagedWorkout(id,template);}catch(error){showNotification(error instanceof Error?error.message:'Routine save failed.','error');throw error;}
+  };
+  const deleteWorkoutTemplate = async (id:string,expectedRevision?:number) => {
+    if(!can('action:curriculum_edit'))throw new Error('You do not have permission to manage routines.');
+    // Existing published rows are retained for student readers and assignment history.
+    if(state.workoutTemplates.some(row=>row.id===id))throw new Error('Published routines are retained. Save a revised draft instead.');
+    if(typeof expectedRevision!=='number'||!Number.isInteger(expectedRevision)||expectedRevision<1)throw new Error('Reload the routine editor before archiving this draft.');
+    const signature=JSON.stringify([state.currentUser?.id,'ARCHIVE',id,expectedRevision]);
+    const command=pendingWorkoutCommands.current.get(signature)||{id,key:crypto.randomUUID()};
+    pendingWorkoutCommands.current.set(signature,command);
+    const result=await libraryRequest('/api/admin/workout-templates',{action:'ARCHIVE',id,expectedRevision,requestKey:command.key});
+    if(!result.archived)throw new Error('Routine archive was not confirmed.');
+    pendingWorkoutCommands.current.delete(signature);
+    showNotification('Routine draft archived.','success');
   };
 
   const toggleVideoProgress = async (studentId:string,videoId:number,isCompleted:boolean) => {
@@ -2057,7 +2133,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const markVideoWatched = async (studentId:string,videoId:number) => toggleVideoProgress(studentId,videoId,true);
 
   const addUser = async (user: Omit<User, 'id'> & { password?: string; studentId?: string }) => {
-    const role = state.currentUser?.role;
+
     if (!can('action:staff_manage')) {
       return { success: false, error: 'Unauthorized Access: Only administrators can provision system accounts.' };
     }
@@ -2091,6 +2167,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           gender: user.gender,
           dob: user.dob || undefined,
           phone: user.phone || undefined,
+          telegramUsername: user.telegramUsername || undefined,
           emergencyContactName: user.emergencyContactName || undefined,
           emergencyContactPhone: user.emergencyContactPhone || undefined,
           emergencyContactRelation: user.emergencyContactRelation || undefined,
@@ -2101,9 +2178,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           nationality: user.nationality || undefined
         })
       });
-      const data = await res.json();
+      const data = await readApiResponse(res);
       if (!res.ok) {
-        const errorMsg = (typeof data.error === 'object' ? data.error?.message : data.error) || data.message || 'Failed to create user via admin API.';
+        const errorMsg = unwrapApiError(data, 'Failed to create user via admin API.');
         const normalized = reportError(errorMsg, 'Failed to Create User Account');
         return { success: false, error: normalized.message };
       }
@@ -2122,22 +2199,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const commitRoster = async (date:string,branchId:number|'all',classId:number|'all') => {
     if(!can('action:attendance_mark'))throw new Error('Permission denied.');
-    const weekday=new Date(date+'T00:00:00Z').toLocaleDateString('en-US',{weekday:'long',timeZone:'UTC'});
-    const rows=state.classEnrollments.flatMap(e=>{
-      const student=state.students.find(s=>s.id===e.studentId);
-      const session=state.classSessions.find(c=>c.id===e.classId);
-      if(!student || !session || student.studentStatus!=='Active' || (branchId!=='all' && session.branchId!==branchId) || (classId!=='all' && e.classId!==classId) || !session.daysOfWeek.includes(weekday) || date<(e.enrollmentDate || student.registrationDate).slice(0,10))return [];
-      return [{student_id:student.id,date,class_id:e.classId,status:'Absent',marked_by:state.currentUser?.id}];
-    });
+    const actorId=state.currentUser?.id??'';
+    const {data:{session}}=await supabase.auth.getSession();
+    if(!session||session.user.id!==actorId)throw new Error('Your account changed. Reopen attendance before committing a roster.');
+    const response=await fetch('/api/operations?'+new URLSearchParams({view:'sessions',from:date,to:date}),{headers:{Authorization:'Bearer '+session.access_token},cache:'no-store',signal:AbortSignal.timeout(15000)});
+    const result=await readApiResponse(response);
+    if(!response.ok||result?.success!==true)throw new Error(unwrapApiError(result,'Saved session rosters could not be loaded.'));
+    const rows=unmarkedSessionRoster(result.data as SavedSessionRoster,date,branchId,classId);
     if(!rows.length)return {count:0};
-    const {data,error}=await supabase.from('attendance').upsert(rows,{onConflict:'student_id,date,class_id',ignoreDuplicates:true}).select();
-    if(error)throw error;
-    setState(prev=>({...prev,attendanceRecords:[...prev.attendanceRecords,...(data||[]).filter(r=>!prev.attendanceRecords.some(a=>a.id===r.id)).map(r=>({id:r.id,studentId:r.student_id,date:r.date,status:r.status,classId:r.class_id ?? undefined}))]}));
-    return {count:data?.length || 0};
+    const records=await saveAttendanceBatch(supabase,rows,actorId,true);
+    setState(prev=>prev.currentUser?.id!==actorId?prev:({...prev,attendanceRecords:[...prev.attendanceRecords,...records.filter(record=>!prev.attendanceRecords.some(existing=>existing.id===record.id))]}));
+    return {count:records.length};
   };
 
   const updateUser = async (id: string, data: Partial<User> & { password?: string }) => {
-    const role = state.currentUser?.role;
+
     const isSelf = state.currentUser?.id === id;
     if (!can('action:staff_manage') && !isSelf) {
       showNotification('Unauthorized Access: You do not have permissions to modify this system account.', 'warning');
@@ -2157,13 +2233,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({ id, data })
       });
-      const resData = await res.json();
+      const resData = await readApiResponse(res);
       if (!res.ok) throw new Error(unwrapApiError(resData, 'Failed to update user details.'));
 
       setState(s => ({
         ...s,
-        users: s.users.map(u => u.id === id ? { ...u, ...data } : u),
-        currentUser: s.currentUser?.id === id ? { ...s.currentUser, ...data, ...(data.password ? {mustChangePassword:false} : {}) } : s.currentUser
+        users: s.users.map(u => u.id === id ? { ...u, ...data, ...(data.telegramUsername !== undefined ? {telegramUsername:normalizeTelegramUsername(data.telegramUsername) || ''} : {}) } : u),
+        currentUser: s.currentUser?.id === id ? { ...s.currentUser, ...data, ...(data.telegramUsername !== undefined ? {telegramUsername:normalizeTelegramUsername(data.telegramUsername) || ''} : {}), ...(data.password ? {mustChangePassword:false} : {}) } : s.currentUser
       }));
     } catch (e: any) {
       console.error("Error updating user/member details:", e);
@@ -2173,7 +2249,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteUser = async (id: string) => {
-    const role = state.currentUser?.role;
+
     if (!can('action:staff_manage')) {
       showNotification('Unauthorized Access: Only administrators can delete system accounts.', 'warning');
       throw new Error('Unauthorized Access: Only administrators can delete system accounts.');
@@ -2192,7 +2268,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({ id })
       });
-      const resData = await res.json();
+      const resData = await readApiResponse(res);
       if (!res.ok) throw new Error(unwrapApiError(resData, 'Failed to delete user account.'));
 
       setState(s => ({
@@ -2219,7 +2295,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const res = await fetch(`/api/admin/staff-dan?userId=${encodeURIComponent(userId)}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
-      const json = await res.json();
+      const json = await readApiResponse(res);
       if (!res.ok) throw new Error(unwrapApiError(json, 'Failed to fetch staff Dan history.'));
       return (json.data || []).map((d: any) => ({
         id: d.id,
@@ -2255,7 +2331,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify(record)
       });
-      const json = await res.json();
+      const json = await readApiResponse(res);
       if (!res.ok) throw new Error(unwrapApiError(json, 'Failed to add Dan record.'));
 
       if (revision !== sessionRevision.current) throw new Error('Your session changed. Reload to verify the saved record.');
@@ -2301,7 +2377,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({ id, ...updates })
       });
-      const json = await res.json();
+      const json = await readApiResponse(res);
       if (!res.ok) throw new Error(unwrapApiError(json, 'Failed to update Dan record.'));
 
       if (revision !== sessionRevision.current) throw new Error('Your session changed. Reload to verify the saved record.');
@@ -2336,7 +2412,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           Authorization: `Bearer ${token}`
         }
       });
-      const json = await res.json();
+      const json = await readApiResponse(res);
       if (!res.ok) throw new Error(unwrapApiError(json, 'Failed to delete Dan record.'));
 
       if (revision !== sessionRevision.current) throw new Error('Your session changed. Reload to verify the removed record.');
@@ -2366,7 +2442,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify(partnerData)
       });
-      const json = await res.json();
+      const json = await readApiResponse(res);
       if (!res.ok) throw new Error(unwrapApiError(json, 'Failed to create partner.'));
 
       const d = json.data;
@@ -2418,7 +2494,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updatePartner = async (id: string, updates: Partial<Partner>): Promise<{ success: boolean; error?: string }> => {
     try {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-      
+
       if (!isUuid) throw new Error('This partner has no valid database ID. Reload the partner list before editing.');
 
       const { data: { session } } = await supabase.auth.getSession();
@@ -2433,7 +2509,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({ id, ...updates })
       });
-      const json = await res.json();
+      const json = await readApiResponse(res);
       if (!res.ok) throw new Error(unwrapApiError(json, 'Failed to update partner.'));
 
       setState(s => ({
@@ -2464,7 +2540,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           Authorization: `Bearer ${token}`
         }
       });
-      const json = await res.json();
+      const json = await readApiResponse(res);
       if (!res.ok) throw new Error(unwrapApiError(json, 'Failed to delete partner.'));
 
       setState(s => ({
@@ -2507,8 +2583,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const upsertPhysicalEvaluation = async (studentId: string, skillName: string, beltLevel: string, grade: string) => {
+  const upsertPhysicalEvaluation = async (studentId: string, skillName: string, beltLevel: string, grade: string, score?: number | null) => {
     if (!can('action:evaluations_grade')) throw new Error('Permission denied.');
+    // The coach score drives the student portal's radar chart: 0-10 with one decimal.
+    if (score != null && !isCoachScore(score)) throw new Error('Enter a score from 0 to 10, with at most one decimal place.');
     try {
       const { data, error } = await supabase
         .from('student_physical_evaluations')
@@ -2517,6 +2595,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           skill_name: skillName,
           belt_level: beltLevel,
           grade,
+          // Omitted when unchanged, so saving a letter grade keeps the existing score.
+          ...(score !== undefined ? { score } : {}),
           evaluated_by: state.currentUser?.id,
           updated_at: new Date().toISOString()
         }, {
@@ -2533,6 +2613,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           skillName: data.skill_name,
           beltLevel: data.belt_level,
           grade: data.grade,
+          score: data.score == null ? null : Number(data.score),
           evaluatedBy: data.evaluated_by,
           updatedAt: data.updated_at
         };
@@ -2550,7 +2631,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addBodyComposition = async (composition: any) => {
-    const role = state.currentUser?.role;
+
     if (!can('action:student_edit')) {
       showNotification('Unauthorized Access: You do not have permissions to record biometrics.', 'warning');
       throw new Error('You do not have permission to record biometrics.');
@@ -2571,13 +2652,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         waist_cm: measure(composition.waistCm),hips_cm: measure(composition.hipsCm),left_arm_cm: measure(composition.leftArmCm),right_arm_cm: measure(composition.rightArmCm),
         left_thigh_cm: measure(composition.leftThighCm),right_thigh_cm: measure(composition.rightThighCm),left_calf_cm: measure(composition.leftCalfCm),right_calf_cm: measure(composition.rightCalfCm)
       };
-      const {data:{session}} = await supabase.auth.getSession();
+      const { data:{session} } = await supabase.auth.getSession();
       if(!session)throw new Error('Please sign in again.');
       const signature=JSON.stringify([session.user.id,payload]);
       const requestKey=pendingMeasurementKeys.current.get(signature)||crypto.randomUUID();
       pendingMeasurementKeys.current.set(signature,requestKey);
       const response=await fetch('/api/admin/body-compositions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({measurement:payload,requestKey})});
-      const result=await response.json();
+      const result=await readApiResponse(response);
       if(!response.ok)throw new Error(unwrapApiError(result,'Measurement was not recorded.'));
       const data=result.data?.measurement;const latest=result.data?.latest;
       if(!data||!latest)throw new Error('Measurement save was not confirmed.');
@@ -2627,6 +2708,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addBeltTechnique = async (beltLevel: string, techniqueName: string, category: string) => {
+    if (!can('action:curriculum_edit')) throw new Error('You do not have permission to add syllabus techniques.');
     try {
       const { data, error } = await supabase
         .from('belt_techniques')
@@ -2681,7 +2763,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const updateAcademyProfile = async (updates: Partial<AcademyProfile>, expectedUpdatedAt?: string): Promise<{ success: boolean; error?: string; profile?: AcademyProfile }> => {
-    const role = state.currentUser?.role;
+
     if (!can('action:staff_manage')) {
       showNotification('Unauthorized: Only administrators can update the academy profile.', 'error');
       return { success: false, error: 'Unauthorized' };
@@ -2694,7 +2776,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if(!token)throw new Error('Please sign in again.');
       const payload={...academyProfileChanges(updates), ...(expectedUpdatedAt ? { expectedUpdatedAt } : {})};
       const res=await fetch('/api/admin/update-academy-profile',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(payload)});
-      const result=await res.json();
+      const result=await readApiResponse(res);
       if (res.status === 409) {
         // Refresh the baseline so the form can identify conflicting local edits.
         const { data: latest, error } = await supabase.from('academy_profile').select('*').eq('id', 'default').maybeSingle();
@@ -2725,15 +2807,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [state.currentUser, state.rolePermissions, state.userPermissions, state.permissionsReady]);
 
   const canWrite = useCallback((module: SecurityModule, specificAction?: string, targetUserId?: string): boolean => {
-    if (!state.currentUser) return false;
-    if (state.currentUser.role === 'Root' || state.currentUser.role === 'Super Root') return true;
-    if (specificAction) {
-      return can(specificAction, targetUserId);
-    }
-    const def = MODULE_DEFINITIONS.find(m => m.module === module);
-    if (!def) return false;
-    return def.writeKeys.some(k => can(k, targetUserId));
-  }, [state.currentUser, can]);
+    return canWriteModule(module, key => can(key, targetUserId), specificAction);
+  }, [can]);
 
   const getAccessLevel = useCallback((module: SecurityModule, targetUserId?: string): AccessLevel => {
     if (!state.currentUser) return 'none';
@@ -2757,7 +2832,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({ permissions: updates })
       });
-      const result = await res.json();
+      const result = await readApiResponse(res);
       if (!res.ok || !result.success) {
         throw new Error(result?.error?.message || 'Failed to update permissions.');
       }
@@ -2795,7 +2870,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({ userId, updates })
       });
-      const result = await res.json();
+      const result = await readApiResponse(res);
       if (!res.ok || !result.success) {
         throw new Error(result?.error?.message || 'Failed to update user permissions.');
       }
@@ -2858,12 +2933,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           }
         },
         markAttendance,
+        markAttendanceMany,
         payInvoice,
         prepayInvoiceBulk,
         addStudent,
         updateStudent,
         deleteStudent,
         addBeltHistory,
+        addBeltHistories,
         updateBeltHistory,
         deleteBeltHistory,
         addAchievement,
@@ -2887,6 +2964,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         deleteUser,
         commitRoster,
         deleteAttendanceRecords,
+        deleteAttendanceRecord,
         addWorkoutTemplate,
         updateWorkoutTemplate,
         deleteWorkoutTemplate,

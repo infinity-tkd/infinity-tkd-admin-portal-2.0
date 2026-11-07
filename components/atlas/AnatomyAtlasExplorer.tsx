@@ -1,35 +1,14 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { flushSync } from 'react-dom';
-import {
-  Activity,
-  ArrowUpRight,
-  ChevronRight,
-  Focus,
-  Info,
-  Layers,
-  Pause,
-  RotateCcw,
-  RotateCw,
-  Search,
-  X,
-  Flame,
-  Zap,
-} from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Info, RotateCcw, Search, X } from 'lucide-react';
 import AnatomyScene from './AnatomyScene';
-import {
-  DEFAULT_VISIBLE,
-  SYSTEMS,
-  explanation,
-  type Atlas,
-  type Concept,
-  type SceneState,
-  type SystemId,
-  type View,
-} from '@/lib/atlas/anatomy';
-import { registerAtlasTools } from '@/lib/atlas/agent-tools';
-import '@/components/atlas/atlas.css';
+import { SYSTEMS, type Atlas, type SceneState, type SystemId, type View } from '@/lib/atlas/anatomy';
+import { ANATOMY_DATABASE } from '@/lib/anatomyData';
+import { normalizeMuscleNameFor3D } from '@/lib/anatomyUtils';
+import { atlasMuscleSelection, relatedMaterialsForMuscle, type AnatomyContext } from '@/lib/anatomy-integration';
+import { useAppStore } from '@/lib/store';
+import './atlas.css';
 
 interface AnatomyAtlasExplorerProps {
   muscleLoads?: Record<string, number>;
@@ -41,651 +20,124 @@ interface AnatomyAtlasExplorerProps {
   isDark?: boolean;
   onError?: (err: string) => void;
   onFallbackTo2D?: () => void;
+  context?: AnatomyContext;
 }
 
-const initialSceneState: SceneState = {
-  explode: 0,
-  visible: DEFAULT_VISIBLE,
-  selected: [],
-  isolate: false,
-  view: 'three-quarter',
-  rotate: false,
-  reset: 0,
-};
+const catalogs = new Map<string, Atlas>();
+const initialState = (): SceneState => ({ explode: 0, visible: ['muscular'], selected: [], isolate: false, view: 'three-quarter', rotate: false, reset: 0 });
+const layers: SystemId[] = ['muscular', 'skeletal', 'connective'];
+const buttonClass = 'min-h-11 rounded-lg border px-3 text-xs font-medium transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600';
 
-export function AnatomyAtlasExplorer({
-  muscleLoads = {},
-  maxLoad = 1.0,
-  initialSelectedMuscle,
-  onSelectMuscle,
-  className = '',
-  compact = false,
-  isDark,
-  onError,
-  onFallbackTo2D,
-}: AnatomyAtlasExplorerProps) {
-  const detailTitle = useRef<HTMLHeadingElement>(null);
+export function AnatomyAtlasExplorer({ muscleLoads = {}, maxLoad = 1, initialSelectedMuscle, onSelectMuscle, className = '', compact = false, isDark, onError, onFallbackTo2D, context }: AnatomyAtlasExplorerProps) {
+  const { state: data } = useAppStore();
   const [atlas, setAtlas] = useState<Atlas | null>(null);
-  const [state, setState] = useState<SceneState>(initialSceneState);
+  const [scene, setScene] = useState<SceneState>(initialState);
+  const [selectedName, setSelectedName] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');
-  const [panel, setPanel] = useState<'layers' | 'search' | null>(null);
-  const [details, setDetails] = useState(false);
-  const [about, setAbout] = useState(false);
+  const [retry, setRetry] = useState(0);
+  const [detailed, setDetailed] = useState(false);
   const [query, setQuery] = useState('');
-  const [chosen, setChosen] = useState<Concept | null>(null);
-
-  // Load atlas catalogue
-  useEffect(() => {
-    const abort = new AbortController();
-    setProgress(0);
-    setError('');
-    setAtlas(null);
-    setChosen(null);
-    setDetails(false);
-    setState({ ...initialSceneState, visible: DEFAULT_VISIBLE });
-
-    fetch('/models/atlas.json', { signal: abort.signal })
-      .then((r) => {
-        if (!r.ok) throw new Error('The anatomy catalogue could not be loaded.');
-        return r.json();
-      })
-      .then((data: Atlas) => {
-        setAtlas(data);
-      })
-      .catch((e) => {
-        if (e.name !== 'AbortError') setError(e.message);
-      });
-
-    return () => abort.abort();
-  }, []);
-
-  // Keyboard shortcut '/' to open search
-  useEffect(() => {
-    const key = (e: KeyboardEvent) => {
-      if (e.key === '/' && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) {
-        e.preventDefault();
-        setPanel('search');
-        setDetails(false);
-      }
-    };
-    window.addEventListener('keydown', key);
-    return () => window.removeEventListener('keydown', key);
-  }, []);
-
-  const parts = useMemo(() => new Map(atlas?.parts.map((p) => [p.id, p])), [atlas]);
-  const counts = useMemo(
-    () => Object.fromEntries(SYSTEMS.map((s) => [s.id, atlas?.parts.filter((p) => p.system === s.id).length ?? 0])),
-    [atlas]
-  );
-  const activeSystems = SYSTEMS.filter((s) => counts[s.id] > 0);
-
-  const selectedParts = useMemo(
-    () => state.selected.map((id) => parts.get(id)).filter((p): p is NonNullable<typeof p> => !!p),
-    [state.selected, parts]
-  );
-  const selected = selectedParts[0];
-  const system = SYSTEMS.find((s) => s.id === selected?.system);
-
-  const visibleCount = useMemo(
-    () =>
-      atlas?.parts.filter((p) =>
-        state.isolate ? state.selected.includes(p.id) : state.visible.includes(p.system) || state.selected.includes(p.id)
-      ).length ?? 0,
-    [atlas, state.isolate, state.selected, state.visible]
-  );
-
-  // Search results
-  const results = useMemo(() => {
-    if (!atlas) return [];
-    const term = query.toLowerCase().trim();
-    if (!term) {
-      return ['heart', 'brain', 'liver', 'stomach', 'spleen', 'pancreas', 'biceps', 'quadriceps']
-        .map((name) => atlas.concepts.find((c) => c.name.toLowerCase().includes(name)))
-        .filter((x): x is Concept => !!x);
-    }
-    return atlas.concepts
-      .filter((c) => c.name.toLowerCase().includes(term) || c.id.toLowerCase().includes(term))
-      .sort((a, b) => a.name.length - b.name.length)
-      .slice(0, 60);
-  }, [atlas, query]);
-
-  const choose = useCallback((c: Concept) => {
-    setChosen(c);
-    setState((s) => ({ ...s, selected: c.elements, isolate: false, rotate: false }));
-    setDetails(true);
-    setPanel(null);
-    if (onSelectMuscle) onSelectMuscle(c.name);
-  }, [onSelectMuscle]);
+  const [about, setAbout] = useState(false);
+  const selectCallback = useRef(onSelectMuscle);
+  selectCallback.current = onSelectMuscle;
+  const errorCallback = useRef(onError);
+  errorCallback.current = onError;
+  const url = detailed ? '/models/training/atlas.json' : '/models/training/compact/atlas.json';
 
   useEffect(() => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    let active = true;
+    setAtlas(null); setError(''); setProgress(0);
+    const cached = catalogs.get(url);
+    const request = cached ? Promise.resolve(cached) : fetch(url, { signal: controller.signal }).then(async response => {
+      if (!response.ok) throw new Error('The muscle catalogue could not be loaded.');
+      const result = await response.json() as Atlas;
+      if (!Array.isArray(result.parts) || !result.parts.length || !Array.isArray(result.concepts) || !Array.isArray(result.chunks)) throw new Error('The muscle catalogue is invalid.');
+      catalogs.set(url, result);
+      return result;
+    });
+    request.then(result => { if (active) setAtlas(result); }).catch(() => {
+      if (active) setError('The muscle view could not be loaded. Retry or continue in 2D.');
+    }).finally(() => clearTimeout(timeout));
+    return () => { active = false; clearTimeout(timeout); controller.abort(); };
+  }, [url, retry]);
+
+  const select = (name: string, notify = true) => {
     if (!atlas) return;
-    return registerAtlasTools(atlas, (c) => flushSync(() => choose(c)));
-  }, [atlas, choose]);
-
-  const choosePart = (id: string) => {
-    const p = parts.get(id);
-    if (!p) return;
-    setChosen({ id: p.conceptId, name: p.name, elements: [id] });
-    setState((s) => ({ ...s, selected: [id], isolate: false, rotate: false }));
-    setDetails(true);
-    setPanel(null);
-    if (onSelectMuscle) onSelectMuscle(p.name);
+    const ids = atlasMuscleSelection(atlas, name, data.muscles);
+    setSelectedName(name);
+    setScene(previous => ({ ...previous, selected: ids, isolate: false, rotate: false }));
+    if (notify) selectCallback.current?.(name);
   };
-
-  const toggleSystem = (id: SystemId) => {
-    setDetails(false);
-    setState((s) => ({
-      ...s,
-      selected: [],
-      isolate: false,
-      visible: s.visible.includes(id) ? s.visible.filter((x) => x !== id) : [...s.visible, id],
-    }));
-  };
-
-  const reset = () => {
-    setState((s) => ({ ...initialSceneState, visible: DEFAULT_VISIBLE, reset: s.reset + 1 }));
-    setChosen(null);
-    setDetails(false);
-    setPanel(null);
-    if (onSelectMuscle) onSelectMuscle(null);
-  };
-
-  const openPanel = (next: 'layers' | 'search') => {
-    setDetails(false);
-    setPanel((p) => (p === next ? null : next));
-  };
-
-  // If initialSelectedMuscle is provided, auto-search and highlight
+  const selectRef = useRef(select);
+  selectRef.current = select;
   useEffect(() => {
-    if (!atlas || !initialSelectedMuscle) return;
-    const clean = initialSelectedMuscle.toLowerCase().replace(/\s*\(.*?\)\s*/g, '').trim();
-    const hit = atlas.concepts.find(
-      (c) => c.name.toLowerCase() === clean || c.name.toLowerCase().includes(clean) || clean.includes(c.name.toLowerCase())
-    );
-    if (hit) {
-      choose(hit);
-    }
-  }, [atlas, initialSelectedMuscle, choose]);
+    if (atlas && initialSelectedMuscle) selectRef.current(initialSelectedMuscle, false);
+  }, [atlas, initialSelectedMuscle]);
 
-  // Compute active muscle load for the chosen structure
-  const activeLoadScore = useMemo(() => {
-    if (!chosen) return 0;
-    const nameLower = chosen.name.toLowerCase();
-    for (const [mName, score] of Object.entries(muscleLoads)) {
-      if (nameLower.includes(mName.toLowerCase()) || mName.toLowerCase().includes(nameLower)) {
-        return score;
-      }
-    }
-    return 0;
-  }, [chosen, muscleLoads]);
+  const normalizedLoads = useMemo(() => Object.fromEntries(Object.entries(muscleLoads).map(([name, score]) => [normalizeMuscleNameFor3D(name), Number.isFinite(score) ? Math.min(1, Math.max(0, score / Math.max(1, maxLoad))) : 0])), [muscleLoads, maxLoad]);
+  const group = selectedName ? normalizeMuscleNameFor3D(selectedName) : null;
+  const knowledge = group ? ANATOMY_DATABASE[group] : null;
+  const record = data.muscles.find(muscle => muscle.name.toLowerCase() === selectedName?.toLowerCase());
+  const related = useMemo(() => selectedName ? relatedMaterialsForMuscle(selectedName, data, context?.studentId) : [], [selectedName, data, context?.studentId]);
+  const choices = useMemo(() => {
+    const names = new Set([...Object.keys(normalizedLoads), ...Object.keys(ANATOMY_DATABASE), ...(atlas?.concepts.map(concept => concept.name) ?? [])]);
+    const term = query.trim().toLowerCase();
+    return [...names].filter(name => !term || name.toLowerCase().includes(term)).slice(0, term ? 20 : 8);
+  }, [atlas, query, normalizedLoads]);
+  const reset = () => {
+    setScene(previous => ({ ...initialState(), reset: previous.reset + 1 }));
+    setSelectedName(null); setQuery(''); selectCallback.current?.(null);
+  };
+  const picked = (id: string) => {
+    const part = atlas?.parts.find(item => item.id === id);
+    if (part) selectRef.current(part.name);
+  };
+  const fail = (message: string) => { setError(message); errorCallback.current?.(message); };
+  const dark = isDark ?? data.theme === 'dark';
 
-  return (
-    <main className={`studio ${className}`}>
-      {atlas && (
-        <AnatomyScene
-          atlas={atlas}
-          state={{ ...state, inspectorOpen: details && selectedParts.length > 0 }}
-          onSelect={choosePart}
-          onProgress={(n) => {
-            setProgress(n);
-            if (n === 100) setError('');
-          }}
-          onError={(msg) => {
-            setError(msg);
-            if (onError) onError(msg);
-          }}
-          isDark={isDark}
-        />
-      )}
-
-      <div className="vignette" />
-
-      {/* Identity watermark */}
-      <header className="identity">
-        <div className="eyebrow">
-          <span className="status-dot" /> INFINITY TKD 2.0 ANATOMY ATLAS
+  return <section className={`tkd-muscle-viewer flex h-full min-h-0 flex-col bg-white text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 ${className}`} aria-label="Infinity muscle explorer" data-quality={detailed ? 'detailed' : 'compact'}>
+    <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-neutral-200 p-2 dark:border-neutral-800">
+      {layers.map(id => <button key={id} type="button" aria-pressed={scene.visible.includes(id)} className={`${buttonClass} ${scene.visible.includes(id) ? 'border-red-600 bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300' : 'border-neutral-200 dark:border-neutral-700'}`} onClick={() => setScene(previous => ({ ...previous, isolate: false, visible: previous.visible.includes(id) ? previous.visible.filter(layer => layer !== id) : [...previous.visible, id] }))}>{SYSTEMS.find(system => system.id === id)?.name}</button>)}
+      <button type="button" className={`${buttonClass} ml-auto border-neutral-200 dark:border-neutral-700`} title="Reset muscle view" aria-label="Reset muscle view" onClick={reset}><RotateCcw size={16} /></button>
+      <button type="button" className={`${buttonClass} border-neutral-200 dark:border-neutral-700`} aria-label="About the anatomy reference" aria-expanded={about} onClick={() => setAbout(value => !value)}><Info size={16} /></button>
+    </div>
+    {about && <div className="shrink-0 border-b border-neutral-200 bg-neutral-50 p-3 text-xs leading-relaxed dark:border-neutral-800 dark:bg-neutral-900">
+      Adult male anatomy reference. Highlights represent {context?.kind === 'student' ? 'completed learning coverage' : 'teaching emphasis'}, rather than a personal body scan or measured muscle activity. Compact geometry is simplified for interactive use; Detailed preserves the reference geometry.
+      <p className="mt-2">BodyParts3D, © The Database Center for Life Science licensed under <a className="underline" href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html" target="_blank" rel="noopener noreferrer">CC Attribution 4.0 International</a>. Adapted atlas renderer: © 2026 ashemag, MIT licence. Training bundles retain source structure identifiers.</p>
+    </div>}
+    <div className={`grid min-h-0 flex-1 ${compact && !selectedName ? '' : 'lg:grid-cols-[minmax(0,1fr)_280px]'}`}>
+      <div className="flex min-h-[320px] flex-col overflow-hidden bg-neutral-50 dark:bg-neutral-900">
+        <div className="relative min-h-[260px] flex-1" data-testid="muscle-scene">
+        {atlas && !error && <AnatomyScene key={`${url}:${retry}`} atlas={atlas} state={scene} onSelect={picked} onProgress={setProgress} onError={fail} isDark={dark} muscleLoads={normalizedLoads} />}
+        {!error && progress < 100 && <div role="status" className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/90 text-sm dark:bg-neutral-950/90"><span>{atlas ? `Preparing muscle view · ${progress}%` : 'Loading muscle catalogue…'}</span></div>}
+        {error && <div role="alert" className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white p-5 text-center dark:bg-neutral-950"><p className="max-w-sm text-sm">{error}</p><div className="flex gap-2"><button type="button" className={`${buttonClass} border-red-600 text-red-700 dark:text-red-300`} onClick={() => { setError(''); setRetry(value => value + 1); }}>Retry 3D</button>{onFallbackTo2D && <button type="button" className={`${buttonClass} border-neutral-300 dark:border-neutral-700`} onClick={onFallbackTo2D}>Use 2D view</button>}</div></div>}
         </div>
-        <h1>
-          Human Atlas <span className="edition">3D</span>
-        </h1>
-        <div className="identity-meta">
-          {atlas ? atlas.parts.length.toLocaleString() : '2,234'} modeled anatomical pieces <span>·</span> BodyParts3D
+        <div className="flex shrink-0 flex-wrap items-center justify-center gap-1 border-t border-neutral-200 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-950" aria-label="Camera controls">
+          {(['front', 'back', 'side'] as View[]).map(view => <button key={view} type="button" aria-pressed={scene.view === view} className={`${buttonClass} ${scene.view === view ? 'border-red-600 text-red-700 dark:text-red-300' : 'border-transparent'}`} onClick={() => setScene(previous => ({ ...previous, view, rotate: false }))}>{view[0].toUpperCase() + view.slice(1)}</button>)}
+          <button type="button" disabled={!scene.selected.length} aria-pressed={scene.isolate} className={`${buttonClass} border-transparent disabled:opacity-40`} onClick={() => setScene(previous => ({ ...previous, isolate: !previous.isolate }))}>Isolate</button>
+          <select aria-label="Anatomy detail quality" className="min-h-11 max-w-[106px] rounded-lg bg-transparent px-1 text-xs" value={detailed ? 'detailed' : 'compact'} onChange={event => setDetailed(event.target.value === 'detailed')}><option value="compact">Compact</option><option value="detailed">Detailed</option></select>
         </div>
-      </header>
-
-      {/* Top search and about buttons */}
-      <nav className="top-actions" aria-label="Explorer controls">
-        <button
-          type="button"
-          onClick={() => openPanel('search')}
-          aria-label="Search named anatomical structures"
-          title="Search named structures (/)"
-        >
-          <Search size={14} />
-          <span>Find structure</span>
-          <kbd>/</kbd>
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setDetails(false);
-            setPanel(null);
-            setAbout(true);
-          }}
-          aria-label="About this 3D atlas"
-          title="Atlas Source & Attribution"
-        >
-          <Info size={14} />
-        </button>
-      </nav>
-
-      {/* 15 Systems Layer Panel */}
-      <section
-        className={`layers-panel glass ${panel === 'layers' ? 'mobile-open' : ''}`}
-        aria-label="Anatomical Systems"
-        style={{ display: panel === 'layers' || !compact ? undefined : 'none' }}
-      >
-        <div className="panel-heading">
-          <span>Systems ({activeSystems.length})</span>
-          {compact && (
-            <button type="button" onClick={() => setPanel(null)} className="text-xs text-neutral-400">
-              <X size={14} />
-            </button>
-          )}
-        </div>
-
-        {/* Layer Presets */}
-        <div className="layer-presets">
-          <button
-            type="button"
-            aria-pressed={activeSystems.every((x) => state.visible.includes(x.id))}
-            onClick={() => setState((s) => ({ ...s, selected: [], isolate: false, visible: activeSystems.map((x) => x.id) }))}
-          >
-            All
-          </button>
-          <button
-            type="button"
-            aria-pressed={state.visible.length === 1 && state.visible[0] === 'muscular'}
-            onClick={() => setState((s) => ({ ...s, selected: [], isolate: false, visible: ['muscular'] }))}
-          >
-            Muscles
-          </button>
-          <button
-            type="button"
-            aria-pressed={state.visible.length === 1 && state.visible[0] === 'skeletal'}
-            onClick={() => setState((s) => ({ ...s, selected: [], isolate: false, visible: ['skeletal'] }))}
-          >
-            Bones
-          </button>
-          <button
-            type="button"
-            aria-pressed={
-              state.visible.length === 6 &&
-              ['cardiac', 'respiratory', 'digestive', 'urinary', 'endocrine', 'reproductive'].every((id) =>
-                state.visible.includes(id as SystemId)
-              )
-            }
-            onClick={() =>
-              setState((s) => ({
-                ...s,
-                selected: [],
-                isolate: false,
-                visible: ['cardiac', 'respiratory', 'digestive', 'urinary', 'endocrine', 'reproductive'],
-              }))
-            }
-          >
-            Organs
-          </button>
-        </div>
-
-        {/* System rows */}
-        <div className="system-list">
-          {activeSystems.map((s) => {
-            const isVisible = state.visible.includes(s.id);
-            return (
-              <div className={`system-row ${isVisible ? 'enabled' : ''}`} key={s.id}>
-                <button
-                  type="button"
-                  className="system-name"
-                  title={`Isolate ${s.name}`}
-                  onClick={() => setState((v) => ({ ...v, visible: [s.id], isolate: false, selected: [] }))}
-                >
-                  <span className="system-dot" style={{ background: s.color }} />
-                  {s.name}
-                  <span className="system-count">{counts[s.id]}</span>
-                </button>
-                <input
-                  type="checkbox"
-                  checked={isVisible}
-                  onChange={() => toggleSystem(s.id)}
-                  aria-label={`Toggle ${s.name}`}
-                  className="accent-[#EF2F38] cursor-pointer"
-                />
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="panel-foot">
-          <span>{visibleCount.toLocaleString()} pieces visible</span>
-          <button
-            type="button"
-            onClick={() => setState((s) => ({ ...s, visible: [], selected: [], isolate: false }))}
-          >
-            Hide all
-          </button>
-        </div>
-      </section>
-
-      {/* Search Panel */}
-      {panel === 'search' && (
-        <section className="search-panel glass" aria-label="Search anatomical concepts">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
-              Find a structure
-            </span>
-            <button
-              type="button"
-              onClick={() => setPanel(null)}
-              className="text-neutral-400 hover:text-neutral-600 dark:hover:text-white"
-            >
-              <X size={16} />
-            </button>
-          </div>
-          <input
-            type="text"
-            autoFocus
-            placeholder="Search Biceps, Femur, Pectoralis, FMA..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="search-input-box"
-          />
-          <div className="search-results-list">
-            {results.length === 0 ? (
-              <div className="p-4 text-xs text-neutral-400 text-center">No structures match your search.</div>
-            ) : (
-              results.map((c) => (
-                <button
-                  type="button"
-                  key={c.id}
-                  className="search-item"
-                  onClick={() => choose(c)}
-                >
-                  <span className="capitalize font-medium">{c.name}</span>
-                  <span className="text-[10px] text-neutral-400 font-mono">
-                    {c.elements.length} {c.elements.length === 1 ? 'part' : 'parts'}
-                  </span>
-                </button>
-              ))
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* Camera angle & Reset Controls */}
-      <nav className="view-controls glass" aria-label="Camera controls">
-        {(['three-quarter', 'front', 'side', 'back'] as View[]).map((v, i) => (
-          <button
-            type="button"
-            key={v}
-            className={state.view === v ? 'active' : ''}
-            disabled={state.explode > 0.8 && v !== 'front'}
-            onClick={() => setState((s) => ({ ...s, view: v, reset: s.reset + 1, rotate: false }))}
-            title={`${v} camera angle`}
-          >
-            {['¾', 'F', 'S', 'B'][i]}
-          </button>
-        ))}
-        <i />
-        <button
-          type="button"
-          disabled={state.explode >= 0.4}
-          className={state.rotate ? 'active' : ''}
-          onClick={() => setState((s) => ({ ...s, rotate: !s.rotate }))}
-          title={state.rotate ? 'Pause rotation' : 'Auto-rotate'}
-        >
-          {state.rotate ? <Pause size={14} /> : <RotateCw size={14} />}
-        </button>
-        <button type="button" onClick={reset} title="Reset view and systems">
-          <RotateCcw size={14} />
-        </button>
-      </nav>
-
-      {/* Center scene caption */}
-      <div className="scene-caption">
-        <span className="caption-line" />
-        <span>
-          {state.isolate
-            ? chosen?.name ?? 'SELECTED STRUCTURE'
-            : state.explode > 0.95
-            ? 'EXPLODED INVENTORY'
-            : state.explode > 0.05
-            ? 'SEPARATED ANATOMY'
-            : 'ADULT MALE · BODYPARTS3D'}
-        </span>
-        <span className="caption-line" />
       </div>
-
-      {/* Bottom Explode Dock */}
-      <div className="bottom-dock glass">
-        <button
-          type="button"
-          className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-300 font-semibold"
-          onClick={() => openPanel('layers')}
-          title="Toggle Layers Panel"
-        >
-          <Layers size={16} />
-          <span>Layers</span>
-        </button>
-
-        <div className="explode-control">
-          <div className="explode-label">
-            <span>Explode Anatomy</span>
-            <output>{Math.round(state.explode * 100)}%</output>
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            step={1}
-            value={Math.round(state.explode * 100)}
-            onChange={(e) => {
-              const val = parseFloat(e.target.value) / 100;
-              setState((s) => ({
-                ...s,
-                explode: val,
-                view: val > 0.8 ? 'front' : s.view,
-                rotate: false,
-              }));
-            }}
-            className="w-full accent-[#EF2F38] cursor-pointer"
-          />
-          <div className="slider-endpoints">
-            <span>Assembled</span>
-            <span>Every Piece</span>
-          </div>
-        </div>
-
-        <button type="button" className="dock-reset" onClick={reset}>
-          <RotateCcw size={14} />
-          <span>Reset</span>
-        </button>
-      </div>
-
-      {/* Detail Slide-Over Sheet */}
-      {details && selectedParts.length > 0 && (
-        <section className={`detail-sheet glass ${state.isolate ? 'is-isolated' : ''}`}>
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="detail-accent" style={{ background: system?.color ?? '#EF2F38' }} />
-              <span className="eyebrow mt-1">{system?.name ?? 'ANATOMY'}</span>
-              <h2 ref={detailTitle} className="structure-title mt-1">
-                {chosen?.name}
-              </h2>
-            </div>
-            <button
-              type="button"
-              onClick={() => setDetails(false)}
-              className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
-            >
-              <X size={18} />
-            </button>
-          </div>
-
-          {/* Active Muscular Load Badge if tagged in Curriculum/Student */}
-          {activeLoadScore > 0 && (
-            <div className="flex items-center justify-between p-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-xs font-mono">
-              <span className="flex items-center gap-1.5 font-bold text-red-600 dark:text-red-400">
-                <Flame size={14} /> ACTIVE LOAD
-              </span>
-              <span className="font-bold text-red-600 dark:text-red-400">
-                {activeLoadScore.toFixed(1)} / {maxLoad.toFixed(1)}
-              </span>
-            </div>
-          )}
-
-          <p className="structure-description">
-            {chosen && selected ? explanation(chosen.name, selected.system) : ''}
-          </p>
-
-          <div className="structure-meta">
-            <div>
-              <span>Atlas Concept</span>
-              <strong>{chosen?.id}</strong>
-            </div>
-            <div>
-              <span>Modeled Meshes</span>
-              <strong>{state.selected.length.toLocaleString()}</strong>
-            </div>
-          </div>
-
-          {selectedParts.length > 1 && (
-            <div className="space-y-1.5 max-h-36 overflow-y-auto">
-              <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider">
-                Included Meshes ({selectedParts.length})
-              </span>
-              {selectedParts.slice(0, 30).map((p) => (
-                <button
-                  type="button"
-                  key={p.id}
-                  onClick={() => choosePart(p.id)}
-                  className="w-full flex items-center justify-between text-left text-xs py-1 px-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                >
-                  <span className="truncate">{p.name}</span>
-                  <ChevronRight size={12} className="text-neutral-400" />
-                </button>
-              ))}
-            </div>
-          )}
-
-          <div className="pt-2 flex flex-col gap-2">
-            <button
-              type="button"
-              className={`primary-action ${state.isolate ? 'active' : ''}`}
-              onClick={() => setState((s) => ({ ...s, isolate: !s.isolate, explode: 0 }))}
-            >
-              <Focus size={15} />
-              <span>{state.isolate ? 'Show Surrounding Anatomy' : 'Isolate Structure'}</span>
-            </button>
-            <button
-              type="button"
-              className="secondary-action"
-              onClick={() => {
-                setState((s) => ({ ...s, selected: [], isolate: false }));
-                setDetails(false);
-                if (onSelectMuscle) onSelectMuscle(null);
-              }}
-            >
-              Clear Selection
-            </button>
-          </div>
-        </section>
-      )}
-
-      {/* About Modal */}
-      {about && (
-        <section className="detail-sheet glass" style={{ right: 20, zIndex: 60, width: 340, maxWidth: 340 }}>
-          <div className="flex items-start justify-between">
-            <div>
-              <span className="eyebrow">SOURCE & SCOPE</span>
-              <h2 className="structure-title mt-1">BodyParts3D Atlas</h2>
-            </div>
-            <button
-              type="button"
-              onClick={() => setAbout(false)}
-              className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
-            >
-              <X size={18} />
-            </button>
-          </div>
-          <p className="structure-description">
-            Adult male reference anatomy featuring <strong>2,234 individually selectable meshes</strong>, 15
-            anatomical systems, and <strong>3,432 named concepts</strong>.
-          </p>
-          <div className="text-xs text-neutral-500 space-y-2 leading-relaxed">
-            <p>
-              Geometry is merged into batches with per-structure GPU data textures controlling translation and
-              selection highlights.
-            </p>
-            <p className="font-semibold text-neutral-700 dark:text-neutral-300">
-              Licensed under CC Attribution 4.0 International © The Database Center for Life Science.
-            </p>
-          </div>
-          <a
-            href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html"
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs text-[#EF2F38] hover:underline flex items-center gap-1 mt-2 font-medium"
-          >
-            <span>View Dataset License</span>
-            <ArrowUpRight size={12} />
-          </a>
-        </section>
-      )}
-
-      {/* Loading overlay */}
-      {progress < 100 && !error && (
-        <div className="loading-overlay glass">
-          <Activity size={20} className="text-[#EF2F38] animate-pulse" />
-          <div>
-            <strong className="text-xs font-bold uppercase tracking-wider">Loading 3D Anatomy Atlas</strong>
-            <span className="block text-[11px] text-neutral-500 font-mono mt-0.5">
-              {progress}% · {atlas?.parts.length.toLocaleString() ?? '2,234'} pieces
-            </span>
-            <div className="loading-track">
-              <i style={{ width: `${progress}%` }} />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Error overlay */}
-      {error && (
-        <div className="loading-overlay glass border-red-500/40">
-          <div className="text-xs text-red-500 text-center space-y-2 p-4 max-w-sm">
-            <p className="font-bold">{error}</p>
-            <div className="flex items-center justify-center gap-2 mt-3">
-              {onFallbackTo2D && (
-                <button
-                  type="button"
-                  onClick={onFallbackTo2D}
-                  className="px-3 py-1.5 bg-[#EF2F38] text-white rounded-[6px] font-bold text-xs cursor-pointer shadow-sm hover:opacity-90 transition-opacity"
-                >
-                  Switch to 2D Scanner
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => location.reload()}
-                className="px-3 py-1.5 bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 rounded-[6px] font-bold text-xs cursor-pointer shadow-sm hover:opacity-90"
-              >
-                Reload
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </main>
-  );
+      {(!compact || selectedName) && <aside className="min-h-0 overflow-y-auto border-t border-neutral-200 p-3 lg:border-l lg:border-t-0 dark:border-neutral-800" aria-label="Muscle and learning details">
+        <label className="flex min-h-11 items-center gap-2 rounded-lg border border-neutral-200 px-3 dark:border-neutral-700"><Search size={16} aria-hidden="true" /><input aria-label="Find a muscle" className="min-w-0 flex-1 bg-transparent text-sm outline-none" placeholder="Find a muscle" value={query} onChange={event => setQuery(event.target.value)} /></label>
+        {(query || !selectedName) && <div className="my-2 flex flex-wrap gap-1">{choices.map(name => <button type="button" key={name} className="min-h-11 rounded-lg bg-neutral-100 px-2 text-left text-xs hover:bg-red-50 hover:text-red-700 dark:bg-neutral-800 dark:hover:bg-red-950 dark:hover:text-red-300" onClick={() => { select(name); setQuery(''); }}>{name}</button>)}</div>}
+        {selectedName ? <div className="mt-3 space-y-3">
+          <div className="flex items-start justify-between gap-2"><h3 className="text-sm font-semibold">{group}</h3><button type="button" className="flex min-h-11 min-w-11 items-center justify-center rounded-lg" aria-label="Clear muscle selection" onClick={reset}><X size={16} /></button></div>
+          {selectedName !== group && <p className="text-xs text-neutral-500 dark:text-neutral-400">{selectedName}</p>}
+          <p className="text-xs leading-relaxed">{record?.targetFunction || knowledge?.primaryAction || 'Select a linked learning material to explore its training focus.'}</p>
+          {(record?.tkdRelevance || knowledge?.tkdRelevance) && <p className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">{record?.tkdRelevance || knowledge?.tkdRelevance}</p>}
+          {!!normalizedLoads[group ?? ''] && <p className="rounded-lg bg-red-50 p-2 text-xs font-medium text-red-700 dark:bg-red-950 dark:text-red-300">{context?.kind === 'student' ? 'Included in completed learning materials' : 'Included in this material’s teaching focus'}</p>}
+          <h4 className="border-t border-neutral-200 pt-3 text-xs font-semibold dark:border-neutral-800">Related learning materials · {related.length}</h4>
+          {related.slice(0, 8).map(({ asset, role, completed }) => <button key={asset.id} type="button" disabled={!context?.onOpenMaterial} onClick={() => context?.onOpenMaterial?.(asset.id)} className="block min-h-11 w-full rounded-lg border border-neutral-200 p-2 text-left disabled:cursor-default dark:border-neutral-800"><span className="block text-xs font-medium">{asset.title}</span><span className="text-[11px] text-neutral-500 dark:text-neutral-400">{role}{context?.studentId ? completed ? ' · Completed' : ' · Not completed' : ''}</span></button>)}
+          {!related.length && <p className="text-xs text-neutral-500 dark:text-neutral-400">No saved material links for this muscle.</p>}
+        </div> : <div className="mt-3 space-y-2 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400"><p>Tap a muscle to see its role in Taekwondo and linked learning materials.</p><p>Drag to rotate. Pinch or scroll over the model to zoom.</p></div>}
+        <p className="mt-4 border-t border-neutral-200 pt-3 text-[11px] leading-relaxed text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">{context?.sourceLabel || 'Saved material mappings and anatomy reference'}{!Object.values(normalizedLoads).some(value => value > 0) ? ' · No mapped training highlights.' : ''}</p>
+      </aside>}
+    </div>
+  </section>;
 }
+
+export default AnatomyAtlasExplorer;

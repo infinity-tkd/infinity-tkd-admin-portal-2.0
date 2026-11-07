@@ -1,4 +1,4 @@
-import { CurriculumVideo, Muscle, AssetMuscleRelation } from '@/lib/store';
+import type { CurriculumVideo, Muscle, AssetMuscleRelation } from '@/lib/store';
 import { TKD_KICK_PRESETS } from '@/lib/anatomyData';
 
 /**
@@ -6,34 +6,34 @@ import { TKD_KICK_PRESETS } from '@/lib/anatomyData';
  */
 export const normalizeMuscleNameFor3D = (name: string): string => {
   const n = name.toLowerCase().trim();
-  if (n.includes('quadriceps') || n.includes('quad')) return 'Quadriceps';
+  if (n.includes('quadriceps') || /\bquads?\b/.test(n) || n.includes('rectus femoris') || n.includes('vastus')) return 'Quadriceps';
   if (n.includes('hamstring') || n.includes('biceps femoris') || n.includes('semitendinosus') || n.includes('semimembranosus')) return 'Hamstrings';
   if (n.includes('gluteus') || n.includes('glute')) return 'Glutes';
-  if (n.includes('calf') || n.includes('calves') || n.includes('gastrocnemius') || n.includes('soleus')) return 'Calves';
-  if (n.includes('rectus abdominis') || n.includes('abs') || n.includes('abdominis')) return 'Abs (Rectus Abdominis)';
-  if (n.includes('oblique')) return 'Obliques';
+  if (n.includes('calf') || n.includes('calves') || n.includes('gastrocnemius') || n.includes('soleus') || n.includes('triceps surae')) return 'Calves';
+  if (n.includes('oblique') && !n.includes('inferior oblique') && !n.includes('superior oblique')) return 'Obliques';
+  if (n.includes('rectus abdominis') || n === 'abs' || n.startsWith('abs (')) return 'Abs (Rectus Abdominis)';
   if (n.includes('lower back') || n.includes('erector spinae')) return 'Lower Back';
-  if (n.includes('hip flexor') || n.includes('iliopsoas')) return 'Hip Flexors';
+  if (n.includes('hip flexor') || n.includes('psoas') || n.includes('iliacus')) return 'Hip Flexors';
   if (n.includes('shoulder') || n.includes('deltoid')) return 'Shoulders (Deltoids)';
   if (n.includes('chest') || n.includes('pectoral')) return 'Chest (Pectorals)';
   if (n.includes('lats') || n.includes('latissimus dorsi') || n.includes('back (lats)')) return 'Back (Lats)';
-  if (n.includes('forearm') || n.includes('brachioradialis')) return 'Forearms';
+  if (n.includes('forearm') || n.includes('brachioradialis') || n.includes('carpi') || n.includes('palmaris') || n.includes('pronator') || n.includes('supinator')) return 'Forearms';
   if (n.includes('biceps') || n.includes('brachialis')) return 'Biceps';
   if (n.includes('triceps')) return 'Triceps';
   if (n.includes('trapezius')) return 'Trapezius';
-  if (n.includes('rhomboid') || n.includes('teres major')) return 'Back (Lats)';
-  if (n.includes('rotator cuff') || n.includes('infraspinatus') || n.includes('supraspinatus')) return 'Rotator Cuff Tendons';
-  if (n.includes('adductor') || n.includes('gracilis')) return 'Adductors (Inner Thighs)';
-  if (n.includes('serratus')) return 'Serratus Anterior';
-  if (n.includes('tibialis')) return 'Tibialis Anterior';
+  if (n.includes('rotator cuff') || n.includes('infraspinatus') || n.includes('supraspinatus') || n.includes('subscapularis') || n.includes('teres minor')) return 'Rotator Cuff Tendons';
+  if ((n.includes('adductor') && !n.includes('pollicis')) || n.includes('gracilis')) return 'Adductors (Inner Thighs)';
+  if (n.includes('serratus anterior')) return 'Serratus Anterior';
+  if (n.includes('tibialis anterior')) return 'Tibialis Anterior';
 
-  return name;
+  return name.trim();
 };
 
 export interface ResolvedMuscleLoadResult {
   muscleLoads: Record<string, number>;
   primaryMuscles: string[];
   secondaryMuscles: string[];
+  source: 'database' | 'preset' | 'focus-zones' | 'category' | 'none';
 }
 
 /**
@@ -48,7 +48,7 @@ export function resolveAssetMuscleLoads(
   }
 ): ResolvedMuscleLoadResult {
   if (!asset) {
-    return { muscleLoads: {}, primaryMuscles: [], secondaryMuscles: [] };
+    return { muscleLoads: {}, primaryMuscles: [], secondaryMuscles: [], source: 'none' };
   }
 
   const muscleLoads: Record<string, number> = {};
@@ -74,18 +74,33 @@ export function resolveAssetMuscleLoads(
         }
       });
 
-      return { muscleLoads, primaryMuscles, secondaryMuscles };
+      return { muscleLoads, primaryMuscles, secondaryMuscles: secondaryMuscles.filter(name => !primaryMuscles.includes(name)), source: 'database' };
     }
   }
 
-  // 2. High-precision TKD Kick Presets matching
+  // Saved legacy focus zones are authored teaching data, not inferred body activity.
+  try {
+    const details = JSON.parse(asset.description || '{}');
+    if (Array.isArray(details?.focusZones)) {
+      for (const zone of details.focusZones) {
+        if (typeof zone !== 'string' || !zone.trim()) continue;
+        const group = normalizeMuscleNameFor3D(zone);
+        muscleLoads[group] = 1;
+        if (!primaryMuscles.includes(group)) primaryMuscles.push(group);
+      }
+      if (primaryMuscles.length) return { muscleLoads, primaryMuscles, secondaryMuscles, source: 'focus-zones' };
+    }
+  } catch { /* Plain-text descriptions have no structured muscle mapping. */ }
+
+  // 2. Named instructional kick references; saved relational data always wins.
   const titleLower = asset.title.toLowerCase();
   for (const [presetKey, presetData] of Object.entries(TKD_KICK_PRESETS)) {
     const keyLower = presetKey.toLowerCase();
     if (
       titleLower.includes(presetData.koreanName) ||
       titleLower.includes(presetData.name.toLowerCase()) ||
-      titleLower.includes(keyLower.split(' ')[0]) ||
+      titleLower.includes(keyLower) ||
+      titleLower.includes(presetData.name.toLowerCase().split(' (')[0]) ||
       (keyLower.includes('front') && titleLower.includes('front kick')) ||
       (keyLower.includes('roundhouse') && (titleLower.includes('roundhouse') || titleLower.includes('dollyo'))) ||
       (keyLower.includes('side') && (titleLower.includes('side kick') || titleLower.includes('yop'))) ||
@@ -101,7 +116,7 @@ export function resolveAssetMuscleLoads(
         }
       });
 
-      return { muscleLoads, primaryMuscles, secondaryMuscles };
+      return { muscleLoads, primaryMuscles, secondaryMuscles, source: 'preset' };
     }
   }
 
@@ -162,7 +177,7 @@ export function resolveAssetMuscleLoads(
       if (m.primary) primaryMuscles.push(m.name);
       else secondaryMuscles.push(m.name);
     });
-  } else {
+  } else if (cat.includes('conditioning') || cat.includes('fitness')) {
     // General full body conditioning
     const defaultGeneral = [
       { name: 'Quadriceps', load: 0.85, primary: true },
@@ -178,5 +193,5 @@ export function resolveAssetMuscleLoads(
     });
   }
 
-  return { muscleLoads, primaryMuscles, secondaryMuscles };
+  return { muscleLoads, primaryMuscles, secondaryMuscles, source: primaryMuscles.length ? 'category' : 'none' };
 }

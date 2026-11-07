@@ -1,14 +1,16 @@
 'use client';
+import { copyText } from '@/lib/clipboard';
+import { ContactActions } from './ContactActions';
 
 import { dialogMotion } from '@/lib/motion';
 import React, { useState, useMemo } from 'react';
-import { useAppStore, User, Role } from '@/lib/store';
+import { useAppStore, User } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserCircle } from '@phosphor-icons/react/dist/csr/UserCircle';
 import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
 import { EnvelopeSimple } from '@phosphor-icons/react/dist/csr/EnvelopeSimple';
 import { DeviceMobile } from '@phosphor-icons/react/dist/csr/DeviceMobile';
-import { Funnel } from '@phosphor-icons/react/dist/csr/Funnel';
+
 import { ArrowsClockwise } from '@phosphor-icons/react/dist/csr/ArrowsClockwise';
 import { SquaresFour } from '@phosphor-icons/react/dist/csr/SquaresFour';
 import { ListDashes } from '@phosphor-icons/react/dist/csr/ListDashes';
@@ -25,10 +27,10 @@ import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
 import { Check } from '@phosphor-icons/react/dist/csr/Check';
 import { Medal } from '@phosphor-icons/react/dist/csr/Medal';
 import { CalendarCheck } from '@phosphor-icons/react/dist/csr/CalendarCheck';
-import { ClockAfternoon } from '@phosphor-icons/react/dist/csr/ClockAfternoon';
-import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
-import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
-import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+
+
+
+
 import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
 import { cn } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
@@ -48,7 +50,7 @@ const ROLE_HIERARCHY: Record<string, number> = {
   };
 
 export function StaffView() {
-  const { state, updateUser, showNotification } = useAppStore();
+  const { state, can, updateUser, showNotification } = useAppStore();
   const t = useT();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
@@ -58,16 +60,15 @@ export function StaffView() {
   const [sortBy, setSortBy] = useState<'role' | 'name-asc' | 'name-desc' | 'dan-desc' | 'status'>('role');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const handleCopy = (text: string, id: string, label: string) => {
+  const handleCopy = async (text: string, id: string, label: string) => {
     if (!text) return;
-    navigator.clipboard.writeText(text);
+    if (!(await copyText(text))) { showNotification('Copying is unavailable. Select the text and copy it manually.', 'warning'); return; }
     setCopiedId(id);
     showNotification(`${label} copied to clipboard!`, 'info');
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const currentUserRole = state.currentUser?.role;
-  const canEditStaff = currentUserRole === 'Root' || currentUserRole === 'Super Root' || currentUserRole === 'Admin';
+  const canEditStaff = can('action:staff_manage');
 
   // Fast password reset modal state
   const [passwordTargetStaff, setPasswordTargetStaff] = useState<User | null>(null);
@@ -107,19 +108,19 @@ export function StaffView() {
 
   const staffMembers = useMemo(() => {
     const filtered = allStaff.filter(u => {
-      const matchesSearch = 
-        u.displayName.toLowerCase().includes(search.toLowerCase()) || 
+      const matchesSearch =
+        u.displayName.toLowerCase().includes(search.toLowerCase()) ||
         u.email.toLowerCase().includes(search.toLowerCase()) ||
         u.role.toLowerCase().includes(search.toLowerCase()) ||
         (u.username && u.username.toLowerCase().includes(search.toLowerCase())) ||
         (u.kukkiwonId && u.kukkiwonId.toLowerCase().includes(search.toLowerCase()));
 
       const matchesRole = roleFilter === 'All' || u.role === roleFilter;
-      const matchesStatus = statusFilter === 'All' || 
+      const matchesStatus = statusFilter === 'All' ||
         (statusFilter === 'Active' ? u.isActive : !u.isActive);
 
-      const matchesDan = danFilter === 'All' 
-        ? true 
+      const matchesDan = danFilter === 'All'
+        ? true
         : danFilter === 'Eligible'
         ? (() => {
             if (!u.currentDan || !u.danIssueDate) return false;
@@ -179,7 +180,7 @@ export function StaffView() {
   const totalStaffCount = allStaff.length;
   const headCoachesCount = allStaff.filter(u => u.role === 'Head Coach').length;
   const activeStaffCount = allStaff.filter(u => u.isActive).length;
-  const totalAssignedClasses = state.classSessions.filter(c => allStaff.some(s => s.id === c.coachId)).length;
+
   const blackBeltsCount = allStaff.filter(u => u.currentDan && u.currentDan >= 1).length;
   const eligibleForTestCount = allStaff.filter(u => {
     if (!u.currentDan || !u.danIssueDate) return false;
@@ -196,14 +197,14 @@ export function StaffView() {
          </div>
          {canEditStaff && (
            <div className="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
-             <button 
-               onClick={() => setIsBulkImporting(true)} 
+             <button
+               onClick={() => setIsBulkImporting(true)}
                className="flex-1 sm:flex-none px-3 sm:px-3.5 h-8 sm:h-9 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation"
              >
                Bulk Import
              </button>
-             <button 
-               onClick={() => setIsAdding(true)} 
+             <button
+               onClick={() => setIsAdding(true)}
                className="flex-1 sm:flex-none px-3 sm:px-3.5 h-8 sm:h-9 bg-[#EF2F38] hover:bg-[#D0252D] text-white rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-colors uppercase tracking-wider shadow-md shadow-[#EF2F38]/20 whitespace-nowrap flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation"
              >
                + {t('stf_add_staff')}
@@ -273,15 +274,15 @@ export function StaffView() {
         {/* Search Bar - Clean, Native Height & Font */}
         <div className="relative flex bg-neutral-100 dark:bg-[#0F0F0F] rounded-[6px] sm:rounded-[8px] border border-neutral-200 dark:border-[#262626] px-2.5 w-full md:max-w-sm shrink-0 h-8.5 sm:h-10 items-center">
           <MagnifyingGlass className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-400 dark:text-[#666] shrink-0 mr-2" />
-          <input 
-            type="text" 
-            placeholder={t('stf_search_placeholder')} 
-            value={search} 
+          <input
+            type="text"
+            placeholder={t('stf_search_placeholder')}
+            value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-transparent border-none text-neutral-900 dark:text-[#E4E4E4] text-[11px] sm:text-xs focus:outline-none placeholder:text-neutral-400 dark:placeholder:text-[#666] font-mono pr-6"
           />
           {search && (
-            <button 
+            <button
               onClick={() => setSearch('')}
               className="absolute right-2 p-1 text-neutral-400 hover:text-neutral-600 dark:hover:text-white cursor-pointer flex items-center justify-center active:scale-90"
               aria-label="Clear search"
@@ -294,8 +295,8 @@ export function StaffView() {
         {/* Filter Strip: Horizontal Scrolling on Mobile, Flex on Desktop */}
         <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar touch-pan-x -mx-3 px-3 sm:mx-0 sm:px-0 sm:flex-wrap w-full md:w-auto md:justify-end">
           {/* Role Filter */}
-          <select 
-            value={roleFilter} 
+          <select
+            value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
             className="bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-8 sm:h-9 shrink-0 focus:outline-none font-bold font-mono cursor-pointer transition-colors shadow-2xs"
             aria-label="Filter staff by role"
@@ -308,8 +309,8 @@ export function StaffView() {
           </select>
 
           {/* Kukkiwon Dan Filter */}
-          <select 
-            value={danFilter} 
+          <select
+            value={danFilter}
             onChange={(e) => setDanFilter(e.target.value)}
             className="bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-8 sm:h-9 shrink-0 focus:outline-none font-bold font-mono cursor-pointer transition-colors shadow-2xs"
             aria-label="Filter staff by Kukkiwon Dan rank"
@@ -324,8 +325,8 @@ export function StaffView() {
           </select>
 
           {/* Status Filter */}
-          <select 
-            value={statusFilter} 
+          <select
+            value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-8 sm:h-9 shrink-0 focus:outline-none font-bold font-mono cursor-pointer transition-colors shadow-2xs"
             aria-label="Filter staff by account status"
@@ -336,8 +337,8 @@ export function StaffView() {
           </select>
 
           {/* Sort Selector: Default Sort by Role Hierarchy */}
-          <select 
-            value={sortBy} 
+          <select
+            value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
             className="bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-8 sm:h-9 shrink-0 focus:outline-none font-bold font-mono cursor-pointer transition-colors shadow-2xs"
             aria-label="Sort staff members"
@@ -358,8 +359,8 @@ export function StaffView() {
               aria-label="Grid view"
               className={cn(
                 "p-1 rounded-[5px] sm:rounded-[6px] transition-all cursor-pointer h-6.5 w-6.5 sm:h-7 sm:w-7 flex items-center justify-center active:scale-95 touch-manipulation",
-                viewMode === 'grid' 
-                  ? "bg-white dark:bg-[#262626] text-[#EF2F38] dark:text-white shadow-xs font-bold" 
+                viewMode === 'grid'
+                  ? "bg-white dark:bg-[#262626] text-[#EF2F38] dark:text-white shadow-xs font-bold"
                   : "text-neutral-500 dark:text-[#777] hover:text-neutral-900 dark:hover:text-white"
               )}
             >
@@ -372,8 +373,8 @@ export function StaffView() {
               aria-label="Table view"
               className={cn(
                 "p-1 rounded-[5px] sm:rounded-[6px] transition-all cursor-pointer h-6.5 w-6.5 sm:h-7 sm:w-7 flex items-center justify-center active:scale-95 touch-manipulation",
-                viewMode === 'table' 
-                  ? "bg-white dark:bg-[#262626] text-[#EF2F38] dark:text-white shadow-xs font-bold" 
+                viewMode === 'table'
+                  ? "bg-white dark:bg-[#262626] text-[#EF2F38] dark:text-white shadow-xs font-bold"
                   : "text-neutral-500 dark:text-[#777] hover:text-neutral-900 dark:hover:text-white"
               )}
             >
@@ -439,8 +440,8 @@ export function StaffView() {
           {staffMembers.map(staff => {
             const assignedClassesCount = state.classSessions.filter(c => c.coachId === staff.id).length;
             return (
-              <div 
-                key={staff.id} 
+              <div
+                key={staff.id}
                 onClick={() => openEditor(staff)}
                 className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 flex flex-col justify-between group cursor-pointer hover:border-[#EF2F38]/50 hover:shadow-md transition-all duration-200 shadow-sm"
               >
@@ -448,9 +449,9 @@ export function StaffView() {
                   {/* Card Header with Status Badge */}
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <SafeImage 
-                        src={staff.profilePicturePath} 
-                        alt={staff.displayName} 
+                      <SafeImage
+                        src={staff.profilePicturePath}
+                        alt={staff.displayName}
                         containerClassName="w-11 h-11 rounded-[8px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center text-neutral-500 dark:text-[#999] group-hover:border-[#EF2F38]/30 transition-colors overflow-hidden shrink-0 shadow-inner"
                         fallback={<UserCircle className="w-7 h-7 text-neutral-400" weight="fill"/>}
                       />
@@ -465,8 +466,8 @@ export function StaffView() {
                     {/* Active/Inactive Status Dot */}
                     <span className={cn(
                       "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider font-mono shrink-0 border",
-                      staff.isActive 
-                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" 
+                      staff.isActive
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                         : "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20"
                     )}>
                       <span className={cn("w-1.5 h-1.5 rounded-full", staff.isActive ? "bg-emerald-500" : "bg-red-500")} />
@@ -477,9 +478,9 @@ export function StaffView() {
                   {/* Role & Classes Tags */}
                   <div className="flex flex-wrap gap-1.5 items-center mb-3">
                     <span className={cn(
-                      "inline-block px-2 py-0.5 rounded-[8px] text-[9px] font-bold uppercase tracking-widest border font-mono", 
-                      staff.role === 'Admin' ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30" : 
-                      staff.role === 'Head Coach' ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30" : 
+                      "inline-block px-2 py-0.5 rounded-[8px] text-[9px] font-bold uppercase tracking-widest border font-mono",
+                      staff.role === 'Admin' ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30" :
+                      staff.role === 'Head Coach' ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30" :
                       "bg-neutral-100 dark:bg-[#262626] text-neutral-800 dark:text-[#999] border-neutral-300 dark:border-transparent"
                     )}>
                       {staff.role}
@@ -553,12 +554,13 @@ export function StaffView() {
 
                   {/* Contact Info */}
                   <div className="space-y-1.5 border-t border-neutral-200 dark:border-[#262626] pt-3 text-xs font-mono">
+                    <ContactActions contact={{telegramUsername:staff.telegramUsername}} name={staff.displayName} />
                     <div className="flex items-center justify-between gap-1 text-neutral-600 dark:text-[#999] min-w-0">
                       <div className="flex items-center gap-2 min-w-0 flex-1">
                         <EnvelopeSimple className="w-3.5 h-3.5 text-neutral-400 dark:text-[#666] shrink-0"/>
-                        <a 
-                          href={`mailto:${staff.email}`} 
-                          onClick={(e) => e.stopPropagation()} 
+                        <a
+                          href={`mailto:${staff.email}`}
+                          onClick={(e) => e.stopPropagation()}
                           className="truncate hover:text-[#EF2F38] hover:underline transition-colors"
                           title={staff.email}
                         >
@@ -587,9 +589,9 @@ export function StaffView() {
                       <div className="flex items-center gap-2 min-w-0 flex-1">
                         <DeviceMobile className="w-3.5 h-3.5 text-neutral-400 dark:text-[#666] shrink-0"/>
                         {staff.phone ? (
-                          <a 
-                            href={`tel:${staff.phone}`} 
-                            onClick={(e) => e.stopPropagation()} 
+                          <a
+                            href={`tel:${staff.phone}`}
+                            onClick={(e) => e.stopPropagation()}
                             className="hover:text-[#EF2F38] hover:underline transition-colors truncate"
                           >
                             {staff.phone}
@@ -685,30 +687,31 @@ export function StaffView() {
                 {staffMembers.map(staff => {
                   const assignedClassesCount = state.classSessions.filter(c => c.coachId === staff.id).length;
                   return (
-                    <tr 
-                      key={staff.id} 
+                    <tr
+                      key={staff.id}
                       onClick={() => openEditor(staff)}
                       className="hover:bg-neutral-50 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer"
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <SafeImage 
-                            src={staff.profilePicturePath} 
-                            alt={staff.displayName} 
+                          <SafeImage
+                            src={staff.profilePicturePath}
+                            alt={staff.displayName}
                             containerClassName="w-9 h-9 rounded-[8px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] overflow-hidden flex items-center justify-center shrink-0"
                             fallback={<UserCircle className="w-5 h-5 text-neutral-400" weight="fill"/>}
                           />
                           <div className="flex flex-col min-w-0">
                             <span className="text-sm font-bold text-neutral-900 dark:text-white truncate">{staff.displayName}</span>
+                            <ContactActions contact={staff} name={staff.displayName} compact />
                             <span className="text-[10px] text-neutral-500 dark:text-[#888] font-mono">@{staff.username}</span>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <span className={cn(
-                          "px-2.5 py-1 rounded-[8px] text-[10px] font-bold uppercase tracking-widest border font-mono whitespace-nowrap", 
-                          staff.role === 'Admin' ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30" : 
-                          staff.role === 'Head Coach' ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30" : 
+                          "px-2.5 py-1 rounded-[8px] text-[10px] font-bold uppercase tracking-widest border font-mono whitespace-nowrap",
+                          staff.role === 'Admin' ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30" :
+                          staff.role === 'Head Coach' ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30" :
                           "bg-neutral-100 dark:bg-[#262626] text-neutral-800 dark:text-[#999] border-neutral-300 dark:border-transparent"
                         )}>
                           {staff.role}
@@ -836,9 +839,9 @@ export function StaffView() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <button 
+                          <button
                             type="button"
-                            title="Set / Change Password" 
+                            title="Set / Change Password"
                             onClick={(e) => {
                               e.stopPropagation();
                               setStaffNewPassword('');
@@ -848,9 +851,9 @@ export function StaffView() {
                           >
                             <Key className="w-3.5 h-3.5 text-[#EF2F38]"/>
                           </button>
-                          <button 
+                          <button
                             type="button"
-                            title={t('act_edit')} 
+                            title={t('act_edit')}
                             onClick={(e) => {
                               e.stopPropagation();
                               openEditor(staff);
@@ -952,6 +955,7 @@ export function StaffView() {
                   </div>
 
                   {/* Direct Contact Links */}
+                  <ContactActions contact={staff} name={staff.displayName} />
                   {(staff.email || staff.phone) && (
                     <div className="flex flex-col gap-1 text-[11px] font-mono text-neutral-600 dark:text-[#999] pt-1 border-t border-neutral-100 dark:border-[#1E1E1E]">
                       {staff.email && (
@@ -1062,7 +1066,7 @@ export function StaffView() {
         {passwordTargetStaff && (
           <Portal>
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in">
-              <motion.div 
+              <motion.div
                 {...dialogMotion}
                 className="w-full max-w-md max-h-[90dvh] bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col text-neutral-900 dark:text-white overflow-hidden"
               >
@@ -1076,8 +1080,8 @@ export function StaffView() {
                       <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono">@{passwordTargetStaff.username} • {passwordTargetStaff.displayName}</p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => setPasswordTargetStaff(null)} 
+                  <button
+                    onClick={() => setPasswordTargetStaff(null)}
                     className="p-1 text-neutral-400 hover:text-neutral-900 dark:text-[#666] dark:hover:text-white cursor-pointer"
                   >
                     <X className="w-5 h-5" />
@@ -1092,8 +1096,8 @@ export function StaffView() {
                   <div className="space-y-1.5">
                     <label className="text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider font-mono">New Password</label>
                     <div className="relative">
-                      <input 
-                        type={showStaffPasswordText ? "text" : "password"} 
+                      <input
+                        type={showStaffPasswordText ? "text" : "password"}
                         value={staffNewPassword}
                         onChange={e => setStaffNewPassword(e.target.value)}
                         placeholder="Min 6 characters (e.g. Coach1234!)"
@@ -1122,14 +1126,14 @@ export function StaffView() {
                 </div>
 
                 <div className="p-4 bg-neutral-50 dark:bg-[#0A0A0A] border-t border-neutral-200 dark:border-[#262626] flex justify-end gap-2">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setPasswordTargetStaff(null)}
                     className="h-8 sm:h-9 px-3.5 sm:px-4 bg-neutral-200 dark:bg-[#1A1A1A] text-neutral-800 dark:text-[#AAA] font-bold uppercase tracking-wider text-[11px] sm:text-xs rounded-[6px] sm:rounded-[8px] hover:bg-neutral-300 dark:hover:bg-[#262626] active:scale-95 touch-manipulation cursor-pointer transition-all"
                   >
                     Cancel
                   </button>
-                  <button 
+                  <button
                     type="button"
                     onClick={handleResetStaffPassword}
                     disabled={isResettingPassword || !staffNewPassword}

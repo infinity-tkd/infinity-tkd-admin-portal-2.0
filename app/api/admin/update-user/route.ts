@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { telegramUsernameSchema, optionalContactAddressSchema } from '@/lib/contact-validation';
 import { isCalendarDate } from '@/lib/dates';
 import { 
   verifyCaller,
@@ -15,7 +16,7 @@ const UserUpdatePayloadSchema = z
     displayName: z.string().max(100).optional().nullable(),
     email: z.string().email().optional(),
     password: z.string().min(12, 'Password must be at least 12 characters long').max(256).optional(),
-    username: z.string().min(3).max(50).optional(),
+    username: z.string().trim().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/, 'Use letters, numbers or underscores.').optional(),
     studentId: z.string().max(50).optional().nullable(),
     role: z.enum([
       'Root',
@@ -29,9 +30,10 @@ const UserUpdatePayloadSchema = z
     isActive: z.boolean().optional(),
     khmerName: z.string().max(100).optional().nullable(),
     englishName: z.string().max(100).optional().nullable(),
-    gender: z.enum(['Male', 'Female', 'Other']).optional().nullable(),
-    dob: z.string().refine(isCalendarDate, 'Invalid date of birth').optional().nullable(),
+    gender: z.enum(['Male', 'Female']).optional().nullable(),
+    dob: z.preprocess(value => value === '' ? null : value, z.string().refine(isCalendarDate, 'Invalid date of birth').optional().nullable()),
     phone: z.string().max(30).optional().nullable(),
+    telegramUsername: telegramUsernameSchema,
     emergencyContactName: z.string().max(100).optional().nullable(),
     emergencyContactPhone: z.string().max(30).optional().nullable(),
     emergencyContactRelation: z.string().max(50).optional().nullable(),
@@ -40,20 +42,10 @@ const UserUpdatePayloadSchema = z
     profilePicturePath: z.string().max(500).optional().nullable(),
     nationality: z.string().max(50).optional().nullable(),
     kukkiwonId: z.string().max(50).optional().nullable(),
-    currentDan: z.number().int().min(1).max(9).optional().nullable(),
-    danIssueDate: z.string().refine(isCalendarDate, 'Invalid certificate date').optional().nullable(),
+    currentDan: z.preprocess(value => value === '' ? null : value, z.number().int().min(1).max(9).optional().nullable()),
+    danIssueDate: z.preprocess(value => value === '' ? null : value, z.string().refine(isCalendarDate, 'Invalid certificate date').optional().nullable()),
     danCertificateUrl: z.string().max(500).optional().nullable(),
-    address: z
-      .object({
-        line1: z.string().max(100).optional().nullable(),
-        line2: z.string().max(100).optional().nullable(),
-        city: z.string().max(50).optional().nullable(),
-        stateProvince: z.string().max(50).optional().nullable(),
-        postalCode: z.string().max(20).optional().nullable(),
-        country: z.string().max(50).optional().nullable(),
-      })
-      .optional()
-      .nullable(),
+    address: optionalContactAddressSchema,
   })
   .passthrough();
 
@@ -90,7 +82,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: { message: 'Save profile changes first, then change the password separately.' } }, { status: 400 });
     }
 
-    const isPrivilegedAdmin = await callerHasPermission(adminSupabase,context,'action:staff_manage');
+    // Student access is personal account maintenance only. A discretionary
+    // staff grant must never turn this self-service exception into staff access.
+    const isPrivilegedAdmin = context.role !== 'Student' && await callerHasPermission(adminSupabase,context,'action:staff_manage');
     const isSelf = context.userId === id;
 
     if (!isPrivilegedAdmin && !isSelf) {
@@ -242,6 +236,7 @@ export async function POST(req: Request) {
     if (data.gender !== undefined) memberPayload.gender = data.gender;
     if (data.dob !== undefined) memberPayload.dob = data.dob;
     if (data.phone !== undefined) memberPayload.phone = sanitizeString(data.phone || '');
+    if (data.telegramUsername !== undefined) memberPayload.telegram_username = data.telegramUsername;
     if (data.emergencyContactName !== undefined) memberPayload.emergency_contact_name = sanitizeString(data.emergencyContactName || '');
     if (data.emergencyContactPhone !== undefined) memberPayload.emergency_contact_phone = sanitizeString(data.emergencyContactPhone || '');
     if (data.emergencyContactRelation !== undefined) memberPayload.emergency_contact_relation = sanitizeString(data.emergencyContactRelation || '');

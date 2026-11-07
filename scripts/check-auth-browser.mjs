@@ -5,9 +5,9 @@ const base = process.argv[2] || 'http://127.0.0.1:3102';
 const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : {}) });
 // Fictional identities and mocked services: no real credentials or database writes.
 const id = '70000000-0000-4000-8000-000000000099';
-const user = { id, aud: 'authenticated', role: 'authenticated', email: 'regression@example.test', app_metadata: { provider: 'email' }, user_metadata: {} };
+const user = { id, aud: 'authenticated', role: 'authenticated',aal:'aal2', email: 'regression@example.test', app_metadata: { provider: 'email' }, user_metadata: {} };
 const profile = { id, username: 'regression_admin', email: user.email, display_name: 'Regression Admin', role: 'Root', is_active: true, must_change_password: false };
-const token = `${Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url')}.${Buffer.from(JSON.stringify({ sub: id, exp: Math.floor(Date.now() / 1000) + 3600, role: 'authenticated' })).toString('base64url')}.${Buffer.from('test-signature').toString('base64url')}`;
+const token = `${Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url')}.${Buffer.from(JSON.stringify({ sub: id, exp: Math.floor(Date.now() / 1000) + 3600, role: 'authenticated',aal:'aal2' })).toString('base64url')}.${Buffer.from('test-signature').toString('base64url')}`;
 let profileReads = 0;
 let loginRequests = 0;
 let deferStudents = false;
@@ -70,7 +70,11 @@ try {
     await target.locator('#login-identifier').fill('regression_admin');
     await target.locator('#login-password').fill('Fictional-Test-Password');
     await target.locator('button[type=submit]').click();
-    await target.waitForURL('**/dashboard', { timeout: 30000 });
+    await target.waitForURL('**/dashboard', { timeout: 60000 }).catch(async error => {
+      await target.screenshot({ path: 'scratch/auth-login-failure.png', fullPage: true });
+      console.error('Login navigation failed:', { url: target.url(), errors });
+      throw error;
+    });
     await target.getByText('Regression Admin', { exact: true }).first().waitFor();
   };
   await signIn(page);

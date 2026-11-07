@@ -10,9 +10,10 @@ export function loadTs(file,stubs={}){
  const native=mod.require.bind(mod);
  mod.require=specifier=>{
   if(Object.hasOwn(stubs,specifier))return stubs[specifier];
+  if(specifier.startsWith('@/')){const resolved=path.resolve(specifier.slice(2));if(fs.existsSync(resolved+'.ts'))return loadTs(resolved+'.ts',stubs);}
   if(specifier.startsWith('.')){const resolved=path.resolve(path.dirname(absolute),specifier);if(fs.existsSync(resolved+'.ts'))return loadTs(resolved+'.ts',stubs);}
   return native(specifier);
  };
- mod._compile(ts.transpileModule(fs.readFileSync(absolute,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,esModuleInterop:true,target:ts.ScriptTarget.ES2022}}).outputText,absolute);
+ mod._compile(ts.transpileModule(fs.readFileSync(absolute,'utf8'),{fileName:absolute,compilerOptions:{module:ts.ModuleKind.CommonJS,esModuleInterop:true,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.React}}).outputText,absolute);
  return mod.exports;
 }

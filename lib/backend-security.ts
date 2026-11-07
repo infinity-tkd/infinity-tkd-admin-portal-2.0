@@ -8,10 +8,25 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { z, ZodType } from 'zod';
 import { env } from './env';
-import { hasPermission, type PermissionKey } from './permissions';
+import { needsAdministratorMfa } from './auth-assurance';
+import { hasPermission, permissionDependencies, type PermissionKey } from './permissions';
+
+function privateApiResponse(body: unknown, init: ResponseInit = {}): NextResponse {
+  const headers = new Headers(init.headers);
+  headers.set('Cache-Control', 'private, no-store');
+  headers.set('Vary', 'Authorization, Cookie');
+  return NextResponse.json(body, { ...init, headers });
+}
 
 function requestPermission(req: Request): PermissionKey | undefined {
   const path = new URL(req.url).pathname;
+  if (path === '/api/admin/events' || path.startsWith('/api/admin/events/')) {
+    if (req.method === 'GET') return 'page:calendar';
+    if (path.endsWith('/publications') || path.endsWith('/archive')) return 'action:events_publish';
+    if (path.endsWith('/notices')) return 'action:announcements_send';
+    if (path.endsWith('/files')) return 'action:events_edit';
+    return req.method === 'POST' ? 'action:events_create' : 'action:events_edit';
+  }
   if (path === '/api/admin/library-assets/progress') return 'action:evaluations_grade';
   if (path === '/api/admin/library-assets') return 'action:curriculum_edit';
   if (path === '/api/admin/payments') return 'action:finance_record_payment';
@@ -20,6 +35,8 @@ function requestPermission(req: Request): PermissionKey | undefined {
   if (path === '/api/admin/achievements') return 'action:student_edit';
   if (path === '/api/admin/promotions/reconcile') return 'action:evaluations_grade';
   const read = req.method === 'GET';
+  if (path === '/api/admin/branches/hours') return read ? 'page:settings' : 'action:staff_manage';
+  if (path === '/api/belt-tests') return 'action:evaluations_grade';
   if (path.includes('/admin/staff-dan')) return read ? 'page:staff' : 'action:staff_manage';
   const actions: Record<string, PermissionKey> = {
     'create-student': 'action:student_create', 'update-student': 'action:student_edit',
@@ -37,15 +54,22 @@ function requestPermission(req: Request): PermissionKey | undefined {
 }
 
 export async function callerHasPermission(client: SupabaseClient, context: CallerSecurityContext, permission: string): Promise<boolean> {
+  return callerHasAnyPermission(client, context, [permission]);
+}
+
+/** Resolve shared read purposes with one grant snapshot instead of one query pair per page. */
+export async function callerHasAnyPermission(client: SupabaseClient, context: CallerSecurityContext, permissions: readonly string[]): Promise<boolean> {
+  if (!permissions.length) return false;
   if (context.role === 'Root' || context.role === 'Super Root') return true;
+  const dependencies = [...new Set(permissions.flatMap(permissionDependencies))];
   const [roleResult, userResult] = await Promise.all([
-    client.from('role_permissions').select('is_granted').eq('role', context.role).eq('permission_key', permission).maybeSingle(),
-    client.from('user_permissions').select('is_granted').eq('user_id', context.userId).eq('permission_key', permission).maybeSingle(),
+    client.from('role_permissions').select('permission_key,is_granted').eq('role', context.role).in('permission_key', dependencies),
+    client.from('user_permissions').select('permission_key,is_granted').eq('user_id', context.userId).in('permission_key', dependencies),
   ]);
   if (roleResult.error || userResult.error) return false;
-  return hasPermission(context.role, permission,
-    roleResult.data ? { [`${context.role}:${permission}`]: roleResult.data.is_granted } : {}, context.userId,
-    userResult.data ? { [`${context.userId}:${permission}`]: userResult.data.is_granted } : {});
+  const roleGrants = Object.fromEntries((roleResult.data ?? []).map(row => [`${context.role}:${row.permission_key}`, row.is_granted]));
+  const userGrants = Object.fromEntries((userResult.data ?? []).map(row => [`${context.userId}:${row.permission_key}`, row.is_granted]));
+  return permissions.some(permission => hasPermission(context.role, permission, roleGrants, context.userId, userGrants));
 }
 
 const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
@@ -86,13 +110,16 @@ export function checkApiRateLimit(
   const now = Date.now();
 
   // Periodic eviction if store grows large
-  if (apiRateLimitStore.size > MAX_RATE_LIMIT_STORE_ENTRIES) {
+  if (apiRateLimitStore.size >= MAX_RATE_LIMIT_STORE_ENTRIES) {
     pruneExpiredRateLimits();
   }
 
   const record = apiRateLimitStore.get(identifier);
 
   if (!record || now > record.resetTime) {
+    if (!record && apiRateLimitStore.size >= MAX_RATE_LIMIT_STORE_ENTRIES) {
+      return { allowed: false, remaining: 0, resetMs: windowMs };
+    }
     apiRateLimitStore.set(identifier, {
       count: 1,
       resetTime: now + windowMs,
@@ -124,7 +151,6 @@ export function validateRequestOrigin(req: Request): boolean {
 
   try {
     const originUrl = new URL(origin);
-    const hostDomain = host.split(':')[0];
     const isLocalhost =
       originUrl.hostname === 'localhost' ||
       originUrl.hostname === '127.0.0.1' ||
@@ -158,7 +184,7 @@ export async function verifyCaller(
   const authHeader = req.headers.get('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return {
-      errorResponse: NextResponse.json(
+      errorResponse: privateApiResponse(
         {
           success: false,
           data: null,
@@ -178,13 +204,10 @@ export async function verifyCaller(
     auth: { persistSession: false },
   });
 
-  const {
-    data: { user },
-    error: authError,
-  } = await clientSupabase.auth.getUser(token);
+  const { data: { user }, error: authError } = await clientSupabase.auth.getUser(token);
   if (authError || !user) {
     return {
-      errorResponse: NextResponse.json(
+      errorResponse: privateApiResponse(
         {
           success: false,
           data: null,
@@ -200,7 +223,7 @@ export async function verifyCaller(
 
   if (!serviceRoleKey) {
     return {
-      errorResponse: NextResponse.json(
+      errorResponse: privateApiResponse(
         {
           success: false,
           data: null,
@@ -228,7 +251,7 @@ export async function verifyCaller(
     const setupIncomplete = profileErr?.code === '42703' || profileErr?.code === 'PGRST204';
     const unavailable = Boolean(profileErr && profileErr.code !== 'PGRST116');
     return {
-      errorResponse: NextResponse.json(
+      errorResponse: privateApiResponse(
         {
           success: false,
           data: null,
@@ -244,9 +267,12 @@ export async function verifyCaller(
     };
   }
 
+  if (!['Root', 'Super Root', 'Admin', 'Head Coach', 'Coach', 'Assistant Coach', 'Student'].includes(profile.role)) {
+    return { errorResponse: privateApiResponse({success:false,error:{code:'AUTH_FORBIDDEN_ROLE',message:'Account role is not recognized. Contact an administrator.'}},{status:403}) };
+  }
   if (!profile.is_active) {
     return {
-      errorResponse: NextResponse.json(
+      errorResponse: privateApiResponse(
         {
           success: false,
           data: null,
@@ -261,18 +287,21 @@ export async function verifyCaller(
   }
 
   if(profile.must_change_password) {
-    if(new URL(req.url).pathname !== '/api/admin/update-user') return {errorResponse:NextResponse.json({success:false,error:{message:'Change your temporary password before using the portal.'}},{status:403})};
-    const {data:change,errorResponse:invalid}=await validateRequestBody(z.object({id:z.string().uuid(),data:z.object({password:z.string().min(12).max(256)}).strict()}).strict(),req.clone());
-    if(invalid || change?.id!==profile.id)return {errorResponse:invalid || NextResponse.json({success:false,error:{message:'Change your own temporary password first.'}},{status:403})};
+    if(new URL(req.url).pathname !== '/api/admin/update-user') return {errorResponse:privateApiResponse({success:false,error:{message:'Change your temporary password before using the portal.'}},{status:403})};
+    const { data:change, errorResponse:invalid }=await validateRequestBody(z.object({id:z.string().uuid(),data:z.object({password:z.string().min(12).max(256)}).strict()}).strict(),req.clone());
+    if(invalid || change?.id!==profile.id)return {errorResponse:invalid || privateApiResponse({success:false,error:{message:'Change your own temporary password first.'}},{status:403})};
   }
-  if(profile.role==='Student' && !allowedRoles.includes('Student'))return {errorResponse:NextResponse.json({success:false,error:{message:'Staff access required.'}},{status:403})};
+  if(profile.role==='Student' && !allowedRoles.includes('Student'))return {errorResponse:privateApiResponse({success:false,error:{message:'Staff access required.'}},{status:403})};
+  if(!profile.must_change_password && needsAdministratorMfa(profile.role, token)) {
+    return {errorResponse:privateApiResponse({success:false,error:{code:'AUTH_MFA_REQUIRED',message:'Verify your authenticator code before using administrator functions.'}},{status:403,headers:{'Cache-Control':'no-store'}})};
+  }
 
   const permission = requestPermission(req);
   const context: CallerSecurityContext = { userId: profile.id, email: profile.email, role: profile.role };
   const permitted = permission ? await callerHasPermission(adminSupabase, context, permission) : allowedRoles.length === 0 || allowedRoles.includes(profile.role);
   if (!permitted) {
     return {
-      errorResponse: NextResponse.json(
+      errorResponse: privateApiResponse(
         {
           success: false,
           data: null,
@@ -286,11 +315,11 @@ export async function verifyCaller(
     };
   }
 
-  if (!validateRequestOrigin(req)) return { errorResponse: NextResponse.json({ success:false, error:{message:'Request origin rejected.'} }, {status:403}) };
-  const {data: slot, error: rateError} = await adminSupabase.rpc('portal_take_rate_slot', {
+  if (!validateRequestOrigin(req)) return { errorResponse: privateApiResponse({ success:false, error:{message:'Request origin rejected.'} }, {status:403}) };
+  const { data: slot, error: rateError } = await adminSupabase.rpc('portal_take_rate_slot', {
     p_key: `api:${profile.id}:${new URL(req.url).pathname}`, p_limit: req.method === 'GET' ? 180 : 120, p_seconds:60,
   });
-  if (rateError || !slot) return {errorResponse:NextResponse.json({success:false,error:{message:rateError ? 'Service temporarily unavailable. Please retry.' : 'Too many requests. Please retry shortly.'}}, {status:rateError ? 503 : 429, headers:{'Retry-After':'60'}})};
+  if (rateError || !slot) return {errorResponse:privateApiResponse({success:false,error:{message:rateError ? 'Service temporarily unavailable. Please retry.' : 'Too many requests. Please retry shortly.'}}, {status:rateError ? 503 : 429, headers:{'Retry-After':'60'}})};
 
   return {
     context: {
@@ -315,7 +344,7 @@ export async function validateRequestBody<T>(
   let rawBody: unknown;
   try {
     const length = Number(req.headers.get('content-length') || 0);
-    if (length > 1048576) return { errorResponse: NextResponse.json({ success: false, error: { code: 'PAYLOAD_TOO_LARGE', message: 'Request exceeds 1 MB.' } }, { status: 413 }) };
+    if (length > 1048576) return { errorResponse: privateApiResponse({ success: false, error: { code: 'PAYLOAD_TOO_LARGE', message: 'Request exceeds 1 MB.' } }, { status: 413 }) };
     const reader = req.body?.getReader();
     let size = 0;
     const chunks: Uint8Array[] = [];
@@ -324,7 +353,7 @@ export async function validateRequestBody<T>(
         const { done, value } = await reader.read();
         if (done) break;
         size += value.length;
-        if (size > 1048576) { await reader.cancel(); return { errorResponse: NextResponse.json({ success: false, error: { code: 'PAYLOAD_TOO_LARGE', message: 'Request exceeds 1 MB.' } }, { status: 413 }) }; }
+        if (size > 1048576) { await reader.cancel(); return { errorResponse: privateApiResponse({ success: false, error: { code: 'PAYLOAD_TOO_LARGE', message: 'Request exceeds 1 MB.' } }, { status: 413 }) }; }
         chunks.push(value);
       }
     }
@@ -332,9 +361,9 @@ export async function validateRequestBody<T>(
     let offset = 0;
     for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
     rawBody = JSON.parse(new TextDecoder().decode(bytes));
-  } catch (err: any) {
+  } catch {
     return {
-      errorResponse: NextResponse.json(
+      errorResponse: privateApiResponse(
         {
           success: false,
           data: null,
@@ -350,15 +379,24 @@ export async function validateRequestBody<T>(
 
   const result = schema.safeParse(rawBody);
   if (!result.success) {
+    const issues = result.error.issues.slice(0, 20).map(issue => ({
+      field: issue.path.map(part => String(part).replace(/[^a-zA-Z0-9_\-]/g, '').slice(0, 64)).join('.') || 'Request',
+      // Unknown keys and enum values may contain attacker-controlled text.
+      message: issue.code === 'unrecognized_keys' ? 'Contains unsupported fields.'
+        : issue.code === 'invalid_value' ? 'Select an allowed value.'
+        : issue.code === 'invalid_type' ? 'Enter a value of the required type.'
+        : issue.message.slice(0, 180),
+    }));
     return {
-      errorResponse: NextResponse.json(
+      errorResponse: privateApiResponse(
         {
           success: false,
           data: null,
           error: {
             code: 'VALIDATION_FAILED',
-            message: 'Unprocessable Entity: Request payload validation failed.',
-            details: result.error.flatten(),
+            message: 'Invalid input. Please check the request fields.',
+            issues,
+            details: { fieldErrors: Object.fromEntries(issues.map(issue => [issue.field, [issue.message]])) },
           },
         },
         { status: 422 }
@@ -468,7 +506,7 @@ export function formatServerErrorResponse(error: any): NextResponse {
       : ['PGRST202','PGRST204','42P01','42703','NETWORK_OFFLINE'].includes(translated.code) ? 503
       : ['23502','23514','22023','22007','22008','22P02','P0001','VALIDATION_ERROR'].includes(translated.code) ? 400 : 500;
 
-  return NextResponse.json(
+  return privateApiResponse(
     {
       success: false,
       data: null,

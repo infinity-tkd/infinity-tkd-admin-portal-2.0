@@ -3,14 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { X } from '@phosphor-icons/react/dist/csr/X';
 import { Pulse } from '@phosphor-icons/react/dist/csr/Pulse';
-import { HardDrives } from '@phosphor-icons/react/dist/csr/HardDrives';
+
 import { WifiHigh } from '@phosphor-icons/react/dist/csr/WifiHigh';
 import { WifiSlash } from '@phosphor-icons/react/dist/csr/WifiSlash';
 import { ArrowClockwise } from '@phosphor-icons/react/dist/csr/ArrowClockwise';
 import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
-import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+
 import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
-import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+
 import { Portal } from '@/components/Portal';
 import { useNetworkStatus } from '@/components/providers/NetworkStatusProvider';
 
@@ -62,7 +62,7 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
         } else {
           setSwStatus('Not Registered');
         }
-      } catch (err) {
+      } catch {
         setSwStatus('Error querying worker');
       }
     } else {
@@ -118,7 +118,7 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
         } else {
           setActionMessage('No active service worker registered.');
         }
-      } catch (err) {
+      } catch {
         setActionMessage('Failed to check service worker update.');
       }
     }
@@ -143,14 +143,14 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
 
   return (
     <Portal>
-      <div 
+      <div
         className="fixed inset-0 z-[120] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
         onClick={onClose}
         role="dialog"
         aria-modal="true"
         aria-labelledby="pwa-diag-title"
       >
-        <div 
+        <div
           className="w-full max-w-xl bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl p-5 sm:p-6 space-y-5 text-neutral-900 dark:text-white max-h-[90dvh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >

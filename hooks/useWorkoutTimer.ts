@@ -1,134 +1,29 @@
-import { useState, useEffect, useRef } from 'react';
-
-export type TimerMode = 'Idle' | 'Prepare' | 'Work' | 'Rest' | 'Completed';
-
-interface TimerState {
-  mode: TimerMode;
-  currentRound: number;
-  totalRounds: number;
-  timeRemaining: number;
-}
-
-export function useWorkoutTimer(config: {
-  prepareSeconds: number;
-  workSeconds: number;
-  restSeconds: number;
-  totalRounds: number;
-}) {
-  const [state, setState] = useState<TimerState>({
-    mode: 'Idle',
-    currentRound: 1,
-    totalRounds: config.totalRounds,
-    timeRemaining: config.prepareSeconds,
-  });
-
-  const [isActive, setIsActive] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const startTimer = () => {
-    setIsActive(true);
-    if (state.mode === 'Idle') {
-      setState(prev => ({ ...prev, mode: 'Prepare', timeRemaining: config.prepareSeconds }));
-    }
-  };
-
-  const pauseTimer = () => {
-    setIsActive(false);
-    if (intervalRef.current) clearInterval(intervalRef.current);
-  };
-
-  const resetTimer = () => {
-    pauseTimer();
-    setState({
-      mode: 'Idle',
-      currentRound: 1,
-      totalRounds: config.totalRounds,
-      timeRemaining: config.prepareSeconds,
-    });
-  };
-
-  useEffect(() => {
-    if (!isActive) return;
-
-    intervalRef.current = setInterval(() => {
-      setState(prev => {
-        if (prev.timeRemaining > 1) {
-          return { ...prev, timeRemaining: prev.timeRemaining - 1 };
-        }
-
-        // Handle State transitions when countdown reaches 0
-        if (prev.mode === 'Prepare') {
-          // Transition: Prepare -> Work
-          return { ...prev, mode: 'Work', timeRemaining: config.workSeconds };
-        } 
-        
-        if (prev.mode === 'Work') {
-          if (prev.currentRound < prev.totalRounds) {
-            // Transition: Work -> Rest (More rounds remain)
-            return { ...prev, mode: 'Rest', timeRemaining: config.restSeconds };
-          } else {
-            // Transition: Work -> Completed
-            setIsActive(false);
-            if (intervalRef.current) clearInterval(intervalRef.current);
-            return { ...prev, mode: 'Completed', timeRemaining: 0 };
-          }
-        } 
-        
-        if (prev.mode === 'Rest') {
-          // Transition: Rest -> Work (Next Round)
-          return { 
-            ...prev, 
-            mode: 'Work', 
-            currentRound: prev.currentRound + 1, 
-            timeRemaining: config.workSeconds 
-          };
-        }
-
-        return prev;
-      });
-    }, 1000);
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [isActive, state.mode, state.currentRound, config.prepareSeconds, config.workSeconds, config.restSeconds]);
-
-  const nextRound = () => {
-    setState(prev => {
-      if (prev.currentRound < prev.totalRounds) {
-        return {
-          ...prev,
-          mode: 'Work',
-          currentRound: prev.currentRound + 1,
-          timeRemaining: config.workSeconds
-        };
-      } else {
-        setIsActive(false);
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        return { ...prev, mode: 'Completed', timeRemaining: 0 };
-      }
-    });
-  };
-
-  const prevRound = () => {
-    setState(prev => {
-      const targetRound = Math.max(1, prev.currentRound - 1);
-      return {
-        ...prev,
-        mode: 'Work',
-        currentRound: targetRound,
-        timeRemaining: config.workSeconds
-      };
-    });
-  };
-
-  return {
-    ...state,
-    isActive,
-    startTimer,
-    pauseTimer,
-    resetTimer,
-    nextRound,
-    prevRound,
-  };
+import {useCallback,useEffect,useMemo,useRef,useState} from 'react';
+import {normalizeWorkoutClock,sampleWorkoutClock,workoutDuration,workoutRoundStart,type WorkoutClockConfig,type TimerMode} from '@/lib/workout-clock';
+export type {TimerMode} from '@/lib/workout-clock';
+export function useWorkoutTimer(input:WorkoutClockConfig) {
+ const {prepareSeconds,workSeconds,restSeconds,totalRounds}=input;
+ const config=useMemo(()=>normalizeWorkoutClock({prepareSeconds,workSeconds,restSeconds,totalRounds}),[prepareSeconds,workSeconds,restSeconds,totalRounds]);
+ const clock=useRef({elapsed:0,anchor:null as number|null,started:false});
+ const [state,setState]=useState({...sampleWorkoutClock(config,0),mode:'Idle' as TimerMode,timeRemaining:config.prepareSeconds,isActive:false});
+ const elapsed=useCallback(()=>clock.current.elapsed+(clock.current.anchor===null?0:Math.max(0,performance.now()-clock.current.anchor)),[]);
+ const publish=useCallback(()=>{
+  const value=elapsed(),sample=sampleWorkoutClock(config,value);
+  if(sample.mode==='Completed'){clock.current.elapsed=workoutDuration(config);clock.current.anchor=null;}
+  const next=clock.current.started?{...sample,isActive:clock.current.anchor!==null}:{...sample,mode:'Idle' as TimerMode,timeRemaining:config.prepareSeconds,isActive:false};
+  setState(old=>old.mode===next.mode&&old.currentRound===next.currentRound&&old.totalRounds===next.totalRounds&&old.timeRemaining===next.timeRemaining&&old.isActive===next.isActive?old:next);
+ },[config,elapsed]);
+ const resetTimer=useCallback(()=>{clock.current={elapsed:0,anchor:null,started:false};publish();},[publish]);
+ useEffect(resetTimer,[resetTimer]);
+ useEffect(()=>{
+  if(!state.isActive)return;
+  const interval=window.setInterval(publish,200);
+  const visible=()=>{if(document.visibilityState==='visible')publish();};
+  document.addEventListener('visibilitychange',visible);
+  return()=>{window.clearInterval(interval);document.removeEventListener('visibilitychange',visible);};
+ },[state.isActive,publish]);
+ const startTimer=()=>{if(clock.current.anchor!==null)return;if(elapsed()>=workoutDuration(config))clock.current.elapsed=0;clock.current.started=true;clock.current.anchor=performance.now();publish();};
+ const pauseTimer=()=>{clock.current.elapsed=elapsed();clock.current.anchor=null;publish();};
+ const move=(offset:number)=>{const current=sampleWorkoutClock(config,elapsed()),round=Math.max(1,current.currentRound+offset);clock.current.elapsed=round>config.totalRounds?workoutDuration(config):workoutRoundStart(config,round);clock.current.started=true;if(clock.current.anchor!==null)clock.current.anchor=performance.now();publish();};
+ return {...state,startTimer,pauseTimer,resetTimer,nextRound:()=>move(1),prevRound:()=>move(-1)};
 }

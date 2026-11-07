@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkApiRateLimit } from '@/lib/backend-security';
+import { driveResourceKeyPattern } from '@/lib/google-drive-media';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -77,6 +78,8 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
   const rawUrl = searchParams.get('url');
+  const resourceKey = searchParams.get('resourcekey');
+  if (resourceKey !== null && (!id || !driveResourceKeyPattern.test(resourceKey))) return NextResponse.json({ error: 'Invalid Google Drive resource key' }, { status: 400 });
 
   let targetUrls: string[] = [];
 
@@ -89,6 +92,7 @@ export async function GET(request: NextRequest) {
       `https://drive.google.com/thumbnail?id=${id}&sz=w1000`,
       `https://docs.google.com/uc?export=view&id=${id}`,
     ];
+    if (resourceKey) targetUrls = targetUrls.map(value => { const target = new URL(value); target.searchParams.set('resourcekey', resourceKey); return target.href; });
   } else if (rawUrl) {
     try {
       const parsed = new URL(rawUrl);
@@ -176,7 +180,7 @@ export async function GET(request: NextRequest) {
             headers: {
               'Content-Type': contentType,
               'Content-Length': String(buffer.length),
-              'Cache-Control': 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400',
+              'Cache-Control': 'private, max-age=300',
               'X-Content-Type-Options': 'nosniff',
               'Content-Security-Policy': "default-src 'none'",
             },
@@ -201,7 +205,7 @@ export async function GET(request: NextRequest) {
       status: 200,
       headers: {
         'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=3600',
+        'Cache-Control': 'private, max-age=60',
         'X-Content-Type-Options': 'nosniff',
       },
     }

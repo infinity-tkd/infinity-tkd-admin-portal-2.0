@@ -1,4 +1,5 @@
 'use client';
+import NextImage from 'next/image';
 
 import React, { useState, useEffect } from 'react';
 import { DownloadSimple } from '@phosphor-icons/react/dist/csr/DownloadSimple';
@@ -181,7 +182,7 @@ export function InstallPrompt() {
               {/* Header */}
               <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-[#262626]">
                 <div className="flex items-center gap-2.5">
-                  <img src="/icons/logo.svg" alt="Infinity Logo" className="w-6 h-6 object-contain" />
+                  <NextImage unoptimized width={24} height={24} src="/icons/logo.svg" alt="Infinity Logo" className="w-6 h-6 object-contain" />
                   <div>
                     <h3 className="text-sm font-bold text-neutral-900 dark:text-white uppercase tracking-wider leading-none">
                       Install on iOS

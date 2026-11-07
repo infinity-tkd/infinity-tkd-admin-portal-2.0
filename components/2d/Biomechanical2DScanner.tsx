@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useId } from 'react';
-import { useAnatomyStore, AnatomicalGender } from '@/lib/useAnatomyStore';
+import type { AnatomicalGender } from '@/components/Anatomical3DModel';
 import { ANATOMY_DATABASE } from '@/lib/anatomyData';
-import { Activity, Flame, ShieldAlert, Sparkles, User, Zap, Crosshair, Eye, Compass, Layers, Check } from 'lucide-react';
+
 
 interface Biomechanical2DScannerProps {
   muscleLoads?: Record<string, number>;
@@ -15,76 +15,8 @@ interface Biomechanical2DScannerProps {
   onHoverMuscle?: (muscle: { name: string; score: number } | null) => void;
   className?: string;
   showControls?: boolean;
+  selectedMuscle?: string | null;
 }
-
-// Taekwondo Biomechanical Movement Chains with Comprehensive Muscular Recruitment
-const TKD_KINETIC_CHAINS: Record<string, { label: string; loads: Record<string, number> }> = {
-  ap_chagi: {
-    label: 'Ap Chagi (Front Snap)',
-    loads: {
-      'Quadriceps': 0.96,
-      'Hip Flexors': 0.90,
-      'Adductors (Inner Thighs)': 0.65,
-      'Tibialis Anterior': 0.86,
-      'Calves': 0.70,
-      'Abs (Rectus Abdominis)': 0.62,
-      'Patellar Tendon': 0.92,
-      'Glutes': 0.40,
-    },
-  },
-  dollyo_chagi: {
-    label: 'Dollyo Chagi (Roundhouse)',
-    loads: {
-      'Quadriceps': 0.94,
-      'Obliques': 0.90,
-      'Glutes': 0.88,
-      'Adductors (Inner Thighs)': 0.82,
-      'Calves': 0.85,
-      'Hip Flexors': 0.75,
-      'Serratus Anterior': 0.65,
-      'Rotator Cuff Tendons': 0.55,
-      'Lower Back': 0.65,
-      'Achilles Tendon': 0.90,
-    },
-  },
-  yop_chagi: {
-    label: 'Yop Chagi (Side Thrust)',
-    loads: {
-      'Glutes': 1.00,
-      'Obliques': 0.88,
-      'Hamstrings': 0.84,
-      'Quadriceps': 0.78,
-      'Adductors (Inner Thighs)': 0.72,
-      'Calves': 0.75,
-      'Lower Back': 0.72,
-      'Achilles Tendon': 0.85,
-    },
-  },
-  dwit_chagi: {
-    label: 'Dwit Chagi (Back Kick)',
-    loads: {
-      'Hamstrings': 0.98,
-      'Glutes': 0.96,
-      'Lower Back': 0.88,
-      'Calves': 0.76,
-      'Achilles Tendon': 0.88,
-      'Back (Lats)': 0.55,
-    },
-  },
-  momtong_jireugi: {
-    label: 'Momtong Jireugi (Torso Punch)',
-    loads: {
-      'Chest (Pectorals)': 0.92,
-      'Serratus Anterior': 0.95,
-      'Shoulders (Deltoids)': 0.88,
-      'Triceps': 0.85,
-      'Forearms': 0.82,
-      'Back (Lats)': 0.78,
-      'Rotator Cuff Tendons': 0.75,
-      'Obliques': 0.70,
-    },
-  },
-};
 
 export function Biomechanical2DScanner({
   muscleLoads: propLoads,
@@ -96,12 +28,17 @@ export function Biomechanical2DScanner({
   onHoverMuscle,
   className = '',
   showControls = false,
+  selectedMuscle: propSelection,
 }: Biomechanical2DScannerProps) {
-  const store = useAnatomyStore();
+  const [currentGender, setCurrentGender] = useState<AnatomicalGender>(propGender ?? 'Male');
+  const [selectedMuscle, setSelectedMuscle] = useState<string | null>(propSelection ?? null);
+  const [showEmphasis, setShowEmphasis] = useState(true);
+  useEffect(() => { if (propGender) setCurrentGender(propGender); }, [propGender]);
+  useEffect(() => { setSelectedMuscle(propSelection ?? null); }, [propSelection]);
   const uid = useId().replace(/:/g, '_');
 
   // Reactive Dark Mode Detection for guaranteed color contrast
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
   useEffect(() => {
     const updateTheme = () => {
@@ -114,16 +51,17 @@ export function Biomechanical2DScanner({
     return () => observer.disconnect();
   }, []);
 
-  const currentGender = propGender || store.gender;
   const isFemale = currentGender === 'Female';
 
   // Active view angle toggle: 'both' | 'anterior' | 'posterior'
   const [viewAngle, setViewAngle] = useState<'both' | 'anterior' | 'posterior'>('both');
-  const [activePreset, setActivePreset] = useState<string | null>(null);
 
-  // Active load computation (merging manual propLoads with active preset if selected)
-  const currentPresetLoads = activePreset ? TKD_KINETIC_CHAINS[activePreset]?.loads : null;
-  const effectiveLoads = currentPresetLoads || propLoads || store.muscleLoads;
+  // The record supplies emphasis; reference illustrations never invent student measurements.
+  const effectiveLoads = propLoads ?? {};
+  const getLoad = (name: string) => {
+    const value = effectiveLoads[name];
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  };
 
   const [hoveredPart, setHoveredPart] = useState<{
     name: string;
@@ -132,11 +70,8 @@ export function Biomechanical2DScanner({
     y: number;
   } | null>(null);
 
-  const [showHudOverlay, setShowHudOverlay] = useState(true);
+  const [showHudOverlay, setShowHudOverlay] = useState(false);
 
-  const selectedMuscle = store.selectedMuscle;
-  const heatmapMode = store.heatmapMode;
-  const telemetry = store.studentTelemetry;
 
   // Resolve dynamic colors and gradients based on theme and muscle load
   const getStyleForMuscle = (muscleName: string) => {
@@ -148,44 +83,22 @@ export function Biomechanical2DScanner({
     let stroke = isDarkMode ? '#475569' : '#64748b';
     let strokeWidth = 1.2;
     let opacity = 0.94;
-    let filter = undefined;
+
 
     if (hasSelection && !isSelected) {
       opacity = isDarkMode ? 0.35 : 0.3;
     }
 
-    if (heatmapMode === 'status') {
-      const telem = telemetry[muscleName];
-      if (telem) {
-        if (telem.status === 'optimal') {
-          fill = `url(#${uid}-status-optimal)`;
-          stroke = '#10b981';
-          opacity = 0.98;
-        } else if (telem.status === 'fatigued') {
-          fill = `url(#${uid}-status-fatigued)`;
-          stroke = '#f59e0b';
-          opacity = 0.98;
-        } else if (telem.status === 'injured') {
-          fill = `url(#${uid}-status-injured)`;
-          stroke = '#ef4444';
-          opacity = 1.0;
-          filter = `url(#${uid}-kinetic-glow)`;
-        } else if (telem.status === 'target') {
-          fill = `url(#${uid}-status-target)`;
-          stroke = '#06b6d4';
-          opacity = 0.98;
-        }
-      }
-    } else {
+    if (showEmphasis) {
       // Kinetic Load Heatmap Mode
-      const load = effectiveLoads[muscleName] || 0;
-      const ratio = maxLoad > 0 ? Math.min(1.0, load / maxLoad) : 0;
+      const load = getLoad(muscleName);
+      const ratio = Number.isFinite(maxLoad) && maxLoad > 0 ? Math.min(1, load / maxLoad) : 0;
 
       if (ratio >= 0.7) {
         fill = `url(#${uid}-kinetic-high)`;
         stroke = isDarkMode ? '#EF2F38' : '#b91c1c';
         opacity = 1.0;
-        filter = `url(#${uid}-kinetic-glow)`;
+
       } else if (ratio >= 0.35) {
         fill = `url(#${uid}-kinetic-mid)`;
         stroke = isDarkMode ? '#ea580c' : '#c2410c';
@@ -204,12 +117,12 @@ export function Biomechanical2DScanner({
       stroke = '#EF2F38';
       strokeWidth = 2.4;
       opacity = 1.0;
-      filter = `url(#${uid}-selection-glow)`;
+
     } else if (isHovered) {
       stroke = isDarkMode ? '#f87171' : '#dc2626';
       strokeWidth = 2.0;
       opacity = 1.0;
-      filter = `url(#${uid}-hover-glow)`;
+
     }
 
     return {
@@ -217,49 +130,56 @@ export function Biomechanical2DScanner({
       stroke,
       strokeWidth,
       opacity,
-      filter,
-      cursor: interactive ? 'pointer' : 'default',
-      transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+      role: interactive ? 'button' as const : undefined,
+      tabIndex: interactive ? 0 : undefined,
+      'aria-label': `Select ${muscleName}`,
+      'aria-pressed': isSelected,
+      onKeyDown: (event: React.KeyboardEvent<SVGGElement>) => {
+        if (interactive && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+          handleClick(muscleName);
+        }
+      },
+      style: { cursor: interactive ? 'pointer' : 'default' },
     };
   };
 
   const handlePointerEnter = (name: string, e: React.MouseEvent) => {
     if (!interactive) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const load = effectiveLoads[name] || 0;
+    const load = getLoad(name);
     setHoveredPart({
       name,
       load,
       x: rect.left + rect.width / 2,
       y: rect.top,
     });
-    store.setHoveredMuscle(name);
     if (onHoverMuscle) onHoverMuscle({ name, score: load });
   };
 
   const handlePointerLeave = () => {
     if (!interactive) return;
     setHoveredPart(null);
-    store.setHoveredMuscle(null);
     if (onHoverMuscle) onHoverMuscle(null);
   };
 
   const handleClick = (name: string) => {
     if (!interactive) return;
-    store.setSelectedMuscle(name);
+    setSelectedMuscle(name);
     if (onSelectMuscle) onSelectMuscle(name);
   };
 
   // Base dimension scaling
-  const effectiveScale = viewAngle === 'both' ? scale : scale * 1.25;
+  const safeScale = Number.isFinite(scale) ? Math.max(0.6, Math.min(1.3, scale)) : 1;
+  const effectiveScale = viewAngle === 'both' ? safeScale : safeScale * 1.1;
   const width = 180 * effectiveScale;
   const height = 330 * effectiveScale;
 
   // Active muscle database telemetry lookup
-  const hoveredDb = hoveredPart ? ANATOMY_DATABASE[hoveredPart.name] : null;
+  const selectedDb = selectedMuscle ? ANATOMY_DATABASE[selectedMuscle] : null;
 
   return (
-    <div className={`relative flex flex-col items-center select-none ${className}`}>
+    <div className={`relative flex w-full min-w-0 flex-col items-center select-none ${className}`}>
       {/* SVG Defs for High-Contrast Shading, Striations, and Glow */}
       <svg width="0" height="0" className="absolute w-0 h-0 pointer-events-none">
         <defs>
@@ -393,123 +313,23 @@ export function Biomechanical2DScanner({
         </defs>
       </svg>
 
-      {/* Control Toolbar: Gender, Angle Switcher, and Taekwondo Kinetic Presets */}
       {showControls && (
-        <div className="flex flex-col gap-2 w-full mb-3 px-3 py-2 bg-neutral-100 dark:bg-neutral-900/90 backdrop-blur-md border border-neutral-200 dark:border-neutral-800 rounded-[8px]">
-          {/* Top Bar: Athlete Gender & View Angle Toggles */}
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            {/* Gender Toggle */}
-            <div className="flex items-center gap-1 bg-white dark:bg-neutral-800 p-0.5 rounded-[8px] text-[10px] font-mono font-bold border border-neutral-200 dark:border-neutral-700">
-              <button
-                type="button"
-                onClick={() => store.setGender('Male')}
-                className={`px-2.5 py-1 rounded-[6px] transition-all cursor-pointer ${
-                  !isFemale
-                    ? 'bg-[#EF2F38] text-white shadow-xs'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
-                }`}
-              >
-                MALE ATHLETE
-              </button>
-              <button
-                type="button"
-                onClick={() => store.setGender('Female')}
-                className={`px-2.5 py-1 rounded-[6px] transition-all cursor-pointer ${
-                  isFemale
-                    ? 'bg-[#EF2F38] text-white shadow-xs'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
-                }`}
-              >
-                FEMALE ATHLETE
-              </button>
-            </div>
-
-            {/* View Angle Switcher (Both / Anterior / Posterior) */}
-            <div className="flex items-center gap-1 bg-white dark:bg-neutral-800 p-0.5 rounded-[8px] text-[10px] font-mono font-bold border border-neutral-200 dark:border-neutral-700">
-              <button
-                type="button"
-                onClick={() => setViewAngle('both')}
-                className={`px-2.5 py-1 rounded-[6px] transition-all cursor-pointer ${
-                  viewAngle === 'both'
-                    ? 'bg-neutral-900 dark:bg-neutral-700 text-white shadow-xs'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
-                }`}
-              >
-                DUAL
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewAngle('anterior')}
-                className={`px-2.5 py-1 rounded-[6px] transition-all cursor-pointer ${
-                  viewAngle === 'anterior'
-                    ? 'bg-neutral-900 dark:bg-neutral-700 text-white shadow-xs'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
-                }`}
-              >
-                FRONT
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewAngle('posterior')}
-                className={`px-2.5 py-1 rounded-[6px] transition-all cursor-pointer ${
-                  viewAngle === 'posterior'
-                    ? 'bg-neutral-900 dark:bg-neutral-700 text-white shadow-xs'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
-                }`}
-              >
-                BACK
-              </button>
-            </div>
-
-            {/* HUD Reticle Toggle */}
-            <button
-              type="button"
-              onClick={() => setShowHudOverlay(!showHudOverlay)}
-              className={`flex items-center gap-1 text-[9px] font-mono font-bold px-2 py-1 rounded-[6px] border transition-all cursor-pointer ${
-                showHudOverlay
-                  ? 'border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200'
-                  : 'border-transparent text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
-              }`}
-              title="Toggle Biomechanical HUD Overlays"
-            >
-              <Crosshair size={11} className={showHudOverlay ? 'text-[#EF2F38]' : ''} />
-              <span>HUD RETICLE</span>
-            </button>
-          </div>
-
-          {/* Bottom Bar: Taekwondo Kinetic Chain Simulations */}
-          <div className="flex flex-wrap items-center gap-1.5 pt-1.5 border-t border-neutral-200 dark:border-neutral-800 text-[9px] font-mono">
-            <span className="text-neutral-500 dark:text-neutral-400 font-bold flex items-center gap-1">
-              <Zap size={10} className="text-[#EF2F38]" /> KINETIC RECRUITMENT:
-            </span>
-            <button
-              type="button"
-              onClick={() => setActivePreset(null)}
-              className={`px-2 py-0.5 rounded-[6px] border transition-all cursor-pointer ${
-                activePreset === null
-                  ? 'border-[#EF2F38] bg-[#EF2F38]/10 text-[#EF2F38] font-bold'
-                  : 'border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
-              }`}
-            >
-              Live Heatmap
-            </button>
-            {Object.entries(TKD_KINETIC_CHAINS).map(([key, item]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setActivePreset(key)}
-                className={`px-2 py-0.5 rounded-[6px] border transition-all cursor-pointer ${
-                  activePreset === key
-                    ? 'border-[#EF2F38] bg-[#EF2F38] text-white font-bold shadow-xs'
-                    : 'border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
-                }`}
-              >
-                {item.label}
-              </button>
+        <div className="mb-4 flex w-full flex-wrap items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 p-2 text-xs dark:border-neutral-800 dark:bg-neutral-900">
+          <div role="group" aria-label="Anatomical reference">
+            {(['Male', 'Female'] as const).map((value) => (
+              <button key={value} type="button" aria-pressed={currentGender === value} onClick={() => setCurrentGender(value)} className={`min-h-11 rounded-md px-3 font-semibold transition-colors ${currentGender === value ? 'bg-white text-red-700 shadow-sm dark:bg-neutral-800 dark:text-red-400' : 'text-neutral-600 dark:text-neutral-400'}`}>{value}</button>
             ))}
           </div>
+          <div role="group" aria-label="Body view">
+            {([{ value: 'both', label: 'Both' }, { value: 'anterior', label: 'Front' }, { value: 'posterior', label: 'Back' }] as const).map(({ value, label }) => (
+              <button key={value} type="button" aria-pressed={viewAngle === value} onClick={() => setViewAngle(value)} className={`min-h-11 rounded-md px-3 font-semibold transition-colors ${viewAngle === value ? 'bg-white text-red-700 shadow-sm dark:bg-neutral-800 dark:text-red-400' : 'text-neutral-600 dark:text-neutral-400'}`}>{label}</button>
+            ))}
+          </div>
+          <button type="button" aria-pressed={showEmphasis} onClick={() => setShowEmphasis((value) => !value)} className="min-h-11 rounded-md px-3 font-semibold text-neutral-600 dark:text-neutral-300">Show muscle emphasis</button>
+          <button type="button" aria-pressed={showHudOverlay} onClick={() => setShowHudOverlay((value) => !value)} className="min-h-11 rounded-md px-3 font-semibold text-neutral-600 dark:text-neutral-300">Reference labels</button>
         </div>
       )}
+      <p className="mb-3 text-center text-xs text-neutral-500 dark:text-neutral-400">Select a muscle to explore its role. Colour reflects linked learning material, not a physical measurement.</p>
 
       {/* Dual Scanner Viewport (Anterior & Posterior) */}
       <div className="flex flex-wrap justify-around items-center w-full gap-4 sm:gap-6">
@@ -519,9 +339,9 @@ export function Biomechanical2DScanner({
         {(viewAngle === 'both' || viewAngle === 'anterior') && (
           <div className="flex flex-col items-center relative group">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-2 h-2 rounded-full bg-[#EF2F38] shadow-[0_0_8px_#EF2F38] animate-pulse" />
-              <span className="text-[10px] font-mono font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-widest">
-                ANTERIOR · FRONTAL CHAIN
+              <span className="w-2 h-2 rounded-full bg-[#EF2F38] " />
+              <span className="text-[10px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-widest">
+                Front
               </span>
             </div>
 
@@ -531,7 +351,7 @@ export function Biomechanical2DScanner({
                 width={width}
                 height={height}
                 viewBox="0 0 180 330"
-                className="overflow-visible drop-shadow-xs transition-transform duration-200"
+                className="max-w-full overflow-hidden focus:outline-red-500"
               >
                 {/* Biomechanical HUD Grid Backdrop */}
                 {showHudOverlay && (
@@ -909,7 +729,7 @@ export function Biomechanical2DScanner({
                 {showHudOverlay && (
                   <g
                     opacity={isDarkMode ? 0.7 : 0.85}
-                    className={`font-mono text-[6px] select-none pointer-events-none ${
+                    className={`text-[6px] select-none pointer-events-none ${
                       isDarkMode ? 'fill-neutral-400' : 'fill-slate-700 font-bold'
                     }`}
                   >
@@ -983,8 +803,8 @@ export function Biomechanical2DScanner({
         {(viewAngle === 'both' || viewAngle === 'posterior') && (
           <div className="flex flex-col items-center relative group">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-2 h-2 rounded-full bg-[#EF2F38] shadow-[0_0_8px_#EF2F38] animate-pulse" />
-              <span className="text-[10px] font-mono font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-widest">
+              <span className="w-2 h-2 rounded-full bg-[#EF2F38] " />
+              <span className="text-[10px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-widest">
                 POSTERIOR · POSTERIOR CHAIN
               </span>
             </div>
@@ -995,7 +815,7 @@ export function Biomechanical2DScanner({
                 width={width}
                 height={height}
                 viewBox="0 0 180 330"
-                className="overflow-visible drop-shadow-xs transition-transform duration-200"
+                className="max-w-full overflow-hidden focus:outline-red-500"
               >
                 {/* Biomechanical HUD Grid Backdrop */}
                 {showHudOverlay && (
@@ -1327,7 +1147,7 @@ export function Biomechanical2DScanner({
                 {showHudOverlay && (
                   <g
                     opacity={isDarkMode ? 0.7 : 0.85}
-                    className={`font-mono text-[6px] select-none pointer-events-none ${
+                    className={`text-[6px] select-none pointer-events-none ${
                       isDarkMode ? 'fill-neutral-400' : 'fill-slate-700 font-bold'
                     }`}
                   >
@@ -1402,72 +1222,14 @@ export function Biomechanical2DScanner({
         )}
       </div>
 
-      {/* Floating High-Contrast Bio-Diagnostic HUD Tooltip */}
-      {hoveredPart && (
-        <div
-          className="fixed z-50 bg-white/95 dark:bg-neutral-950/95 text-neutral-900 dark:text-white p-3 rounded-[8px] pointer-events-none shadow-2xl flex flex-col gap-1.5 text-left transform -translate-x-1/2 -translate-y-16 backdrop-blur-xl border border-neutral-300 dark:border-neutral-700/80 font-mono w-64 animate-in fade-in zoom-in-95 duration-150"
-          style={{ left: hoveredPart.x, top: hoveredPart.y }}
-        >
-          {/* Header Row */}
-          <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-1.5">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#EF2F38] shadow-[0_0_8px_#EF2F38] animate-pulse" />
-              <span className="text-[11px] font-bold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">
-                {hoveredPart.name}
-              </span>
-            </div>
-            <span className="text-[9px] px-1.5 py-0.5 rounded-[4px] bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 uppercase font-semibold">
-              {hoveredDb?.category ? hoveredDb.category.replace('_', ' ') : 'Skeletal Muscle'}
-            </span>
-          </div>
-
-          {/* Latin Nomenclature */}
-          {hoveredDb?.latinName && (
-            <div className="text-[9px] text-neutral-600 dark:text-neutral-400 italic line-clamp-1">
-              {hoveredDb.latinName}
-            </div>
-          )}
-
-          {/* Kinetic Load Progress Bar */}
-          <div className="flex flex-col gap-1 mt-0.5">
-            <div className="flex items-center justify-between text-[9px] font-bold">
-              <span className="text-neutral-500 dark:text-neutral-400 flex items-center gap-1">
-                <Zap size={10} className="text-[#EF2F38]" /> KINETIC LOAD:
-              </span>
-              <span
-                className={
-                  hoveredPart.load >= 0.7
-                    ? 'text-[#EF2F38]'
-                    : hoveredPart.load >= 0.35
-                    ? 'text-amber-600 dark:text-amber-400'
-                    : 'text-neutral-700 dark:text-neutral-300'
-                }
-              >
-                {Math.round(hoveredPart.load * 100)}%
-              </span>
-            </div>
-            <div className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
-              <div
-                className={`h-full transition-all duration-300 ${
-                  hoveredPart.load >= 0.7
-                    ? 'bg-gradient-to-r from-red-600 to-[#EF2F38] shadow-[0_0_8px_#EF2F38]'
-                    : hoveredPart.load >= 0.35
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-500'
-                    : 'bg-gradient-to-r from-slate-400 to-slate-600'
-                }`}
-                style={{ width: `${Math.max(5, Math.min(100, Math.round(hoveredPart.load * 100)))}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Taekwondo Biomechanical Relevance */}
-          {hoveredDb?.tkdRelevance && (
-            <div className="text-[8.5px] text-neutral-700 dark:text-neutral-300 leading-tight border-t border-neutral-200 dark:border-neutral-800/80 pt-1 line-clamp-2">
-              <span className="text-[#EF2F38] font-bold">TKD BIOMECHANICS: </span>
-              {hoveredDb.tkdRelevance}
-            </div>
-          )}
-        </div>
+      {selectedMuscle && (
+        <section aria-live="polite" className="mt-4 w-full max-w-2xl rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-left dark:border-neutral-800 dark:bg-neutral-900">
+          <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{selectedMuscle}</h3>
+          {selectedDb?.latinName && <p className="mt-1 text-xs text-neutral-500">{selectedDb.latinName}</p>}
+          {selectedDb?.primaryAction && <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{selectedDb.primaryAction}</p>}
+          {selectedDb?.tkdRelevance && <p className="mt-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">{selectedDb.tkdRelevance}</p>}
+          {getLoad(selectedMuscle) > 0 && <p className="mt-2 text-xs font-semibold text-red-700 dark:text-red-400">Linked to this record’s learning focus</p>}
+        </section>
       )}
     </div>
   );

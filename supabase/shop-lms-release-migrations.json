@@ -1,0 +1,55 @@
+{
+  "projectRef": "lyjxmkyvqazqxkzoeszr",
+  "appliedOn": "2026-11-03",
+  "status": "applied",
+  "localVersionsAlignedToSupabase": true,
+  "entries": [
+    {
+      "version": "20261102181719",
+      "name": "shop_management_integrity",
+      "file": "20261102181719_shop_management_integrity.sql",
+      "sha256": "3bce53322c8b7ac54fa816acbb360f9806f50eeb13f69cccebf60fdf8ac67210"
+    },
+    {
+      "version": "20261102181732",
+      "name": "academy_content_publication",
+      "file": "20261102181732_academy_content_publication.sql",
+      "sha256": "40568e6da5d0bcf8738cd2bd27434e59f41fdcbefd61705a9c63247396451246"
+    },
+    {
+      "version": "20261102181741",
+      "name": "workout_authoring_publications",
+      "file": "20261102181741_workout_authoring_publications.sql",
+      "sha256": "a022c0dc46b035b78cb7ca7d503b9d3c1421d8de655bcf3540a13f487b41de0f"
+    },
+    {
+      "version": "20261102182859",
+      "name": "order_collection_timestamps",
+      "file": "20261102182859_order_collection_timestamps.sql",
+      "sha256": "3ba712c05df38a3b51d1f4f7048f0a7b1a39831a6d2b9faecec653512cf7e885"
+    },
+    {
+      "version": "20261102183241",
+      "name": "workout_authoring_foreign_key_indexes",
+      "file": "20261102183241_workout_authoring_foreign_key_indexes.sql",
+      "sha256": "039210e03fb1c9a68885081189035fb0db40e4e3f3e905d8e0e7615c92292920"
+    }
+  ],
+  "businessDataChangedByMigrations": false,
+  "savedPermissionGrantsChanged": false,
+  "prePostCoreContentFingerprintsUnchanged": true,
+  "verifiedCounts": {
+    "products": 10,
+    "productVariants": 7,
+    "libraryAssets": 81,
+    "curriculum": 81,
+    "posOrders": 0,
+    "inventoryLogs": 0,
+    "workoutTemplates": 0,
+    "workoutDrafts": 0,
+    "trainingAssignments": 0,
+    "learningProgress": 0
+  },
+  "review": "docs/SHOP_LMS_REVIEW_2026-11-03.md",
+  "integration": "docs/SHOP_LMS_INTEGRATION_2026-11-03.md"
+}

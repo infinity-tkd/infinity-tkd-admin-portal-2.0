@@ -1,18 +1,19 @@
 'use client';
+import NextImage from 'next/image';
 
 import React, { useRef, useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+
 import { X } from '@phosphor-icons/react/dist/csr/X';
 import { Printer } from '@phosphor-icons/react/dist/csr/Printer';
 import { ArrowsOutSimple } from '@phosphor-icons/react/dist/csr/ArrowsOutSimple';
 import { ArrowsInSimple } from '@phosphor-icons/react/dist/csr/ArrowsInSimple';
-import { Calendar } from '@phosphor-icons/react/dist/csr/Calendar';
+
 import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
-import { Envelope } from '@phosphor-icons/react/dist/csr/Envelope';
+
 import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
 import { Heart } from '@phosphor-icons/react/dist/csr/Heart';
 import { Trophy } from '@phosphor-icons/react/dist/csr/Trophy';
-import { Medal } from '@phosphor-icons/react/dist/csr/Medal';
+
 import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
 import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
 import { Image as ImageIcon } from '@phosphor-icons/react/dist/csr/Image';
@@ -23,7 +24,7 @@ import { Receipt } from '@phosphor-icons/react/dist/csr/Receipt';
 import { Notebook } from '@phosphor-icons/react/dist/csr/Notebook';
 import { ListChecks } from '@phosphor-icons/react/dist/csr/ListChecks';
 import { useAppStore } from '@/lib/store';
-import { cn, formatBelt, formatBeltLocalized } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { useT } from '@/hooks/useTranslation';
 import { SafeImage } from '@/components/SafeImage';
 import { Portal } from '@/components/Portal';
@@ -51,19 +52,19 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
   const t = useT();
   const dossierRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [scale, setScale] = useState(1);
   const [viewMode, setViewMode] = useState<'single' | 'scroll'>('single');
   const [activePage, setActivePage] = useState(0);
-  
+
   const student = state.students.find(s => s.id === studentId);
 
   // Set up resize observer to dynamically scale A4 preview pages
   useEffect(() => {
     if (!containerRef.current) return;
-    
+
     const updateScale = () => {
       if (!containerRef.current) return;
       const width = containerRef.current.clientWidth;
@@ -81,7 +82,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
       updateScale();
     });
     observer.observe(containerRef.current);
-    
+
     return () => observer.disconnect();
   }, [viewMode]); // Trigger scale update if view mode changes
 
@@ -91,11 +92,11 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
   const beltHistory = state.beltHistories
     .filter(b => b.studentId === student.id)
     .sort((a, b) => new Date(b.promotionDate).getTime() - new Date(a.promotionDate).getTime());
-    
+
   const achievements = state.achievements
     .filter(a => a.studentId === student.id)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    
+
   const physicalEvals = state.physicalEvaluations
     .filter(e => e.studentId === student.id)
     .sort((a, b) => new Date(b.evaluatedAt).getTime() - new Date(a.evaluatedAt).getTime());
@@ -164,13 +165,13 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
       for (let i = 0; i < pages.length; i++) {
         const page = pages[i] as HTMLDivElement;
         const wrapper = page.parentElement as HTMLDivElement;
-        
+
         // Save current styles
         const originalStyle = page.style.transform;
         const originalPosition = page.style.position;
         const originalTop = page.style.top;
         const originalLeft = page.style.left;
-        
+
         const originalWrapperWidth = wrapper.style.width;
         const originalWrapperHeight = wrapper.style.height;
         const originalWrapperOverflow = wrapper.style.overflow;
@@ -181,12 +182,12 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
         page.style.position = 'relative';
         page.style.top = 'auto';
         page.style.left = 'auto';
-        
+
         wrapper.style.width = '794px';
         wrapper.style.height = '1123px';
         wrapper.style.overflow = 'visible';
         wrapper.style.setProperty('display', 'block', 'important'); // force display block override
-        
+
         const canvas = await html2canvas(page, {
           scale: 2, // High resolution (300 DPI equivalent)
           useCORS: true,
@@ -194,31 +195,31 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
           backgroundColor: '#FFFFFF',
           logging: true
         });
-        
+
         // Restore styles
         page.style.transform = originalStyle;
         page.style.position = originalPosition;
         page.style.top = originalTop;
         page.style.left = originalLeft;
-        
+
         wrapper.style.width = originalWrapperWidth;
         wrapper.style.height = originalWrapperHeight;
         wrapper.style.overflow = originalWrapperOverflow;
         wrapper.style.display = originalWrapperDisplay;
-        
+
         const dataUrl = canvas.toDataURL('image/png');
         const blob = dataURLtoBlob(dataUrl);
         const blobUrl = URL.createObjectURL(blob);
-        
+
         const link = document.createElement('a');
         link.download = `INFINITY_TKD_DOSSIER_${student.englishName.replace(/\s+/g, '_')}_${student.id}_Page_${i + 1}.png`;
         link.href = blobUrl;
-        
+
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(blobUrl);
-        
+
         // Wait 350ms between downloads to avoid browser block triggers
         await new Promise(resolve => setTimeout(resolve, 350));
       }
@@ -233,7 +234,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
   const handlePrintPDF = () => {
     if (!dossierRef.current) return;
-    
+
     const printWindow = window.open('', '_blank', 'width=950,height=1250');
     if (!printWindow) {
       showNotification("Popup blocker prevented printing. Please allow popups.", "warning");
@@ -387,10 +388,10 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
       {/* Background overlay screen */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-[env(safe-area-inset-top)] pb-[calc(1rem+env(safe-area-inset-bottom))] bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-        
+
         {/* Document Panel Container */}
         <div className={`relative bg-neutral-900 border border-neutral-800 rounded-[8px] shadow-2xl flex flex-col overflow-hidden max-h-[96dvh] transition-all duration-300 ${isFullScreen ? 'w-full h-full max-w-none' : 'w-full max-w-4xl h-[90dvh]'}`}>
-          
+
           {/* Header Action Control Panel */}
           <div className="px-4 sm:px-6 py-3 sm:py-4 bg-neutral-950 border-b border-neutral-800 flex items-center justify-between shrink-0 text-white z-10 shadow-md gap-2">
             <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -404,7 +405,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
             </div>
 
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              <button 
+              <button
                 onClick={() => setIsFullScreen(!isFullScreen)}
                 className="p-2 bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white rounded-[8px] transition-colors flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider font-mono"
               >
@@ -421,7 +422,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                 )}
               </button>
 
-              <button 
+              <button
                 onClick={handleDownloadImages}
                 disabled={isGenerating}
                 className="p-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-[8px] transition-colors flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider shadow-md shadow-emerald-600/10 font-mono"
@@ -430,7 +431,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                 <span className="hidden sm:inline">{isGenerating ? "Saving..." : "Save PNG"}</span>
               </button>
 
-              <button 
+              <button
                 onClick={handlePrintPDF}
                 className="p-2 bg-[#EF2F38] hover:bg-red-600 text-white rounded-[8px] transition-colors flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider shadow-md shadow-red-500/10 font-mono"
               >
@@ -438,7 +439,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                 <span className="hidden sm:inline">Print / PDF</span>
               </button>
 
-              <button 
+              <button
                 type="button"
                 onClick={onClose}
                 aria-label="Close modal"
@@ -453,14 +454,14 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
           <div className="px-4 sm:px-6 py-2.5 sm:py-3 bg-neutral-950 border-b border-neutral-800 flex flex-wrap items-center justify-between shrink-0 gap-2.5 text-white">
             {/* View Mode Switcher */}
             <div className="flex bg-neutral-900 border border-neutral-800 rounded-[8px] p-0.5">
-              <button 
+              <button
                 onClick={() => setViewMode('single')}
                 className={`px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center gap-1.5 ${viewMode === 'single' ? 'bg-[#EF2F38] text-white shadow' : 'text-neutral-400 hover:text-white'}`}
               >
                 <FileText className="w-3.5 h-3.5" />
                 <span>Page-by-Page</span>
               </button>
-              <button 
+              <button
                 onClick={() => setViewMode('scroll')}
                 className={`px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center gap-1.5 ${viewMode === 'scroll' ? 'bg-[#EF2F38] text-white shadow' : 'text-neutral-400 hover:text-white'}`}
               >
@@ -472,7 +473,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
             {/* Navigation Panel */}
             {viewMode === 'single' ? (
               <div className="flex items-center gap-2">
-                <button 
+                <button
                   disabled={activePage === 0}
                   onClick={() => setActivePage(p => Math.max(0, p - 1))}
                   className="p-1.5 bg-neutral-900 border border-neutral-800 rounded-[8px] text-neutral-400 hover:text-white disabled:opacity-30 disabled:hover:text-neutral-400 transition-colors"
@@ -481,19 +482,19 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                 </button>
 
                 <div className="flex bg-neutral-900 border border-neutral-800 rounded-[8px] p-0.5 gap-0.5">
-                  <button 
+                  <button
                     onClick={() => setActivePage(0)}
                     className={`px-2.5 py-1 text-[8px] font-bold uppercase tracking-wider rounded-[8px] transition-all ${activePage === 0 ? 'bg-neutral-800 text-white border border-neutral-700' : 'text-neutral-400 hover:text-white'}`}
                   >
                     1. Profile & Bio
                   </button>
-                  <button 
+                  <button
                     onClick={() => setActivePage(1)}
                     className={`px-2.5 py-1 text-[8px] font-bold uppercase tracking-wider rounded-[8px] transition-all ${activePage === 1 ? 'bg-neutral-800 text-white border border-neutral-700' : 'text-neutral-400 hover:text-white'}`}
                   >
                     2. Rank & Curriculum
                   </button>
-                  <button 
+                  <button
                     onClick={() => setActivePage(2)}
                     className={`px-2.5 py-1 text-[8px] font-bold uppercase tracking-wider rounded-[8px] transition-all ${activePage === 2 ? 'bg-neutral-800 text-white border border-neutral-700' : 'text-neutral-400 hover:text-white'}`}
                   >
@@ -501,7 +502,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                   </button>
                 </div>
 
-                <button 
+                <button
                   disabled={activePage === 2}
                   onClick={() => setActivePage(p => Math.min(2, p + 1))}
                   className="p-1.5 bg-neutral-900 border border-neutral-800 rounded-[8px] text-neutral-400 hover:text-white disabled:opacity-30 disabled:hover:text-neutral-400 transition-colors"
@@ -513,7 +514,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
               <div className="flex items-center gap-2">
                 <span className="text-[9px] text-neutral-500 font-bold uppercase tracking-widest font-mono mr-1">Quick Jump:</span>
                 <div className="flex bg-neutral-900 border border-neutral-800 rounded-[8px] p-0.5 gap-0.5">
-                  <button 
+                  <button
                     onClick={() => {
                       const wrappers = dossierRef.current?.querySelectorAll('.page-scaler-wrapper');
                       wrappers?.[0]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -522,7 +523,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                   >
                     P1: Profile
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
                       const wrappers = dossierRef.current?.querySelectorAll('.page-scaler-wrapper');
                       wrappers?.[1]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -531,7 +532,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                   >
                     P2: Rank
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
                       const wrappers = dossierRef.current?.querySelectorAll('.page-scaler-wrapper');
                       wrappers?.[2]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -546,18 +547,18 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
           </div>
 
           {/* Core Scroll View Container */}
-          <div 
+          <div
             ref={containerRef}
             className="flex-1 overflow-y-auto p-8 bg-[#0F0F0F] flex flex-col items-center gap-6 custom-scrollbar w-full scroll-smooth"
           >
-            
+
             {/* The 3 A4 Document Canvas sheets */}
             <div ref={dossierRef} className="flex flex-col gap-8 items-center w-full">
-              
+
               {/* ========================================================================= */}
               {/* PAGE 1: ACADEMIC PROFILE & COURSE LOGISTICS */}
               {/* ========================================================================= */}
-              <div 
+              <div
                 className={`page-scaler-wrapper shrink-0 ${viewMode === 'single' && activePage !== 0 ? 'inactive' : ''}`}
                 style={{
                   width: `${794 * scale}px`,
@@ -567,7 +568,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                   overflow: 'hidden'
                 }}
               >
-                <div 
+                <div
                   className="dossier-page w-[794px] h-[1123px] bg-white text-black p-12 shadow-2xl relative flex flex-col justify-between select-none shrink-0 border border-neutral-200"
                   style={{
                     transform: `scale(${scale})`,
@@ -583,14 +584,14 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                 >
                   {/* Background Watermark */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.02] z-0">
-                    <img src="/logo.svg" alt="Watermark Logo" className="w-[450px] h-[450px]" />
+                    <NextImage unoptimized width={450} height={450} src="/logo.svg" alt="Watermark Logo" className="w-[450px] h-[450px]" />
                   </div>
 
                   <div className="relative z-10 flex flex-col flex-grow">
                     {/* Official Header */}
                     <div className="flex justify-between items-center border-b-[3px] border-[#EF2F38] pb-4 mb-6">
                       <div className="flex items-center gap-4">
-                        <img src="/logo.svg" alt="Infinity TKD Crest Logo" className="w-14 h-14 shrink-0 filter brightness-95" />
+                        <NextImage unoptimized width={56} height={56} src="/logo.svg" alt="Infinity TKD Crest Logo" className="w-14 h-14 shrink-0 filter brightness-95" />
                         <div>
                           <h1 className="text-lg font-black tracking-widest text-[#EF2F38] leading-none uppercase">
                             INFINITY TAEKWONDO ACADEMY
@@ -622,9 +623,9 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                     <div className="grid grid-cols-4 gap-6 mb-6 items-start bg-neutral-100 p-5 rounded-[8px] border border-neutral-300">
                       <div className="col-span-1 flex flex-col items-center">
                         <div className="w-24 h-24 bg-white border border-neutral-300 rounded-[8px] overflow-hidden flex items-center justify-center shadow-sm shrink-0">
-                          <SafeImage 
-                            src={student.profilePicturePath} 
-                            alt={student.englishName} 
+                          <SafeImage
+                            src={student.profilePicturePath}
+                            alt={student.englishName}
                             containerClassName="w-full h-full object-cover flex items-center justify-center text-2xl font-bold text-neutral-600 bg-neutral-200"
                             fallback={student.englishName.charAt(0)}
                             crossOrigin="anonymous"
@@ -641,16 +642,16 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                         <div>
                           <span className="block text-[7px] uppercase font-bold text-neutral-600 tracking-wider">Active Belt Rank</span>
                           <span className="font-bold text-neutral-900 uppercase tracking-wide flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" 
+                            <span className="w-2 h-2 rounded-full bg-red-500 shrink-0"
                               style={{
-                                backgroundColor: 
+                                backgroundColor:
                                   student.currentBelt === 'White' ? '#E5E7EB' :
                                   student.currentBelt === 'Yellow' ? '#FBBF24' :
                                   student.currentBelt === 'Green' ? '#22C55E' :
                                   student.currentBelt === 'Blue' ? '#3B82F6' :
                                   student.currentBelt === 'Brown' ? '#92400E' :
                                   student.currentBelt === 'Red' ? '#EF4444' : '#111'
-                              }} 
+                              }}
                             />
                             {student.currentBelt}
                           </span>
@@ -886,7 +887,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
               {/* ========================================================================= */}
               {/* PAGE 2: BELT TRANSCRIPT & CURRICULUM PROGRESS */}
               {/* ========================================================================= */}
-              <div 
+              <div
                 className={`page-scaler-wrapper shrink-0 ${viewMode === 'single' && activePage !== 1 ? 'inactive' : ''}`}
                 style={{
                   width: `${794 * scale}px`,
@@ -896,7 +897,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                   overflow: 'hidden'
                 }}
               >
-                <div 
+                <div
                   className="dossier-page w-[794px] h-[1123px] bg-white text-black p-12 shadow-2xl relative flex flex-col justify-between select-none shrink-0 border border-neutral-200"
                   style={{
                     transform: `scale(${scale})`,
@@ -911,14 +912,14 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                   }}
                 >
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.02] z-0">
-                    <img src="/logo.svg" alt="Watermark Logo" className="w-[450px] h-[450px]" />
+                    <NextImage unoptimized width={450} height={450} src="/logo.svg" alt="Watermark Logo" className="w-[450px] h-[450px]" />
                   </div>
 
                   <div className="relative z-10 flex flex-col flex-grow">
                     {/* Official Header */}
                     <div className="flex justify-between items-center border-b-[3px] border-[#EF2F38] pb-4 mb-6">
                       <div className="flex items-center gap-4">
-                        <img src="/logo.svg" alt="Infinity TKD Crest Logo" className="w-14 h-14 shrink-0 filter brightness-95" />
+                        <NextImage unoptimized width={56} height={56} src="/logo.svg" alt="Infinity TKD Crest Logo" className="w-14 h-14 shrink-0 filter brightness-95" />
                         <div>
                           <h1 className="text-lg font-black tracking-widest text-[#EF2F38] leading-none uppercase">
                             INFINITY TAEKWONDO ACADEMY
@@ -992,7 +993,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                             <CheckCircle className="w-3.5 h-3.5" />
                             <span>LMS VIDEO CHECKPOINT STATUS</span>
                           </h4>
-                          
+
                           <div className="grid grid-cols-2 gap-2 bg-white p-2 rounded border border-neutral-300 text-[8px] mb-3">
                             <div>
                               <span className="block text-[7px] text-neutral-800 uppercase font-bold tracking-wider">Belt Curriculum</span>
@@ -1033,7 +1034,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                             <ListChecks className="w-3.5 h-3.5" />
                             <span>PHYSICAL SYLLABUS SKILLS (DOJANG)</span>
                           </h4>
-                          
+
                           <div className="grid grid-cols-2 gap-2 bg-white p-2 rounded border border-neutral-300 text-[8px] mb-3">
                             <div>
                               <span className="block text-[7px] text-neutral-800 uppercase font-bold tracking-wider">Required Skills</span>
@@ -1121,7 +1122,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
               {/* ========================================================================= */}
               {/* PAGE 3: ATHLETIC DEVELOPMENT & TOURNAMENT RECORD */}
               {/* ========================================================================= */}
-              <div 
+              <div
                 className={`page-scaler-wrapper shrink-0 ${viewMode === 'single' && activePage !== 2 ? 'inactive' : ''}`}
                 style={{
                   width: `${794 * scale}px`,
@@ -1131,7 +1132,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                   overflow: 'hidden'
                 }}
               >
-                <div 
+                <div
                   className="dossier-page w-[794px] h-[1123px] bg-white text-black p-12 shadow-2xl relative flex flex-col justify-between select-none shrink-0 border border-neutral-200"
                   style={{
                     transform: `scale(${scale})`,
@@ -1146,14 +1147,14 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                   }}
                 >
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.02] z-0">
-                    <img src="/logo.svg" alt="Watermark Logo" className="w-[450px] h-[450px]" />
+                    <NextImage unoptimized width={450} height={450} src="/logo.svg" alt="Watermark Logo" className="w-[450px] h-[450px]" />
                   </div>
 
                   <div className="relative z-10 flex flex-col flex-grow">
                     {/* Official Header */}
                     <div className="flex justify-between items-center border-b-[3px] border-[#EF2F38] pb-4 mb-6">
                       <div className="flex items-center gap-4">
-                        <img src="/logo.svg" alt="Infinity TKD Crest Logo" className="w-14 h-14 shrink-0 filter brightness-95" />
+                        <NextImage unoptimized width={56} height={56} src="/logo.svg" alt="Infinity TKD Crest Logo" className="w-14 h-14 shrink-0 filter brightness-95" />
                         <div>
                           <h1 className="text-lg font-black tracking-widest text-[#EF2F38] leading-none uppercase">
                             INFINITY TAEKWONDO ACADEMY
@@ -1309,7 +1310,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                         <div className="flex flex-col items-center">
                           <div className="w-28 h-12 border-b border-neutral-300 flex items-center justify-center relative">
                             {student.esignPath ? (
-                              <img src={student.esignPath} alt="Digital Esign" crossOrigin="anonymous" className="h-10 object-contain max-w-[100px] mix-blend-multiply" />
+                              <NextImage unoptimized width={100} height={40} src={student.esignPath} alt="Digital Esign" crossOrigin="anonymous" className="h-10 object-contain max-w-[100px] mix-blend-multiply" />
                             ) : (
                               <span className="font-mono text-[7px] text-neutral-500 italic">No Signature</span>
                             )}
@@ -1328,7 +1329,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                           <span className="block text-[7px] uppercase font-bold text-neutral-700 tracking-wider mt-1.5">Registrar Department</span>
                           <span className="block text-[5px] text-neutral-700 font-mono">Infinity Taekwondo HQ</span>
                         </div>
-                        
+
                         {/* Column 3: Coach Inspector */}
                         <div className="flex flex-col items-center">
                           <div className="w-28 h-12 border-b border-neutral-300" />
@@ -1359,7 +1360,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
               </div>
 
             </div>
-            
+
           </div>
 
         </div>

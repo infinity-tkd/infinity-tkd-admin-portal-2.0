@@ -28,10 +28,9 @@ const groups: { id: string; title: string; description: string; icon: typeof Bui
     { key: 'defaultBranchId', label: 'Default branch', hint: 'All locations keeps the academy profile independent of a branch.' },
     { key: 'primaryAddress', label: 'Primary address', type: 'textarea', maxLength: 500 },
   ] },
-  { id: 'billing', title: 'Billing defaults', description: 'Unpaid dues use the current tuition defaults. Stored payment amounts are not rewritten.', icon: CurrencyDollar, fields: [
+  { id: 'billing', title: 'Billing defaults', description: 'New invoices capture these rates. Existing invoices and receipts retain their recorded amounts. Renewal lead time and late-payment grace are managed separately in Operations → Job health.', icon: CurrencyDollar, fields: [
     { key: 'standardTuitionUsd', label: 'Standard monthly tuition (USD)', type: 'number', min: 0, max: 10000, step: .01 },
     { key: 'earlyGroupTuitionUsd', label: 'Early group monthly tuition (USD)', type: 'number', min: 0, max: 10000, step: .01 },
-    { key: 'tuitionGracePeriodDays', label: 'Payment grace period (days)', type: 'number', min: 0, max: 60, hint: 'Days before an unpaid membership is marked overdue.' },
     { key: 'currency', label: 'Display currency', options: [['USD', 'USD — US dollar'], ['KHR', 'KHR — Khmer riel']], hint: 'Tuition and transaction amounts remain in USD; this does not convert prices.' },
     { key: 'currencySymbol', label: 'Display symbol', maxLength: 10 },
     { key: 'taxRatePercentage', label: 'Reference tax rate (%)', type: 'number', min: 0, max: 100, step: .01, hint: 'Stored for reference. Tax is not automatically added to transactions.' },
@@ -50,7 +49,7 @@ const groups: { id: string; title: string; description: string; icon: typeof Bui
 ];
 const numericKeys = new Set(groups.flatMap(group => group.fields.filter(field => field.type === 'number').map(field => field.key)));
 function asDraft(profile: AcademyProfile): Draft {
-  return Object.fromEntries(Object.entries(academyProfileChanges(profile)).map(([key, value]) => [key, typeof value === 'boolean' ? value : String(value ?? '')]));
+  return Object.fromEntries(Object.entries(academyProfileChanges(profile)).filter(([key]) => key !== 'tuitionGracePeriodDays').map(([key, value]) => [key, typeof value === 'boolean' ? value : String(value ?? '')]));
 }
 
 export function AcademySettingsPanel({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void }) {

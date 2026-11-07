@@ -1,4 +1,5 @@
 'use client';
+import { copyText } from '@/lib/clipboard';
 
 import { dialogMotion } from '@/lib/motion';
 import { academyDate } from '@/lib/dates';
@@ -56,6 +57,7 @@ import { UserPermissionsModal } from './UserPermissionsModal';
 import { PwaDiagnosticsModal } from '@/components/pwa/PwaDiagnosticsModal';
 import { playChime, isAudioEnabled, setAudioEnabled } from '@/lib/soundEffects';
 import { AcademySettingsPanel } from './settings/AcademySettingsPanel';
+import { BranchHoursPanel } from './settings/BranchHoursPanel';
 import settingsStyles from './settings/settings.module.css';
 
 const formatRoleLocalized = (roleName: string, t: any) => {
@@ -238,10 +240,10 @@ export function SettingsView() {
   const filteredUsers = useMemo(() => {
     return state.users.filter(u => {
       const q = memberSearch.trim().toLowerCase();
-      const matchesSearch = !q || 
-        u.displayName.toLowerCase().includes(q) || 
-        u.username.toLowerCase().includes(q) || 
-        u.email.toLowerCase().includes(q) ||
+      const matchesSearch = !q ||
+        (u.displayName || '').toLowerCase().includes(q) ||
+        (u.username || '').toLowerCase().includes(q) ||
+        (u.email || '').toLowerCase().includes(q) ||
         (u.phone && u.phone.includes(q)) ||
         (u.khmerName && u.khmerName.toLowerCase().includes(q));
 
@@ -340,13 +342,13 @@ export function SettingsView() {
 
   const renderUserCard = (u: User) => {
     const isManageable = canManageUser(u);
-    const student = (u.role === 'Student' || u.studentId) ? state.students.find(s => 
-      s.id === u.studentId || 
+    const student = (u.role === 'Student' || u.studentId) ? state.students.find(s =>
+      s.id === u.studentId ||
       s.profileId === u.id
     ) : null;
 
     return (
-      <div 
+      <div
         key={u.id}
         className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 flex flex-col justify-between gap-3.5 shadow-sm hover:border-[#EF2F38]/40 transition-all"
       >
@@ -354,9 +356,9 @@ export function SettingsView() {
           {/* Top Row: Avatar, Names, and Access Status */}
           <div className="flex items-start justify-between gap-2.5 mb-2.5">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <SafeImage 
-                src={u.profilePicturePath} 
-                alt={u.displayName} 
+              <SafeImage
+                src={u.profilePicturePath}
+                alt={u.displayName}
                 containerClassName="w-10 h-10 rounded-full overflow-hidden bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center shrink-0"
               />
               <div className="flex flex-col min-w-0">
@@ -367,8 +369,8 @@ export function SettingsView() {
 
             <span className={cn(
               "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider font-mono shrink-0 border",
-              u.isActive 
-                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" 
+              u.isActive
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                 : "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20"
             )}>
               <span className={cn("w-1.5 h-1.5 rounded-full", u.isActive ? "bg-emerald-500" : "bg-red-500")} />
@@ -381,11 +383,11 @@ export function SettingsView() {
             <div className="flex items-center justify-between gap-2">
               <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono uppercase font-bold">Role:</span>
               <span className={cn(
-                "px-2 py-0.5 rounded-[8px] text-[10px] font-bold uppercase tracking-widest border font-mono", 
-                u.role === 'Root' || u.role === 'Super Root' ? "bg-red-500/15 text-red-700 dark:text-[#EF2F38] border-red-500/40" : 
-                u.role === 'Admin' ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30" : 
+                "px-2 py-0.5 rounded-[8px] text-[10px] font-bold uppercase tracking-widest border font-mono",
+                u.role === 'Root' || u.role === 'Super Root' ? "bg-red-500/15 text-red-700 dark:text-[#EF2F38] border-red-500/40" :
+                u.role === 'Admin' ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30" :
                 u.role === 'Student' ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30" :
-                "bg-neutral-100 dark:bg-[#262626] text-neutral-800 dark:text-neutral-300 border-neutral-300 dark:border-transparent" 
+                "bg-neutral-100 dark:bg-[#262626] text-neutral-800 dark:text-neutral-300 border-neutral-300 dark:border-transparent"
               )}>
                 {formatRoleLocalized(u.role, t)}
               </span>
@@ -442,18 +444,18 @@ export function SettingsView() {
           {isManageable && (
             <div className="flex items-center gap-1.5">
               {isRoot && (
-                <button 
+                <button
                   type="button"
-                  title="Account Permissions & Overrides" 
+                  title="Account Permissions & Overrides"
                   onClick={() => setPermissionTargetUser(u)}
                   className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-purple-500/10 hover:bg-purple-500/20 dark:bg-purple-950/30 dark:hover:bg-purple-900/40 rounded-[8px] border border-purple-500/30 text-purple-600 dark:text-purple-400 transition-colors cursor-pointer active:scale-95 touch-manipulation"
                 >
                   <ShieldCheck className="w-4 h-4"/>
                 </button>
               )}
-              <button 
+              <button
                 type="button"
-                title="Set / Change Password" 
+                title="Set / Change Password"
                 onClick={() => {
                   setTargetNewPassword('');
                   setPasswordTargetUser(u);
@@ -462,23 +464,23 @@ export function SettingsView() {
               >
                 <Key className="w-4 h-4 text-[#EF2F38]"/>
               </button>
-              <button 
+              <button
                 type="button"
-                title={t('act_edit')} 
+                title={t('act_edit')}
                 onClick={() => handleEditUser(u)}
                 className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation"
               >
                 <PencilSimple className="w-4 h-4"/>
               </button>
-              <button 
+              <button
                 type="button"
-                title={t('set_lock_unlock')} 
+                title={t('set_lock_unlock')}
                 onClick={() => handleToggleAccount(u)}
                 disabled={busyUsers.has(u.id)}
                 className={cn(
-                  "p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-[8px] border transition-colors cursor-pointer active:scale-95 touch-manipulation", 
-                  u.isActive 
-                    ? "bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-red-500 hover:border-red-500/50" 
+                  "p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-[8px] border transition-colors cursor-pointer active:scale-95 touch-manipulation",
+                  u.isActive
+                    ? "bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-red-500 hover:border-red-500/50"
                     : "bg-red-500/10 border-red-500/50 text-red-500 hover:bg-red-500/20"
                 )}
               >
@@ -610,7 +612,7 @@ export function SettingsView() {
               </div>
 
               <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
-                <button 
+                <button
                   type="button"
                   aria-pressed={state.theme === 'light'}
                   onClick={() => setTheme('light')}
@@ -629,7 +631,7 @@ export function SettingsView() {
                   {state.theme === 'light' && <Check className="w-3.5 h-3.5 ml-auto text-amber-600" weight="bold" />}
                 </button>
 
-                <button 
+                <button
                   type="button"
                   aria-pressed={state.theme === 'dark'}
                   onClick={() => setTheme('dark')}
@@ -658,7 +660,7 @@ export function SettingsView() {
               </div>
 
               <div className="grid grid-cols-3 gap-2 w-full md:w-auto">
-                <button 
+                <button
                   type="button"
                   aria-pressed={state.language === 'en'}
                   onClick={() => setLanguage('en')}
@@ -673,7 +675,7 @@ export function SettingsView() {
                   <span className="truncate">English</span>
                 </button>
 
-                <button 
+                <button
                   type="button"
                   aria-pressed={state.language === 'kh'}
                   onClick={() => setLanguage('kh')}
@@ -688,7 +690,7 @@ export function SettingsView() {
                   <span className="truncate">ខ្មែរ</span>
                 </button>
 
-                <button 
+                <button
                   type="button"
                   aria-pressed={state.language === 'zh'}
                   onClick={() => setLanguage('zh')}
@@ -712,8 +714,8 @@ export function SettingsView() {
                   <p className="text-sm font-bold text-neutral-900 dark:text-white">{t('set_audio_feedback')}</p>
                   <span className={cn(
                     "px-2 py-0.5 text-[9px] font-bold font-mono rounded-[8px] uppercase tracking-wider",
-                    soundActive 
-                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" 
+                    soundActive
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                       : "bg-neutral-200 dark:bg-[#262626] text-neutral-500"
                   )}>
                     {soundActive ? 'Active' : 'Muted'}
@@ -760,6 +762,7 @@ export function SettingsView() {
       {/* ========================================================================= */}
       <div hidden={activeTab !== 'profile'}>
         <AcademySettingsPanel onDirtyChange={setIsProfileDirty} />
+        {activeTab === 'profile' && <BranchHoursPanel />}
       </div>
 
       {/* ========================================================================= */}
@@ -779,7 +782,7 @@ export function SettingsView() {
             </div>
 
             <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
-              <button 
+              <button
                 type="button"
                 onClick={() => setIsBulkImporting(true)}
                 className="flex-1 sm:flex-none px-3.5 py-2 min-h-[42px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white font-bold uppercase tracking-wider text-xs rounded-[8px] transition-colors cursor-pointer flex items-center justify-center gap-1.5"
@@ -788,17 +791,17 @@ export function SettingsView() {
                 <span>{t('dir_bulk_import')}</span>
               </button>
 
-              <button 
+              <button
                 type="button"
                 onClick={() => {
-                  setUserForm({ 
-                    username: '', 
-                    email: '', 
-                    displayName: '', 
+                  setUserForm({
+                    username: '',
+                    email: '',
+                    displayName: '',
                     khmerName: '',
                     phone: '',
-                    role: manageableRoles[0] as Role, 
-                    isActive: true, 
+                    role: manageableRoles[0] as Role,
+                    isActive: true,
                     profilePicturePath: '',
                     password: generatePassword(),
                     studentId: ''
@@ -807,7 +810,7 @@ export function SettingsView() {
                 }}
                 className="flex-1 sm:flex-none px-4 py-2 min-h-[42px] bg-[#EF2F38] hover:bg-[#D0252D] text-white font-bold uppercase tracking-wider text-xs rounded-[8px] transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm shadow-[#EF2F38]/20"
               >
-                <UserPlus className="w-4 h-4" weight="bold" /> 
+                <UserPlus className="w-4 h-4" weight="bold" />
                 <span>{t('usr_add_account')}</span>
               </button>
             </div>
@@ -924,15 +927,15 @@ export function SettingsView() {
           <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between shadow-sm transition-colors">
             {/* Search Input */}
             <div className="relative flex bg-neutral-100 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] px-3 w-full md:max-w-xs shrink-0 min-h-[40px] items-center">
-              <input 
-                type="text" 
-                placeholder={t('stf_search_placeholder')} 
-                value={memberSearch} 
+              <input
+                type="text"
+                placeholder={t('stf_search_placeholder')}
+                value={memberSearch}
                 onChange={(e) => setMemberSearch(e.target.value)}
                 className="w-full bg-transparent border-none text-neutral-900 dark:text-white text-xs py-1.5 focus:outline-none placeholder:text-neutral-400 dark:placeholder:text-neutral-500 font-mono pr-6"
               />
               {memberSearch && (
-                <button 
+                <button
                   type="button"
                   onClick={() => setMemberSearch('')}
                   className="p-1 text-neutral-400 hover:text-neutral-600 dark:hover:text-white cursor-pointer"
@@ -946,8 +949,8 @@ export function SettingsView() {
             <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto md:justify-end">
               {/* Role Filter */}
               <div className="flex items-center gap-1.5 flex-1 sm:flex-none">
-                <select 
-                  value={memberRoleFilter} 
+                <select
+                  value={memberRoleFilter}
                   onChange={(e) => {
                     setMemberRoleFilter(e.target.value);
                     setActiveKpiFilter(null);
@@ -967,8 +970,8 @@ export function SettingsView() {
 
               {/* Status Filter */}
               <div className="flex items-center gap-1.5 flex-1 sm:flex-none">
-                <select 
-                  value={memberStatusFilter} 
+                <select
+                  value={memberStatusFilter}
                   onChange={(e) => {
                     setMemberStatusFilter(e.target.value as any);
                     setActiveKpiFilter(null);
@@ -989,8 +992,8 @@ export function SettingsView() {
                   title="Table View"
                   className={cn(
                     "p-2 rounded-[8px] transition-all cursor-pointer",
-                    accountsViewMode === 'table' 
-                      ? "bg-white dark:bg-[#262626] text-[#EF2F38] dark:text-white shadow-sm font-bold" 
+                    accountsViewMode === 'table'
+                      ? "bg-white dark:bg-[#262626] text-[#EF2F38] dark:text-white shadow-sm font-bold"
                       : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                   )}
                 >
@@ -1002,8 +1005,8 @@ export function SettingsView() {
                   title="Cards View"
                   className={cn(
                     "p-2 rounded-[8px] transition-all cursor-pointer",
-                    accountsViewMode === 'cards' 
-                      ? "bg-white dark:bg-[#262626] text-[#EF2F38] dark:text-white shadow-sm font-bold" 
+                    accountsViewMode === 'cards'
+                      ? "bg-white dark:bg-[#262626] text-[#EF2F38] dark:text-white shadow-sm font-bold"
                       : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                   )}
                 >
@@ -1073,9 +1076,9 @@ export function SettingsView() {
                         <tr key={u.id} className="hover:bg-neutral-50 dark:hover:bg-[#1A1A1A] transition-colors">
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3">
-                              <SafeImage 
-                                src={u.profilePicturePath} 
-                                alt={u.displayName} 
+                              <SafeImage
+                                src={u.profilePicturePath}
+                                alt={u.displayName}
                                 containerClassName="w-8 h-8 rounded-full overflow-hidden bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center shrink-0"
                               />
                               <div className="flex flex-col min-w-0">
@@ -1086,11 +1089,11 @@ export function SettingsView() {
                           </td>
                           <td className="px-4 py-3">
                             <span className={cn(
-                              "px-2.5 py-0.5 rounded-[8px] text-[10px] font-bold uppercase tracking-widest border font-mono whitespace-nowrap", 
-                              u.role === 'Root' || u.role === 'Super Root' ? "bg-red-500/15 text-red-700 dark:text-[#EF2F38] border-red-500/40" : 
-                              u.role === 'Admin' ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30" : 
+                              "px-2.5 py-0.5 rounded-[8px] text-[10px] font-bold uppercase tracking-widest border font-mono whitespace-nowrap",
+                              u.role === 'Root' || u.role === 'Super Root' ? "bg-red-500/15 text-red-700 dark:text-[#EF2F38] border-red-500/40" :
+                              u.role === 'Admin' ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30" :
                               u.role === 'Student' ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30" :
-                              "bg-neutral-100 dark:bg-[#262626] text-neutral-800 dark:text-neutral-300 border-neutral-300 dark:border-transparent" 
+                              "bg-neutral-100 dark:bg-[#262626] text-neutral-800 dark:text-neutral-300 border-neutral-300 dark:border-transparent"
                             )}>
                               {formatRoleLocalized(u.role, t)}
                             </span>
@@ -1098,8 +1101,8 @@ export function SettingsView() {
                           <td className="px-4 py-3">
                             {(() => {
                               if (u.role === 'Student' || u.studentId) {
-                                const student = state.students.find(s => 
-                                  s.id === u.studentId || 
+                                const student = state.students.find(s =>
+                                  s.id === u.studentId ||
                                   s.profileId === u.id
                                 );
                                 return (
@@ -1141,18 +1144,18 @@ export function SettingsView() {
                               {isManageable ? (
                                 <>
                                   {isRoot && (
-                                    <button 
+                                    <button
                                       type="button"
-                                      title="Account Permissions & Overrides" 
+                                      title="Account Permissions & Overrides"
                                       onClick={() => setPermissionTargetUser(u)}
                                       className="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center bg-purple-500/10 hover:bg-purple-500/20 dark:bg-purple-950/30 dark:hover:bg-purple-900/40 rounded-[8px] border border-purple-500/30 text-purple-600 dark:text-purple-400 transition-colors cursor-pointer active:scale-95 touch-manipulation"
                                     >
                                       <ShieldCheck className="w-3.5 h-3.5"/>
                                     </button>
                                   )}
-                                  <button 
+                                  <button
                                     type="button"
-                                    title="Set / Change Password" 
+                                    title="Set / Change Password"
                                     onClick={() => {
                                       setTargetNewPassword('');
                                       setPasswordTargetUser(u);
@@ -1161,23 +1164,23 @@ export function SettingsView() {
                                   >
                                     <Key className="w-3.5 h-3.5 text-[#EF2F38]"/>
                                   </button>
-                                  <button 
+                                  <button
                                     type="button"
-                                    title={t('act_edit')} 
+                                    title={t('act_edit')}
                                     onClick={() => handleEditUser(u)}
                                     className="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation"
                                   >
                                     <PencilSimple className="w-3.5 h-3.5"/>
                                   </button>
-                                  <button 
+                                  <button
                                     type="button"
-                                    title={t('set_lock_unlock')} 
+                                    title={t('set_lock_unlock')}
                                     onClick={() => handleToggleAccount(u)}
                 disabled={busyUsers.has(u.id)}
                                     className={cn(
-                                      "p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-[8px] border transition-colors cursor-pointer active:scale-95 touch-manipulation", 
-                                      u.isActive 
-                                        ? "bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-red-500 hover:border-red-500/50" 
+                                      "p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-[8px] border transition-colors cursor-pointer active:scale-95 touch-manipulation",
+                                      u.isActive
+                                        ? "bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-red-500 hover:border-red-500/50"
                                         : "bg-red-500/10 border-red-500/50 text-red-500 hover:bg-red-500/20"
                                     )}
                                   >
@@ -1288,7 +1291,7 @@ export function SettingsView() {
                 disabled={!isRoot || isExporting}
                 className="w-full px-4 py-2.5 min-h-[44px] bg-emerald-600 hover:bg-emerald-500 text-white rounded-[8px] text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2 active:scale-95 touch-manipulation"
               >
-                <DownloadSimple className="w-4 h-4" weight="bold" /> 
+                <DownloadSimple className="w-4 h-4" weight="bold" />
                 <span>{isExporting ? 'Exporting…' : 'Export application data'}</span>
               </button>
             </div>
@@ -1343,10 +1346,10 @@ export function SettingsView() {
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <a 
-                href="/lms" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href="/lms"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex flex-col p-4 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] hover:border-[#EF2F38] transition-colors group"
               >
                 <div className="flex justify-between items-center mb-2">
@@ -1359,10 +1362,10 @@ export function SettingsView() {
                 <p className="text-[11px] font-mono text-neutral-500 dark:text-neutral-400">{t('set_student_portal_desc')}</p>
               </a>
 
-              <a 
-                href="https://infinitytkd.com" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href="https://infinitytkd.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex flex-col p-4 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] hover:border-[#EF2F38] transition-colors group"
               >
                 <div className="flex justify-between items-center mb-2">
@@ -1412,7 +1415,7 @@ export function SettingsView() {
         {showUserModal && (
           <Portal>
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
-              <motion.div 
+              <motion.div
                 {...dialogMotion}
                 ref={modalRef} role="dialog" aria-modal="true" aria-label="Account editor"
                 className="w-full max-w-lg max-h-[92dvh] my-auto bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col text-neutral-900 dark:text-white overflow-hidden"
@@ -1429,10 +1432,10 @@ export function SettingsView() {
                         <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">Infinity TKD RBAC Authentication</p>
                       </div>
                     </div>
-                    <button 
+                    <button
                       type="button"
                       disabled={isSavingUser}
-                      onClick={() => setShowUserModal(null)} 
+                      onClick={() => setShowUserModal(null)}
                       aria-label="Close user modal"
                       className="p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation"
                     >
@@ -1447,10 +1450,10 @@ export function SettingsView() {
                         <label className="block text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
                           {t('usr_display_name')} <span className="text-red-500">*</span>
                         </label>
-                        <input 
+                        <input
                           aria-label="Display name"
-                          type="text" 
-                          value={userForm.displayName} 
+                          type="text"
+                          value={userForm.displayName}
                           onChange={(e) => setUserForm({...userForm, displayName: e.target.value})}
                           placeholder="e.g. Master John Doe"
                           className="w-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-medium"
@@ -1460,10 +1463,10 @@ export function SettingsView() {
                         <label className="block text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
                           {t('set_khmer_name')}
                         </label>
-                        <input 
+                        <input
                           aria-label="Khmer name"
-                          type="text" 
-                          value={userForm.khmerName} 
+                          type="text"
+                          value={userForm.khmerName}
                           onChange={(e) => setUserForm({...userForm, khmerName: e.target.value})}
                           placeholder="ឈ្មោះជាភាសាខ្មែរ"
                           className="w-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-medium"
@@ -1477,19 +1480,19 @@ export function SettingsView() {
                         {t('panel_profile_pic_link')}
                       </label>
                       <div className="flex gap-3 items-center">
-                        <input 
+                        <input
                           aria-label="Profile image URL"
-                          type="text" 
-                          value={userForm.profilePicturePath} 
+                          type="text"
+                          value={userForm.profilePicturePath}
                           onChange={(e) => setUserForm({...userForm, profilePicturePath: e.target.value})}
                           className="w-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] flex-1 font-medium"
                           placeholder={t('panel_profile_pic_placeholder')}
                         />
                         {userForm.profilePicturePath && (
                           <div className="shrink-0">
-                            <SafeImage 
-                              src={userForm.profilePicturePath} 
-                              alt="Preview" 
+                            <SafeImage
+                              src={userForm.profilePicturePath}
+                              alt="Preview"
                               containerClassName="w-10 h-10 rounded-[8px] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] overflow-hidden flex items-center justify-center shadow-md"
                               fallback={<span className="text-[8px] text-red-500 uppercase font-black bg-red-500/10 px-1 py-0.5 rounded-[8px]">{t('set_err_private')}</span>}
                             />
@@ -1504,10 +1507,10 @@ export function SettingsView() {
                         <label className="block text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
                           {t('usr_username')} <span className="text-red-500">*</span>
                         </label>
-                        <input 
+                        <input
                           aria-label="Username"
-                          type="text" 
-                          value={userForm.username} 
+                          type="text"
+                          value={userForm.username}
                           onChange={(e) => setUserForm({...userForm, username: e.target.value})}
                           disabled={showUserModal !== 'new'}
                           placeholder="e.g. coach_sok"
@@ -1518,10 +1521,10 @@ export function SettingsView() {
                         <label className="block text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
                           {t('stu_email')}
                         </label>
-                        <input 
+                        <input
                           aria-label="Account email"
-                          type="email" 
-                          value={userForm.email} 
+                          type="email"
+                          value={userForm.email}
                           onChange={(e) => setUserForm({...userForm, email: e.target.value})}
                           placeholder="staff@infinitytkd.com"
                           className="w-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono"
@@ -1531,10 +1534,10 @@ export function SettingsView() {
                         <label className="block text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
                           {t('set_phone')}
                         </label>
-                        <input 
+                        <input
                           aria-label="Account phone"
-                          type="tel" 
-                          value={userForm.phone} 
+                          type="tel"
+                          value={userForm.phone}
                           onChange={(e) => setUserForm({...userForm, phone: e.target.value})}
                           placeholder="012 345 678"
                           className="w-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono"
@@ -1547,7 +1550,7 @@ export function SettingsView() {
                       <label className="block text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
                         {t('usr_role')}
                       </label>
-                      <select 
+                      <select
                         aria-label="Account role"
                           value={userForm.role}
                         onChange={(e) => {
@@ -1590,6 +1593,9 @@ export function SettingsView() {
                           className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer font-mono"
                         >
                           <option value="">-- Select Student to Link (Optional) --</option>
+                          {userForm.studentId && !state.students.some(student => student.id === userForm.studentId) && (
+                            <option value={userForm.studentId}>Linked student ({userForm.studentId})</option>
+                          )}
                           {state.students.map(s => (
                             <option key={s.id} value={s.id}>
                               {s.englishName} ({s.id}) {s.currentBelt ? `• ${s.currentBelt}` : ''}
@@ -1611,8 +1617,8 @@ export function SettingsView() {
                           </label>
                           <button
                             type="button"
-                            onClick={() => setUserForm(prev => ({ 
-                              ...prev, 
+                            onClick={() => setUserForm(prev => ({
+                              ...prev,
                               password: generatePassword()
                             }))}
                             className="text-[10px] text-[#EF2F38] hover:underline font-mono cursor-pointer"
@@ -1621,9 +1627,9 @@ export function SettingsView() {
                           </button>
                         </div>
                         <div className="relative">
-                          <input 
-                            type={showModalPasswordText ? "text" : "password"} 
-                            value={userForm.password} 
+                          <input
+                            type={showModalPasswordText ? "text" : "password"}
+                            value={userForm.password}
                             onChange={(e) => setUserForm({...userForm, password: e.target.value})}
                             placeholder="At least 12 characters"
                             className="w-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono pr-10"
@@ -1646,10 +1652,10 @@ export function SettingsView() {
                         <span className="text-xs font-bold text-neutral-900 dark:text-white block">System Access Active</span>
                         <span className="text-[10px] text-neutral-500 font-mono">Allow user to sign in to system</span>
                       </div>
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         aria-label="System access active"
-                        checked={userForm.isActive} 
+                        checked={userForm.isActive}
                         onChange={(e) => setUserForm({...userForm, isActive: e.target.checked})}
                         className="w-4 h-4 text-[#EF2F38] rounded-[4px] cursor-pointer accent-[#EF2F38]"
                       />
@@ -1658,14 +1664,14 @@ export function SettingsView() {
 
                  {/* Modal Footer */}
                  <div className="p-4 border-t border-neutral-200 dark:border-[#262626] flex justify-end gap-2.5 bg-neutral-50 dark:bg-[#0A0A0A]">
-                    <button 
+                    <button
                       type="button"
-                      onClick={() => setShowUserModal(null)} 
+                      onClick={() => setShowUserModal(null)}
                       className="flex-1 sm:flex-none px-4 py-2.5 min-h-[44px] bg-neutral-200 dark:bg-[#1A1A1A] text-neutral-800 dark:text-neutral-300 font-bold uppercase tracking-wider text-xs rounded-[8px] hover:bg-neutral-300 dark:hover:bg-[#262626] cursor-pointer transition-colors active:scale-95 touch-manipulation flex items-center justify-center"
                     >
                       {t('act_cancel')}
                     </button>
-                    <button 
+                    <button
                       type="button"
                       onClick={handleSaveUser}
                       disabled={isSavingUser}
@@ -1697,7 +1703,7 @@ export function SettingsView() {
                       <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono">@{passwordTargetUser.username} • {passwordTargetUser.displayName}</p>
                     </div>
                   </div>
-                  <button 
+                  <button
                     type="button"
                     disabled={isResettingPassword}
                     onClick={() => { setPasswordTargetUser(null); setTargetNewPassword(''); }}
@@ -1718,8 +1724,8 @@ export function SettingsView() {
                       New Password <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                      <input 
-                        type={showTargetPasswordText ? "text" : "password"} 
+                      <input
+                        type={showTargetPasswordText ? "text" : "password"}
                         value={targetNewPassword}
                         onChange={e => {
                           setTargetNewPassword(e.target.value);
@@ -1756,12 +1762,12 @@ export function SettingsView() {
                     {targetNewPassword && (
                       <button
                         type="button"
-                        onClick={() => {
-                          if (navigator.clipboard) {
-                            navigator.clipboard.writeText(targetNewPassword);
+                        onClick={async () => {
+
+                            if (!(await copyText(targetNewPassword))) { showNotification('Copying is unavailable. Select the text and copy it manually.', 'warning'); return; }
                             setCopiedPassword(true);
                             setTimeout(() => setCopiedPassword(false), 2000);
-                          }
+
                         }}
                         className="text-xs text-neutral-500 hover:text-neutral-900 dark:hover:text-white font-mono cursor-pointer flex items-center gap-1 font-bold min-h-[38px] active:scale-95 touch-manipulation"
                       >
@@ -1773,14 +1779,14 @@ export function SettingsView() {
                 </div>
 
                 <div className="p-4 bg-neutral-50 dark:bg-[#0A0A0A] border-t border-neutral-200 dark:border-[#262626] flex justify-end gap-2.5">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setPasswordTargetUser(null)}
                     className="flex-1 sm:flex-none px-4 py-2.5 min-h-[44px] bg-neutral-200 dark:bg-[#1A1A1A] text-neutral-800 dark:text-neutral-300 font-bold uppercase tracking-wider text-xs rounded-[8px] hover:bg-neutral-300 dark:hover:bg-[#262626] cursor-pointer transition-colors active:scale-95 touch-manipulation flex items-center justify-center"
                   >
                     {t('act_cancel')}
                   </button>
-                  <button 
+                  <button
                     type="button"
                     onClick={handleResetTargetPassword}
                     disabled={isResettingPassword || !targetNewPassword || targetNewPassword.length < 12}

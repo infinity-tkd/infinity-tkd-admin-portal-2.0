@@ -1,4 +1,6 @@
 'use client';
+import { copyText } from '@/lib/clipboard';
+import dynamic from 'next/dynamic';
 
 import { dialogMotion } from '@/lib/motion';
 import { academyDate } from '@/lib/dates';
@@ -11,20 +13,20 @@ import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass'
 import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
 import { Trophy } from '@phosphor-icons/react/dist/csr/Trophy';
 import { Checks } from '@phosphor-icons/react/dist/csr/Checks';
-import { Calendar } from '@phosphor-icons/react/dist/csr/Calendar';
-import { GraduationCap } from '@phosphor-icons/react/dist/csr/GraduationCap';
-import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
-import { Clock } from '@phosphor-icons/react/dist/csr/Clock';
-import { Info } from '@phosphor-icons/react/dist/csr/Info';
-import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
-import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+
+
+
+
+
+
+
 import { UserCircle } from '@phosphor-icons/react/dist/csr/UserCircle';
 import { Plus } from '@phosphor-icons/react/dist/csr/Plus';
 import { CaretRight } from '@phosphor-icons/react/dist/csr/CaretRight';
-import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
-import { Globe } from '@phosphor-icons/react/dist/csr/Globe';
+
+
 import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
-import { Check } from '@phosphor-icons/react/dist/csr/Check';
+
 import { House } from '@phosphor-icons/react/dist/csr/House';
 import { ArrowsClockwise } from '@phosphor-icons/react/dist/csr/ArrowsClockwise';
 import { DownloadSimple } from '@phosphor-icons/react/dist/csr/DownloadSimple';
@@ -33,11 +35,17 @@ import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
 import { Envelope } from '@phosphor-icons/react/dist/csr/Envelope';
 import { Funnel } from '@phosphor-icons/react/dist/csr/Funnel';
 import { X } from '@phosphor-icons/react/dist/csr/X';
-import { ArrowRight } from '@phosphor-icons/react/dist/csr/ArrowRight';
-import { FileCsv } from '@phosphor-icons/react/dist/csr/FileCsv';
-import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
-import { cn, formatBelt, isBeltMatch, calculatePromotionReadiness, getBeltKey, DEFAULT_BELT_TECHNIQUES, BELT_REQUIREMENTS } from '@/lib/utils';
-import dynamic from 'next/dynamic';
+
+
+
+import { cn, formatBelt, isSyllabusLessonFor, calculatePromotionReadiness, getBeltKey, DEFAULT_BELT_TECHNIQUES } from '@/lib/utils';
+import { CoachScoreInput } from '@/components/students/CoachScoreInput';
+import Link from 'next/link';
+import { useBeltEligibility } from '@/components/belt-tests/use-belt-eligibility';
+import { RuleChips } from '@/components/belt-tests/RuleChips';
+import { StudentBeltTestHistory } from '@/components/belt-tests/BeltTestLinks';
+import { mergeBeltEligibility } from '@/lib/belt-eligibility';
+
 
 import { AddStudentModal } from './AddStudentModal';
 import { BulkImportStudentModal } from './BulkImportStudentModal';
@@ -45,6 +53,9 @@ import { ManageStudentPanel } from './ManageStudentPanel';
 import { useT } from '@/hooks/useTranslation';
 import { SafeImage } from '@/components/SafeImage';
 import { Portal } from './Portal';
+
+const PromotionReadinessPanel = dynamic(() => import('@/components/students/PromotionReadinessPanel').then(module => module.PromotionReadinessPanel), { ssr: false, loading: () => <p role="status" className="p-4 text-sm text-neutral-500">Loading…</p> });
+const PromotionHistoryPanel = dynamic(() => import('@/components/students/PromotionHistoryPanel').then(module => module.PromotionHistoryPanel), { ssr: false, loading: () => <p role="status" className="p-4 text-sm text-neutral-500">Loading…</p> });
 
 export function DirectoryView() {
   const { state, updateStudent, reconcileAllStudentBelts, addBeltHistory, updateBeltHistory, deleteBeltHistory, upsertPhysicalEvaluation, showNotification, showConfirm, can } = useAppStore();
@@ -112,10 +123,10 @@ export function DirectoryView() {
     kukkiwonDanCardId: ''
   });
   const [isSavingEdit, setIsSavingEdit] = useState(false);
-  const [stateRevision, setStateRevision] = useState(0);
+  const [, setStateRevision] = useState(0);
 
-  const handleCopyLink = (historyId: number, url: string) => {
-    navigator.clipboard.writeText(url);
+  const handleCopyLink = async (historyId: number, url: string) => {
+    if (!(await copyText(url))) { showNotification('Copying is unavailable. Select the text and copy it manually.', 'warning'); return; }
     setCopiedHistoryId(historyId);
     setTimeout(() => setCopiedHistoryId(null), 2000);
   };
@@ -194,9 +205,9 @@ export function DirectoryView() {
 
   const canCreateStudent = can('action:student_create');
   const canEditStudent = can('action:student_edit');
-  const canDeleteStudent = can('action:student_delete');
+
   const canManageStudents = canCreateStudent || canEditStudent;
-  const isDirectoryReadOnly = !canManageStudents;
+
 
   // --- Promotion Helper Rules & Calculations ---
   const BELT_RANK_ORDER = [
@@ -220,8 +231,11 @@ export function DirectoryView() {
     return currentBelt;
   };
 
+  // Ready to test = the Belt Tests eligibility engine wherever a syllabus is published (the same answer the student portal shows).
+  const beltEligibility = useBeltEligibility();
+  const beltEntries = beltEligibility.entries;
   const getStudentPromotionData = React.useCallback((student: Student) => {
-    return calculatePromotionReadiness(
+    return mergeBeltEligibility(calculatePromotionReadiness(
       student,
       state.attendanceRecords,
       state.videoProgress,
@@ -229,8 +243,8 @@ export function DirectoryView() {
       state.beltHistories,
       state.physicalEvaluations,
       state.beltTechniques
-    );
-  }, [state.attendanceRecords, state.videoProgress, state.curriculumVideos, state.beltHistories, state.physicalEvaluations, state.beltTechniques]);
+    ), beltEntries[student.id]);
+  }, [state.attendanceRecords, state.videoProgress, state.curriculumVideos, state.beltHistories, state.physicalEvaluations, state.beltTechniques, beltEntries]);
 
   const handleOpenSinglePromote = (studentId: string) => {
     setSelectedStudentsForPromotion([studentId]);
@@ -301,7 +315,7 @@ export function DirectoryView() {
   };
 
   const filteredStudents = state.students.filter(s => {
-    const matchesSearch = s.englishName.toLowerCase().includes(search.toLowerCase()) || 
+    const matchesSearch = s.englishName.toLowerCase().includes(search.toLowerCase()) ||
                           s.id.toLowerCase().includes(search.toLowerCase()) ||
                           s.khmerName.includes(search);
     const matchesBranch = filterBranch === 'all' || s.homeBranchId === filterBranch;
@@ -391,9 +405,9 @@ export function DirectoryView() {
     safeCurrentPage * pageSize
   );
 
-  const handleCopyContact = (text: string, e: React.MouseEvent) => {
+  const handleCopyContact = async (text: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(text);
+    if (!(await copyText(text))) { showNotification('Copying is unavailable. Select the text and copy it manually.', 'warning'); return; }
     setCopiedContact(text);
     setTimeout(() => setCopiedContact(null), 1800);
   };
@@ -488,21 +502,15 @@ export function DirectoryView() {
     }));
   }, [state.students, getStudentPromotionData]);
 
-  const totalColorBelts = state.students.filter(s => 
-    ['White', 'Yellow', 'Green', 'Blue', 'Brown', 'Red'].includes(s.currentBelt)
-  ).length;
 
-  const totalBlackBelts = state.students.filter(s => 
-    s.currentBelt.toLowerCase().includes('poom') || 
-    s.currentBelt.toLowerCase().includes('dan') || 
-    s.currentBelt.toLowerCase() === 'black'
-  ).length;
+
+
 
   const totalReadyCandidates = studentsWithPromoData.filter(x => x.eligibilityStatus === 'Ready').length;
   const totalDevelopingCandidates = studentsWithPromoData.filter(x => x.eligibilityStatus === 'Developing').length;
 
   const activeCandidates = studentsWithPromoData.filter(x => x.student.studentStatus === 'Active');
-  const avgPri = activeCandidates.length > 0 
+  const avgPri = activeCandidates.length > 0
     ? Math.round(activeCandidates.reduce((acc, c) => acc + c.pri, 0) / activeCandidates.length)
     : 0;
 
@@ -514,7 +522,7 @@ export function DirectoryView() {
   const filteredPromoCandidates = React.useMemo(() => {
     return studentsWithPromoData.filter(item => {
       const q = promotionSearch.toLowerCase().trim();
-      const matchesSearch = !q || 
+      const matchesSearch = !q ||
         item.student.englishName.toLowerCase().includes(q) ||
         item.student.id.toLowerCase().includes(q) ||
         (item.student.khmerName && item.student.khmerName.toLowerCase().includes(q));
@@ -531,7 +539,7 @@ export function DirectoryView() {
       const student = state.students.find(s => s.id === history.studentId);
       if (!student) return false;
       const q = historySearch.toLowerCase().trim();
-      const matchesSearch = !q || 
+      const matchesSearch = !q ||
         student.englishName.toLowerCase().includes(q) ||
         student.id.toLowerCase().includes(q) ||
         (history.certificateRef && history.certificateRef.toLowerCase().includes(q));
@@ -631,19 +639,19 @@ export function DirectoryView() {
 
       {/* Top Navigation Tabs */}
       <div className="bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626] flex px-3 sm:px-4 gap-3 sm:gap-6 shrink-0 z-20 overflow-x-auto no-scrollbar">
-        <button 
-          onClick={() => setActiveViewTab('roster')} 
+        <button
+          onClick={() => setActiveViewTab('roster')}
           className={cn(
-            "py-2.5 sm:py-3 text-[11px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0", 
+            "py-2.5 sm:py-3 text-[11px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0",
             activeViewTab === 'roster' ? "border-[#EF2F38] text-neutral-900 dark:text-white font-black" : "border-transparent text-neutral-500 dark:text-[#666] hover:text-neutral-900 dark:hover:text-white"
           )}
         >
           Student Roster
         </button>
-        <button 
-          onClick={() => setActiveViewTab('beltCenter')} 
+        <button
+          onClick={() => setActiveViewTab('beltCenter')}
           className={cn(
-            "py-2.5 sm:py-3 text-[11px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest border-b-2 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0", 
+            "py-2.5 sm:py-3 text-[11px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest border-b-2 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0",
             activeViewTab === 'beltCenter' ? "border-[#EF2F38] text-neutral-900 dark:text-white font-black" : "border-transparent text-neutral-500 dark:text-[#666] hover:text-neutral-900 dark:hover:text-white"
           )}
         >
@@ -660,10 +668,10 @@ export function DirectoryView() {
               {/* Search Bar - Native styling, compact text-xs, clear button */}
               <div className="relative w-full md:max-w-md">
                 <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 dark:text-[#666]"/>
-                <input 
-                  type="text" 
-                  placeholder={t('dir_search_placeholder')} 
-                  value={search} 
+                <input
+                  type="text"
+                  placeholder={t('dir_search_placeholder')}
+                  value={search}
                   onChange={(e) => {
                     setSearch(e.target.value);
                     setCurrentPage(1);
@@ -671,7 +679,7 @@ export function DirectoryView() {
                   className="w-full pl-9 pr-8 py-2 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-xs h-9 sm:h-10 focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666] font-sans"
                 />
                 {search && (
-                  <button 
+                  <button
                     type="button"
                     onClick={() => {
                       setSearch('');
@@ -688,7 +696,7 @@ export function DirectoryView() {
               {/* Action Toolbar: Horizontal swipeable rail on mobile, flex-nowrap row on desktop */}
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar touch-pan-x -mx-3 px-3 sm:mx-0 sm:px-0 md:flex-wrap shrink-0">
                 {canManageStudents && (
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setIsAdding(true)}
                     className="h-8 sm:h-9 px-2.5 sm:px-3.5 bg-[#EF2F38] hover:bg-[#D9222B] active:scale-95 touch-manipulation text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider shadow-sm shadow-[#EF2F38]/20 whitespace-nowrap flex items-center justify-center gap-1 shrink-0 cursor-pointer"
@@ -699,13 +707,13 @@ export function DirectoryView() {
                   </button>
                 )}
 
-                <button 
+                <button
                   type="button"
                   onClick={() => setShowFilters(!showFilters)}
                   className={cn(
                     "h-8 sm:h-9 px-2.5 sm:px-3 rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation border",
-                    showFilters 
-                      ? "bg-[#EF2F38] text-white border-[#EF2F38]" 
+                    showFilters
+                      ? "bg-[#EF2F38] text-white border-[#EF2F38]"
                       : "bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white"
                   )}
                 >
@@ -728,7 +736,7 @@ export function DirectoryView() {
 
                 {canManageStudents && (
                   <>
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setIsHouseholdModalOpen(true)}
                       className="h-8 sm:h-9 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[#EF2F38] rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation"
@@ -736,7 +744,7 @@ export function DirectoryView() {
                       <House size={12} weight="bold" />
                       <span>Household</span>
                     </button>
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setIsBulkImporting(true)}
                       className="h-8 sm:h-9 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap flex items-center justify-center cursor-pointer shrink-0 active:scale-95 touch-manipulation"
@@ -744,7 +752,7 @@ export function DirectoryView() {
                       <span className="xs:hidden">Import</span>
                       <span className="hidden xs:inline">{t('dir_bulk_import')}</span>
                     </button>
-                    <button 
+                    <button
                       type="button"
                       onClick={async () => {
                         setIsReconciling(true);
@@ -1024,9 +1032,9 @@ export function DirectoryView() {
                     </thead>
                     <tbody className="divide-y divide-neutral-200 dark:divide-[#262626]">
                       {paginatedStudents.map(student => (
-                        <tr 
-                          key={student.id} 
-                          onClick={() => setSelectedStudentId(student.id)} 
+                        <tr
+                          key={student.id}
+                          onClick={() => setSelectedStudentId(student.id)}
                           className="group hover:bg-neutral-50 dark:hover:bg-[#1A1A1A] cursor-pointer transition-colors text-neutral-800 dark:text-[#E4E4E4]"
                         >
                           {/* 1. Student ID */}
@@ -1037,9 +1045,9 @@ export function DirectoryView() {
                           {/* 2. Student Avatar & Name */}
                           <td className="px-5 py-3.5">
                             <div className="flex items-center gap-3">
-                              <SafeImage 
-                                src={student.profilePicturePath} 
-                                alt={student.englishName} 
+                              <SafeImage
+                                src={student.profilePicturePath}
+                                alt={student.englishName}
                                 containerClassName="w-8 h-8 rounded-full overflow-hidden bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center shrink-0 shadow-xs"
                               />
                               <div className="min-w-0">
@@ -1190,8 +1198,8 @@ export function DirectoryView() {
                                 return (
                                   <span className={cn(
                                     "px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider animate-pulse",
-                                    billing.status === 'Overdue' 
-                                      ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30" 
+                                    billing.status === 'Overdue'
+                                      ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30"
                                       : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30"
                                   )} title={billing.status === 'Overdue' ? `Overdue since ${billing.nextRenewalDate}` : `Renewal due on ${billing.nextRenewalDate}`}>
                                     {billing.status}
@@ -1203,9 +1211,9 @@ export function DirectoryView() {
 
                           {/* 8. Sticky Action Button */}
                           <td className="px-5 py-3.5 text-right sticky right-0 bg-white dark:bg-[#141414] group-hover:bg-neutral-50 dark:group-hover:bg-[#1A1A1A] z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.06)] dark:shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.4)] border-l border-neutral-200 dark:border-[#262626]">
-                            <button 
+                            <button
                               type="button"
-                              className="text-xs text-white bg-[#EF2F38] hover:bg-[#D9222B] px-3 py-1.5 min-h-[34px] rounded-[6px] transition-colors inline-flex items-center justify-center font-bold uppercase tracking-wider cursor-pointer shadow-xs" 
+                              className="text-xs text-white bg-[#EF2F38] hover:bg-[#D9222B] px-3 py-1.5 min-h-[34px] rounded-[6px] transition-colors inline-flex items-center justify-center font-bold uppercase tracking-wider cursor-pointer shadow-xs"
                               onClick={(e) => { e.stopPropagation(); setSelectedStudentId(student.id); }}
                             >
                               {t('act_details')}
@@ -1220,8 +1228,8 @@ export function DirectoryView() {
                 {/* Mobile View: Responsive Card Grid / List */}
                 <div className="block md:hidden p-2.5 sm:p-3 space-y-2.5">
                   {paginatedStudents.map(student => (
-                    <div 
-                      key={student.id} 
+                    <div
+                      key={student.id}
                       onClick={() => setSelectedStudentId(student.id)}
                       className="bg-white dark:bg-[#141414] hover:bg-neutral-50/80 dark:hover:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[10px] p-3 space-y-2.5 transition-all cursor-pointer shadow-xs active:scale-[0.99] touch-manipulation"
                     >
@@ -1258,8 +1266,8 @@ export function DirectoryView() {
                             return (
                               <span className={cn(
                                 "px-1.5 py-0.5 rounded text-[7.5px] font-bold uppercase tracking-wider animate-pulse",
-                                billing.status === 'Overdue' 
-                                  ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30" 
+                                billing.status === 'Overdue'
+                                  ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30"
                                   : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30"
                               )}>
                                 {billing.status}
@@ -1270,9 +1278,9 @@ export function DirectoryView() {
                       </div>
 
                       <div className="flex items-center gap-2.5">
-                        <SafeImage 
-                          src={student.profilePicturePath} 
-                          alt={student.englishName} 
+                        <SafeImage
+                          src={student.profilePicturePath}
+                          alt={student.englishName}
                           containerClassName="w-10 h-10 rounded-full overflow-hidden bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center shrink-0 shadow-xs"
                         />
                         <div className="min-w-0 flex-1">
@@ -1413,10 +1421,10 @@ export function DirectoryView() {
 
           {/* Dashboard Sub-Tabs */}
           <div className="flex bg-neutral-100 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-1 shrink-0 z-20 shadow-inner">
-            <button 
-              onClick={() => setBeltCenterSubTab('readiness')} 
+            <button
+              onClick={() => setBeltCenterSubTab('readiness')}
               className={cn(
-                "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation", 
+                "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation",
                 beltCenterSubTab === 'readiness' ? "bg-[#EF2F38] text-white shadow-md font-black" : "text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
               )}
             >
@@ -1424,10 +1432,10 @@ export function DirectoryView() {
               <span className="sm:hidden">Readiness</span>
               <span className="hidden sm:inline">{t('dir_tab_readiness')}</span>
             </button>
-            <button 
-              onClick={() => setBeltCenterSubTab('history')} 
+            <button
+              onClick={() => setBeltCenterSubTab('history')}
               className={cn(
-                "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation", 
+                "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation",
                 beltCenterSubTab === 'history' ? "bg-[#EF2F38] text-white shadow-md font-black" : "text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
               )}
             >
@@ -1435,10 +1443,10 @@ export function DirectoryView() {
               <span className="sm:hidden">History</span>
               <span className="hidden sm:inline">{t('dir_tab_history')}</span>
             </button>
-            <button 
-              onClick={() => setBeltCenterSubTab('curriculum')} 
+            <button
+              onClick={() => setBeltCenterSubTab('curriculum')}
               className={cn(
-                "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation", 
+                "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation",
                 beltCenterSubTab === 'curriculum' ? "bg-[#EF2F38] text-white shadow-md font-black" : "text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
               )}
             >
@@ -1457,8 +1465,8 @@ export function DirectoryView() {
                   <p className="text-[8px] text-neutral-400 dark:text-[#666] font-mono hidden xs:block">Filter candidates by clicking capsules</p>
                 </div>
                 {selectedBeltPipelineFilter && (
-                  <button 
-                    onClick={() => setSelectedBeltPipelineFilter(null)} 
+                  <button
+                    onClick={() => setSelectedBeltPipelineFilter(null)}
                     className="text-[8px] text-[#EF2F38] uppercase font-bold tracking-widest hover:underline flex items-center gap-1 cursor-pointer active:scale-95"
                   >
                     Clear Filter
@@ -1471,7 +1479,7 @@ export function DirectoryView() {
                   const readyCount = studentsWithPromoData.filter(c => c.student.currentBelt === belt && c.eligibilityStatus === 'Ready').length;
                   const isSelected = selectedBeltPipelineFilter === belt;
 
-                  const beltColorClass = 
+                  const beltColorClass =
                     belt === 'White' ? 'bg-white border border-neutral-300 dark:border-[#333]' :
                     belt === 'Yellow' ? 'bg-yellow-400' :
                     belt === 'Green' ? 'bg-green-500' :
@@ -1481,14 +1489,14 @@ export function DirectoryView() {
                     'bg-neutral-900 border border-neutral-600 dark:border-[#444]'; // Dan/Poom
 
                   return (
-                    <button 
+                    <button
                       key={belt}
                       type="button"
                       onClick={() => setSelectedBeltPipelineFilter(isSelected ? null : belt)}
                       className={cn(
                         "bg-white dark:bg-[#0F0F0F] border px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-[6px] sm:rounded-[8px] flex items-center justify-between transition-all duration-200 group relative overflow-hidden text-xs active:scale-95 touch-manipulation cursor-pointer shrink-0 min-w-[84px] sm:min-w-0 shadow-xs",
-                        isSelected 
-                          ? "border-[#EF2F38] bg-red-500/10 dark:bg-[#EF2F38]/15 shadow-sm shadow-[#EF2F38]/15 ring-1 ring-[#EF2F38]" 
+                        isSelected
+                          ? "border-[#EF2F38] bg-red-500/10 dark:bg-[#EF2F38]/15 shadow-sm shadow-[#EF2F38]/15 ring-1 ring-[#EF2F38]"
                           : "border-neutral-200 dark:border-[#262626] hover:bg-neutral-50 dark:hover:bg-[#1A1A1A] hover:border-neutral-300 dark:hover:border-neutral-700"
                       )}
                     >
@@ -1523,809 +1531,10 @@ export function DirectoryView() {
           )}
 
           {/* Readiness Tab Directory */}
-          {beltCenterSubTab === 'readiness' && (
-            <div className="flex flex-col flex-1 gap-3.5 sm:gap-6">
-              {/* Tactical Metrics Grid (4 Interactive Cards) */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 shrink-0">
-                {/* 1. Test-Ready Candidates (Clickable filter) */}
-                <button
-                  type="button"
-                  onClick={() => setFilterEligibility(prev => prev === 'Ready' ? 'all' : 'Ready')}
-                  className={cn(
-                    "bg-white dark:bg-[#141414] border rounded-[8px] p-2.5 sm:p-4 flex items-center justify-between text-left transition-all duration-200 cursor-pointer active:scale-95 touch-manipulation shadow-xs",
-                    filterEligibility === 'Ready' 
-                      ? "border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-500/5 dark:bg-emerald-500/10" 
-                      : "border-neutral-200 dark:border-[#262626] hover:border-emerald-500/40"
-                  )}
-                >
-                  <div className="space-y-0.5 sm:space-y-1 min-w-0">
-                    <p className="text-[8px] sm:text-[10px] text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-wider truncate flex items-center gap-1.5">
-                      <span>Test-Ready</span>
-                      {filterEligibility === 'Ready' && <span className="text-[7px] px-1 py-0.2 bg-emerald-500 text-white rounded font-mono font-black">ACTIVE</span>}
-                    </p>
-                    <h4 className="text-base sm:text-2xl font-black text-emerald-700 dark:text-emerald-400 font-mono flex items-center gap-1.5">
-                      {totalReadyCandidates}
-                      {totalReadyCandidates > 0 && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />}
-                    </h4>
-                    <p className="text-[8px] text-neutral-400 dark:text-[#666] font-mono truncate hidden sm:block">Eligible for promotion</p>
-                  </div>
-                  <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-emerald-500/10 dark:bg-green-500/10 border border-emerald-500/30 dark:border-green-500/20 flex items-center justify-center text-emerald-700 dark:text-green-400 shrink-0 ml-1">
-                    <Checks className="w-3.5 h-3.5 sm:w-5 sm:h-5" weight="bold" />
-                  </div>
-                </button>
-
-                {/* 2. Developing Candidates (Clickable filter) */}
-                <button
-                  type="button"
-                  onClick={() => setFilterEligibility(prev => prev === 'Developing' ? 'all' : 'Developing')}
-                  className={cn(
-                    "bg-white dark:bg-[#141414] border rounded-[8px] p-2.5 sm:p-4 flex items-center justify-between text-left transition-all duration-200 cursor-pointer active:scale-95 touch-manipulation shadow-xs",
-                    filterEligibility === 'Developing' 
-                      ? "border-amber-500 ring-2 ring-amber-500/20 bg-amber-500/5 dark:bg-amber-500/10" 
-                      : "border-neutral-200 dark:border-[#262626] hover:border-amber-500/40"
-                  )}
-                >
-                  <div className="space-y-0.5 sm:space-y-1 min-w-0">
-                    <p className="text-[8px] sm:text-[10px] text-amber-700 dark:text-amber-400 font-bold uppercase tracking-wider truncate flex items-center gap-1.5">
-                      <span>Developing</span>
-                      {filterEligibility === 'Developing' && <span className="text-[7px] px-1 py-0.2 bg-amber-500 text-black rounded font-mono font-black">ACTIVE</span>}
-                    </p>
-                    <h4 className="text-base sm:text-2xl font-black text-amber-700 dark:text-amber-400 font-mono">
-                      {totalDevelopingCandidates}
-                    </h4>
-                    <p className="text-[8px] text-neutral-400 dark:text-[#666] font-mono truncate hidden sm:block">In-progress candidates</p>
-                  </div>
-                  <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0 ml-1">
-                    <Clock className="w-3.5 h-3.5 sm:w-5 sm:h-5" weight="bold" />
-                  </div>
-                </button>
-
-                {/* 3. Average PRI Score across active roster */}
-                <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2.5 sm:p-4 flex items-center justify-between shadow-xs">
-                  <div className="space-y-0.5 sm:space-y-1 min-w-0 flex-1 pr-2">
-                    <p className="text-[8px] sm:text-[10px] text-neutral-500 dark:text-[#888] font-bold uppercase tracking-wider truncate">Avg Roster PRI</p>
-                    <h4 className="text-base sm:text-2xl font-black text-neutral-900 dark:text-white font-mono">{avgPri}%</h4>
-                    <div className="w-full bg-neutral-200 dark:bg-[#202020] h-1 sm:h-1.5 rounded-full overflow-hidden mt-1 max-w-[120px]">
-                      <div 
-                        className={cn("h-full rounded-full transition-all", avgPri >= 75 ? "bg-emerald-500" : avgPri >= 50 ? "bg-amber-500" : "bg-neutral-500")}
-                        style={{ width: `${avgPri}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
-                    <Trophy className="w-3.5 h-3.5 sm:w-5 sm:h-5" weight="bold" />
-                  </div>
-                </div>
-
-                {/* 4. Recent Promotions (30d) (Clickable shortcut to history) */}
-                <button
-                  type="button"
-                  onClick={() => setBeltCenterSubTab('history')}
-                  className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] hover:border-red-500/40 rounded-[8px] p-2.5 sm:p-4 flex items-center justify-between text-left transition-all duration-200 cursor-pointer active:scale-95 touch-manipulation shadow-xs"
-                >
-                  <div className="space-y-0.5 sm:space-y-1 min-w-0">
-                    <p className="text-[8px] sm:text-[10px] text-neutral-500 dark:text-[#888] font-bold uppercase tracking-wider truncate">Recent Promoted</p>
-                    <h4 className="text-base sm:text-2xl font-black text-neutral-900 dark:text-white font-mono">{recentPromotionsCount}</h4>
-                    <p className="text-[8px] text-[#EF2F38] font-mono truncate hidden sm:block">View history ledger →</p>
-                  </div>
-                  <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-600 dark:text-red-500 shrink-0 ml-1">
-                    <ShieldCheck className="w-3.5 h-3.5 sm:w-5 sm:h-5" weight="bold" />
-                  </div>
-                </button>
-              </div>
-
-              {/* Roster Table & Mobile Card Panel */}
-              <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] flex flex-col flex-1 min-h-[380px] overflow-hidden shadow-xs">
-                {/* Toolbar */}
-                <div className="p-3 sm:p-4 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex flex-col sm:flex-row gap-2.5 sm:gap-4 sm:items-center justify-between shrink-0">
-                  <div>
-                    <h3 className="text-xs font-black text-neutral-900 dark:text-white uppercase tracking-widest">Promotion Eligibility Directory</h3>
-                    <p className="text-[9px] text-neutral-500 dark:text-[#666] font-mono mt-0.5">
-                      Roster: {filteredPromoCandidates.length} matches 
-                      {selectedBeltPipelineFilter && ` | Rank: ${selectedBeltPipelineFilter}`}
-                      {filterEligibility !== 'all' && ` | Status: ${filterEligibility}`}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto sm:justify-end">
-                    <div className="relative w-full sm:w-44">
-                      <MagnifyingGlass className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400 dark:text-[#666]"/>
-                      <input 
-                        type="text" 
-                        placeholder="Search candidate..." 
-                        value={promotionSearch} 
-                        onChange={(e) => setPromotionSearch(e.target.value)}
-                        className="w-full pl-8 pr-2 py-1.5 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs h-8.5 sm:h-9 focus:outline-none focus:border-[#EF2F38] placeholder:text-neutral-400 dark:placeholder:text-[#666]"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:flex sm:items-center gap-1.5 w-full sm:w-auto">
-                      <select 
-                        value={filterBranchPromo} 
-                        onChange={(e) => setFilterBranchPromo(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                        className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 py-1 sm:py-1.5 h-8.5 sm:h-9 focus:outline-none font-bold cursor-pointer truncate"
-                      >
-                        <option value="all">All Branches</option>
-                        {state.branches.map(b => (
-                          <option key={b.id} value={b.id}>{b.name}</option>
-                        ))}
-                      </select>
-
-                      <select 
-                        value={filterEligibility} 
-                        onChange={(e) => setFilterEligibility(e.target.value as any)}
-                        className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 py-1 sm:py-1.5 h-8.5 sm:h-9 focus:outline-none font-bold cursor-pointer truncate"
-                      >
-                        <option value="all">All Readiness</option>
-                        <option value="Ready">{t('dir_ready')}</option>
-                        <option value="Developing">{t('dir_developing')}</option>
-                        <option value="Needs Work">{t('dir_needs_work')}</option>
-                      </select>
-                    </div>
-
-                    {selectedStudentsForPromotion.length > 0 && (
-                      <button 
-                        onClick={() => setShowPromotionModal(true)}
-                        className="w-full sm:w-auto px-3.5 py-1.5 h-8.5 sm:h-9 bg-[#EF2F38] hover:bg-[#D9222B] text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all shadow-md shadow-[#EF2F38]/20 flex items-center justify-center gap-1.5 shrink-0 cursor-pointer active:scale-95 touch-manipulation animate-in fade-in"
-                      >
-                        <ShieldCheck className="w-3.5 h-3.5" />
-                        <span>{t('dir_promote_selected').replace('{count}', String(selectedStudentsForPromotion.length))}</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Desktop & Tablet Matrix Table View (hidden on mobile) */}
-                <div className="hidden md:block flex-1 overflow-auto">
-                  <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
-                    <thead className="bg-neutral-50 dark:bg-[#0F0F0F] text-neutral-500 dark:text-[#666] uppercase tracking-widest font-bold sticky top-0 z-10 border-b border-neutral-200 dark:border-[#262626]">
-                      <tr>
-                        <th className="px-4 py-2.5 w-12 text-center">
-                          <input 
-                            type="checkbox" 
-                            className="accent-[#EF2F38] rounded bg-white dark:bg-[#0F0F0F] border-neutral-300 dark:border-[#262626]"
-                            checked={
-                              filteredPromoCandidates.length > 0 &&
-                              filteredPromoCandidates.filter(c => c.student.studentStatus === 'Active').every(c => selectedStudentsForPromotion.includes(c.student.id))
-                            }
-                            onChange={(e) => handleSelectAllPromo(e.target.checked)}
-                          />
-                        </th>
-                        <th className="px-4 py-2.5">{t('dir_student_context')}</th>
-                        <th className="px-4 py-2.5">Advancement</th>
-                        <th className="px-4 py-2.5">Time in Grade</th>
-                        <th className="px-4 py-2.5">Attendance</th>
-                        <th className="px-4 py-2.5">LMS Syllabus</th>
-                        <th className="px-4 py-2.5 text-center">PRI Score</th>
-                        <th className="px-4 py-2.5 text-center">{t('dir_tab_readiness').replace(' Directory', '')}</th>
-                        <th className="px-4 py-2.5 text-center w-28">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-neutral-200 dark:divide-[#262626] bg-white dark:bg-[#141414]">
-                      {filteredPromoCandidates.length === 0 ? (
-                        <tr>
-                          <td colSpan={9} className="px-4 py-12 text-center text-neutral-500 dark:text-[#666] font-mono">
-                            {t('dir_no_candidates')}
-                          </td>
-                        </tr>
-                      ) : (
-                        filteredPromoCandidates.map((candidate) => {
-                          const { student, daysElapsed, daysRequired, daysProgress, attendanceSince, attendanceRequired, attendanceProgress, syllabusCompletedPct, completedVideos, totalVideos, pri, eligibilityStatus } = candidate;
-                          const targetBelt = getNextBeltRank(student.currentBelt);
-                          const isSelected = selectedStudentsForPromotion.includes(student.id);
-
-                          return (
-                            <tr 
-                              key={student.id} 
-                              className={cn(
-                                "hover:bg-neutral-50 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer text-neutral-800 dark:text-[#E4E4E4]", 
-                                isSelected && "bg-red-500/5 dark:bg-[#EF2F38]/5"
-                              )}
-                              onClick={() => {
-                                if (student.studentStatus === 'Active') {
-                                  handleSelectPromo(student.id, !isSelected);
-                                }
-                              }}
-                            >
-                              <td className="px-4 py-2.5 text-center" onClick={(e) => e.stopPropagation()}>
-                                <input 
-                                  type="checkbox" 
-                                  disabled={student.studentStatus !== 'Active'}
-                                  className="accent-[#EF2F38] rounded bg-white dark:bg-[#0F0F0F] border-neutral-300 dark:border-[#262626] disabled:opacity-30 cursor-pointer"
-                                  checked={isSelected}
-                                  onChange={(e) => handleSelectPromo(student.id, e.target.checked)}
-                                />
-                              </td>
-                              <td className="px-4 py-2.5">
-                                <div className="flex items-center gap-2.5">
-                                  <SafeImage 
-                                    src={student.profilePicturePath} 
-                                    alt={student.englishName} 
-                                    containerClassName="w-8 h-8 rounded-full overflow-hidden bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center shrink-0"
-                                  />
-                                  <div>
-                                    <div className="text-neutral-900 dark:text-white font-bold text-xs leading-tight">{student.englishName}</div>
-                                    <div className="text-[10px] text-neutral-500 dark:text-[#666] font-mono leading-tight mt-0.5">
-                                      {student.id} • {state.branches.find(b => b.id === student.homeBranchId)?.name || 'Branch'}
-                                    </div>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-4 py-2.5">
-                                <div className="flex items-center gap-1.5">
-                                  <span className={cn("px-2 py-0.5 rounded text-[8px] font-bold border tracking-wider uppercase", student.currentBelt.toLowerCase().includes('poom') || student.currentBelt.toLowerCase().includes('dan') || student.currentBelt.toLowerCase() === 'black' ? "bg-neutral-900 text-white border-neutral-700 dark:bg-black dark:text-neutral-100 dark:border-neutral-700" : student.currentBelt === 'Red' ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30" : student.currentBelt === 'Brown' ? "bg-amber-900/10 text-amber-800 dark:text-amber-500 border-amber-800/30" : student.currentBelt === 'Blue' ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30" : student.currentBelt === 'Green' ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : student.currentBelt === 'White' ? "bg-neutral-100 text-neutral-800 dark:bg-white/10 dark:text-neutral-200 border-neutral-300 dark:border-white/20" : "bg-yellow-500/15 text-yellow-800 dark:text-yellow-400 border-yellow-500/40" )}>
-                                    {student.currentBelt}
-                                  </span>
-                                  <CaretRight className="w-3 h-3 text-neutral-400 dark:text-[#666]" />
-                                  <span className="px-2 py-0.5 rounded text-[8px] font-bold border tracking-wider uppercase bg-red-500/10 dark:bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30 font-mono">
-                                    {targetBelt}
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="px-4 py-2.5">
-                                {/* Time in Grade bar */}
-                                <div className="space-y-1 w-28">
-                                  <div className="flex justify-between text-[9px] text-neutral-500 dark:text-neutral-400 font-mono leading-none">
-                                    <span>{daysElapsed}/{daysRequired}d</span>
-                                    <span className="font-bold">{daysProgress}%</span>
-                                  </div>
-                                  <div className="w-full bg-neutral-200 dark:bg-[#0F0F0F] h-1.5 rounded-full overflow-hidden border border-neutral-300 dark:border-[#262626]">
-                                    <div 
-                                      className={cn("h-full rounded-full transition-all", daysElapsed >= daysRequired ? "bg-emerald-500" : "bg-neutral-500 dark:bg-neutral-600")} 
-                                      style={{ width: `${Math.min(100, daysProgress)}%` }} 
-                                    />
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-4 py-2.5">
-                                {/* Attendance progress bar */}
-                                <div className="space-y-1 w-28">
-                                  <div className="flex justify-between text-[9px] text-neutral-500 dark:text-neutral-400 font-mono leading-none">
-                                    <span>{attendanceSince}/{attendanceRequired} cl</span>
-                                    <span className="font-bold">{attendanceProgress}%</span>
-                                  </div>
-                                  <div className="w-full bg-neutral-200 dark:bg-[#0F0F0F] h-1.5 rounded-full overflow-hidden border border-neutral-300 dark:border-[#262626]">
-                                    <div 
-                                      className={cn("h-full rounded-full transition-all", attendanceSince >= attendanceRequired ? "bg-emerald-500" : "bg-neutral-500 dark:bg-neutral-600")} 
-                                      style={{ width: `${Math.min(100, attendanceProgress)}%` }} 
-                                    />
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-4 py-2.5">
-                                {/* LMS syllabus bar */}
-                                <div className="space-y-1 w-28">
-                                  <div className="flex justify-between text-[9px] text-neutral-500 dark:text-neutral-400 font-mono leading-none">
-                                    <span>{completedVideos}/{totalVideos} vids</span>
-                                    <span className="font-bold">{syllabusCompletedPct}%</span>
-                                  </div>
-                                  <div className="w-full bg-neutral-200 dark:bg-[#0F0F0F] h-1.5 rounded-full overflow-hidden border border-neutral-300 dark:border-[#262626]">
-                                    <div 
-                                      className={cn("h-full rounded-full transition-all", syllabusCompletedPct === 100 ? "bg-emerald-500" : "bg-indigo-500")} 
-                                      style={{ width: `${syllabusCompletedPct}%` }} 
-                                    />
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-4 py-2.5 text-center">
-                                <span className={cn(
-                                  "inline-flex items-center px-2 py-0.5 rounded text-[9px] font-mono font-bold border",
-                                  pri >= 80 ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" :
-                                  pri >= 50 ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30" :
-                                  "bg-neutral-100 dark:bg-[#1A1A1A] text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-[#262626]"
-                                )}>
-                                  {pri}% PRI
-                                </span>
-                              </td>
-                              <td className="px-4 py-2.5 text-center">
-                                <span className={cn(
-                                  "inline-block px-2.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider border",
-                                  eligibilityStatus === 'Ready' ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20" :
-                                  eligibilityStatus === 'Developing' ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-500 border-yellow-500/20" :
-                                  "bg-neutral-200 dark:bg-neutral-500/10 text-neutral-600 dark:text-[#666] border-neutral-300 dark:border-transparent"
-                                )}>
-                                  {eligibilityStatus === 'Ready' ? t('dir_ready') : eligibilityStatus === 'Developing' ? t('dir_developing') : eligibilityStatus === 'Needs Work' ? t('dir_needs_work') : t('dir_ungraded')}
-                                </span>
-                              </td>
-                              <td className="px-4 py-2.5 text-center" onClick={(e) => e.stopPropagation()}>
-                                <div className="flex items-center justify-center gap-1.5">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleOpenSinglePromote(student.id)}
-                                    disabled={student.studentStatus !== 'Active'}
-                                    className="px-2 py-1 rounded bg-[#EF2F38] hover:bg-[#D9222B] disabled:opacity-40 text-white font-bold text-[9px] uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation shadow-xs"
-                                    title="Promote Candidate"
-                                  >
-                                    <ShieldCheck className="w-3 h-3" />
-                                    <span>Promote</span>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setSelectedStudentForCurriculum(student.id);
-                                      setBeltCenterSubTab('curriculum');
-                                    }}
-                                    className="p-1 rounded bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#999] hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer"
-                                    title="View Curriculum Audit"
-                                  >
-                                    <Trophy className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Mobile Native Candidate Cards (hidden on desktop/tablet) */}
-                <div className="block md:hidden divide-y divide-neutral-200 dark:divide-[#262626] overflow-y-auto">
-                  {filteredPromoCandidates.length === 0 ? (
-                    <div className="py-10 text-center text-neutral-500 dark:text-[#666] font-mono text-xs">
-                      {t('dir_no_candidates')}
-                    </div>
-                  ) : (
-                    filteredPromoCandidates.map((candidate) => {
-                      const { student, daysElapsed, daysRequired, daysProgress, attendanceSince, attendanceRequired, attendanceProgress, syllabusCompletedPct, completedVideos, totalVideos, skillsGradedCount, totalSkillsCount, pri, eligibilityStatus } = candidate;
-                      const targetBelt = getNextBeltRank(student.currentBelt);
-                      const isSelected = selectedStudentsForPromotion.includes(student.id);
-
-                      return (
-                        <div 
-                          key={student.id}
-                          className={cn(
-                            "p-3.5 space-y-3 transition-colors",
-                            isSelected ? "bg-red-500/5 dark:bg-[#EF2F38]/5" : "bg-white dark:bg-[#141414]"
-                          )}
-                        >
-                          {/* Card Top Row */}
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <input 
-                                type="checkbox" 
-                                disabled={student.studentStatus !== 'Active'}
-                                className="accent-[#EF2F38] rounded bg-white dark:bg-[#0F0F0F] border-neutral-300 dark:border-[#262626] w-4 h-4 shrink-0 cursor-pointer"
-                                checked={isSelected}
-                                onChange={(e) => handleSelectPromo(student.id, e.target.checked)}
-                              />
-                              <SafeImage 
-                                src={student.profilePicturePath} 
-                                alt={student.englishName} 
-                                containerClassName="w-8 h-8 rounded-full overflow-hidden bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center shrink-0"
-                              />
-                              <div className="min-w-0">
-                                <div className="text-neutral-900 dark:text-white font-bold text-xs truncate">
-                                  {student.englishName}
-                                </div>
-                                <div className="text-[10px] text-neutral-500 dark:text-[#666] font-mono truncate">
-                                  {student.id} • {state.branches.find(b => b.id === student.homeBranchId)?.name || 'Branch'}
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <span className={cn(
-                                "px-1.5 py-0.5 rounded text-[8px] font-mono font-bold border",
-                                pri >= 80 ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" :
-                                pri >= 50 ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30" :
-                                "bg-neutral-100 dark:bg-[#1A1A1A] text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-[#262626]"
-                              )}>
-                                {pri}% PRI
-                              </span>
-                              <span className={cn(
-                                "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider border",
-                                eligibilityStatus === 'Ready' ? "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30" :
-                                eligibilityStatus === 'Developing' ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30" :
-                                "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-[#777] border-neutral-200 dark:border-[#262626]"
-                              )}>
-                                {eligibilityStatus}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Belt Advancement Row */}
-                          <div className="flex items-center justify-between p-2 rounded-[6px] bg-neutral-50 dark:bg-[#0D0D0D] border border-neutral-200/60 dark:border-[#202020] text-xs">
-                            <span className="text-[10px] font-bold text-neutral-500 dark:text-[#777] uppercase tracking-wider">Advancement</span>
-                            <div className="flex items-center gap-2">
-                              <span className="px-2 py-0.5 rounded text-[9px] font-bold border uppercase tracking-wider bg-white dark:bg-[#1A1A1A] border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white">
-                                {student.currentBelt}
-                              </span>
-                              <CaretRight className="w-3.5 h-3.5 text-neutral-400 dark:text-[#666]" />
-                              <span className="px-2 py-0.5 rounded text-[9px] font-bold border uppercase tracking-wider bg-red-500/10 dark:bg-red-500/20 border-red-500/30 text-red-600 dark:text-red-400 font-mono">
-                                {targetBelt}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* 4-Vector Mini Progress Grid */}
-                          <div className="grid grid-cols-2 gap-2 text-[10px] font-mono">
-                            {/* Days */}
-                            <div className="p-2 rounded bg-neutral-50 dark:bg-[#0D0D0D] border border-neutral-200/60 dark:border-[#202020] space-y-1">
-                              <div className="flex justify-between text-neutral-500 dark:text-[#777]">
-                                <span>Days:</span>
-                                <span className="font-bold text-neutral-900 dark:text-white">{daysElapsed}/{daysRequired}d</span>
-                              </div>
-                              <div className="w-full bg-neutral-200 dark:bg-[#202020] h-1.5 rounded-full overflow-hidden">
-                                <div 
-                                  className={cn("h-full rounded-full transition-all", daysElapsed >= daysRequired ? "bg-emerald-500" : "bg-neutral-400 dark:bg-neutral-600")}
-                                  style={{ width: `${Math.min(100, daysProgress)}%` }}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Attendance */}
-                            <div className="p-2 rounded bg-neutral-50 dark:bg-[#0D0D0D] border border-neutral-200/60 dark:border-[#202020] space-y-1">
-                              <div className="flex justify-between text-neutral-500 dark:text-[#777]">
-                                <span>Classes:</span>
-                                <span className="font-bold text-neutral-900 dark:text-white">{attendanceSince}/{attendanceRequired}</span>
-                              </div>
-                              <div className="w-full bg-neutral-200 dark:bg-[#202020] h-1.5 rounded-full overflow-hidden">
-                                <div 
-                                  className={cn("h-full rounded-full transition-all", attendanceSince >= attendanceRequired ? "bg-emerald-500" : "bg-neutral-400 dark:bg-neutral-600")}
-                                  style={{ width: `${Math.min(100, attendanceProgress)}%` }}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Syllabus */}
-                            <div className="p-2 rounded bg-neutral-50 dark:bg-[#0D0D0D] border border-neutral-200/60 dark:border-[#202020] space-y-1">
-                              <div className="flex justify-between text-neutral-500 dark:text-[#777]">
-                                <span>Syllabus:</span>
-                                <span className="font-bold text-neutral-900 dark:text-white">{syllabusCompletedPct}%</span>
-                              </div>
-                              <div className="w-full bg-neutral-200 dark:bg-[#202020] h-1.5 rounded-full overflow-hidden">
-                                <div 
-                                  className={cn("h-full rounded-full transition-all", syllabusCompletedPct === 100 ? "bg-emerald-500" : "bg-indigo-500")}
-                                  style={{ width: `${syllabusCompletedPct}%` }}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Skills */}
-                            <div className="p-2 rounded bg-neutral-50 dark:bg-[#0D0D0D] border border-neutral-200/60 dark:border-[#202020] space-y-1">
-                              <div className="flex justify-between text-neutral-500 dark:text-[#777]">
-                                <span>Skills:</span>
-                                <span className="font-bold text-neutral-900 dark:text-white">{skillsGradedCount}/{totalSkillsCount}</span>
-                              </div>
-                              <div className="w-full bg-neutral-200 dark:bg-[#202020] h-1.5 rounded-full overflow-hidden">
-                                <div 
-                                  className={cn("h-full rounded-full transition-all", skillsGradedCount === totalSkillsCount && totalSkillsCount > 0 ? "bg-emerald-500" : "bg-amber-500")}
-                                  style={{ width: `${totalSkillsCount > 0 ? Math.min(100, (skillsGradedCount / totalSkillsCount) * 100) : 100}%` }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Action Row */}
-                          <div className="flex items-center gap-2 pt-1 border-t border-neutral-200/60 dark:border-[#202020]">
-                            <button 
-                              type="button"
-                              onClick={() => handleOpenSinglePromote(student.id)}
-                              disabled={student.studentStatus !== 'Active'}
-                              className="flex-1 h-8 sm:h-8.5 bg-[#EF2F38] hover:bg-[#D9222B] disabled:opacity-40 text-white rounded-[6px] text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation cursor-pointer shadow-xs"
-                            >
-                              <ShieldCheck className="w-3.5 h-3.5" />
-                              <span>Promote</span>
-                            </button>
-                            <button 
-                              type="button"
-                              onClick={() => {
-                                setSelectedStudentForCurriculum(student.id);
-                                setBeltCenterSubTab('curriculum');
-                              }}
-                              className="px-3 h-8 sm:h-8.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-[#AAA] rounded-[6px] text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation cursor-pointer"
-                            >
-                              <Trophy className="w-3.5 h-3.5" />
-                              <span>Audit</span>
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+          {beltCenterSubTab === 'readiness' && <PromotionReadinessPanel setFilterEligibility={setFilterEligibility} filterEligibility={filterEligibility} totalReadyCandidates={totalReadyCandidates} totalDevelopingCandidates={totalDevelopingCandidates} avgPri={avgPri} setBeltCenterSubTab={setBeltCenterSubTab} recentPromotionsCount={recentPromotionsCount} filteredPromoCandidates={filteredPromoCandidates} selectedBeltPipelineFilter={selectedBeltPipelineFilter} promotionSearch={promotionSearch} setPromotionSearch={setPromotionSearch} filterBranchPromo={filterBranchPromo} setFilterBranchPromo={setFilterBranchPromo} state={state} t={t} selectedStudentsForPromotion={selectedStudentsForPromotion} setShowPromotionModal={setShowPromotionModal} handleSelectAllPromo={handleSelectAllPromo} getNextBeltRank={getNextBeltRank} handleSelectPromo={handleSelectPromo} handleOpenSinglePromote={handleOpenSinglePromote} setSelectedStudentForCurriculum={setSelectedStudentForCurriculum} />}
 
           {/* Promotion History tab */}
-          {beltCenterSubTab === 'history' && (
-            <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] flex flex-col flex-1 min-h-[380px] overflow-hidden animate-in fade-in shadow-xs">
-              <div className="p-4 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between shrink-0">
-                <div>
-                  <h3 className="text-xs font-black text-neutral-900 dark:text-white uppercase tracking-widest">{t('dir_history_title')}</h3>
-                  <p className="text-[9px] text-neutral-500 dark:text-[#666] font-mono mt-0.5">
-                    {filteredHistory.length} recorded promotions | Kukkiwon & Academy Log
-                  </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5 w-full xl:w-auto xl:justify-end">
-                  <div className="relative w-full sm:w-48 xl:w-56">
-                    <MagnifyingGlass className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400 dark:text-[#666]"/>
-                    <input 
-                      type="text" 
-                      placeholder={t('dir_history_search_placeholder')} 
-                      value={historySearch} 
-                      onChange={(e) => setHistorySearch(e.target.value)}
-                      className="w-full pl-8 pr-2 h-8 sm:h-9 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs focus:outline-none focus:border-[#EF2F38] placeholder:text-neutral-400 dark:placeholder:text-[#666]"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar touch-pan-x -mx-4 px-4 sm:mx-0 sm:px-0">
-                    <select 
-                      value={filterBranchHistory} 
-                      onChange={(e) => setFilterBranchHistory(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-8 sm:h-9 shrink-0 focus:outline-none font-bold cursor-pointer"
-                    >
-                      <option value="all">{t('dir_all_branches')}</option>
-                      {state.branches.map(b => (
-                        <option key={b.id} value={b.id}>{b.name}</option>
-                      ))}
-                    </select>
-
-                    <select 
-                      value={filterBeltHistory} 
-                      onChange={(e) => setFilterBeltHistory(e.target.value)}
-                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-8 sm:h-9 shrink-0 focus:outline-none font-bold cursor-pointer"
-                    >
-                      <option value="all">{t('dir_all_ranks')}</option>
-                      {BELT_RANK_ORDER.map(b => (
-                        <option key={b} value={b}>{b}</option>
-                      ))}
-                    </select>
-
-                    <select 
-                      value={filterProgramHistory} 
-                      onChange={(e) => setFilterProgramHistory(e.target.value)}
-                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-8 sm:h-9 shrink-0 focus:outline-none font-bold cursor-pointer"
-                    >
-                      <option value="all">{t('dir_all_programs')}</option>
-                      {Array.from(new Set(state.beltHistories.map(h => h.program || 'Standard Class'))).map(p => (
-                        <option key={p} value={p}>{p}</option>
-                      ))}
-                    </select>
-
-                    <button
-                      type="button"
-                      onClick={handleExportHistoryCsv}
-                      className="px-2.5 sm:px-3 h-8 sm:h-9 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-[#DDD] hover:text-neutral-900 dark:hover:text-white rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer active:scale-95 touch-manipulation"
-                      title="Export History to CSV"
-                    >
-                      <DownloadSimple className="w-3.5 h-3.5" />
-                      <span>CSV</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Desktop Table View */}
-              <div className="hidden md:block flex-1 overflow-auto">
-                <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
-                  <thead className="bg-neutral-50 dark:bg-[#0F0F0F] text-neutral-500 dark:text-[#666] uppercase tracking-widest font-bold sticky top-0 z-10 border-b border-neutral-200 dark:border-[#262626]">
-                    <tr>
-                      <th className="px-4 py-2.5">{t('dir_student_context')}</th>
-                      <th className="px-4 py-2.5">{t('dir_target_rank')}</th>
-                      <th className="px-4 py-2.5">{t('dir_promotion_date')}</th>
-                      <th className="px-4 py-2.5">{t('dir_grade')}</th>
-                      <th className="px-4 py-2.5">{t('dir_cert_ref_hash')}</th>
-                      <th className="px-4 py-2.5 w-28 text-center">{t('dir_cert_link_label').replace(/\s*\(.*\)/, '')}</th>
-                      <th className="px-4 py-2.5 w-20 text-center">{t('lib_bulk_action_col')}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-200 dark:divide-[#262626] bg-white dark:bg-[#141414]">
-                    {filteredHistory.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="px-4 py-12 text-center text-neutral-500 dark:text-[#666] font-mono">
-                          {t('dir_no_history')}
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredHistory.map(history => {
-                        const student = state.students.find(s => s.id === history.studentId);
-                        return (
-                          <tr key={history.id} className="hover:bg-neutral-50 dark:hover:bg-[#1A1A1A] transition-colors text-neutral-800 dark:text-[#E4E4E4]">
-                            <td className="px-4 py-2.5">
-                              <button 
-                                type="button"
-                                onClick={() => { if (student) setSelectedStudentId(student.id); }}
-                                className="flex items-center gap-2.5 text-left group/st cursor-pointer"
-                              >
-                                {student && (
-                                  <SafeImage 
-                                    src={student.profilePicturePath} 
-                                    alt={student.englishName} 
-                                    containerClassName="w-7 h-7 rounded-full overflow-hidden bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center shrink-0"
-                                  />
-                                )}
-                                <div>
-                                  <div className="font-bold text-xs text-neutral-900 dark:text-white group-hover/st:text-[#EF2F38] transition-colors">
-                                    {student ? student.englishName : history.studentId}
-                                  </div>
-                                  <div className="text-[10px] text-neutral-500 dark:text-[#666] font-mono">
-                                    {history.studentId} {student?.homeBranchId && `• ${state.branches.find(b => b.id === student.homeBranchId)?.name}`}
-                                  </div>
-                                </div>
-                              </button>
-                            </td>
-                            <td className="px-4 py-2.5">
-                              <span className={cn("px-2 py-0.5 rounded text-[8px] font-bold border tracking-wider uppercase", history.beltLevel.toLowerCase().includes('poom') || history.beltLevel.toLowerCase().includes('dan') || history.beltLevel.toLowerCase() === 'black' ? "bg-neutral-900 text-white border-neutral-700 dark:bg-black dark:text-neutral-100 dark:border-neutral-700" : history.beltLevel === 'Red' ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30" : history.beltLevel === 'Brown' ? "bg-amber-900/10 text-amber-800 dark:text-amber-500 border-amber-800/30" : history.beltLevel === 'Blue' ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30" : history.beltLevel === 'Green' ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : history.beltLevel === 'White' ? "bg-neutral-100 text-neutral-800 dark:bg-white/10 dark:text-neutral-200 border-neutral-300 dark:border-white/20" : "bg-yellow-500/15 text-yellow-800 dark:text-yellow-400 border-yellow-500/40" )}>
-                                {history.beltLevel}
-                              </span>
-                            </td>
-                            <td className="px-4 py-2.5 font-mono text-[10px] text-neutral-600 dark:text-[#999]">{history.promotionDate}</td>
-                            <td className="px-4 py-2.5 font-mono text-[10px] text-neutral-700 dark:text-neutral-200">
-                              {t('dir_test_score').replace(/\s*\(.*\)/, '')}: <span className="font-bold text-amber-600 dark:text-amber-400">{history.testScore || 80}</span> • {history.program || 'Standard'}
-                            </td>
-                            <td className="px-4 py-2.5 font-mono text-[10px] text-neutral-500 dark:text-[#888] tracking-wider">
-                              {history.certificateRef || 'N/A'}
-                            </td>
-                            <td className="px-4 py-2.5 text-center">
-                              <div className="flex items-center justify-center gap-1.5">
-                                {history.kukkiwonDanCardId && (history.kukkiwonDanCardId.startsWith('http') || history.kukkiwonDanCardId.includes('drive.google.com')) ? (
-                                  <>
-                                    <a 
-                                      href={history.kukkiwonDanCardId} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer"
-                                      className="px-2.5 py-1 bg-emerald-500/15 hover:bg-emerald-600 border border-emerald-500/25 hover:border-transparent text-emerald-700 dark:text-emerald-400 hover:text-white rounded text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1 active:scale-95 touch-manipulation cursor-pointer"
-                                      title="Open Uploaded Infinity TKD Certificate"
-                                    >
-                                      <Globe className="w-3 h-3 text-emerald-600 dark:text-emerald-400 animate-pulse" />
-                                      View
-                                    </a>
-                                    <button 
-                                      onClick={() => handleCopyLink(history.id, history.kukkiwonDanCardId!)}
-                                      className={cn(
-                                        "p-1.5 rounded transition-all flex items-center justify-center border cursor-pointer active:scale-95 touch-manipulation",
-                                        copiedHistoryId === history.id 
-                                          ? "bg-green-500/20 border-green-500/30 text-green-700 dark:text-green-400" 
-                                          : "bg-neutral-100 hover:bg-neutral-200 border-neutral-200 dark:bg-[#1C1C1C] dark:border-[#262626] text-neutral-600 dark:text-[#999] hover:text-neutral-900 dark:hover:text-white"
-                                      )}
-                                      title="Copy Share Link to Clipboard"
-                                    >
-                                      {copiedHistoryId === history.id ? (
-                                        <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
-                                      ) : (
-                                        <Copy className="w-3 h-3" />
-                                      )}
-                                    </button>
-                                  </>
-                                ) : history.kukkiwonDanCardId ? (
-                                  <span className="font-mono text-[9px] text-neutral-700 dark:text-[#999] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] px-1.5 py-0.5 rounded" title="Kukkiwon ID / Custom Card ID">
-                                    ID: {history.kukkiwonDanCardId}
-                                  </span>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleOpenEditHistory(history)}
-                                    className="text-[9px] font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
-                                  >
-                                    + Add Link
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-4 py-2.5 text-center">
-                              <div className="flex items-center justify-center gap-2">
-                                <button 
-                                  onClick={() => handleOpenEditHistory(history)}
-                                  className="p-1 rounded hover:bg-neutral-100 dark:hover:bg-[#202020] text-neutral-400 hover:text-neutral-900 dark:text-[#666] dark:hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation"
-                                  title="Edit Promotion Log"
-                                >
-                                  <PencilSimple className="w-3.5 h-3.5" />
-                                </button>
-                                <button 
-                                  disabled={isDeletingHistory === history.id}
-                                  onClick={() => handleVoidPromotion(history.id)}
-                                  className="p-1 rounded hover:bg-red-500/10 text-neutral-400 hover:text-red-600 dark:text-[#666] dark:hover:text-red-500 disabled:opacity-30 transition-colors cursor-pointer active:scale-95 touch-manipulation"
-                                  title="Void Promotion"
-                                >
-                                  <Trash className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile Native History Cards */}
-              <div className="block md:hidden divide-y divide-neutral-200 dark:divide-[#262626] overflow-y-auto">
-                {filteredHistory.length === 0 ? (
-                  <div className="py-10 text-center text-neutral-500 dark:text-[#666] font-mono text-xs">
-                    {t('dir_no_history')}
-                  </div>
-                ) : (
-                  filteredHistory.map(history => {
-                    const student = state.students.find(s => s.id === history.studentId);
-                    return (
-                      <div key={history.id} className="p-3.5 space-y-2.5 bg-white dark:bg-[#141414]">
-                        <div className="flex items-center justify-between">
-                          <button 
-                            type="button"
-                            onClick={() => { if (student) setSelectedStudentId(student.id); }}
-                            className="font-bold text-xs text-neutral-900 dark:text-white hover:text-[#EF2F38] text-left transition-colors cursor-pointer"
-                          >
-                            {student ? student.englishName : history.studentId}
-                            <span className="text-[10px] text-neutral-500 font-mono font-normal ml-1">({history.studentId})</span>
-                          </button>
-                          <span className="px-2 py-0.5 rounded text-[8px] font-bold border uppercase tracking-wider bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white">
-                            {history.beltLevel}
-                          </span>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-neutral-600 dark:text-[#999] bg-neutral-50 dark:bg-[#0D0D0D] p-2 rounded border border-neutral-200/60 dark:border-[#202020]">
-                          <div>Date: <span className="font-bold text-neutral-900 dark:text-white">{history.promotionDate}</span></div>
-                          <div>Score: <span className="font-bold text-amber-600 dark:text-amber-400">{history.testScore || 80}</span></div>
-                          <div className="truncate">Prog: {history.program || 'Standard'}</div>
-                          <div className="truncate font-mono">Ref: {history.certificateRef || 'N/A'}</div>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-1">
-                          <div>
-                            {history.kukkiwonDanCardId && (history.kukkiwonDanCardId.startsWith('http') || history.kukkiwonDanCardId.includes('drive.google.com')) ? (
-                              <div className="flex items-center gap-1.5">
-                                <a 
-                                  href={history.kukkiwonDanCardId}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="px-2.5 py-1 bg-emerald-500/15 hover:bg-emerald-600 border border-emerald-500/25 hover:border-transparent text-emerald-700 dark:text-emerald-400 hover:text-white rounded text-[9px] font-bold uppercase tracking-wider transition-all inline-flex items-center gap-1"
-                                >
-                                  <Globe className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                                  <span>View Cert</span>
-                                </a>
-                                <button 
-                                  onClick={() => handleCopyLink(history.id, history.kukkiwonDanCardId!)}
-                                  className="p-1 rounded bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400"
-                                >
-                                  {copiedHistoryId === history.id ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-                                </button>
-                              </div>
-                            ) : history.kukkiwonDanCardId ? (
-                              <span className="text-[9px] font-mono text-neutral-600 dark:text-neutral-400">ID: {history.kukkiwonDanCardId}</span>
-                            ) : (
-                              <button 
-                                type="button"
-                                onClick={() => handleOpenEditHistory(history)}
-                                className="text-[9px] font-bold text-blue-600 dark:text-blue-400 hover:underline"
-                              >
-                                + Add Cert Link
-                              </button>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <button 
-                              type="button"
-                              onClick={() => handleOpenEditHistory(history)}
-                              className="p-1.5 rounded bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#242424] text-neutral-600 dark:text-[#999] hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer"
-                              title="Edit Log"
-                            >
-                              <PencilSimple className="w-3.5 h-3.5" />
-                            </button>
-                            <button 
-                              type="button"
-                              disabled={isDeletingHistory === history.id}
-                              onClick={() => handleVoidPromotion(history.id)}
-                              className="p-1.5 rounded bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 transition-colors cursor-pointer disabled:opacity-30"
-                              title="Void Promotion"
-                            >
-                              <Trash className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          )}
+          {beltCenterSubTab === 'history' && <PromotionHistoryPanel t={t} filteredHistory={filteredHistory} historySearch={historySearch} setHistorySearch={setHistorySearch} filterBranchHistory={filterBranchHistory} setFilterBranchHistory={setFilterBranchHistory} state={state} filterBeltHistory={filterBeltHistory} setFilterBeltHistory={setFilterBeltHistory} BELT_RANK_ORDER={BELT_RANK_ORDER} filterProgramHistory={filterProgramHistory} setFilterProgramHistory={setFilterProgramHistory} handleExportHistoryCsv={handleExportHistoryCsv} setSelectedStudentId={setSelectedStudentId} handleCopyLink={handleCopyLink} copiedHistoryId={copiedHistoryId} handleOpenEditHistory={handleOpenEditHistory} isDeletingHistory={isDeletingHistory} handleVoidPromotion={handleVoidPromotion} />}
 
           {/* Curriculum requirements audit tab */}
           {beltCenterSubTab === 'curriculum' && (() => {
@@ -2370,10 +1579,10 @@ export function DirectoryView() {
 
                   <div className="relative mb-2.5 shrink-0">
                     <MagnifyingGlass className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400 dark:text-[#666]"/>
-                    <input 
-                      type="text" 
-                      placeholder="Filter student..." 
-                      value={promotionSearch} 
+                    <input
+                      type="text"
+                      placeholder="Filter student..."
+                      value={promotionSearch}
                       onChange={(e) => setPromotionSearch(e.target.value)}
                       className="w-full pl-8 pr-2 h-8 md:h-9 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[6px] md:rounded-[8px] text-[11px] md:text-xs focus:outline-none focus:border-[#EF2F38] placeholder:text-neutral-400 dark:placeholder:text-[#666]"
                     />
@@ -2395,8 +1604,8 @@ export function DirectoryView() {
                             onClick={() => setSelectedStudentForCurriculum(student.id)}
                             className={cn(
                               "w-full text-left p-2.5 rounded-[8px] border text-xs flex items-center justify-between transition-all font-bold cursor-pointer active:scale-95 touch-manipulation",
-                              isSelected 
-                                ? "bg-[#EF2F38] border-[#EF2F38] text-white shadow-md shadow-[#EF2F38]/20" 
+                              isSelected
+                                ? "bg-[#EF2F38] border-[#EF2F38] text-white shadow-md shadow-[#EF2F38]/20"
                                 : "bg-neutral-50 dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A]"
                             )}
                           >
@@ -2427,9 +1636,9 @@ export function DirectoryView() {
                       {/* Dossier Header */}
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-neutral-200 dark:border-[#262626] pb-4">
                         <div className="flex items-center gap-3">
-                          <SafeImage 
-                            src={activeStudentObj.profilePicturePath} 
-                            alt={activeStudentObj.englishName} 
+                          <SafeImage
+                            src={activeStudentObj.profilePicturePath}
+                            alt={activeStudentObj.englishName}
                             containerClassName="w-12 h-12 rounded-[8px] overflow-hidden bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center shrink-0"
                           />
                           <div>
@@ -2478,11 +1687,12 @@ export function DirectoryView() {
                           </div>
                           <p className="text-xs leading-relaxed opacity-90">
                             {auditData.eligibilityStatus === 'Ready'
-                              ? `All time, attendance, syllabus, and technique requirements satisfied for ${targetBelt} Belt Exam.`
+                              ? (auditData.beltTest ? `Meets every published ${auditData.beltTest.targetBelt} test rule. Register them on a ${auditData.beltTest.targetBelt} test day in Belt Tests.` : `All time, attendance, syllabus, and technique requirements satisfied for ${targetBelt} Belt Exam.`)
                               : auditData.eligibilityStatus === 'Developing'
                               ? `Candidate is progressing well towards ${targetBelt}. Continue training on incomplete requirements.`
                               : `Candidate has not yet completed prerequisite attendance or time-in-grade cycles.`}
                           </p>
+                          {auditData.beltTest && <div className="space-y-1.5 pt-1"><RuleChips entry={{ eligibility: auditData.beltTest }} /><Link href="/belt-tests" className="inline-block text-[11px] font-semibold underline">Open Belt Tests</Link></div>}
                         </div>
 
                         {auditData.eligibilityStatus === 'Ready' && activeStudentObj.studentStatus === 'Active' && (
@@ -2496,6 +1706,8 @@ export function DirectoryView() {
                           </button>
                         )}
                       </div>
+
+                      <StudentBeltTestHistory studentId={activeStudentObj.id} />
 
                       {/* Multi-Vector Requirements Overview Grid */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -2516,7 +1728,7 @@ export function DirectoryView() {
                               <span>{auditData.daysProgress}%</span>
                             </div>
                             <div className="w-full bg-neutral-200 dark:bg-[#1A1A1A] h-1.5 rounded-full overflow-hidden">
-                              <div 
+                              <div
                                 className={cn("h-full rounded-full transition-all", auditData.daysEligible ? "bg-emerald-500" : "bg-neutral-500")}
                                 style={{ width: `${Math.min(100, auditData.daysProgress)}%` }}
                               />
@@ -2541,7 +1753,7 @@ export function DirectoryView() {
                               <span>{auditData.attendanceProgress}%</span>
                             </div>
                             <div className="w-full bg-neutral-200 dark:bg-[#1A1A1A] h-1.5 rounded-full overflow-hidden">
-                              <div 
+                              <div
                                 className={cn("h-full rounded-full transition-all", auditData.attendanceEligible ? "bg-emerald-500" : "bg-neutral-500")}
                                 style={{ width: `${Math.min(100, auditData.attendanceProgress)}%` }}
                               />
@@ -2566,7 +1778,7 @@ export function DirectoryView() {
                               <span>{auditData.syllabusCompletedPct}%</span>
                             </div>
                             <div className="w-full bg-neutral-200 dark:bg-[#1A1A1A] h-1.5 rounded-full overflow-hidden">
-                              <div 
+                              <div
                                 className={cn("h-full rounded-full transition-all", auditData.syllabusEligible ? "bg-emerald-500" : "bg-indigo-500")}
                                 style={{ width: `${auditData.syllabusCompletedPct}%` }}
                               />
@@ -2591,7 +1803,7 @@ export function DirectoryView() {
                               <span className="truncate">{auditData.physicalAverageGradeLabel}</span>
                             </div>
                             <div className="w-full bg-neutral-200 dark:bg-[#1A1A1A] h-1.5 rounded-full overflow-hidden">
-                              <div 
+                              <div
                                 className={cn("h-full rounded-full transition-all", auditData.physicalEligible ? "bg-emerald-500" : "bg-amber-500")}
                                 style={{ width: `${auditData.totalSkillsCount > 0 ? Math.min(100, (auditData.skillsGradedCount / auditData.totalSkillsCount) * 100) : 100}%` }}
                               />
@@ -2622,8 +1834,8 @@ export function DirectoryView() {
                                 const currentGrade = evalObj?.grade;
 
                                 return (
-                                  <div 
-                                    key={techName} 
+                                  <div
+                                    key={techName}
                                     className="p-3 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-neutral-300 dark:hover:border-[#333] transition-colors"
                                   >
                                     <div className="flex items-center gap-2.5 min-w-0">
@@ -2643,7 +1855,7 @@ export function DirectoryView() {
                                     {/* 4-Tier Interactive Grade Buttons */}
                                     <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
                                       {(['Needs Work', 'Developing', 'Proficient', 'Outstanding'] as const).map(level => {
-                                        const isMatch = currentGrade === level || 
+                                        const isMatch = currentGrade === level ||
                                           (level === 'Outstanding' && currentGrade === 'A') ||
                                           (level === 'Proficient' && currentGrade === 'B') ||
                                           (level === 'Developing' && currentGrade === 'C') ||
@@ -2664,7 +1876,7 @@ export function DirectoryView() {
                                             }}
                                             className={cn(
                                               "px-2 sm:px-2.5 py-1 rounded-[6px] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation border shrink-0",
-                                              isMatch 
+                                              isMatch
                                                 ? (level === 'Outstanding' ? 'bg-emerald-600 border-emerald-500 text-white font-black shadow-xs' :
                                                    level === 'Proficient' ? 'bg-indigo-600 border-indigo-500 text-white font-black shadow-xs' :
                                                    level === 'Developing' ? 'bg-amber-500 border-amber-400 text-black font-black shadow-xs' :
@@ -2682,6 +1894,13 @@ export function DirectoryView() {
                                           </button>
                                         );
                                       })}
+                                      {can('action:evaluations_grade') && (
+                                        <CoachScoreInput
+                                          skill={techName}
+                                          score={evalObj?.score}
+                                          onSave={score => upsertPhysicalEvaluation(activeStudentObj.id, techName, targetBelt, currentGrade || 'Unrated', score)}
+                                        />
+                                      )}
                                     </div>
                                   </div>
                                 );
@@ -2698,7 +1917,7 @@ export function DirectoryView() {
                         </h4>
                         <div className="space-y-2">
                           {state.curriculumVideos
-                            .filter(v => isBeltMatch(v.minBeltLevel, activeStudentObj.currentBelt) && v.minBeltLevel !== 'Fitness')
+                            .filter(v => isSyllabusLessonFor(v, activeStudentObj.currentBelt))
                             .map(video => {
                               const progress = state.videoProgress.find(p => p.videoId === video.id && p.studentId === activeStudentObj.id);
                               const isCompleted = progress?.status === 'Completed';
@@ -2752,7 +1971,7 @@ export function DirectoryView() {
         {showPromotionModal && (
           <Portal>
             <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-              <motion.div 
+              <motion.div
                 {...dialogMotion}
                 className="w-full max-w-md bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl overflow-hidden flex flex-col text-neutral-900 dark:text-white max-h-[90dvh]"
               >
@@ -2761,7 +1980,7 @@ export function DirectoryView() {
                     <ShieldCheck className="w-5 h-5 text-[#EF2F38]" />
                     <h3 className="text-xs font-black uppercase tracking-widest text-neutral-900 dark:text-white">{t('dir_bulk_promotion_title')}</h3>
                   </div>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowPromotionModal(false)}
                     className="px-3 py-1.5 min-h-[40px] text-xs font-bold rounded-[8px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
@@ -2780,25 +1999,25 @@ export function DirectoryView() {
                   <div className="space-y-1">
                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_promotion_mode')}</label>
                     <div className="grid grid-cols-2 gap-2 bg-neutral-100 dark:bg-[#141414] p-1 border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                      <button 
+                      <button
                         type="button"
                         onClick={() => setPromotionForm(prev => ({ ...prev, targetBeltMode: 'next' }))}
                         className={cn(
                           "py-1.5 rounded text-xs font-bold transition-all uppercase tracking-wider cursor-pointer active:scale-95 touch-manipulation",
-                          promotionForm.targetBeltMode === 'next' 
-                            ? "bg-white dark:bg-[#262626] text-neutral-900 dark:text-white shadow-sm font-extrabold" 
+                          promotionForm.targetBeltMode === 'next'
+                            ? "bg-white dark:bg-[#262626] text-neutral-900 dark:text-white shadow-sm font-extrabold"
                             : "text-neutral-500 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
                         )}
                       >
                         {t('dir_next_rank_dynamic')}
                       </button>
-                      <button 
+                      <button
                         type="button"
                         onClick={() => setPromotionForm(prev => ({ ...prev, targetBeltMode: 'fixed' }))}
                         className={cn(
                           "py-1.5 rounded text-xs font-bold transition-all uppercase tracking-wider cursor-pointer active:scale-95 touch-manipulation",
-                          promotionForm.targetBeltMode === 'fixed' 
-                            ? "bg-white dark:bg-[#262626] text-neutral-900 dark:text-white shadow-sm font-extrabold" 
+                          promotionForm.targetBeltMode === 'fixed'
+                            ? "bg-white dark:bg-[#262626] text-neutral-900 dark:text-white shadow-sm font-extrabold"
                             : "text-neutral-500 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
                         )}
                       >
@@ -2810,7 +2029,7 @@ export function DirectoryView() {
                   {promotionForm.targetBeltMode === 'fixed' && (
                     <div className="space-y-1">
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_target_belt')}</label>
-                      <select 
+                      <select
                         value={promotionForm.fixedTargetBelt}
                         onChange={(e) => setPromotionForm(prev => ({ ...prev, fixedTargetBelt: e.target.value }))}
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer"
@@ -2825,7 +2044,7 @@ export function DirectoryView() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_test_score')}</label>
-                      <input 
+                      <input
                         type="number"
                         min="1"
                         max="100"
@@ -2836,7 +2055,7 @@ export function DirectoryView() {
                     </div>
                     <div className="space-y-1">
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_promotion_date')}</label>
-                      <input 
+                      <input
                         type="date"
                         value={promotionForm.promotionDate}
                         onChange={(e) => setPromotionForm(prev => ({ ...prev, promotionDate: e.target.value }))}
@@ -2847,7 +2066,7 @@ export function DirectoryView() {
 
                   <div className="space-y-1">
                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_curriculum_program')}</label>
-                    <input 
+                    <input
                       type="text"
                       value={promotionForm.program}
                       onChange={(e) => setPromotionForm(prev => ({ ...prev, program: e.target.value }))}
@@ -2857,7 +2076,7 @@ export function DirectoryView() {
 
                   <div className="space-y-1">
                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_cert_url_label')}</label>
-                    <input 
+                    <input
                       type="url"
                       placeholder="e.g. https://drive.google.com/file/d/..."
                       value={promotionForm.certificateUrl || ''}
@@ -2868,13 +2087,13 @@ export function DirectoryView() {
                 </div>
 
                 <div className="p-4 border-t border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex justify-end gap-2 shrink-0">
-                  <button 
+                  <button
                     onClick={() => setShowPromotionModal(false)}
                     className="px-4 py-2 bg-neutral-200 hover:bg-neutral-300 dark:bg-[#1A1A1A] text-neutral-700 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer active:scale-95 touch-manipulation"
                   >
                     {t('act_cancel')}
                   </button>
-                  <button 
+                  <button
                     onClick={handleBulkPromoteSubmit}
                     className="px-5 py-2 bg-[#EF2F38] hover:bg-[#D9222B] text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-all shadow-md shadow-[#EF2F38]/20 cursor-pointer active:scale-95 touch-manipulation"
                   >
@@ -2889,7 +2108,7 @@ export function DirectoryView() {
         {reconcileResult && (
           <Portal>
             <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-              <motion.div 
+              <motion.div
                 {...dialogMotion}
                 className="w-full max-w-lg bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl overflow-hidden flex flex-col text-neutral-900 dark:text-white max-h-[90dvh]"
               >
@@ -2898,8 +2117,8 @@ export function DirectoryView() {
                     <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
                     <h3 className="text-xs font-black uppercase tracking-widest text-neutral-900 dark:text-white">{t('dir_diagnostics_title')}</h3>
                   </div>
-                  <button 
-                    onClick={() => setReconcileResult(null)} 
+                  <button
+                    onClick={() => setReconcileResult(null)}
                     className="text-neutral-500 hover:text-neutral-900 dark:text-[#666] dark:hover:text-white text-xs uppercase font-bold tracking-wider cursor-pointer"
                   >
                     {t('act_close')}
@@ -2936,8 +2155,8 @@ export function DirectoryView() {
                   </div>
                 </div>
                 <div className="p-4 border-t border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex justify-end shrink-0">
-                  <button 
-                    onClick={() => setReconcileResult(null)} 
+                  <button
+                    onClick={() => setReconcileResult(null)}
                     className="px-5 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-[#262626] dark:hover:bg-[#333] rounded-[8px] text-xs font-bold uppercase tracking-widest transition-colors shadow-md shadow-black/20 cursor-pointer active:scale-95 touch-manipulation"
                   >
                     {t('dir_diagnostics_close')}
@@ -2954,7 +2173,7 @@ export function DirectoryView() {
         {editingHistory && (
           <Portal>
             <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-              <motion.div 
+              <motion.div
                 {...dialogMotion}
                 className="w-full max-w-md bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl overflow-hidden flex flex-col text-neutral-900 dark:text-white max-h-[90dvh] animate-in zoom-in-95 duration-150"
               >
@@ -2963,7 +2182,7 @@ export function DirectoryView() {
                     <ShieldCheck className="w-5 h-5 text-amber-500" />
                     <h3 className="text-xs font-black uppercase tracking-widest text-neutral-900 dark:text-white">{t('dir_edit_log_title')}</h3>
                   </div>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setEditingHistory(null)}
                     className="px-3 py-1.5 min-h-[40px] text-xs font-bold rounded-[8px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
@@ -2983,7 +2202,7 @@ export function DirectoryView() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_target_belt')}</label>
-                      <select 
+                      <select
                         value={editHistoryForm.beltLevel}
                         onChange={(e) => setEditHistoryForm(prev => ({ ...prev, beltLevel: e.target.value }))}
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer"
@@ -2996,7 +2215,7 @@ export function DirectoryView() {
 
                     <div className="space-y-1">
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_promotion_date')}</label>
-                      <input 
+                      <input
                         type="date"
                         value={editHistoryForm.promotionDate}
                         onChange={(e) => setEditHistoryForm(prev => ({ ...prev, promotionDate: e.target.value }))}
@@ -3008,7 +2227,7 @@ export function DirectoryView() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_test_score')}</label>
-                      <input 
+                      <input
                         type="number"
                         min="1"
                         max="100"
@@ -3020,7 +2239,7 @@ export function DirectoryView() {
 
                     <div className="space-y-1">
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_curriculum_program')}</label>
-                      <input 
+                      <input
                         type="text"
                         value={editHistoryForm.program}
                         onChange={(e) => setEditHistoryForm(prev => ({ ...prev, program: e.target.value }))}
@@ -3031,7 +2250,7 @@ export function DirectoryView() {
 
                   <div className="space-y-1">
                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_cert_ref_hash')}</label>
-                    <input 
+                    <input
                       type="text"
                       value={editHistoryForm.certificateRef}
                       onChange={(e) => setEditHistoryForm(prev => ({ ...prev, certificateRef: e.target.value.toUpperCase() }))}
@@ -3042,7 +2261,7 @@ export function DirectoryView() {
 
                   <div className="space-y-1">
                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_cert_link_label')}</label>
-                    <input 
+                    <input
                       type="text"
                       value={editHistoryForm.kukkiwonDanCardId}
                       onChange={(e) => setEditHistoryForm(prev => ({ ...prev, kukkiwonDanCardId: e.target.value }))}
@@ -3053,13 +2272,13 @@ export function DirectoryView() {
                 </div>
 
                 <div className="p-4 border-t border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex justify-end gap-2">
-                  <button 
+                  <button
                     onClick={() => setEditingHistory(null)}
                     className="px-4 py-2 bg-neutral-200 hover:bg-neutral-300 dark:bg-[#1A1A1A] text-neutral-700 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer active:scale-95 touch-manipulation"
                   >
                     {t('act_cancel')}
                   </button>
-                  <button 
+                  <button
                     onClick={handleSaveEditHistorySubmit}
                     disabled={isSavingEdit}
                     className="px-5 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-55 text-black font-extrabold rounded-[8px] text-xs uppercase tracking-widest transition-all shadow-md shadow-amber-500/20 cursor-pointer active:scale-95 touch-manipulation"
@@ -3082,9 +2301,9 @@ export function DirectoryView() {
                   <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white">Manage Membership Status</h3>
                   <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono mt-0.5">{selectedStudentForStatus.englishName} ({selectedStudentForStatus.id})</p>
                 </div>
-                <button 
+                <button
                   type="button"
-                  onClick={() => setSelectedStudentForStatus(null)} 
+                  onClick={() => setSelectedStudentForStatus(null)}
                   aria-label="Close status modal"
                   className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[8px] text-neutral-400 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors text-sm font-bold cursor-pointer active:scale-95 touch-manipulation"
                 >
@@ -3147,9 +2366,9 @@ export function DirectoryView() {
               </div>
 
               <div className="flex items-center justify-end gap-2 border-t border-neutral-200 dark:border-[#262626] pt-3">
-                <button 
+                <button
                   type="button"
-                  onClick={() => setSelectedStudentForStatus(null)} 
+                  onClick={() => setSelectedStudentForStatus(null)}
                   className="px-4 py-2 rounded-[8px] bg-neutral-100 dark:bg-[#1A1A1A] text-xs font-bold text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-[#262626] cursor-pointer transition-colors"
                 >
                   Cancel

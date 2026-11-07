@@ -1,4 +1,6 @@
 'use client';
+import { copyText } from '@/lib/clipboard';
+import { ContactActions, TelegramContactField } from './ContactActions';
 
 import { dialogMotion } from '@/lib/motion';
 import { academyDate } from '@/lib/dates';
@@ -13,12 +15,12 @@ import { Key } from '@phosphor-icons/react/dist/csr/Key';
 import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
 import { Eye } from '@phosphor-icons/react/dist/csr/Eye';
 import { EyeClosed } from '@phosphor-icons/react/dist/csr/EyeClosed';
-import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
-import { EnvelopeSimple } from '@phosphor-icons/react/dist/csr/EnvelopeSimple';
+
+
 import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
 import { Check } from '@phosphor-icons/react/dist/csr/Check';
 import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
-import { CalendarBlank } from '@phosphor-icons/react/dist/csr/CalendarBlank';
+
 import { WarningCircle } from '@phosphor-icons/react/dist/csr/WarningCircle';
 import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
 import { ChalkboardTeacher } from '@phosphor-icons/react/dist/csr/ChalkboardTeacher';
@@ -47,16 +49,7 @@ interface ManageStaffPanelProps {
 }
 
 export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
-  const { 
-    updateUser, 
-    deleteUser, 
-    state, 
-    showConfirm, 
-    showNotification,
-    addStaffDanRecord,
-    updateStaffDanRecord,
-    deleteStaffDanRecord
-  } = useAppStore();
+  const { updateUser, deleteUser, state, can, showConfirm, showNotification, addStaffDanRecord, updateStaffDanRecord, deleteStaffDanRecord } = useAppStore();
   const t = useT();
   const [editForm, setEditForm] = useState<any>(staff ? {
     displayName: staff.displayName || '',
@@ -68,6 +61,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
     gender: staff.gender || 'Male',
     dob: staff.dob || '',
     phone: staff.phone || '',
+    telegramUsername: staff.telegramUsername || '',
     emergencyContactName: staff.emergencyContactName || '',
     emergencyContactPhone: staff.emergencyContactPhone || '',
     emergencyContactRelation: staff.emergencyContactRelation || '',
@@ -106,8 +100,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
     editForm.dob || staff.dob
   );
 
-  const currentUserRole = state.currentUser?.role;
-  const canEdit = currentUserRole === 'Root' || currentUserRole === 'Super Root' || currentUserRole === 'Admin';
+  const canEdit = can('action:staff_manage');
 
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [error, setError] = useState('');
@@ -121,9 +114,9 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
   const [showStaffPasswordText, setShowStaffPasswordText] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
-  const handleCopy = (text: string, fieldName: string) => {
+  const handleCopy = async (text: string, fieldName: string) => {
     if (!text) return;
-    navigator.clipboard.writeText(text);
+    if (!(await copyText(text))) { showNotification('Copying is unavailable. Select the text and copy it manually.', 'warning'); return; }
     setCopiedField(fieldName);
     showNotification(`${fieldName} copied to clipboard`, 'info');
     setTimeout(() => setCopiedField(null), 2000);
@@ -357,9 +350,9 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
           {/* Header Strip */}
           <div className="p-4 sm:p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#141414] shrink-0">
             <div className="flex items-center gap-3.5 min-w-0">
-              <SafeImage 
-                src={editForm.profilePicturePath || staff.profilePicturePath} 
-                alt={staff.displayName} 
+              <SafeImage
+                src={editForm.profilePicturePath || staff.profilePicturePath}
+                alt={staff.displayName}
                 containerClassName="w-12 h-12 rounded-[8px] bg-neutral-100 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 shadow-inner"
                 fallback={<UserCircle className="w-8 h-8 text-neutral-400 dark:text-[#666]" weight="fill" />}
               />
@@ -390,16 +383,16 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   </button>
                   <span className={cn(
                     "px-2 py-0.5 rounded-[8px] text-[9px] font-bold uppercase tracking-widest border font-mono",
-                    staff.role === 'Admin' ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30" : 
-                    staff.role === 'Head Coach' ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30" : 
+                    staff.role === 'Admin' ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30" :
+                    staff.role === 'Head Coach' ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30" :
                     "bg-neutral-100 dark:bg-[#262626] text-neutral-800 dark:text-[#999] border-neutral-300 dark:border-transparent"
                   )}>
                     {staff.role}
                   </span>
                   <span className={cn(
                     "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider font-mono border",
-                    staff.isActive 
-                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" 
+                    staff.isActive
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                       : "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20"
                   )}>
                     <span className={cn("w-1.5 h-1.5 rounded-full", staff.isActive ? "bg-emerald-500" : "bg-red-500")} />
@@ -411,18 +404,18 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
 
             <div className="flex items-center gap-1 shrink-0">
               {canEdit && (
-                <button 
-                  type="button" 
-                  title="Direct Password Reset" 
-                  onClick={() => setShowPasswordModal(true)} 
+                <button
+                  type="button"
+                  title="Direct Password Reset"
+                  onClick={() => setShowPasswordModal(true)}
                   className="p-2 text-neutral-500 hover:text-[#EF2F38] dark:text-[#888] dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626] rounded-[8px] transition-colors cursor-pointer"
                 >
                   <Key className="w-4 h-4 text-[#EF2F38]" />
                 </button>
               )}
-              <button 
+              <button
                 type="button"
-                onClick={onClose} 
+                onClick={onClose}
                 aria-label="Close Staff Panel"
                 className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-neutral-400 dark:text-[#666] hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626] rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation"
               >
@@ -466,18 +459,18 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('usr_display_name')}</label>
-                      <input 
-                        type="text" 
-                        value={editForm.displayName} 
+                      <input
+                        type="text"
+                        value={editForm.displayName}
                         onChange={e => setEditForm({ ...editForm, displayName: e.target.value })}
                         className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-medium"
                       />
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('stu_email')}</label>
-                      <input 
-                        type="email" 
-                        value={editForm.email} 
+                      <input
+                        type="email"
+                        value={editForm.email}
                         onChange={e => setEditForm({ ...editForm, email: e.target.value })}
                         className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono"
                       />
@@ -487,8 +480,8 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('usr_role')}</label>
-                      <select 
-                        value={editForm.role} 
+                      <select
+                        value={editForm.role}
                         onChange={e => setEditForm({ ...editForm, role: e.target.value as Role })}
                         className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer font-mono font-bold"
                       >
@@ -502,10 +495,10 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                     <div className="flex flex-col justify-end">
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">Account Access State</label>
                       <div className="flex items-center gap-2.5 h-[38px] px-3 bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px]">
-                        <input 
-                          type="checkbox" 
-                          id="isActiveToggle" 
-                          checked={editForm.isActive} 
+                        <input
+                          type="checkbox"
+                          id="isActiveToggle"
+                          checked={editForm.isActive}
                           onChange={e => setEditForm({ ...editForm, isActive: e.target.checked })}
                           className="w-4 h-4 rounded text-[#EF2F38] focus:ring-[#EF2F38] cursor-pointer accent-[#EF2F38]"
                         />
@@ -519,17 +512,17 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   <div>
                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">Profile Picture Link</label>
                     <div className="flex gap-3 items-center">
-                      <input 
-                        type="text" 
-                        value={editForm.profilePicturePath} 
+                      <input
+                        type="text"
+                        value={editForm.profilePicturePath}
                         onChange={e => setEditForm({ ...editForm, profilePicturePath: e.target.value })}
                         className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] flex-1 font-mono text-xs"
                         placeholder="Google Drive link or direct image URL"
                       />
                       {editForm.profilePicturePath && (
-                        <SafeImage 
-                          src={editForm.profilePicturePath} 
-                          alt="Preview" 
+                        <SafeImage
+                          src={editForm.profilePicturePath}
+                          alt="Preview"
                           containerClassName="w-9 h-9 rounded-[8px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] overflow-hidden flex items-center justify-center shadow-sm shrink-0"
                           fallback={<span className="text-[7px] text-red-500 uppercase font-black">Err</span>}
                         />
@@ -548,27 +541,27 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('stu_khmer_name')}</label>
-                      <input 
-                        type="text" 
-                        value={editForm.khmerName} 
-                        onChange={e => setEditForm({ ...editForm, khmerName: e.target.value })} 
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]" 
+                      <input
+                        type="text"
+                        value={editForm.khmerName}
+                        onChange={e => setEditForm({ ...editForm, khmerName: e.target.value })}
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
                       />
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('stu_english_name')}</label>
-                      <input 
-                        type="text" 
-                        value={editForm.englishName} 
-                        onChange={e => setEditForm({ ...editForm, englishName: e.target.value })} 
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]" 
+                      <input
+                        type="text"
+                        value={editForm.englishName}
+                        onChange={e => setEditForm({ ...editForm, englishName: e.target.value })}
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
                       />
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('stu_gender')}</label>
-                      <select 
-                        value={editForm.gender} 
-                        onChange={e => setEditForm({ ...editForm, gender: e.target.value as 'Male' | 'Female' })} 
+                      <select
+                        value={editForm.gender}
+                        onChange={e => setEditForm({ ...editForm, gender: e.target.value as 'Male' | 'Female' })}
                         className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
                       >
                         <option value="Male">{t('stu_male')}</option>
@@ -577,36 +570,37 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('stu_nationality')}</label>
-                      <input 
-                        type="text" 
-                        value={editForm.nationality} 
-                        onChange={e => setEditForm({ ...editForm, nationality: e.target.value })} 
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]" 
+                      <input
+                        type="text"
+                        value={editForm.nationality}
+                        onChange={e => setEditForm({ ...editForm, nationality: e.target.value })}
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
                         placeholder="Cambodian"
                       />
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('stu_dob')}</label>
-                      <input 
-                        type="date" 
-                        value={editForm.dob} 
-                        onChange={e => setEditForm({ ...editForm, dob: e.target.value })} 
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] [color-scheme:light] dark:[color-scheme:dark]" 
+                      <input
+                        type="date"
+                        value={editForm.dob}
+                        onChange={e => setEditForm({ ...editForm, dob: e.target.value })}
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] [color-scheme:light] dark:[color-scheme:dark]"
                       />
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('stu_phone')}</label>
-                      <input 
-                        type="tel" 
-                        value={editForm.phone} 
-                        onChange={e => setEditForm({ ...editForm, phone: e.target.value })} 
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono" 
+                      <input
+                        type="tel"
+                        value={editForm.phone}
+                        onChange={e => setEditForm({ ...editForm, phone: e.target.value })}
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono"
                         placeholder="012 345 678"
                       />
                     </div>
                   </div>
                 </div>
 
+                <TelegramContactField id="edit-staff-telegram" value={editForm.telegramUsername || ''} onChange={telegramUsername => setEditForm({...editForm, telegramUsername})} />
                 {/* Card: Kukkiwon Black Belt Certification & Promotion Eligibility Engine */}
                 <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 space-y-4 shadow-sm">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-200 dark:border-[#262626] pb-3">
@@ -765,7 +759,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                             style={{ transformOrigin: 'left', width: '100%' }}
                             className={cn(
                               "h-full rounded-full transition-all",
-                              eligibility.status === 'ELIGIBLE' 
+                              eligibility.status === 'ELIGIBLE'
                                 ? "bg-gradient-to-r from-emerald-500 to-teal-400"
                                 : eligibility.status === 'AGE_RESTRICTED'
                                 ? "bg-gradient-to-r from-amber-500 to-rose-500"
@@ -909,22 +903,22 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   <div className="space-y-3">
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('panel_street_address')}</label>
-                      <input 
-                        type="text" 
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]" 
-                        value={editForm.address?.line1 || ''} 
-                        onChange={e => setEditForm({...editForm, address: { ...editForm.address, line1: e.target.value }})} 
-                        placeholder="House / Street address..." 
+                      <input
+                        type="text"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                        value={editForm.address?.line1 || ''}
+                        onChange={e => setEditForm({...editForm, address: { ...editForm.address, line1: e.target.value }})}
+                        placeholder="House / Street address..."
                       />
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('panel_apt_suite')}</label>
-                      <input 
-                        type="text" 
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]" 
-                        value={editForm.address?.line2 || ''} 
-                        onChange={e => setEditForm({...editForm, address: { ...editForm.address, line2: e.target.value }})} 
-                        placeholder="Apartment, building, suite..." 
+                      <input
+                        type="text"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                        value={editForm.address?.line2 || ''}
+                        onChange={e => setEditForm({...editForm, address: { ...editForm.address, line2: e.target.value }})}
+                        placeholder="Apartment, building, suite..."
                       />
                     </div>
 
@@ -933,23 +927,23 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('panel_state_province')}</label>
                         {editForm.address?.stateProvince && !CAMBODIA_LOCATIONS[editForm.address.stateProvince] ? (
                           <div className="flex gap-2">
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
                               value={editForm.address.stateProvince === 'Other Custom' ? '' : editForm.address.stateProvince}
                               onChange={e => setEditForm({...editForm, address: { ...editForm.address, stateProvince: e.target.value }})}
                               placeholder="Custom Province"
                             />
-                            <button 
-                              type="button" 
-                              onClick={() => setEditForm({...editForm, address: { ...editForm.address, stateProvince: '', city: '' }})} 
+                            <button
+                              type="button"
+                              onClick={() => setEditForm({...editForm, address: { ...editForm.address, stateProvince: '', city: '' }})}
                               className="px-2.5 bg-neutral-200 hover:bg-neutral-300 dark:bg-[#262626] dark:hover:bg-[#333] text-[10px] text-neutral-900 dark:text-white rounded-[8px] font-bold uppercase shrink-0"
                             >
                               List
                             </button>
                           </div>
                         ) : (
-                          <select 
+                          <select
                             className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer"
                             value={editForm.address?.stateProvince || ''}
                             onChange={e => {
@@ -975,23 +969,23 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('panel_district_commune')}</label>
                         {editForm.address?.stateProvince && CAMBODIA_LOCATIONS[editForm.address.stateProvince] && (editForm.address.city === 'Other Custom' || (editForm.address.city !== '' && !CAMBODIA_LOCATIONS[editForm.address.stateProvince].includes(editForm.address.city))) ? (
                           <div className="flex gap-2">
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
                               value={editForm.address.city === 'Other Custom' ? '' : editForm.address.city}
                               onChange={e => setEditForm({...editForm, address: { ...editForm.address, city: e.target.value }})}
                               placeholder="Custom District"
                             />
-                            <button 
-                              type="button" 
-                              onClick={() => setEditForm({...editForm, address: { ...editForm.address, city: CAMBODIA_LOCATIONS[editForm.address.stateProvince][0] || '' }})} 
+                            <button
+                              type="button"
+                              onClick={() => setEditForm({...editForm, address: { ...editForm.address, city: CAMBODIA_LOCATIONS[editForm.address.stateProvince][0] || '' }})}
                               className="px-2.5 bg-neutral-200 hover:bg-neutral-300 dark:bg-[#262626] dark:hover:bg-[#333] text-[10px] text-neutral-900 dark:text-white rounded-[8px] font-bold uppercase shrink-0"
                             >
                               List
                             </button>
                           </div>
                         ) : (editForm.address?.stateProvince && CAMBODIA_LOCATIONS[editForm.address.stateProvince]) ? (
-                          <select 
+                          <select
                             className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer"
                             value={editForm.address?.city || ''}
                             onChange={e => {
@@ -1009,10 +1003,10 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                             <option value="Other">Other...</option>
                           </select>
                         ) : (
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
-                            value={editForm.address?.city || ''} 
+                            value={editForm.address?.city || ''}
                             onChange={e => setEditForm({...editForm, address: { ...editForm.address, city: e.target.value }})}
                             placeholder="District / Khan"
                           />
@@ -1023,21 +1017,21 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       <div>
                         <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('panel_postal_code')}</label>
-                        <input 
-                          type="text" 
-                          className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono" 
-                          value={editForm.address?.postalCode || ''} 
-                          onChange={e => setEditForm({...editForm, address: { ...editForm.address, postalCode: e.target.value }})} 
+                        <input
+                          type="text"
+                          className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono"
+                          value={editForm.address?.postalCode || ''}
+                          onChange={e => setEditForm({...editForm, address: { ...editForm.address, postalCode: e.target.value }})}
                           placeholder="12000"
                         />
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('panel_country')}</label>
-                        <input 
-                          type="text" 
-                          className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]" 
-                          value={editForm.address?.country || 'Cambodia'} 
-                          onChange={e => setEditForm({...editForm, address: { ...editForm.address, country: e.target.value }})} 
+                        <input
+                          type="text"
+                          className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                          value={editForm.address?.country || 'Cambodia'}
+                          onChange={e => setEditForm({...editForm, address: { ...editForm.address, country: e.target.value }})}
                         />
                       </div>
                     </div>
@@ -1054,31 +1048,31 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div className="col-span-1 sm:col-span-2">
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('stu_emergency_contact')}</label>
-                      <input 
-                        type="text" 
-                        value={editForm.emergencyContactName} 
-                        onChange={e => setEditForm({ ...editForm, emergencyContactName: e.target.value })} 
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]" 
+                      <input
+                        type="text"
+                        value={editForm.emergencyContactName}
+                        onChange={e => setEditForm({ ...editForm, emergencyContactName: e.target.value })}
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
                         placeholder="Contact person full name"
                       />
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('stu_emergency_phone')}</label>
-                      <input 
-                        type="tel" 
-                        value={editForm.emergencyContactPhone} 
-                        onChange={e => setEditForm({ ...editForm, emergencyContactPhone: e.target.value })} 
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono" 
+                      <input
+                        type="tel"
+                        value={editForm.emergencyContactPhone}
+                        onChange={e => setEditForm({ ...editForm, emergencyContactPhone: e.target.value })}
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono"
                         placeholder="012 999 888"
                       />
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('stu_emergency_relation')}</label>
-                      <input 
-                        type="text" 
-                        value={editForm.emergencyContactRelation} 
-                        onChange={e => setEditForm({ ...editForm, emergencyContactRelation: e.target.value })} 
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]" 
+                      <input
+                        type="text"
+                        value={editForm.emergencyContactRelation}
+                        onChange={e => setEditForm({ ...editForm, emergencyContactRelation: e.target.value })}
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
                         placeholder="Spouse / Parent / Sibling"
                       />
                     </div>
@@ -1087,19 +1081,19 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('stu_medical_notes')}</label>
-                      <textarea 
-                        value={editForm.medicalNotes} 
-                        onChange={e => setEditForm({ ...editForm, medicalNotes: e.target.value })} 
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] resize-none h-20" 
+                      <textarea
+                        value={editForm.medicalNotes}
+                        onChange={e => setEditForm({ ...editForm, medicalNotes: e.target.value })}
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] resize-none h-20"
                         placeholder="Any relevant medical history..."
                       />
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('stu_allergies')}</label>
-                      <textarea 
-                        value={editForm.allergies} 
-                        onChange={e => setEditForm({ ...editForm, allergies: e.target.value })} 
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] resize-none h-20" 
+                      <textarea
+                        value={editForm.allergies}
+                        onChange={e => setEditForm({ ...editForm, allergies: e.target.value })}
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] resize-none h-20"
                         placeholder="Known allergies or sensitivities..."
                       />
                     </div>
@@ -1122,7 +1116,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   ) : (
                     <div className="space-y-2">
                       {assignedClasses.map(cls => (
-                        <div 
+                        <div
                           key={cls.id}
                           className="p-3 bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] flex items-center justify-between gap-3 text-xs"
                         >
@@ -1144,6 +1138,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
             ) : (
               // READ-ONLY PRESENTATION MODE
               <div className="space-y-5">
+                <ContactActions contact={staff} name={staff.displayName} />
                 <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 space-y-3">
                   <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-[#888] font-mono">Account Dossier</h3>
                   <div className="grid grid-cols-2 gap-3 text-xs">
@@ -1232,9 +1227,9 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
           {/* Action Footer Bar */}
           {canEdit && (
             <div className="p-3.5 sm:p-4 border-t border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#141414] shrink-0 flex items-center justify-between gap-2 sm:gap-3 pb-[calc(0.875rem+env(safe-area-inset-bottom,0px))]">
-              <button 
+              <button
                 type="button"
-                onClick={handleDelete} 
+                onClick={handleDelete}
                 disabled={isDeleting || isSaving}
                 className="h-8.5 sm:h-9 px-2.5 sm:px-3.5 bg-transparent border border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500/10 active:scale-95 touch-manipulation font-bold uppercase tracking-wider text-[10px] sm:text-xs rounded-[6px] sm:rounded-[8px] transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
               >
@@ -1253,17 +1248,17 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
               </button>
 
               <div className="flex items-center gap-2">
-                <button 
+                <button
                   type="button"
-                  onClick={onClose} 
+                  onClick={onClose}
                   disabled={isSaving || isDeleting}
                   className="h-8.5 sm:h-9 px-3 sm:px-4 bg-neutral-200 hover:bg-neutral-300 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-800 dark:text-white font-bold uppercase tracking-wider text-[10px] sm:text-xs rounded-[6px] sm:rounded-[8px] transition-colors cursor-pointer disabled:opacity-50 active:scale-95 touch-manipulation"
                 >
                   {t('act_cancel') || 'Cancel'}
                 </button>
-                <button 
+                <button
                   type="button"
-                  onClick={handleSave} 
+                  onClick={handleSave}
                   disabled={isSaving || isDeleting}
                   className="h-8.5 sm:h-9 px-3.5 sm:px-5 bg-[#EF2F38] hover:bg-[#D0252D] text-white font-bold uppercase tracking-wider text-[10px] sm:text-xs rounded-[6px] sm:rounded-[8px] shadow-sm shadow-[#EF2F38]/20 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50 active:scale-95 touch-manipulation"
                 >
@@ -1290,7 +1285,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
         {showSaveConfirm && (
           <Portal>
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4 animate-in fade-in">
-              <motion.div 
+              <motion.div
                 {...dialogMotion}
                 className="w-full max-w-sm bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-6 text-center shadow-2xl flex flex-col items-center text-neutral-900 dark:text-white"
               >
@@ -1304,7 +1299,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   {t('stf_confirm_updates_desc') || 'Are you sure you want to update this staff member profile and synchronise credentials?'}
                 </p>
                 <div className="flex gap-3 w-full">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowSaveConfirm(false)}
                     disabled={isSaving}
@@ -1312,7 +1307,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   >
                     {t('act_cancel') || 'Cancel'}
                   </button>
-                  <button 
+                  <button
                     type="button"
                     onClick={executeSave}
                     disabled={isSaving}
@@ -1349,7 +1344,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                     <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono">{staff.displayName} (@{staff.username})</p>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => setShowPasswordModal(false)}
                   className="p-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-white rounded-[8px] transition-colors cursor-pointer"
                 >
@@ -1365,8 +1360,8 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                 <div className="space-y-1.5">
                   <label className="text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider font-mono">New Password</label>
                   <div className="relative">
-                    <input 
-                      type={showStaffPasswordText ? "text" : "password"} 
+                    <input
+                      type={showStaffPasswordText ? "text" : "password"}
                       value={newStaffPassword}
                       onChange={e => setNewStaffPassword(e.target.value)}
                       placeholder="Min 6 characters (e.g. Coach1234!)"
@@ -1395,7 +1390,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
               </div>
 
               <div className="p-4 bg-neutral-50 dark:bg-[#1A1A1A] border-t border-neutral-200 dark:border-[#262626] flex justify-end gap-2">
-                <button 
+                <button
                   type="button"
                   onClick={() => setShowPasswordModal(false)}
                   className="px-4 py-2 text-xs font-bold text-neutral-500 hover:text-neutral-900 dark:hover:text-white uppercase tracking-wider transition-colors cursor-pointer"
@@ -1403,7 +1398,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   type="button"
                   onClick={handleUpdateStaffPassword}
                   disabled={isUpdatingPassword || !newStaffPassword || newStaffPassword.length < 6}

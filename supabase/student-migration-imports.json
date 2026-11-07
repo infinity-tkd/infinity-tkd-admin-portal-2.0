@@ -1,0 +1,62 @@
+{
+  "formatVersion": 1,
+  "reviewedOn": "2026-11-01",
+  "projectRef": "lyjxmkyvqazqxkzoeszr",
+  "purpose": "Canonical copies of already registered shared student schema migrations; never replay them on the live project.",
+  "entries": [
+    {
+      "version": "20261026030859",
+      "name": "student_portal_self_tracking",
+      "file": "20261026030859_student_portal_self_tracking.sql",
+      "sourceFilename": "20261026030800_student_portal_self_tracking.sql",
+      "sourceSha256": "6b579d01fa2b4f91b3172e5ecfddfdfb4658aa0a7c085f87695f43e839801737",
+      "registeredStatementsMd5": "891a5d45b175dc3fb13d762867e2b36c",
+      "importSha256": "6b579d01fa2b4f91b3172e5ecfddfdfb4658aa0a7c085f87695f43e839801737"
+    },
+    {
+      "version": "20261026031101",
+      "name": "student_portal_pending_order_cancel",
+      "file": "20261026031101_student_portal_pending_order_cancel.sql",
+      "sourceFilename": "20261026031033_student_portal_pending_order_cancel.sql",
+      "sourceSha256": "e62333fc771b0843a6b9517341ce16f32a803d39f16312e1059bd6fb8954aab4",
+      "registeredStatementsMd5": "437c24b27f84be5a7ca53afa64719cac",
+      "importSha256": "e62333fc771b0843a6b9517341ce16f32a803d39f16312e1059bd6fb8954aab4"
+    },
+    {
+      "version": "20261026130445",
+      "name": "student_portal_belt_aliases",
+      "file": "20261026130445_student_portal_belt_aliases.sql",
+      "sourceFilename": "20261026130420_student_portal_belt_aliases.sql",
+      "sourceSha256": "b7ada92fc96a454d596b94b68b4a5730388c7f3998f5b3f02a44c6e966824427",
+      "registeredStatementsMd5": "6788622251c6cca0045e285291a599cf",
+      "importSha256": "b7ada92fc96a454d596b94b68b4a5730388c7f3998f5b3f02a44c6e966824427"
+    },
+    {
+      "version": "20261028115518",
+      "name": "student_portal_data_api_boundary",
+      "file": "20261028115518_student_portal_data_api_boundary.sql",
+      "sourceFilename": "20261026131549_student_portal_data_api_boundary.sql",
+      "sourceSha256": "54ba1ba0236430d9d66b3a0f01b021a79d8564464a58587b1ca305b419bb3b38",
+      "registeredStatementsMd5": "3dd96115090591364202de56b6549929",
+      "importSha256": "0b9dbf9202692ba74bfb0db04ad5d5ab2586614e73542dd6a7391ab24e651fcb"
+    },
+    {
+      "version": "20261030081259",
+      "name": "student_portal_ranking_publications",
+      "file": "20261030081259_student_portal_ranking_publications.sql",
+      "sourceFilename": "20261030081259_student_portal_ranking_publications.sql",
+      "sourceSha256": "49e20db3ec09995a44fba92423449f1cc95632f5cd1abf9e2ec2d26957ada023",
+      "registeredStatementsMd5": "70586b5d633ebaf2df66241389c3181e",
+      "importSha256": "49e20db3ec09995a44fba92423449f1cc95632f5cd1abf9e2ec2d26957ada023"
+    },
+    {
+      "version": "20261101001159",
+      "name": "student_portal_readiness",
+      "file": "20261101001159_student_portal_readiness.sql",
+      "sourceFilename": "20261101001159_student_portal_readiness.sql",
+      "sourceSha256": "1b29579f02fe7fe4c41a27a0c98c68ecedc7b74dae216bf6784f12da7de37a85",
+      "registeredStatementsMd5": "175aa91d65c95db55039dde4b64c89d6",
+      "importSha256": "1b29579f02fe7fe4c41a27a0c98c68ecedc7b74dae216bf6784f12da7de37a85"
+    }
+  ]
+}

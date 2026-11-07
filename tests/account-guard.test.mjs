@@ -4,7 +4,7 @@ import { loadTs } from './load-ts.mjs';
 
 const id = '50000000-0000-4000-8000-000000000001';
 const profile = { id, email: 'guard@example.test', role: 'Root', is_active: true, must_change_password: false };
-function guard(result) {
+function guard(result, assurance = 'aal2') {
   let reads = 0; let slots = 0;
   const query = { select() { ++reads; return query; }, eq() { return query; }, single: async () => result };
   const client = { auth: { getUser: async () => ({ data: { user: { id } }, error: null }) }, from: () => query, rpc: async () => { ++slots; return { data: true, error: null }; } };
@@ -13,7 +13,7 @@ function guard(result) {
     './env': { env: { NEXT_PUBLIC_SUPABASE_URL: 'https://fixture.supabase.co', NEXT_PUBLIC_SUPABASE_ANON_KEY: 'fictional-public', SUPABASE_SERVICE_ROLE_KEY: 'fictional-service' } },
     '@/lib/supabase': { supabase: {} },
   });
-  return { verify: () => verifyCaller(new Request('https://portal.example/api/admin/partners', { headers: { Authorization: 'Bearer fictional-token' } })), counts: () => ({ reads, slots }) };
+  return { verify: () => verifyCaller(new Request('https://portal.example/api/admin/partners', { headers: { Authorization: 'Bearer '+Buffer.from('{}').toString('base64url')+'.'+Buffer.from(JSON.stringify({aal:assurance})).toString('base64url')+'.fixture' } })), counts: () => ({ reads, slots }) };
 }
 
 test('missing account security columns produce an actionable setup error and never bypass verification', async () => {
@@ -46,5 +46,17 @@ test('valid accounts can load partners while suspended and temporary-password ac
     const blocked = guard({ data: { ...profile, ...change }, error: null });
     assert.equal((await blocked.verify()).errorResponse.status, 403);
     assert.equal(blocked.counts().slots, 0);
+  }
+});
+
+test('administrator APIs require verified MFA even after a successful password login', async () => {
+  for (const role of ['Root', 'Super Root', 'Admin']) {
+    for (const assurance of ['aal1', null]) {
+      const check = guard({ data: { ...profile, role }, error: null }, assurance);
+      const result = await check.verify();
+      assert.equal(result.errorResponse.status, 403);
+      assert.equal((await result.errorResponse.json()).error.code, 'AUTH_MFA_REQUIRED');
+      assert.equal(check.counts().slots, 0, 'unverified callers cannot start privileged work');
+    }
   }
 });

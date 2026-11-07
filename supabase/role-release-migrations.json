@@ -1,0 +1,26 @@
+{
+  "projectRef": "lyjxmkyvqazqxkzoeszr",
+  "appliedOn": "2026-11-01",
+  "status": "applied",
+  "localVersionsAlignedToSupabase": true,
+  "entries": [
+    {
+      "version": "20261101161201",
+      "file": "20261101161201_role_permission_boundaries.sql",
+      "sha256": "7e8e954ee99b4d0810e9fa9628f85dd0a334e391f9de2c538219ef2ea8b16a45"
+    },
+    {
+      "version": "20261101161209",
+      "file": "20261101161209_role_read_privacy_boundaries.sql",
+      "sha256": "08e2681761cfebb507554b812b0f71cdfa0308ec85106e7c2cc4831e55187635"
+    },
+    {
+      "version": "20261101162248",
+      "file": "20261101162248_staff_member_privacy_boundaries.sql",
+      "sha256": "69a9e20f4d21eb2bb4940324d65cb98c23766a316d29d539d5a878e26c73ba5b"
+    }
+  ],
+  "businessDataChangedByMigrations": false,
+  "savedPermissionGrantsChanged": false,
+  "review": "docs/ROLE_ACCESS_REVIEW_2026-11-01.md"
+}
