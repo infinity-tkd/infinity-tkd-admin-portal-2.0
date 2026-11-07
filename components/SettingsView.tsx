@@ -1,4 +1,5 @@
 'use client';
+import dynamic from 'next/dynamic';
 import { copyText } from '@/lib/clipboard';
 
 import { dialogMotion } from '@/lib/motion';
@@ -10,6 +11,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useAppStore, User, Role } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
 import { PageTransition } from './PageTransition';
+import { PageHeader } from './ui/PageHeader';
 import { UserCircle } from '@phosphor-icons/react/dist/csr/UserCircle';
 import { Lock } from '@phosphor-icons/react/dist/csr/Lock';
 import { X } from '@phosphor-icons/react/dist/csr/X';
@@ -50,15 +52,17 @@ import { cn } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
 import { useT } from '@/hooks/useTranslation';
 import { SafeImage } from '@/components/SafeImage';
-import { BulkImportStaffModal } from './BulkImportStaffModal';
 import { AccountSecurityPanel } from '@/components/AccountSecurityPanel';
 import { RolePermissionsMatrixPanel } from './RolePermissionsMatrixPanel';
-import { UserPermissionsModal } from './UserPermissionsModal';
 import { PwaDiagnosticsModal } from '@/components/pwa/PwaDiagnosticsModal';
 import { playChime, isAudioEnabled, setAudioEnabled } from '@/lib/soundEffects';
 import { AcademySettingsPanel } from './settings/AcademySettingsPanel';
 import { BranchHoursPanel } from './settings/BranchHoursPanel';
 import settingsStyles from './settings/settings.module.css';
+
+// Opened rarely: loaded on demand to keep this view's bundle small.
+const BulkImportStaffModal = dynamic(() => import('./BulkImportStaffModal').then(module => module.BulkImportStaffModal), { ssr: false });
+const UserPermissionsModal = dynamic(() => import('./UserPermissionsModal').then(module => module.UserPermissionsModal), { ssr: false });
 
 const formatRoleLocalized = (roleName: string, t: any) => {
   if (roleName === 'Root' || roleName === 'Super Root') return t('role_root') || 'Root';
@@ -448,7 +452,7 @@ export function SettingsView() {
                   type="button"
                   title="Account Permissions & Overrides"
                   onClick={() => setPermissionTargetUser(u)}
-                  className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-purple-500/10 hover:bg-purple-500/20 dark:bg-purple-950/30 dark:hover:bg-purple-900/40 rounded-[8px] border border-purple-500/30 text-purple-600 dark:text-purple-400 transition-colors cursor-pointer active:scale-95 touch-manipulation"
+                  className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-purple-500/10 hover:bg-purple-500/20 dark:bg-purple-950/30 dark:hover:bg-purple-900/40 rounded-[8px] border border-purple-500/30 text-purple-600 dark:text-purple-400 transition-colors cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                 >
                   <ShieldCheck className="w-4 h-4"/>
                 </button>
@@ -460,7 +464,7 @@ export function SettingsView() {
                   setTargetNewPassword('');
                   setPasswordTargetUser(u);
                 }}
-                className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-[#EF2F38] dark:hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation"
+                className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-[#EF2F38] dark:hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
               >
                 <Key className="w-4 h-4 text-[#EF2F38]"/>
               </button>
@@ -468,7 +472,7 @@ export function SettingsView() {
                 type="button"
                 title={t('act_edit')}
                 onClick={() => handleEditUser(u)}
-                className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation"
+                className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
               >
                 <PencilSimple className="w-4 h-4"/>
               </button>
@@ -478,7 +482,7 @@ export function SettingsView() {
                 onClick={() => handleToggleAccount(u)}
                 disabled={busyUsers.has(u.id)}
                 className={cn(
-                  "p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-[8px] border transition-colors cursor-pointer active:scale-95 touch-manipulation",
+                  "p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-[8px] border transition-colors cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11",
                   u.isActive
                     ? "bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-red-500 hover:border-red-500/50"
                     : "bg-red-500/10 border-red-500/50 text-red-500 hover:bg-red-500/20"
@@ -527,46 +531,29 @@ export function SettingsView() {
   };
 
   return (
-    <div className={cn(settingsStyles.workspace, "w-full max-w-7xl mx-auto space-y-6 px-3 sm:px-6 py-4")}>
-      {/* 1. Refined Executive Header */}
-      <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 shadow-sm transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-[8px] bg-[#EF2F38]/10 border border-[#EF2F38]/30 flex items-center justify-center text-[#EF2F38] shrink-0">
-            <Sliders className="w-5 h-5" weight="bold" />
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#EF2F38] bg-red-500/10 px-2 py-0.5 rounded-[6px] border border-red-500/20">
-                INFINITY TKD · SETTINGS
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-[6px]">
-                {state.isLoading ? 'LOADING SETTINGS' : state.dataLoadErrors?.length ? 'SOME DATA UNAVAILABLE' : 'ACADEMY WORKSPACE'}
-              </span>
+    <div className={cn(settingsStyles.workspace, "w-full max-w-[1600px] mx-auto space-y-4 pb-12 sm:space-y-5")}>
+      <PageHeader
+        icon={<Sliders weight="bold" />}
+        eyebrow="Infinity TKD · Settings"
+        meta={state.isLoading ? 'Loading settings' : state.dataLoadErrors?.length ? 'Some data unavailable' : 'Academy workspace'}
+        title={t('set_title')}
+        description={t('set_subtitle')}
+        actionsClassName="max-sm:hidden"
+        actions={
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <div className="flex min-h-10 min-w-0 items-center gap-2 rounded-lg border border-line bg-control px-3 py-1.5 font-mono text-xs">
+              <Building className="w-3.5 h-3.5 text-brand shrink-0" weight="bold" />
+              <span className="text-ink-muted">{t('set_active_branch')}:</span>
+              <span className="font-bold text-ink truncate">{activeBranch?.name || 'All Locations'}</span>
             </div>
-            <h1 className="text-lg sm:text-xl font-bold uppercase tracking-wider text-neutral-900 dark:text-white font-sans">
-              {t('set_title')}
-            </h1>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 font-sans">
-              {t('set_subtitle')}
-            </p>
+            <div className="flex min-h-10 min-w-0 items-center gap-2 rounded-lg border border-line bg-control px-3 py-1.5 font-mono text-xs">
+              <UserCircle className="w-3.5 h-3.5 text-blue-500 shrink-0" weight="bold" />
+              <span className="text-ink-muted">User:</span>
+              <span className="font-bold text-ink truncate">@{state.currentUser?.username || '—'}</span>
+            </div>
           </div>
-        </div>
-
-        {/* Quick Context Chips */}
-        <div className="hidden sm:flex items-center gap-2 flex-wrap w-full md:w-auto">
-          <div className="flex items-center gap-2 px-3 py-1.5 min-h-[38px] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs font-mono flex-1 sm:flex-none">
-            <Building className="w-3.5 h-3.5 text-[#EF2F38] shrink-0" weight="bold" />
-            <span className="text-neutral-500 dark:text-neutral-400">{t('set_active_branch')}:</span>
-            <span className="font-bold text-neutral-900 dark:text-white truncate">{activeBranch?.name || 'All Locations'}</span>
-          </div>
-
-          <div className="flex items-center gap-2 px-3 py-1.5 min-h-[38px] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs font-mono flex-1 sm:flex-none">
-            <UserCircle className="w-3.5 h-3.5 text-blue-500 shrink-0" weight="bold" />
-            <span className="text-neutral-500 dark:text-neutral-400">User:</span>
-            <span className="font-bold text-neutral-900 dark:text-white truncate">@{state.currentUser?.username || '—'}</span>
-          </div>
-        </div>
-      </div>
+        }
+      />
 
       {state.dataLoadErrors?.length ? <div role="alert" className={settingsStyles.notice}><p className="text-sm font-semibold">Some settings data could not be loaded.</p><p className={settingsStyles.hint}>Loaded data may be incomplete. Refresh and retry before making changes.</p></div> : null}
       <div className={settingsStyles.shell}>
@@ -785,7 +772,7 @@ export function SettingsView() {
               <button
                 type="button"
                 onClick={() => setIsBulkImporting(true)}
-                className="flex-1 sm:flex-none px-3.5 py-2 min-h-[42px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white font-bold uppercase tracking-wider text-xs rounded-[8px] transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                className="flex-1 sm:flex-none px-3.5 py-2 min-h-[42px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white font-bold uppercase tracking-wider text-xs rounded-[8px] transition-colors cursor-pointer flex items-center justify-center gap-1.5 pointer-coarse:min-h-11"
               >
                 <DownloadSimple className="w-4 h-4" />
                 <span>{t('dir_bulk_import')}</span>
@@ -808,7 +795,7 @@ export function SettingsView() {
                   });
                   setShowUserModal('new');
                 }}
-                className="flex-1 sm:flex-none px-4 py-2 min-h-[42px] bg-[#EF2F38] hover:bg-[#D0252D] text-white font-bold uppercase tracking-wider text-xs rounded-[8px] transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm shadow-[#EF2F38]/20"
+                className="flex-1 sm:flex-none px-4 py-2 min-h-[42px] bg-[#EF2F38] hover:bg-[#D0252D] text-white font-bold uppercase tracking-wider text-xs rounded-[8px] transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm shadow-[#EF2F38]/20 pointer-coarse:min-h-11"
               >
                 <UserPlus className="w-4 h-4" weight="bold" />
                 <span>{t('usr_add_account')}</span>
@@ -955,7 +942,7 @@ export function SettingsView() {
                     setMemberRoleFilter(e.target.value);
                     setActiveKpiFilter(null);
                   }}
-                  className="bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs text-neutral-900 dark:text-white px-3 py-2 min-h-[40px] focus:outline-none focus:border-[#EF2F38] w-full sm:w-auto cursor-pointer font-mono font-bold"
+                  className="bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs text-neutral-900 dark:text-white px-3 py-2 min-h-[40px] focus:outline-none focus:border-[#EF2F38] w-full sm:w-auto cursor-pointer font-mono font-bold pointer-coarse:min-h-11"
                 >
                   <option value="All">{t('stf_all_roles')}</option>
                   <option value="StaffGroup">Staff & Coaches Group</option>
@@ -976,7 +963,7 @@ export function SettingsView() {
                     setMemberStatusFilter(e.target.value as any);
                     setActiveKpiFilter(null);
                   }}
-                  className="bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs text-neutral-900 dark:text-white px-3 py-2 min-h-[40px] focus:outline-none focus:border-[#EF2F38] w-full sm:w-auto cursor-pointer font-mono font-bold"
+                  className="bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs text-neutral-900 dark:text-white px-3 py-2 min-h-[40px] focus:outline-none focus:border-[#EF2F38] w-full sm:w-auto cursor-pointer font-mono font-bold pointer-coarse:min-h-11"
                 >
                   <option value="All">{t('set_status_all')}</option>
                   <option value="Active">{t('set_status_active')}</option>
@@ -1148,7 +1135,7 @@ export function SettingsView() {
                                       type="button"
                                       title="Account Permissions & Overrides"
                                       onClick={() => setPermissionTargetUser(u)}
-                                      className="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center bg-purple-500/10 hover:bg-purple-500/20 dark:bg-purple-950/30 dark:hover:bg-purple-900/40 rounded-[8px] border border-purple-500/30 text-purple-600 dark:text-purple-400 transition-colors cursor-pointer active:scale-95 touch-manipulation"
+                                      className="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center bg-purple-500/10 hover:bg-purple-500/20 dark:bg-purple-950/30 dark:hover:bg-purple-900/40 rounded-[8px] border border-purple-500/30 text-purple-600 dark:text-purple-400 transition-colors cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                                     >
                                       <ShieldCheck className="w-3.5 h-3.5"/>
                                     </button>
@@ -1160,7 +1147,7 @@ export function SettingsView() {
                                       setTargetNewPassword('');
                                       setPasswordTargetUser(u);
                                     }}
-                                    className="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-[#EF2F38] dark:hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation"
+                                    className="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-[#EF2F38] dark:hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                                   >
                                     <Key className="w-3.5 h-3.5 text-[#EF2F38]"/>
                                   </button>
@@ -1168,7 +1155,7 @@ export function SettingsView() {
                                     type="button"
                                     title={t('act_edit')}
                                     onClick={() => handleEditUser(u)}
-                                    className="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation"
+                                    className="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                                   >
                                     <PencilSimple className="w-3.5 h-3.5"/>
                                   </button>
@@ -1178,7 +1165,7 @@ export function SettingsView() {
                                     onClick={() => handleToggleAccount(u)}
                 disabled={busyUsers.has(u.id)}
                                     className={cn(
-                                      "p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-[8px] border transition-colors cursor-pointer active:scale-95 touch-manipulation",
+                                      "p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-[8px] border transition-colors cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11",
                                       u.isActive
                                         ? "bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-red-500 hover:border-red-500/50"
                                         : "bg-red-500/10 border-red-500/50 text-red-500 hover:bg-red-500/20"
@@ -1494,7 +1481,7 @@ export function SettingsView() {
                               src={userForm.profilePicturePath}
                               alt="Preview"
                               containerClassName="w-10 h-10 rounded-[8px] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] overflow-hidden flex items-center justify-center shadow-md"
-                              fallback={<span className="text-[8px] text-red-500 uppercase font-black bg-red-500/10 px-1 py-0.5 rounded-[8px]">{t('set_err_private')}</span>}
+                              fallback={<span className="text-[9px] text-red-500 uppercase font-black bg-red-500/10 px-1 py-0.5 rounded-[8px]">{t('set_err_private')}</span>}
                             />
                           </div>
                         )}
@@ -1561,7 +1548,7 @@ export function SettingsView() {
                             password: prev.password || generatePassword()
                           }));
                         }}
-                        className="w-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer font-mono font-bold"
+                        className="w-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer font-mono font-bold pointer-coarse:min-h-11"
                       >
                         {manageableRoles.map(r => <option key={r} value={r}>{formatRoleLocalized(r, t)}</option>)}
                       </select>
@@ -1590,7 +1577,7 @@ export function SettingsView() {
                               password: prev.password || generatePassword()
                             }));
                           }}
-                          className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer font-mono"
+                          className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer font-mono pointer-coarse:min-h-11"
                         >
                           <option value="">-- Select Student to Link (Optional) --</option>
                           {userForm.studentId && !state.students.some(student => student.id === userForm.studentId) && (
@@ -1753,7 +1740,7 @@ export function SettingsView() {
                         setTargetNewPassword(generated);
                         setCopiedPassword(false);
                       }}
-                      className="text-xs text-[#EF2F38] hover:underline font-mono cursor-pointer flex items-center gap-1 font-bold min-h-[38px] active:scale-95 touch-manipulation"
+                      className="text-xs text-[#EF2F38] hover:underline font-mono cursor-pointer flex items-center gap-1 font-bold min-h-[38px] active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                     >
                       <Sparkle className="w-3.5 h-3.5" />
                       <span>{t('set_suggest_password')}</span>
@@ -1769,7 +1756,7 @@ export function SettingsView() {
                             setTimeout(() => setCopiedPassword(false), 2000);
 
                         }}
-                        className="text-xs text-neutral-500 hover:text-neutral-900 dark:hover:text-white font-mono cursor-pointer flex items-center gap-1 font-bold min-h-[38px] active:scale-95 touch-manipulation"
+                        className="text-xs text-neutral-500 hover:text-neutral-900 dark:hover:text-white font-mono cursor-pointer flex items-center gap-1 font-bold min-h-[38px] active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                       >
                         {copiedPassword ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                         <span>{copiedPassword ? t('set_copied') : t('set_copy_password')}</span>

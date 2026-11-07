@@ -42,7 +42,8 @@ try {
  await warning.getByText('Product prices and stock could not be refreshed.',{exact:true}).waitFor();
  outage=false;await warning.getByRole('button',{name:'Retry POS records'}).click();await warning.waitFor({state:'hidden'});
  await page.getByRole('button',{name:/SALES \(5\)/}).click();
- assert.equal((await page.getByText('Total Revenue',{exact:true}).locator('..').locator('p').innerText()).trim(),'$25.00');
+ // The sales summary card was renamed from "Total Revenue" to "Recorded collections" in e34d390.
+ assert.equal((await page.getByText('Recorded collections',{exact:true}).locator('..').locator('p').innerText()).trim(),'$25.00');
  assert.equal((await page.getByText('Collected TX',{exact:true}).locator('..').locator('p').innerText()).trim(),'1');
  await page.getByRole('cell',{name:'ORDER-2 REFUNDED'}).waitFor();
  await page.setViewportSize({width:390,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'POS recovery fits mobile');

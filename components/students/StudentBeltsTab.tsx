@@ -64,13 +64,15 @@ export function StudentBeltsTab({ t, canEdit, handleOpenBulkBeltModal, handleOpe
                             </div>
                          </div>
                          <div className="flex items-center gap-2">
-                           <p className="text-xs font-mono text-neutral-500 dark:text-[#666] group-hover:opacity-0 transition-opacity">{h.promotionDate}</p>
+                           <p className="text-xs font-mono text-neutral-500 dark:text-[#666]">{h.promotionDate}</p>
                            {canEdit && (
-                             <div className="absolute top-4 right-4 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                             <div className="hover-reveal flex gap-1">
                                <button
+                                 type="button"
                                  onClick={() => handleStartEditBelt(h)}
-                                 className="text-neutral-400 hover:text-neutral-900 dark:hover:text-white p-1 rounded-[8px] hover:bg-neutral-200 dark:hover:bg-[#262626] transition-colors"
+                                 className="flex size-9 pointer-coarse:size-11 items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-[8px] hover:bg-neutral-200 dark:hover:bg-[#262626] transition-colors"
                                  title="Edit Promotion"
+                                 aria-label={`Edit ${h.beltLevel} promotion`}
                                >
                                  <Pencil className="w-3.5 h-3.5" />
                                </button>
@@ -85,8 +87,10 @@ export function StudentBeltsTab({ t, canEdit, handleOpenBulkBeltModal, handleOpe
                                      }
                                    });
                                  }}
-                                 className="text-neutral-400 hover:text-red-500 p-1 rounded-[8px] hover:bg-neutral-200 dark:hover:bg-[#262626] transition-colors cursor-pointer"
+                                 type="button"
+                                 className="flex size-9 pointer-coarse:size-11 items-center justify-center text-neutral-400 hover:text-red-500 rounded-[8px] hover:bg-neutral-200 dark:hover:bg-[#262626] transition-colors cursor-pointer"
                                  title="Delete Promotion"
+                                 aria-label={`Delete ${h.beltLevel} promotion`}
                                >
                                  <X className="w-3.5 h-3.5" />
                                </button>

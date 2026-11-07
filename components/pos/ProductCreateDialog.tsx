@@ -115,7 +115,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                     <select
                       aria-label="Product category" value={newItem.category}
                       onChange={e => handleNewItemCategoryChange(e.target.value)}
-                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38] cursor-pointer pointer-coarse:min-h-11"
                     >
                       {dynamicCategories.filter(c => c !== 'All').map(c => (
                         <option key={c} value={c}>{c}</option>
@@ -642,7 +642,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                 <button
                   type="button"
                   onClick={() => setIsAddItemOpen(false)}
-                  className="px-4 py-2 min-h-[42px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-[#888] text-xs rounded-[8px] hover:text-neutral-900 dark:hover:text-white cursor-pointer transition-colors font-bold active:scale-95 touch-manipulation"
+                  className="px-4 py-2 min-h-[42px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-[#888] text-xs rounded-[8px] hover:text-neutral-900 dark:hover:text-white cursor-pointer transition-colors font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                 >
                   Cancel
                 </button>
@@ -655,7 +655,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                     !newItemSkuFormatValid.isValid ||
                     (hasNewItemVariants && matrixVariants.length === 0)
                   }
-                  className="px-5 py-2 min-h-[42px] bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-bold rounded-[8px] shadow-sm cursor-pointer disabled:opacity-50 transition-colors active:scale-95 touch-manipulation flex items-center gap-2"
+                  className="px-5 py-2 min-h-[42px] bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-bold rounded-[8px] shadow-sm cursor-pointer disabled:opacity-50 transition-colors active:scale-95 touch-manipulation flex items-center gap-2 pointer-coarse:min-h-11"
                 >
                   <Plus size={14} weight="bold" />
                   <span>

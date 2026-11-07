@@ -1,4 +1,5 @@
 'use client';
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import NextImage from 'next/image';
 
 import React, { useState, useEffect } from 'react';
@@ -94,7 +95,7 @@ export function InstallPrompt() {
       {/* Sleek Header / Action Install Trigger */}
       <button
         onClick={handleInstallClick}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[8px] bg-red-500/10 hover:bg-red-500/15 border border-red-500/30 text-red-600 dark:text-red-400 text-[10px] font-bold uppercase tracking-wider transition-all duration-200 min-h-[36px] min-w-[36px] justify-center cursor-pointer shadow-xs shrink-0 active:scale-95 touch-manipulation"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[8px] bg-red-500/10 hover:bg-red-500/15 border border-red-500/30 text-red-600 dark:text-red-400 text-[10px] font-bold uppercase tracking-wider transition-all duration-200 min-h-[36px] min-w-[36px] justify-center cursor-pointer shadow-xs shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
         title="Install Infinity Admin Portal"
         aria-label="Install Infinity Admin Portal"
       >
@@ -106,6 +107,7 @@ export function InstallPrompt() {
       {showDesktopGuide && (
         <Portal>
           <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+            <ModalA11y label="Install on desktop" onClose={() => setShowDesktopGuide(false)} />
             <div className="w-full max-w-md bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-5 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 text-neutral-900 dark:text-white">
               {/* Header */}
               <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-[#262626]">
@@ -178,6 +180,7 @@ export function InstallPrompt() {
       {showIosGuide && (
         <Portal>
           <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+            <ModalA11y label="Install on iPhone or iPad" onClose={() => setShowIosGuide(false)} />
             <div className="w-full sm:max-w-md bg-white dark:bg-[#141414] border-t sm:border border-neutral-200 dark:border-[#262626] rounded-t-[8px] sm:rounded-[8px] p-5 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 text-neutral-900 dark:text-white pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
               {/* Header */}
               <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-[#262626]">

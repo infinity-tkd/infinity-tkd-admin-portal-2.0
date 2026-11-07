@@ -134,7 +134,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                           setLedgerPage(1);
                         }}
                         className={cn(
-                          "py-1.5 rounded-[4px] transition-colors cursor-pointer uppercase min-h-[32px] flex items-center justify-center",
+                          "py-1.5 rounded-[4px] transition-colors cursor-pointer uppercase min-h-[32px] flex items-center justify-center pointer-coarse:min-h-11",
                           ledgerStatusFilter === 'all'
                             ? "bg-white dark:bg-[#202020] text-neutral-900 dark:text-white shadow-xs font-black"
                             : "text-neutral-500 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
@@ -149,7 +149,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                           setLedgerPage(1);
                         }}
                         className={cn(
-                          "py-1.5 rounded-[4px] transition-colors cursor-pointer uppercase min-h-[32px] flex items-center justify-center gap-1",
+                          "py-1.5 rounded-[4px] transition-colors cursor-pointer uppercase min-h-[32px] flex items-center justify-center gap-1 pointer-coarse:min-h-11",
                           ledgerStatusFilter === 'unpaid'
                             ? "bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 font-black"
                             : "text-neutral-500 dark:text-[#888] hover:text-rose-600"
@@ -164,7 +164,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                           setLedgerPage(1);
                         }}
                         className={cn(
-                          "py-1.5 rounded-[4px] transition-colors cursor-pointer uppercase min-h-[32px] flex items-center justify-center gap-1",
+                          "py-1.5 rounded-[4px] transition-colors cursor-pointer uppercase min-h-[32px] flex items-center justify-center gap-1 pointer-coarse:min-h-11",
                           ledgerStatusFilter === 'paid'
                             ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 font-black"
                             : "text-neutral-500 dark:text-[#888] hover:text-emerald-600"
@@ -295,7 +295,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                       onClick={() => setIsAlertsCollapsedMobile(prev => !prev)}
                     >
                       <div className="space-y-0.5">
-                        <span className="text-[8.5px] uppercase tracking-widest text-[#EF2F38] font-mono font-bold">Billing CRM</span>
+                        <span className="text-[9px] uppercase tracking-widest text-[#EF2F38] font-mono font-bold">Billing CRM</span>
                         <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white leading-none">Renewal Alerts</h3>
                       </div>
                       <div className="flex items-center gap-1.5">
@@ -356,7 +356,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                     <ContactActions contact={student} name={student.englishName} compact emailSubject="Tuition renewal" />
                                   </div>
                                   <span className={cn(
-                                    "px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider border",
+                                    "px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border",
                                     billing.status === 'Overdue'
                                       ? "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30"
                                       : "bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30"
@@ -367,7 +367,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
 
                                 <div className="flex justify-between items-end border-t border-neutral-200 dark:border-[#262626] pt-2 mt-0.5">
                                   <div className="text-[9px] text-neutral-600 dark:text-neutral-400 leading-tight">
-                                    <span className="block text-neutral-400 dark:text-[#666] font-mono uppercase tracking-wider text-[7px]">Target</span>
+                                    <span className="block text-neutral-400 dark:text-[#666] font-mono uppercase tracking-wider text-[9px]">Target</span>
                                     {billing.status === 'Overdue'
                                       ? `${Math.abs(billing.daysRemaining)}d overdue`
                                       : `Due in ${billing.daysRemaining}d`}
@@ -389,13 +389,13 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                           showNotification(`Payment logging failed: ${e.message}`, 'error');
                                         }
                                       }}
-                                      className="px-2.5 py-1.5 bg-white hover:bg-neutral-100 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white rounded-[6px] text-[8.5px] font-bold uppercase tracking-wider transition-all duration-150 flex items-center gap-1 shadow-xs cursor-pointer whitespace-nowrap shrink-0 active:scale-95 touch-manipulation" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
+                                      className="px-2.5 py-1.5 bg-white hover:bg-neutral-100 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white rounded-[6px] text-[9px] font-bold uppercase tracking-wider transition-all duration-150 flex items-center gap-1 shadow-xs cursor-pointer whitespace-nowrap shrink-0 active:scale-95 touch-manipulation" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
                                     >
                                       <Coins className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                                       Pay ${billing.amountOwed.toFixed(0)}
                                     </button>
                                   ) : (
-                                    <span className="px-2 py-0.5 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-[#262626] text-neutral-500 rounded text-[8px] font-bold uppercase tracking-wider shrink-0">
+                                    <span className="px-2 py-0.5 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-[#262626] text-neutral-500 rounded text-[9px] font-bold uppercase tracking-wider shrink-0">
                                       View Only
                                     </span>
                                   )}
@@ -615,13 +615,13 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                   >
                                     <span className="text-[9px] font-mono font-bold block">{m}</span>
                                     {isBeforeEnroll ? (
-                                      <span className="text-[7px] font-mono text-neutral-400 uppercase mt-0.5">Pre</span>
+                                      <span className="text-[9px] font-mono text-neutral-400 uppercase mt-0.5">Pre</span>
                                     ) : isPaid ? (
                                       <Check className="w-3 h-3 stroke-[3] mt-0.5" />
                                     ) : isFuture ? (
                                       <span className="w-1 h-1 rounded-full bg-neutral-400 dark:bg-neutral-600 mt-1.5 mb-1" />
                                     ) : (
-                                      <span className="text-[7.5px] font-mono font-bold mt-0.5 uppercase">
+                                      <span className="text-[9px] font-mono font-bold mt-0.5 uppercase">
                                         {isCurrent ? 'DUE' : 'LATE'}
                                       </span>
                                     )}
@@ -681,7 +681,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                           <th className="sticky left-0 top-0 z-30 bg-neutral-100 dark:bg-[#0F0F0F] border-r border-neutral-200 dark:border-[#262626] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)] px-4 sm:px-5 py-3.5 w-[260px] min-w-[240px] sm:min-w-[260px] max-w-[280px]">
                             <div className="flex items-center justify-between">
                               <span>Student / Plan</span>
-                              <div className="flex items-center gap-1 bg-white dark:bg-[#141414] rounded-[6px] px-1.5 py-0.5 text-[8px] font-mono border border-neutral-200 dark:border-[#262626]">
+                              <div className="flex items-center gap-1 bg-white dark:bg-[#141414] rounded-[6px] px-1.5 py-0.5 text-[9px] font-mono border border-neutral-200 dark:border-[#262626]">
                                 <span className="text-neutral-400 dark:text-[#666] select-none">SORT:</span>
                                 <button
                                   type="button"
@@ -768,7 +768,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                           </span>
                                         )}
                                         {scholarship && scholarship.discountPercentage > 0 && (
-                                          <span className="px-1.5 py-0.2 rounded bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 font-bold uppercase tracking-widest text-[7px] border border-indigo-500/20 shrink-0">
+                                          <span className="px-1.5 py-0.2 rounded bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 font-bold uppercase tracking-widest text-[9px] border border-indigo-500/20 shrink-0">
                                             {scholarship.typeName}
                                           </span>
                                         )}
@@ -799,7 +799,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                           title={`Pre-Enrollment (Enrolled ${enrollDate || 'N/A'})`}
                                           className="w-full h-8 flex flex-col justify-center items-center opacity-30 select-none"
                                         >
-                                          <span className="text-[7.5px] font-bold uppercase tracking-wider font-mono text-neutral-400 dark:text-[#666]">Pre-Join</span>
+                                          <span className="text-[9px] font-bold uppercase tracking-wider font-mono text-neutral-400 dark:text-[#666]">Pre-Join</span>
                                         </div>
                                       ) : isPaid ? (
                                         <button
@@ -809,7 +809,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                           className="w-full h-8 rounded-[6px] flex flex-col items-center justify-center transition-all bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25 cursor-pointer shadow-xs active:scale-95 touch-manipulation"
                                         >
                                           <Check className="w-3.5 h-3.5 stroke-[3]"/>
-                                          <span className="text-[7.5px] font-mono font-bold mt-0.5">
+                                          <span className="text-[9px] font-mono font-bold mt-0.5">
                                             ${(cycle.cash).toFixed(0)}
                                           </span>
                                         </button>
@@ -832,10 +832,10 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                               : "bg-rose-500/15 hover:bg-rose-500/25 text-rose-800 dark:text-rose-300 border border-rose-500/35"
                                           )}
                                         >
-                                          <span className="text-[7.5px] font-bold uppercase tracking-widest font-mono">
+                                          <span className="text-[9px] font-bold uppercase tracking-widest font-mono">
                                             {isCurrent ? 'DUE' : 'LATE'}
                                           </span>
-                                          <span className="text-[7.5px] font-mono font-bold mt-0.5">
+                                          <span className="text-[9px] font-mono font-bold mt-0.5">
                                             ${reqPayment.toFixed(0)}
                                           </span>
                                           {isCurrent && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-amber-500"></span>}
@@ -869,7 +869,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                 <span className="font-bold text-emerald-700 dark:text-emerald-400 text-[10px] block">
                                   ${totals.totalCollected.toFixed(0)}
                                 </span>
-                                <div className="text-[8px] text-neutral-500 dark:text-neutral-400 flex items-center justify-center gap-0.5">
+                                <div className="text-[9px] text-neutral-500 dark:text-neutral-400 flex items-center justify-center gap-0.5">
                                   <span>{totals.paidCount}/{totals.eligibleCount}</span>
                                 </div>
                                 {totals.eligibleCount > 0 && (
@@ -921,7 +921,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                     <button
                       onClick={() => setLedgerPage(p => Math.max(1, p - 1))}
                       disabled={ledgerPage <= 1}
-                      className="px-3 py-1.5 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 min-h-[34px]"
+                      className="px-3 py-1.5 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 min-h-[34px] pointer-coarse:min-h-11"
                     >
                       <CaretLeft className="w-3.5 h-3.5" />
                       <span>Prev</span>
@@ -934,7 +934,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                     <button
                       onClick={() => setLedgerPage(p => Math.min(totalLedgerPages, p + 1))}
                       disabled={ledgerPage >= totalLedgerPages}
-                      className="px-3 py-1.5 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 min-h-[34px]"
+                      className="px-3 py-1.5 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 min-h-[34px] pointer-coarse:min-h-11"
                     >
                       <span>Next</span>
                       <CaretRight className="w-3.5 h-3.5" />

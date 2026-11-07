@@ -1,6 +1,7 @@
+/* Surfaces, ink and hairlines come from the portal theme tokens (app/globals.css). */
 .theme {
-  --calendar-page: #fafafa; --calendar-surface: #fff; --calendar-ink: #171717; --calendar-muted: #525252;
-  --calendar-line: #e5e5e5; --calendar-red: var(--color-red-600, #d6242c); --calendar-soft: #fff0f1;
+  --calendar-page: var(--ui-surface-inset); --calendar-surface: var(--ui-surface); --calendar-ink: var(--ui-ink); --calendar-muted: var(--ui-ink-muted);
+  --calendar-line: var(--ui-line); --calendar-red: var(--color-red-600, #d6242c); --calendar-soft: #fff0f1;
   --calendar-accent: var(--color-red-500, #EF2F38); --calendar-button-bg: var(--color-red-600, #d6242c); --calendar-button-hover: var(--color-red-700, #b21a21); --calendar-button-ink: #fff;
   --calendar-backdrop: #11182766; --calendar-shadow: #0003;
   --calendar-holiday: #b91c1c; --calendar-holiday-bg: #fef2f2;
@@ -12,8 +13,7 @@
   color: var(--calendar-ink);
 }
 :global(.dark) .theme {
-  --calendar-page: #0a0a0a; --calendar-surface: #0f0f0f; --calendar-ink: #e4e4e4; --calendar-muted: #999;
-  --calendar-line: #262626; --calendar-red: var(--color-red-400, #ef5a61); --calendar-soft: #2a1316;
+  --calendar-red: var(--color-red-400, #ef5a61); --calendar-soft: #2a1316;
   --calendar-holiday: #fca5a5; --calendar-holiday-bg: #34181b;
   --calendar-competition: #fcd34d; --calendar-competition-bg: #302513;
   --calendar-workshop: #c4b5fd; --calendar-workshop-bg: #251b36;
@@ -21,7 +21,7 @@
   --calendar-academy: #5eead4; --calendar-academy-bg: #11312c;
   --calendar-class-change: #7dd3fc; --calendar-class-change-bg: #102a3a;
 }
-.workspace { max-width: 1500px; margin-inline: auto; padding-bottom: 1rem; }
+.workspace { max-width: 1600px; margin-inline: auto; padding-bottom: 3rem; }
 .header, .row, .toolbar, .actions { display: flex; align-items: center; gap: .625rem; }
 .header { justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
 .eyebrow { color: var(--calendar-muted); text-transform: uppercase; letter-spacing: .13em; font-size: .625rem; font-weight: 700; margin-bottom: .5rem; }

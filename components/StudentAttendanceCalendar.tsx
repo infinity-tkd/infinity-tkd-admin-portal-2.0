@@ -111,7 +111,7 @@ export function StudentAttendanceCalendar({ student, records, classes, enrollmen
         return <button key={date} type="button" data-attendance-date={date} aria-label={`${date}: ${counts.map(item => `${statusLabel(item.status)} (${item.count})`).join(', ') || t('att_unmarked')}`} aria-pressed={date === selectedDate} disabled={busy} onClick={() => selectDate(date)} className={cn('flex min-h-[54px] min-w-0 flex-col items-center justify-start gap-1 rounded-md border border-transparent py-1.5 text-xs transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#EF2F38] disabled:opacity-50 dark:hover:bg-neutral-800', date === selectedDate ? 'border-[#EF2F38] bg-red-50 dark:bg-red-500/10' : 'bg-neutral-50 dark:bg-neutral-900/50', date > today && 'text-neutral-400')}>
           <span className={cn('flex h-5 w-5 items-center justify-center rounded-full font-medium', date === today && 'bg-[#EF2F38] text-white')}>{Number(date.slice(-2))}</span>
           <span className="flex max-w-full flex-wrap justify-center gap-0.5">
-            {counts.map(({ status, count }) => <span key={status} aria-hidden="true" className={cn('rounded border px-0.5 text-[8px] font-semibold', tones[status])}>{status[0]}{count > 1 ? count : ''}</span>)}
+            {counts.map(({ status, count }) => <span key={status} aria-hidden="true" className={cn('rounded border px-0.5 text-[9px] font-semibold', tones[status])}>{status[0]}{count > 1 ? count : ''}</span>)}
           </span>
         </button>;
       })}

@@ -17,7 +17,8 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="en">
+    // Without the root layout there is no theme script, so the fatal screen is always dark.
+    <html lang="en" className="dark">
       <body className="min-h-dvh flex items-center justify-center bg-[#0A0A0A] text-[#E4E4E4] p-4 sm:p-6 font-sans antialiased selection:bg-red-500/30">
         <div className="w-full max-w-md bg-[#141414] border border-[#262626] rounded-[8px] p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center space-y-6">
           <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center text-[#EF2F38] shadow-[0_0_20px_rgba(239,47,56,0.15)]">
@@ -35,12 +36,12 @@ export default function GlobalError({
 
           {error.message && (
             <div className="w-full bg-[#0F0F0F] border border-[#262626] rounded-[8px] p-3 text-left">
-              <span className="block text-[8px] uppercase tracking-widest font-black text-[#666] mb-1 font-mono">Crash Trace</span>
+              <span className="block text-[10px] uppercase tracking-widest font-black text-[#999] mb-1 font-mono">Crash Trace</span>
               <code className="text-[10px] text-red-400 font-mono break-all line-clamp-3">
                 {error.message}
               </code>
               {error.digest && (
-                <span className="block text-[8px] text-[#555] font-mono mt-1">Digest: {error.digest}</span>
+                <span className="block text-[10px] text-[#999] font-mono mt-1">Digest: {error.digest}</span>
               )}
             </div>
           )}

@@ -80,7 +80,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                     type="button"
                     onClick={() => setOnlyLowStock(!onlyLowStock)}
                     className={cn(
-                      "px-3 py-1.5 min-h-[38px] text-[11px] font-mono rounded-[8px] border flex items-center gap-1.5 transition-all cursor-pointer shrink-0 active:scale-95 touch-manipulation",
+                      "px-3 py-1.5 min-h-[38px] text-[11px] font-mono rounded-[8px] border flex items-center gap-1.5 transition-all cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                       onlyLowStock
                         ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/40 font-bold shadow-xs"
                         : "bg-neutral-50 text-neutral-600 border-neutral-200 hover:text-neutral-900 hover:bg-neutral-100 dark:bg-[#0F0F0F] dark:text-neutral-400 dark:border-[#262626] dark:hover:text-white"
@@ -115,7 +115,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                       type="button"
                       onClick={() => setPosViewMode('grid')}
                       className={cn(
-                        "px-2.5 py-1 min-h-[32px] rounded-[6px] transition-all cursor-pointer flex items-center gap-1 text-[11px] font-mono font-bold active:scale-95 touch-manipulation",
+                        "px-2.5 py-1 min-h-[32px] rounded-[6px] transition-all cursor-pointer flex items-center gap-1 text-[11px] font-mono font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                         posViewMode === 'grid'
                           ? "bg-white dark:bg-[#222] text-neutral-900 dark:text-white shadow-sm"
                           : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
@@ -129,7 +129,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                       type="button"
                       onClick={() => setPosViewMode('compact')}
                       className={cn(
-                        "px-2.5 py-1 min-h-[32px] rounded-[6px] transition-all cursor-pointer flex items-center gap-1 text-[11px] font-mono font-bold active:scale-95 touch-manipulation",
+                        "px-2.5 py-1 min-h-[32px] rounded-[6px] transition-all cursor-pointer flex items-center gap-1 text-[11px] font-mono font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                         posViewMode === 'compact'
                           ? "bg-white dark:bg-[#222] text-neutral-900 dark:text-white shadow-sm"
                           : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
@@ -146,7 +146,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                     type="button"
                     onClick={() => fetchCatalog()}
                     disabled={isCatalogLoading}
-                    className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] cursor-pointer disabled:opacity-50 transition-colors shrink-0 active:scale-95 touch-manipulation"
+                    className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] cursor-pointer disabled:opacity-50 transition-colors shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                     title="Refresh live catalog from database"
                   >
                     <ArrowsClockwise size={14} className={isCatalogLoading ? "animate-spin text-[#EF2F38]" : ""} />
@@ -167,7 +167,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                         type="button"
                         onClick={() => setSelectedCategory(cat)}
                         className={cn(
-                          "px-3 py-1.5 min-h-[34px] text-[11px] font-mono rounded-[8px] border transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 select-none active:scale-95 touch-manipulation",
+                          "px-3 py-1.5 min-h-[34px] text-[11px] font-mono rounded-[8px] border transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 select-none active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                           isSelected
                             ? "bg-[#EF2F38] text-white font-bold border-[#EF2F38] shadow-sm shadow-red-500/20 ring-1 ring-[#EF2F38]"
                             : "bg-neutral-100/80 text-neutral-700 border-neutral-200/90 hover:bg-neutral-200/70 hover:text-neutral-900 dark:bg-[#1a1a1a] dark:text-neutral-300 dark:border-[#262626] dark:hover:bg-[#222] dark:hover:text-white"
@@ -361,7 +361,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                 disabled={!canCreateOrder || (isOutOfStock)}
                                 onClick={() => addToCart(product)}
                                 className={cn(
-                                  "px-3 py-1.5 min-h-[36px] text-xs font-mono font-bold rounded-[8px] flex items-center gap-1.5 transition-all active:scale-95 touch-manipulation cursor-pointer",
+                                  "px-3 py-1.5 min-h-[36px] text-xs font-mono font-bold rounded-[8px] flex items-center gap-1.5 transition-all active:scale-95 touch-manipulation cursor-pointer pointer-coarse:min-h-11",
                                   isOutOfStock
                                     ? "bg-neutral-100 text-neutral-400 border border-neutral-200 dark:bg-[#1a1a1a] dark:text-[#555] dark:border-[#262626] cursor-not-allowed"
                                     : "bg-[#EF2F38] hover:bg-[#d6242c] text-white shadow-xs"
@@ -375,7 +375,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                               <button
                                 type="button"
                                 onClick={() => updateQuantity(getCartItemKey({ product }), -1)}
-                                className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#1f1f1f] text-neutral-800 dark:text-white rounded-[6px] transition cursor-pointer active:scale-90 touch-manipulation"
+                                className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#1f1f1f] text-neutral-800 dark:text-white rounded-[6px] transition cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                                 title="Decrease"
                               >
                                 <Minus size={13} weight="bold" />
@@ -387,7 +387,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                 type="button"
                                 onClick={() => addToCart(product)}
                                 disabled={!canCreateOrder || (inCartQty >= product.stock)}
-                                className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#1f1f1f] text-neutral-800 dark:text-white rounded-[6px] transition cursor-pointer disabled:opacity-30 active:scale-90 touch-manipulation"
+                                className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#1f1f1f] text-neutral-800 dark:text-white rounded-[6px] transition cursor-pointer disabled:opacity-30 active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                                 title="Increase"
                               >
                                 <Plus size={13} weight="bold" />
@@ -399,7 +399,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                               disabled={!canCreateOrder || (isOutOfStock)}
                               onClick={() => addToCart(product)}
                               className={cn(
-                                "px-3 py-1.5 min-h-[36px] text-xs font-mono font-bold rounded-[8px] flex items-center gap-1.5 transition-all active:scale-95 touch-manipulation",
+                                "px-3 py-1.5 min-h-[36px] text-xs font-mono font-bold rounded-[8px] flex items-center gap-1.5 transition-all active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                                 isOutOfStock
                                   ? "bg-neutral-100 text-neutral-400 border border-neutral-200 dark:bg-[#1a1a1a] dark:text-[#555] dark:border-[#262626] cursor-not-allowed"
                                   : "bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 hover:bg-[#EF2F38] hover:text-white cursor-pointer"
@@ -612,7 +612,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                               disabled={!canCreateOrder || (isOutOfStock)}
                               onClick={() => addToCart(product)}
                               className={cn(
-                                "px-3 py-1.5 min-h-[36px] text-xs font-mono font-bold rounded-[8px] flex items-center gap-1 transition active:scale-95 touch-manipulation cursor-pointer",
+                                "px-3 py-1.5 min-h-[36px] text-xs font-mono font-bold rounded-[8px] flex items-center gap-1 transition active:scale-95 touch-manipulation cursor-pointer pointer-coarse:min-h-11",
                                 isOutOfStock
                                   ? "bg-neutral-100 text-neutral-400 dark:bg-[#1a1a1a] dark:text-[#555] cursor-not-allowed"
                                   : "bg-[#EF2F38] text-white shadow-xs"
@@ -625,7 +625,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                               <button
                                 type="button"
                                 onClick={() => updateQuantity(getCartItemKey({ product }), -1)}
-                                className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#222] text-neutral-800 dark:text-white rounded transition cursor-pointer active:scale-90 touch-manipulation"
+                                className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#222] text-neutral-800 dark:text-white rounded transition cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                               >
                                 <Minus size={12} weight="bold" />
                               </button>
@@ -636,7 +636,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                 type="button"
                                 onClick={() => addToCart(product)}
                                 disabled={!canCreateOrder || (inCartQty >= product.stock)}
-                                className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#222] text-neutral-800 dark:text-white rounded transition cursor-pointer disabled:opacity-30 active:scale-90 touch-manipulation"
+                                className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#222] text-neutral-800 dark:text-white rounded transition cursor-pointer disabled:opacity-30 active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                               >
                                 <Plus size={12} weight="bold" />
                               </button>
@@ -647,7 +647,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                               disabled={!canCreateOrder || (isOutOfStock)}
                               onClick={() => addToCart(product)}
                               className={cn(
-                                "px-3 py-1.5 min-h-[36px] text-xs font-mono font-bold rounded-[8px] flex items-center gap-1 transition active:scale-95 touch-manipulation",
+                                "px-3 py-1.5 min-h-[36px] text-xs font-mono font-bold rounded-[8px] flex items-center gap-1 transition active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                                 isOutOfStock
                                   ? "bg-neutral-100 text-neutral-400 dark:bg-[#1a1a1a] dark:text-[#555] cursor-not-allowed"
                                   : "bg-[#EF2F38]/10 text-[#EF2F38] hover:bg-[#EF2F38] hover:text-white cursor-pointer"

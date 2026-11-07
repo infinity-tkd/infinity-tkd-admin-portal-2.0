@@ -71,12 +71,12 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
         <>
           {/* Daily Roster View */}
           <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 flex flex-col gap-4 shadow-sm">
-            <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+            <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4">
               <div>
-                <h3 className="font-bold uppercase tracking-widest text-xs text-neutral-900 dark:text-[#E4E4E4]">{t('att_title')}</h3>
+                <h2 className="font-bold uppercase tracking-widest text-xs text-neutral-900 dark:text-[#E4E4E4]">{t('att_title')}</h2>
                 <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono mt-0.5">{t('att_subtitle')}</p>
               </div>
-              <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto items-stretch sm:items-center">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 w-full xl:w-auto items-stretch sm:items-center">
                 <DatePicker value={selectedDate} onChange={(date) => {
                   setSelectedDate(date);
                   setStatusFilter('all');
@@ -85,7 +85,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                   onClick={() => canMarkAttendance && setIsKioskOpen(true)}
                   disabled={!canMarkAttendance}
                   className={cn(
-                    "px-4 py-2 min-h-[40px] rounded-[8px] text-xs font-bold uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto shrink-0 font-mono active:scale-95 touch-manipulation",
+                    "px-4 py-2 min-h-[40px] rounded-[8px] text-xs font-bold uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto shrink-0 font-mono active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                     !canMarkAttendance
                       ? "bg-neutral-200 dark:bg-neutral-800 text-neutral-400 dark:text-neutral-500 border border-neutral-300 dark:border-[#262626] cursor-not-allowed opacity-50 shadow-none"
                       : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20"
@@ -97,7 +97,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                 <button
                   onClick={requestCommitRoster}
                   title="Choose a class to finalize its saved session roster." disabled={isCommitting || filterClass==='all' || isAttendanceLocked || !canMarkAttendance}
-                  className="px-5 sm:px-6 py-2 min-h-[40px] bg-[#EF2F38] hover:bg-[#D0252D] disabled:opacity-50 text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-all shadow-md shadow-[#EF2F38]/20 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto shrink-0 active:scale-95 touch-manipulation"
+                  className="px-5 sm:px-6 py-2 min-h-[40px] bg-[#EF2F38] hover:bg-[#D0252D] disabled:opacity-50 text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-all shadow-md shadow-[#EF2F38]/20 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                 >
                   {isCommitting ? t('act_loading') : t('att_commit_roster')}
                 </button>
@@ -157,7 +157,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-neutral-900 dark:text-white uppercase text-[10px] tracking-wide">{selectedClassObj.name}</span>
-                    <span className="px-2 py-0.5 bg-red-500/10 border border-red-500/20 text-[#EF2F38] text-[8px] font-black uppercase tracking-wider rounded">
+                    <span className="px-2 py-0.5 bg-red-500/10 border border-red-500/20 text-[#EF2F38] text-[9px] font-black uppercase tracking-wider rounded">
                       {selectedClassObj.classType}
                     </span>
                   </div>
@@ -226,7 +226,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                   <button
                     onClick={() => setStatusFilter('all')}
                     className={cn(
-                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation",
+                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                       statusFilter === 'all'
                         ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white font-black shadow"
                         : "bg-white dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
@@ -240,7 +240,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                   <button
                     onClick={() => setStatusFilter('Present')}
                     className={cn(
-                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation",
+                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                       statusFilter === 'Present'
                         ? "bg-emerald-500/20 border-emerald-500 text-emerald-800 dark:text-emerald-400 font-black shadow ring-1 ring-emerald-500/30"
                         : "bg-white dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#888] hover:text-emerald-600 dark:hover:text-emerald-400"
@@ -254,7 +254,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                   <button
                     onClick={() => setStatusFilter('Late')}
                     className={cn(
-                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation",
+                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                       statusFilter === 'Late'
                         ? "bg-amber-500/20 border-amber-500 text-amber-800 dark:text-amber-400 font-black shadow ring-1 ring-amber-500/30"
                         : "bg-white dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#888] hover:text-amber-600 dark:hover:text-amber-400"
@@ -268,7 +268,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                   <button
                     onClick={() => setStatusFilter('Absent')}
                     className={cn(
-                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation",
+                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                       statusFilter === 'Absent'
                         ? "bg-rose-500/20 border-rose-500 text-rose-800 dark:text-rose-400 font-black shadow ring-1 ring-rose-500/30"
                         : "bg-white dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#888] hover:text-rose-600 dark:hover:text-rose-400"
@@ -282,7 +282,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                   <button
                     onClick={() => setStatusFilter('Unmarked')}
                     className={cn(
-                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation",
+                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                       statusFilter === 'Unmarked'
                         ? "bg-blue-500/20 border-blue-500 text-blue-800 dark:text-blue-400 font-black shadow ring-1 ring-blue-500/30"
                         : "bg-white dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#888] hover:text-blue-600 dark:hover:text-blue-400"
@@ -303,7 +303,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                       type="button"
                       onClick={() => requestBulkMark('Present')}
                       disabled={!canMarkAttendance || isCommitting || finalFilteredStudents.length===0 || isAttendanceLocked}
-                      className="px-2.5 py-1.5 min-h-[34px] bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 rounded-[6px] font-bold uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-sm active:scale-95 touch-manipulation"
+                      className="px-2.5 py-1.5 min-h-[34px] bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 rounded-[6px] font-bold uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                     >
                       <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
                       <span>{lang === 'kh' ? 'វត្តមានទាំងអស់' : lang === 'zh' ? '全标记已到' : 'Mark All Present'}</span>
@@ -312,7 +312,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                       type="button"
                       onClick={() => requestBulkMark('Absent')}
                       disabled={!canMarkAttendance || isCommitting || finalFilteredStudents.length===0 || isAttendanceLocked}
-                      className="px-2.5 py-1.5 min-h-[34px] bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-700 dark:text-rose-400 rounded-[6px] font-bold uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-sm active:scale-95 touch-manipulation"
+                      className="px-2.5 py-1.5 min-h-[34px] bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-700 dark:text-rose-400 rounded-[6px] font-bold uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                     >
                       <XCircle className="w-3.5 h-3.5 text-rose-500" />
                       <span>{lang === 'kh' ? 'អវត្តមានទាំងអស់' : lang === 'zh' ? '全标记未到' : 'Mark All Absent'}</span>
@@ -321,7 +321,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                       type="button"
                       onClick={requestResetSelection}
                       disabled={!canDeleteAttendance || isCommitting || finalFilteredStudents.length===0}
-                      className="px-2.5 py-1.5 min-h-[34px] bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-[#202020] border border-neutral-300 dark:border-[#262626] text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white rounded-[6px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-95 touch-manipulation"
+                      className="px-2.5 py-1.5 min-h-[34px] bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-[#202020] border border-neutral-300 dark:border-[#262626] text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white rounded-[6px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                     >
                       <ArrowsCounterClockwise className="w-3.5 h-3.5 text-neutral-500" />
                       <span>{lang === 'kh' ? 'កំណត់ឡើងវិញ' : lang === 'zh' ? '重置筛选' : 'Reset Filtered'}</span>
@@ -390,7 +390,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                   <div
                     key={student.id}
                     className={cn(
-                      "bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center hover:border-neutral-300 dark:hover:border-[#444] transition-all group shadow-sm",
+                      "bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 flex flex-col md:flex-row gap-3 md:gap-4 justify-between items-stretch md:items-center hover:border-neutral-300 dark:hover:border-[#444] transition-colors group shadow-sm",
                       currentStatus === 'Present' ? "border-l-4 border-l-emerald-500" :
                       currentStatus === 'Late' ? "border-l-4 border-l-amber-500" :
                       currentStatus === 'Absent' ? "border-l-4 border-l-rose-500" :
@@ -431,7 +431,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                         <p className="font-bold text-xs mb-0.5 text-neutral-900 dark:text-[#E4E4E4] group-hover:text-[#EF2F38] dark:group-hover:text-white transition-colors truncate">
                           {student.englishName} <span className="text-[10px] font-khmer text-neutral-500 dark:text-[#888] ml-1 font-normal">{student.khmerName}</span>
                           {isNotYetEnrolled && (
-                            <span className="ml-2 px-2 py-0.5 rounded-[8px] bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 font-bold uppercase tracking-widest text-[8px] whitespace-nowrap">
+                            <span className="ml-2 px-2 py-0.5 rounded-[8px] bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 font-bold uppercase tracking-widest text-[9px] whitespace-nowrap">
                               {t('panel_not_enrolled_yet')}
                             </span>
                           )}
@@ -449,7 +449,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                       disabled={isCommitting || isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance}
                       onClick={() => markAttendance(student.id, selectedDate, 'Present', filterClass === 'all' ? undefined : filterClass)}
                       className={cn(
-                        "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-[42px] sm:min-h-[38px] rounded-[6px] text-[11px] sm:text-[10px] font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
+                        "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-11 pointer-fine:min-h-[38px] rounded-[6px] text-[11px] sm:text-[10px] font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
                         isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance
                           ? "opacity-30 cursor-not-allowed text-neutral-400 dark:text-[#444] border-transparent"
                           : currentStatus === 'Present'
@@ -464,7 +464,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                       disabled={isCommitting || isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance}
                       onClick={() => markAttendance(student.id, selectedDate, 'Late', filterClass === 'all' ? undefined : filterClass)}
                       className={cn(
-                        "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-[42px] sm:min-h-[38px] rounded-[6px] text-[11px] sm:text-[10px] font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
+                        "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-11 pointer-fine:min-h-[38px] rounded-[6px] text-[11px] sm:text-[10px] font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
                         isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance
                           ? "opacity-30 cursor-not-allowed text-neutral-400 dark:text-[#444] border-transparent"
                           : currentStatus === 'Late'
@@ -479,7 +479,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                       disabled={isCommitting || isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance}
                       onClick={() => markAttendance(student.id, selectedDate, 'Absent', filterClass === 'all' ? undefined : filterClass)}
                       className={cn(
-                        "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-[42px] sm:min-h-[38px] rounded-[6px] text-[11px] sm:text-[10px] font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
+                        "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-11 pointer-fine:min-h-[38px] rounded-[6px] text-[11px] sm:text-[10px] font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
                         isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance
                           ? "opacity-30 cursor-not-allowed text-neutral-400 dark:text-[#444] border-transparent"
                           : currentStatus === 'Absent'

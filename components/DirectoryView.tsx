@@ -1,4 +1,5 @@
 'use client';
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import { copyText } from '@/lib/clipboard';
 import dynamic from 'next/dynamic';
 
@@ -39,6 +40,8 @@ import { X } from '@phosphor-icons/react/dist/csr/X';
 
 
 import { cn, formatBelt, isSyllabusLessonFor, calculatePromotionReadiness, getBeltKey, DEFAULT_BELT_TECHNIQUES } from '@/lib/utils';
+import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
+import { PageHeader } from './ui/PageHeader';
 import { CoachScoreInput } from '@/components/students/CoachScoreInput';
 import Link from 'next/link';
 import { useBeltEligibility } from '@/components/belt-tests/use-belt-eligibility';
@@ -47,12 +50,14 @@ import { StudentBeltTestHistory } from '@/components/belt-tests/BeltTestLinks';
 import { mergeBeltEligibility } from '@/lib/belt-eligibility';
 
 
-import { AddStudentModal } from './AddStudentModal';
-import { BulkImportStudentModal } from './BulkImportStudentModal';
 import { ManageStudentPanel } from './ManageStudentPanel';
 import { useT } from '@/hooks/useTranslation';
 import { SafeImage } from '@/components/SafeImage';
 import { Portal } from './Portal';
+
+// Opened rarely: loaded on demand to keep this view's bundle small.
+const AddStudentModal = dynamic(() => import('./AddStudentModal').then(module => module.AddStudentModal), { ssr: false });
+const BulkImportStudentModal = dynamic(() => import('./BulkImportStudentModal').then(module => module.BulkImportStudentModal), { ssr: false });
 
 const PromotionReadinessPanel = dynamic(() => import('@/components/students/PromotionReadinessPanel').then(module => module.PromotionReadinessPanel), { ssr: false, loading: () => <p role="status" className="p-4 text-sm text-neutral-500">Loading…</p> });
 const PromotionHistoryPanel = dynamic(() => import('@/components/students/PromotionHistoryPanel').then(module => module.PromotionHistoryPanel), { ssr: false, loading: () => <p role="status" className="p-4 text-sm text-neutral-500">Loading…</p> });
@@ -635,7 +640,15 @@ export function DirectoryView() {
   };
 
   return (
-    <div className="bg-white dark:bg-[#141414] rounded-[8px] flex flex-col min-h-[calc(100dvh-8rem)] shadow-sm border border-neutral-200 dark:border-[#262626] relative overflow-hidden">
+    <div className="mx-auto w-full max-w-[1600px] space-y-4 pb-12 sm:space-y-5">
+    <PageHeader
+      icon={<UsersThree weight="bold" />}
+      eyebrow="Academy roster"
+      meta={`${state.students.length} students`}
+      title="Student Directory"
+      description="Search and manage student profiles, households, enrollment status and belt promotions."
+    />
+    <div className="bg-white dark:bg-[#141414] rounded-[8px] flex flex-col min-h-[60dvh] shadow-sm border border-neutral-200 dark:border-[#262626] relative overflow-hidden">
 
       {/* Top Navigation Tabs */}
       <div className="bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626] flex px-3 sm:px-4 gap-3 sm:gap-6 shrink-0 z-20 overflow-x-auto no-scrollbar">
@@ -676,7 +689,7 @@ export function DirectoryView() {
                     setSearch(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full pl-9 pr-8 py-2 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-xs h-9 sm:h-10 focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666] font-sans"
+                  className="w-full pl-9 pr-8 py-2 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-xs h-10 pointer-coarse:h-11 focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666] font-sans"
                 />
                 {search && (
                   <button
@@ -699,7 +712,7 @@ export function DirectoryView() {
                   <button
                     type="button"
                     onClick={() => setIsAdding(true)}
-                    className="h-8 sm:h-9 px-2.5 sm:px-3.5 bg-[#EF2F38] hover:bg-[#D9222B] active:scale-95 touch-manipulation text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider shadow-sm shadow-[#EF2F38]/20 whitespace-nowrap flex items-center justify-center gap-1 shrink-0 cursor-pointer"
+                    className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3.5 bg-[#EF2F38] hover:bg-[#D9222B] active:scale-95 touch-manipulation text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider shadow-sm shadow-[#EF2F38]/20 whitespace-nowrap flex items-center justify-center gap-1 shrink-0 cursor-pointer"
                   >
                     <Plus size={13} weight="bold" />
                     <span>Add</span>
@@ -711,7 +724,7 @@ export function DirectoryView() {
                   type="button"
                   onClick={() => setShowFilters(!showFilters)}
                   className={cn(
-                    "h-8 sm:h-9 px-2.5 sm:px-3 rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation border",
+                    "h-9 pointer-coarse:h-11 px-2.5 sm:px-3 rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation border",
                     showFilters
                       ? "bg-[#EF2F38] text-white border-[#EF2F38]"
                       : "bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white"
@@ -727,7 +740,7 @@ export function DirectoryView() {
                 <button
                   type="button"
                   onClick={handleExportCsv}
-                  className="h-8 sm:h-9 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation"
+                  className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation"
                   title="Export filtered student roster to CSV"
                 >
                   <DownloadSimple size={12} weight="bold" />
@@ -739,7 +752,7 @@ export function DirectoryView() {
                     <button
                       type="button"
                       onClick={() => setIsHouseholdModalOpen(true)}
-                      className="h-8 sm:h-9 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[#EF2F38] rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation"
+                      className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[#EF2F38] rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation"
                     >
                       <House size={12} weight="bold" />
                       <span>Household</span>
@@ -747,7 +760,7 @@ export function DirectoryView() {
                     <button
                       type="button"
                       onClick={() => setIsBulkImporting(true)}
-                      className="h-8 sm:h-9 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap flex items-center justify-center cursor-pointer shrink-0 active:scale-95 touch-manipulation"
+                      className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap flex items-center justify-center cursor-pointer shrink-0 active:scale-95 touch-manipulation"
                     >
                       <span className="xs:hidden">Import</span>
                       <span className="hidden xs:inline">{t('dir_bulk_import')}</span>
@@ -766,7 +779,7 @@ export function DirectoryView() {
                         }
                       }}
                       disabled={isReconciling}
-                      className="h-8 sm:h-9 px-2.5 sm:px-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-700 dark:text-amber-500 rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap disabled:opacity-50 flex items-center justify-center cursor-pointer shrink-0 active:scale-95 touch-manipulation"
+                      className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-700 dark:text-amber-500 rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap disabled:opacity-50 flex items-center justify-center cursor-pointer shrink-0 active:scale-95 touch-manipulation"
                     >
                       <span className="xs:hidden">{isReconciling ? 'Syncing...' : 'Reconcile'}</span>
                       <span className="hidden xs:inline">{isReconciling ? t('dir_reconciling') : t('dir_reconcile_ranks')}</span>
@@ -827,7 +840,7 @@ export function DirectoryView() {
                     setFilterClass('all');
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-8 sm:h-9 focus:outline-none focus:border-[#EF2F38] font-mono cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-[#EF2F38] font-mono cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_branches')}</option>
                     {state.branches.map(b => (
@@ -838,7 +851,7 @@ export function DirectoryView() {
                     setFilterClass(e.target.value === 'all' ? 'all' : Number(e.target.value));
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-8 sm:h-9 focus:outline-none focus:border-[#EF2F38] font-mono cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-[#EF2F38] font-mono cursor-pointer truncate"
                     disabled={filterBranch === 'all'}
                   >
                     <option value="all">{t('dir_all_classes')}</option>
@@ -850,7 +863,7 @@ export function DirectoryView() {
                     setFilterBelt(e.target.value);
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-8 sm:h-9 focus:outline-none focus:border-[#EF2F38] cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-[#EF2F38] cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_belts')}</option>
                     <option value="White">White</option>
@@ -868,7 +881,7 @@ export function DirectoryView() {
                     setFilterGender(e.target.value);
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-8 sm:h-9 focus:outline-none focus:border-[#EF2F38] cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-[#EF2F38] cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_genders')}</option>
                     <option value="Male">{t('stu_male')}</option>
@@ -878,7 +891,7 @@ export function DirectoryView() {
                     setFilterScholarship(Number(e.target.value === 'all' ? 'all' : e.target.value));
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-8 sm:h-9 focus:outline-none focus:border-[#EF2F38] cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-[#EF2F38] cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_scholarships')}</option>
                     {state.scholarships.map(s => (
@@ -889,7 +902,7 @@ export function DirectoryView() {
                     setFilterDivision(e.target.value);
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-8 sm:h-9 focus:outline-none focus:border-[#EF2F38] cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-[#EF2F38] cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_divisions')}</option>
                     <option value="Kid">Kid (6-11)</option>
@@ -901,7 +914,7 @@ export function DirectoryView() {
                     setFilterStatus(e.target.value);
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-red-600 dark:text-red-500 border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-8 sm:h-9 focus:outline-none font-bold cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-red-600 dark:text-red-500 border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none font-bold cursor-pointer truncate"
                   >
                     <option value="all">All Statuses</option>
                     <option value="Active">Active</option>
@@ -916,7 +929,7 @@ export function DirectoryView() {
                     setSortOrder(order as any);
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-amber-600 dark:text-amber-500 border border-amber-500/30 rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-8 sm:h-9 focus:outline-none font-bold cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-amber-600 dark:text-amber-500 border border-amber-500/30 rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none font-bold cursor-pointer truncate"
                   >
                     <option value="id-asc">Sort: ID (Oldest)</option>
                     <option value="id-desc">Sort: ID (Newest)</option>
@@ -1197,7 +1210,7 @@ export function DirectoryView() {
                                 if (billing.status === 'Current') return null;
                                 return (
                                   <span className={cn(
-                                    "px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider animate-pulse",
+                                    "px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider animate-pulse",
                                     billing.status === 'Overdue'
                                       ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30"
                                       : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30"
@@ -1213,7 +1226,7 @@ export function DirectoryView() {
                           <td className="px-5 py-3.5 text-right sticky right-0 bg-white dark:bg-[#141414] group-hover:bg-neutral-50 dark:group-hover:bg-[#1A1A1A] z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.06)] dark:shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.4)] border-l border-neutral-200 dark:border-[#262626]">
                             <button
                               type="button"
-                              className="text-xs text-white bg-[#EF2F38] hover:bg-[#D9222B] px-3 py-1.5 min-h-[34px] rounded-[6px] transition-colors inline-flex items-center justify-center font-bold uppercase tracking-wider cursor-pointer shadow-xs"
+                              className="text-xs text-white bg-[#EF2F38] hover:bg-[#D9222B] px-3 py-1.5 min-h-[34px] rounded-[6px] transition-colors inline-flex items-center justify-center font-bold uppercase tracking-wider cursor-pointer shadow-xs pointer-coarse:min-h-11"
                               onClick={(e) => { e.stopPropagation(); setSelectedStudentId(student.id); }}
                             >
                               {t('act_details')}
@@ -1248,7 +1261,7 @@ export function DirectoryView() {
                               });
                             }}
                             className={cn(
-                              "px-2 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wider border cursor-pointer flex items-center gap-1 active:scale-95",
+                              "px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border cursor-pointer flex items-center gap-1 active:scale-95",
                               student.studentStatus === 'Active' ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" :
                               student.studentStatus === 'Paused' ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/40" :
                               student.studentStatus === 'Inactive' ? "bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-700" :
@@ -1265,7 +1278,7 @@ export function DirectoryView() {
                             if (billing.status === 'Current') return null;
                             return (
                               <span className={cn(
-                                "px-1.5 py-0.5 rounded text-[7.5px] font-bold uppercase tracking-wider animate-pulse",
+                                "px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider animate-pulse",
                                 billing.status === 'Overdue'
                                   ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30"
                                   : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30"
@@ -1289,7 +1302,7 @@ export function DirectoryView() {
                             <p className="text-neutral-500 dark:text-[#888] text-[11px] font-khmer truncate mt-0.5">{student.khmerName}</p>
                           )}
                           <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                            <span className={cn("px-2 py-0.5 rounded-full text-[8.5px] font-bold border tracking-wider uppercase inline-block", student.currentBelt.toLowerCase().includes('poom') || student.currentBelt.toLowerCase().includes('dan') || student.currentBelt.toLowerCase() === 'black' ? "bg-neutral-900 text-white border-neutral-700 dark:bg-black dark:text-neutral-100 dark:border-neutral-700" : student.currentBelt === 'Red' ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30" : student.currentBelt === 'Brown' ? "bg-amber-900/10 text-amber-800 dark:text-amber-500 border-amber-800/30" : student.currentBelt === 'Blue' ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30" : student.currentBelt === 'Green' ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : student.currentBelt === 'White' ? "bg-neutral-100 text-neutral-800 dark:bg-white/10 dark:text-neutral-200 border-neutral-300 dark:border-white/20" : "bg-yellow-500/15 text-yellow-800 dark:text-yellow-400 border-yellow-500/40" )}>
+                            <span className={cn("px-2 py-0.5 rounded-full text-[9px] font-bold border tracking-wider uppercase inline-block", student.currentBelt.toLowerCase().includes('poom') || student.currentBelt.toLowerCase().includes('dan') || student.currentBelt.toLowerCase() === 'black' ? "bg-neutral-900 text-white border-neutral-700 dark:bg-black dark:text-neutral-100 dark:border-neutral-700" : student.currentBelt === 'Red' ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30" : student.currentBelt === 'Brown' ? "bg-amber-900/10 text-amber-800 dark:text-amber-500 border-amber-800/30" : student.currentBelt === 'Blue' ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30" : student.currentBelt === 'Green' ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : student.currentBelt === 'White' ? "bg-neutral-100 text-neutral-800 dark:bg-white/10 dark:text-neutral-200 border-neutral-300 dark:border-white/20" : "bg-yellow-500/15 text-yellow-800 dark:text-yellow-400 border-yellow-500/40" )}>
                               {formatBelt(student.currentBelt, student.dob)}
                             </span>
                             <span className="text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono truncate">
@@ -1310,7 +1323,7 @@ export function DirectoryView() {
                             >
                               <Phone size={10} className="text-emerald-500 shrink-0" />
                               <span className="truncate">{student.phone}</span>
-                              {copiedContact === student.phone && <span className="text-[8px] text-emerald-500 font-bold ml-0.5 shrink-0">Copied!</span>}
+                              {copiedContact === student.phone && <span className="text-[9px] text-emerald-500 font-bold ml-0.5 shrink-0">Copied!</span>}
                             </button>
                           ) : student.email ? (
                             <button
@@ -1388,7 +1401,7 @@ export function DirectoryView() {
                                 type="button"
                                 onClick={() => setCurrentPage(page)}
                                 className={cn(
-                                  "min-w-[28px] h-7 px-2 rounded-[6px] text-xs font-mono font-bold transition-all cursor-pointer",
+                                  "min-w-[28px] h-7 px-2 rounded-[6px] text-xs font-mono font-bold transition-all cursor-pointer pointer-coarse:min-w-11",
                                   safeCurrentPage === page
                                     ? "bg-[#EF2F38] text-white shadow-xs"
                                     : "bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#262626]"
@@ -1462,12 +1475,12 @@ export function DirectoryView() {
               <div className="flex justify-between items-center">
                 <div className="flex items-baseline gap-2">
                   <h4 className="text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-black tracking-widest">Rank Pipeline</h4>
-                  <p className="text-[8px] text-neutral-400 dark:text-[#666] font-mono hidden xs:block">Filter candidates by clicking capsules</p>
+                  <p className="text-[9px] text-neutral-400 dark:text-[#666] font-mono hidden xs:block">Filter candidates by clicking capsules</p>
                 </div>
                 {selectedBeltPipelineFilter && (
                   <button
                     onClick={() => setSelectedBeltPipelineFilter(null)}
-                    className="text-[8px] text-[#EF2F38] uppercase font-bold tracking-widest hover:underline flex items-center gap-1 cursor-pointer active:scale-95"
+                    className="text-[9px] text-[#EF2F38] uppercase font-bold tracking-widest hover:underline flex items-center gap-1 cursor-pointer active:scale-95"
                   >
                     Clear Filter
                   </button>
@@ -1503,7 +1516,7 @@ export function DirectoryView() {
                       <div className="flex items-center gap-1.5 truncate">
                         <div className={cn("w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 shadow-xs", beltColorClass)} />
                         <span className={cn(
-                          "text-[8.5px] sm:text-[9px] font-black tracking-wider uppercase truncate",
+                          "text-[9px] font-black tracking-wider uppercase truncate",
                           isSelected ? "text-[#EF2F38] dark:text-white" : "text-neutral-700 dark:text-[#999] group-hover:text-black dark:group-hover:text-white"
                         )}>
                           {belt === '1st Poom/Dan' ? '1st Dan' :
@@ -1514,7 +1527,7 @@ export function DirectoryView() {
                       </div>
                       <div className="flex items-center gap-1 shrink-0 ml-1">
                         <span className={cn(
-                          "text-[8.5px] sm:text-[9px] font-mono font-black",
+                          "text-[9px] font-mono font-black",
                           isSelected ? "text-[#EF2F38]" : "text-neutral-500 dark:text-neutral-400 group-hover:text-[#EF2F38]"
                         )}>
                           {count}
@@ -1618,7 +1631,7 @@ export function DirectoryView() {
                               </div>
                             </div>
                             <span className={cn(
-                              "px-2 py-0.5 rounded text-[8px] uppercase tracking-wider shrink-0 border",
+                              "px-2 py-0.5 rounded text-[9px] uppercase tracking-wider shrink-0 border",
                               isSelected ? "bg-white/20 border-white/30 text-white" : "bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200"
                             )}>
                               {student.currentBelt}
@@ -1656,12 +1669,12 @@ export function DirectoryView() {
 
                         <div className="flex items-center gap-3 bg-neutral-50 dark:bg-[#0F0F0F] px-4 py-2 border border-neutral-200 dark:border-[#262626] rounded-[8px] font-bold">
                           <div className="text-center space-y-0.5">
-                            <span className="text-[8px] text-neutral-500 dark:text-[#888] uppercase block font-semibold">{t('dir_current_rank')}</span>
+                            <span className="text-[9px] text-neutral-500 dark:text-[#888] uppercase block font-semibold">{t('dir_current_rank')}</span>
                             <span className="text-[10px] text-neutral-900 dark:text-white uppercase tracking-widest font-black">{activeStudentObj.currentBelt}</span>
                           </div>
                           <CaretRight className="w-4 h-4 text-neutral-400 dark:text-[#666]" />
                           <div className="text-center space-y-0.5">
-                            <span className="text-[8px] text-[#EF2F38] uppercase block font-black">{t('dir_target_rank')}</span>
+                            <span className="text-[9px] text-[#EF2F38] uppercase block font-black">{t('dir_target_rank')}</span>
                             <span className="text-[10px] text-amber-600 dark:text-amber-400 uppercase tracking-widest font-black">{targetBelt}</span>
                           </div>
                         </div>
@@ -1699,7 +1712,7 @@ export function DirectoryView() {
                           <button
                             type="button"
                             onClick={() => handleOpenSinglePromote(activeStudentObj.id)}
-                            className="w-full sm:w-auto px-4 h-8 sm:h-9 bg-[#EF2F38] hover:bg-[#D9222B] text-white rounded-[6px] text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95 touch-manipulation cursor-pointer shrink-0"
+                            className="w-full sm:w-auto px-4 h-9 pointer-coarse:h-11 bg-[#EF2F38] hover:bg-[#D9222B] text-white rounded-[6px] text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95 touch-manipulation cursor-pointer shrink-0"
                           >
                             <ShieldCheck className="w-3.5 h-3.5" />
                             <span>Promote Now</span>
@@ -1716,7 +1729,7 @@ export function DirectoryView() {
                           <div className="flex justify-between items-center">
                             <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-[#AAA] tracking-wider">Time in Grade</span>
                             <span className={cn(
-                              "text-[8px] font-black px-1.5 py-0.2 rounded uppercase border",
+                              "text-[9px] font-black px-1.5 py-0.2 rounded uppercase border",
                               auditData.daysEligible ? "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30" : "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-[#888] border-neutral-300 dark:border-transparent"
                             )}>
                               {auditData.daysEligible ? 'PASSED' : 'PENDING'}
@@ -1741,7 +1754,7 @@ export function DirectoryView() {
                           <div className="flex justify-between items-center">
                             <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-[#AAA] tracking-wider">Attendance</span>
                             <span className={cn(
-                              "text-[8px] font-black px-1.5 py-0.2 rounded uppercase border",
+                              "text-[9px] font-black px-1.5 py-0.2 rounded uppercase border",
                               auditData.attendanceEligible ? "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30" : "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-[#888] border-neutral-300 dark:border-transparent"
                             )}>
                               {auditData.attendanceEligible ? 'PASSED' : 'PENDING'}
@@ -1766,7 +1779,7 @@ export function DirectoryView() {
                           <div className="flex justify-between items-center">
                             <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-[#AAA] tracking-wider">LMS Syllabus</span>
                             <span className={cn(
-                              "text-[8px] font-black px-1.5 py-0.2 rounded uppercase border",
+                              "text-[9px] font-black px-1.5 py-0.2 rounded uppercase border",
                               auditData.syllabusEligible ? "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30" : "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-[#888] border-neutral-300 dark:border-transparent"
                             )}>
                               {auditData.syllabusEligible ? 'PASSED' : 'PENDING'}
@@ -1791,7 +1804,7 @@ export function DirectoryView() {
                           <div className="flex justify-between items-center">
                             <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-[#AAA] tracking-wider">Skill Rating</span>
                             <span className={cn(
-                              "text-[8px] font-black px-1.5 py-0.2 rounded uppercase border",
+                              "text-[9px] font-black px-1.5 py-0.2 rounded uppercase border",
                               auditData.physicalEligible ? "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30" : "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-[#888] border-neutral-300 dark:border-transparent"
                             )}>
                               {auditData.physicalEligible ? 'PASSED' : 'PENDING'}
@@ -1930,7 +1943,7 @@ export function DirectoryView() {
                                     <span className="text-[10px] text-neutral-400 font-mono">({video.category})</span>
                                   </div>
                                   <span className={cn(
-                                    "px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider border shrink-0",
+                                    "px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border shrink-0",
                                     isCompleted ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : "bg-neutral-100 dark:bg-[#1A1A1A] text-neutral-500 border-neutral-200 dark:border-[#262626]"
                                   )}>
                                     {isCompleted ? 'Completed' : 'Not Watched'}
@@ -1971,6 +1984,7 @@ export function DirectoryView() {
         {showPromotionModal && (
           <Portal>
             <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+              <ModalA11y label="Belt promotion" onClose={() => setShowPromotionModal(false)} />
               <motion.div
                 {...dialogMotion}
                 className="w-full max-w-md bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl overflow-hidden flex flex-col text-neutral-900 dark:text-white max-h-[90dvh]"
@@ -1983,7 +1997,7 @@ export function DirectoryView() {
                   <button
                     type="button"
                     onClick={() => setShowPromotionModal(false)}
-                    className="px-3 py-1.5 min-h-[40px] text-xs font-bold rounded-[8px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
+                    className="px-3 py-1.5 min-h-[40px] text-xs font-bold rounded-[8px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11"
                   >
                     {t('act_cancel')}
                   </button>
@@ -2108,6 +2122,7 @@ export function DirectoryView() {
         {reconcileResult && (
           <Portal>
             <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+              <ModalA11y label="Reconciliation result" onClose={() => setReconcileResult(null)} />
               <motion.div
                 {...dialogMotion}
                 className="w-full max-w-lg bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl overflow-hidden flex flex-col text-neutral-900 dark:text-white max-h-[90dvh]"
@@ -2143,11 +2158,11 @@ export function DirectoryView() {
                         {t('dir_diagnostics_success')}
                       </div>
                     ) : (
-                      <div className="space-y-2 max-h-[35vh] overflow-y-auto pr-1">
+                      <div className="space-y-2 max-h-[35dvh] overflow-y-auto pr-1">
                         {reconcileResult.details.map((log, i) => (
                           <div key={i} className="p-3 bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs font-mono flex items-center justify-between gap-4 shadow-sm">
                             <span className="text-neutral-900 dark:text-white text-[11px] font-medium leading-relaxed">{log}</span>
-                            <span className="shrink-0 text-[8px] font-black tracking-widest text-amber-700 dark:text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 uppercase font-bold">{t('dir_healed')}</span>
+                            <span className="shrink-0 text-[9px] font-black tracking-widest text-amber-700 dark:text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 uppercase font-bold">{t('dir_healed')}</span>
                           </div>
                         ))}
                       </div>
@@ -2173,6 +2188,7 @@ export function DirectoryView() {
         {editingHistory && (
           <Portal>
             <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+              <ModalA11y label="Edit promotion record" onClose={() => setEditingHistory(null)} />
               <motion.div
                 {...dialogMotion}
                 className="w-full max-w-md bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl overflow-hidden flex flex-col text-neutral-900 dark:text-white max-h-[90dvh] animate-in zoom-in-95 duration-150"
@@ -2185,7 +2201,7 @@ export function DirectoryView() {
                   <button
                     type="button"
                     onClick={() => setEditingHistory(null)}
-                    className="px-3 py-1.5 min-h-[40px] text-xs font-bold rounded-[8px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
+                    className="px-3 py-1.5 min-h-[40px] text-xs font-bold rounded-[8px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11"
                   >
                     {t('act_cancel')}
                   </button>
@@ -2193,7 +2209,7 @@ export function DirectoryView() {
 
                 <div className="p-6 space-y-4 bg-white dark:bg-[#0A0A0A] overflow-y-auto max-h-[70dvh]">
                   <div>
-                    <span className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-[#666] tracking-wider mb-1">{t('dir_student_context')}</span>
+                    <span className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] tracking-wider mb-1">{t('dir_student_context')}</span>
                     <div className="bg-neutral-100 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-700 dark:text-[#999] font-bold">
                       {state.students.find(s => s.id === editingHistory.studentId)?.englishName || editingHistory.studentId} ({editingHistory.studentId})
                     </div>
@@ -2295,6 +2311,7 @@ export function DirectoryView() {
       {selectedStudentForStatus && (
         <Portal>
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+            <ModalA11y label="Change student status" onClose={() => setSelectedStudentForStatus(null)} locked={isSavingStatus} />
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-6 max-w-md w-full shadow-2xl space-y-4 text-neutral-900 dark:text-white animate-in zoom-in-95 duration-150 max-h-[90dvh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3">
                 <div>
@@ -2407,6 +2424,7 @@ export function DirectoryView() {
         isOpen={isHouseholdModalOpen}
         onClose={() => setIsHouseholdModalOpen(false)}
       />
+    </div>
     </div>
   );
 }

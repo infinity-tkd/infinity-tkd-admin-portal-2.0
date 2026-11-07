@@ -59,7 +59,7 @@ export function WorkoutTimerModal({ workout, onClose }: { workout: any, onClose:
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <span className="text-[8px] font-bold uppercase tracking-widest text-neutral-400">{t('lib_difficulty_workout').replace('{difficulty}', diffTrans)}</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-neutral-400">{t('lib_difficulty_workout').replace('{difficulty}', diffTrans)}</span>
               <h3 className="text-sm font-bold text-white mt-0.5">{workout.title}</h3>
             </div>
             <button 
@@ -112,7 +112,7 @@ export function WorkoutTimerModal({ workout, onClose }: { workout: any, onClose:
 
           {/* Targeted Movement Guidance */}
           <div className="bg-[#141414] border border-[#262626] rounded-[8px] p-4 text-center">
-            <span className="block text-[8px] uppercase font-bold text-neutral-400 tracking-wider mb-1">{t('lib_timer_target_action')}</span>
+            <span className="block text-[9px] uppercase font-bold text-neutral-400 tracking-wider mb-1">{t('lib_timer_target_action')}</span>
             {mode === 'Prepare' && <p className="text-xs text-neutral-300 font-bold font-mono">{t('lib_timer_prep_desc')}</p>}
             {mode === 'Rest' && <p className="text-xs text-neutral-300 font-bold font-mono">{t('lib_timer_rest_desc')}</p>}
             {mode === 'Completed' && <p className="text-xs text-green-400 font-bold font-mono">{t('lib_timer_completed_desc')}</p>}

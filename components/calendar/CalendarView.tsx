@@ -1,6 +1,8 @@
 'use client';
 import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { Plus, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, RefreshCw, CalendarDays } from 'lucide-react';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { buttonClass } from '@/components/ui/styles';
 import { addCalendarDays, academyDate } from '@/lib/dates';
 import { portalRequest } from '@/lib/portal-api';
 import { useAppStore } from '@/lib/store';
@@ -91,7 +93,8 @@ function CalendarWorkspace() {
   }
   const error = targetError || api.error;
   return <div className={`${styles.theme} ${styles.workspace}`}>
-    <header className={styles.header}><div><p className={styles.eyebrow}>Academy life, in one place</p><h1 className={styles.heading}>Calendar & Events</h1><p className={styles.subtitle}>Plan clearly. Keep students informed.</p></div><div className={styles.actions}><button type="button" className={styles.iconButton} disabled={api.loading || api.busy} onClick={() => void api.refresh()} aria-label="Refresh calendar"><RefreshCw size={17}/></button>{data.permissions.create && <button type="button" className={`${styles.button} ${styles.primary}`} disabled={api.busy} onClick={() => { setSelected(null); setEditor({ event: null }); }}><Plus size={17}/>New event</button>}</div></header>
+    <PageHeader className="mb-4 sm:mb-5" icon={<CalendarDays />} eyebrow="Academy life, in one place" title="Calendar & Events" description="Plan clearly. Keep students informed."
+      actions={<><button type="button" className={`${buttonClass({ size: 'icon' })} flex-none!`} disabled={api.loading || api.busy} onClick={() => void api.refresh()} aria-label="Refresh calendar" title="Refresh calendar"><RefreshCw size={17} className={api.loading ? 'motion-safe:animate-spin' : undefined}/></button>{data.permissions.create && <button type="button" className={buttonClass({ variant: 'primary' })} disabled={api.busy} onClick={() => { setSelected(null); setEditor({ event: null }); }}><Plus size={17}/>New event</button>}</>} />
     <nav className={styles.tabs} role="tablist" aria-label="Calendar workspace">{(['calendar', 'events'] as const).map(view => <button type="button" key={view} id={`calendar-tab-${view}`} role="tab" tabIndex={tab === view ? 0 : -1} aria-selected={tab === view} aria-controls="calendar-workspace-content" className={styles.tab} onClick={() => { setTab(view); setSearch(''); setSelectedDay(null); }} onKeyDown={event => { if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return; event.preventDefault(); const next = event.key === 'Home' ? 'calendar' : event.key === 'End' ? 'events' : view === 'calendar' ? 'events' : 'calendar'; setTab(next); setSearch(''); setSelectedDay(null); document.getElementById(`calendar-tab-${next}`)?.focus(); }}>{view === 'calendar' ? 'Calendar' : 'Events'}</button>)}</nav>
     {error && !selected && !editor && <div className={`${styles.notice} ${styles.error}`} role="alert"><span>{error}</span><button type="button" className={styles.button} onClick={() => void api.refresh()} disabled={api.loading || api.busy}>Retry</button></div>}
     {api.feedback && !selected && !editor && <p role="status" className={`${styles.notice} ${styles.success}`}>{api.feedback}</p>}

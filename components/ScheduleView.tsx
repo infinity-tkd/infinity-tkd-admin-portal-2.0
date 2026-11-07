@@ -1,4 +1,5 @@
 'use client';
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import {useAttendanceActions} from '@/hooks/use-attendance-actions';
 
 import { dialogMotion } from '@/lib/motion';
@@ -27,6 +28,7 @@ import { ArrowsDownUp } from '@phosphor-icons/react/dist/csr/ArrowsDownUp';
 import { Funnel } from '@phosphor-icons/react/dist/csr/Funnel';
 import { UserPlus } from '@phosphor-icons/react/dist/csr/UserPlus';
 import { cn, formatBelt } from '@/lib/utils';
+import { PageHeader, SegmentedTabs } from './ui/PageHeader';
 import { Portal } from '@/components/Portal';
 import { useT } from '@/hooks/useTranslation';
 import { SafeImage } from '@/components/SafeImage';
@@ -411,59 +413,23 @@ export function ScheduleView() {
   }, [branchClasses, state.classEnrollments, state.students]);
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto space-y-4 pb-12">
+    <div className="w-full max-w-[1600px] mx-auto space-y-4 pb-12 sm:space-y-5">
+      <PageHeader
+        icon={<Calendar weight="bold" />}
+        eyebrow="Facility & Rosters"
+        title={t('sch_facility_schedule')}
+        description={t('sch_facility_desc')}
+        actions={<SegmentedTabs label="Schedule views" value={activeTab} onChange={setActiveTab} items={[
+          { id: 'matrix', label: t('sch_weekly_matrix'), icon: <Calendar /> },
+          { id: 'capacity', label: t('sch_capacity_planner'), icon: <ChartLine /> },
+        ]} />}
+      />
       {overCapacityClasses.length > 0 && (
         <div role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
           <p className="font-semibold">Roster review required</p>
           {overCapacityClasses.map(session => <p key={session.id}>{session.name}: {session.enrolled} active students / capacity {session.capacity}. New active enrollment remains blocked; review the existing roster.</p>)}
         </div>
       )}
-      {/* Top Header & Tab Switcher */}
-      <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 bg-red-500/10 border border-red-500/20 rounded-[8px] flex items-center justify-center shrink-0 shadow-sm">
-            <Calendar className="w-6 h-6 text-[#EF2F38]" weight="bold" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 rounded-[6px] text-[10px] font-bold uppercase tracking-wider font-mono">
-                Facility & Rosters
-              </span>
-            </div>
-            <h1 className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white tracking-tight mt-0.5 flex items-center gap-2">
-              {t('sch_facility_schedule')}
-            </h1>
-            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono tracking-wide mt-0.5">
-              {t('sch_facility_desc')}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex bg-neutral-100 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] p-1 shrink-0 flex-nowrap overflow-x-auto no-scrollbar scrollbar-none w-full md:w-auto gap-1">
-          <button 
-            onClick={() => setActiveTab('matrix')}
-            className={cn(
-              "px-4 py-2 min-h-[42px] rounded-[6px] flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shrink-0 active:scale-95 touch-manipulation whitespace-nowrap", 
-              activeTab === 'matrix' 
-                ? "bg-white dark:bg-[#1C1C1C] text-neutral-900 dark:text-white shadow-sm font-black border border-neutral-200/60 dark:border-[#333]" 
-                : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white"
-            )}
-          >
-            <Calendar className="w-4 h-4 text-[#EF2F38]"/> {t('sch_weekly_matrix')}
-          </button>
-          <button 
-            onClick={() => setActiveTab('capacity')}
-            className={cn(
-              "px-4 py-2 min-h-[42px] rounded-[6px] flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shrink-0 active:scale-95 touch-manipulation whitespace-nowrap", 
-              activeTab === 'capacity' 
-                ? "bg-white dark:bg-[#1C1C1C] text-neutral-900 dark:text-white shadow-sm font-black border border-neutral-200/60 dark:border-[#333]" 
-                : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white"
-            )}
-          >
-            <ChartLine className="w-4 h-4 text-[#EF2F38]"/> {t('sch_capacity_planner')}
-          </button>
-        </div>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
          {/* Sidebar Locations - Horizontal scrollable rail on mobile, stacked column on lg */}
@@ -516,14 +482,14 @@ export function ScheduleView() {
                         />
                         <button 
                           disabled={isSavingBranch} onClick={handleSaveBranch}
-                          className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center bg-[#EF2F38] hover:bg-[#d4252e] text-white rounded-[6px] cursor-pointer active:scale-90 touch-manipulation shadow-sm"
+                          className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center bg-[#EF2F38] hover:bg-[#d4252e] text-white rounded-[6px] cursor-pointer active:scale-90 touch-manipulation shadow-sm pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                           title="Save branch"
                         >
                           <Check className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={() => setShowBranchInput(false)} 
-                          className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-white cursor-pointer active:scale-90 touch-manipulation"
+                          className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-white cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                           title="Cancel"
                         >
                           <X className="w-4 h-4"/>
@@ -561,7 +527,7 @@ export function ScheduleView() {
                           {searchQuery && (
                             <button 
                               onClick={() => setSearchQuery('')} 
-                              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-white active:scale-90 touch-manipulation cursor-pointer"
+                              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-white active:scale-90 touch-manipulation cursor-pointer pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                               title="Clear search"
                             >
                               <X className="w-3.5 h-3.5" />
@@ -574,7 +540,7 @@ export function ScheduleView() {
                          value={categoryFilter}
                          onChange={e => setCategoryFilter(e.target.value)}
                          aria-label="Filter classes by category"
-                         className="h-10 min-h-[42px] bg-white dark:bg-[#141414] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] px-3 text-xs focus:outline-none focus:border-[#EF2F38] font-semibold shadow-sm cursor-pointer"
+                         className="h-10 min-h-[42px] bg-white dark:bg-[#141414] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] px-3 text-xs focus:outline-none focus:border-[#EF2F38] font-semibold shadow-sm cursor-pointer pointer-coarse:min-h-11"
                        >
                          <option value="All">{t('dir_all_classes')}</option>
                          {CATEGORIES.map(cat => <option key={cat} value={cat}>{formatCategoryLocalized(cat, t)}</option>)}
@@ -586,7 +552,7 @@ export function ScheduleView() {
                            setClassForm({ name: '', classType: 'General Class', daysOfWeek: ['Monday'], startTime: '17:00', endTime: '18:30', capacity: 30, coachId: '' });
                            setShowClassModal('new');
                          }}
-                         className="px-4 py-2 h-10 min-h-[42px] bg-[#EF2F38] hover:bg-[#d4252e] text-white transition-all duration-200 font-bold uppercase tracking-wider text-xs rounded-[8px] flex items-center gap-2 w-full sm:w-auto justify-center shadow-sm shrink-0 cursor-pointer active:scale-95 touch-manipulation"
+                         className="px-4 py-2 h-10 min-h-[42px] bg-[#EF2F38] hover:bg-[#d4252e] text-white transition-all duration-200 font-bold uppercase tracking-wider text-xs rounded-[8px] flex items-center gap-2 w-full sm:w-auto justify-center shadow-sm shrink-0 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                        >
                          <Plus className="w-4 h-4 shrink-0"/> {t('sch_book_session')}
                        </button>
@@ -598,7 +564,7 @@ export function ScheduleView() {
                     <button
                       onClick={() => setSelectedDayFilter('All')}
                       className={cn(
-                        "px-3.5 py-1.5 min-h-[40px] rounded-[8px] text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap border shrink-0 cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center gap-2",
+                        "px-3.5 py-1.5 min-h-[40px] rounded-[8px] text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap border shrink-0 cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center gap-2 pointer-coarse:min-h-11",
                         selectedDayFilter === 'All'
                           ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 border-neutral-950 dark:border-white shadow-sm font-black"
                           : "bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-[#262626] hover:text-neutral-900 dark:hover:text-white hover:border-neutral-300 dark:hover:border-neutral-700"
@@ -619,7 +585,7 @@ export function ScheduleView() {
                           key={day}
                           onClick={() => setSelectedDayFilter(day)}
                           className={cn(
-                            "px-3.5 py-1.5 min-h-[40px] rounded-[8px] text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap border shrink-0 flex items-center gap-2 cursor-pointer active:scale-95 touch-manipulation",
+                            "px-3.5 py-1.5 min-h-[40px] rounded-[8px] text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap border shrink-0 flex items-center gap-2 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                             selectedDayFilter === day
                               ? "bg-[#EF2F38] text-white border-[#EF2F38] shadow-sm font-black ring-2 ring-[#EF2F38]/20"
                               : count > 0
@@ -681,14 +647,14 @@ export function ScheduleView() {
                                         <div className="flex-1 min-w-0">
                                            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
                                               <h4 className="text-sm font-bold text-neutral-900 dark:text-white tracking-tight leading-tight group-hover:text-[#EF2F38] dark:group-hover:text-[#EF2F38] transition-colors">{c.name}</h4>
-                                              <span className={cn("px-2 py-0.5 rounded-[6px] text-[8px] sm:text-[9px] font-black uppercase tracking-widest border shadow-sm", styles.text, styles.border, styles.bg)}>
+                                              <span className={cn("px-2 py-0.5 rounded-[6px] text-[9px] font-black uppercase tracking-widest border shadow-sm", styles.text, styles.border, styles.bg)}>
                                                  {formatCategoryLocalized(c.classType || 'General Class', t)}
                                               </span>
                                               <span className="text-[9px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 font-mono px-2 py-0.5 rounded-[6px] font-bold uppercase tracking-wider shadow-sm">
                                                  {durationText}
                                               </span>
                                               {isFull && (
-                                                <span className={cn("px-2 py-0.5 rounded-[6px] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 shadow-sm", isOvercrowded ? "bg-red-500/10 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/30" : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30" )}>
+                                                <span className={cn("px-2 py-0.5 rounded-[6px] text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 shadow-sm", isOvercrowded ? "bg-red-500/10 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/30" : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30" )}>
                                                   {isOvercrowded ? <ShieldWarning className="w-3 h-3"/> : <WarningCircle className="w-3 h-3"/>}
                                                   {isOvercrowded ? t('sch_overcrowded') : t('sch_full')}
                                                 </span>
@@ -740,29 +706,29 @@ export function ScheduleView() {
 
                                         <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-neutral-100 dark:border-[#262626] w-full md:w-auto justify-between sm:justify-start">
                                            <button onClick={() => { setEnrollModalTab('unenrolled'); setShowEnrollModal(c.id); }}
-                                             className="flex-1 sm:flex-initial px-3.5 py-2 min-h-[40px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#262626] rounded-[8px] text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer active:scale-95 touch-manipulation whitespace-nowrap"
+                                             className="flex-1 sm:flex-initial px-3.5 py-2 min-h-[40px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#262626] rounded-[8px] text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer active:scale-95 touch-manipulation whitespace-nowrap pointer-coarse:min-h-11"
                                            >
                                              <Users className="w-4 h-4 shrink-0 text-neutral-500 dark:text-neutral-400"/> {t('sch_cohort_roster')}
                                            </button>
                                            <button onClick={() => { setEnrollModalTab('enrolled'); setShowEnrollModal(c.id); }}
-                                             className="flex-1 sm:flex-initial px-3.5 py-2 min-h-[40px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#262626] rounded-[8px] text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer active:scale-95 touch-manipulation whitespace-nowrap"
+                                             className="flex-1 sm:flex-initial px-3.5 py-2 min-h-[40px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#262626] rounded-[8px] text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer active:scale-95 touch-manipulation whitespace-nowrap pointer-coarse:min-h-11"
                                            >
                                              <CalendarCheck className="w-4 h-4 text-[#EF2F38] shrink-0"/> Take Attendance
                                            </button>
                                            {canManageSchedule && (
                                              <div className="flex items-center gap-1 shrink-0">
                                                <button onClick={() => handleEditClass(c)} title={t('act_edit')}
-                                                 className="min-w-[40px] min-h-[40px] p-2 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-[8px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors cursor-pointer active:scale-90 touch-manipulation"
+                                                 className="min-w-[40px] min-h-[40px] p-2 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-[8px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                                                >
                                                  <PencilSimple className="w-4 h-4"/>
                                                </button>
                                                <button onClick={() => handleDuplicateClass(c)} title="Duplicate Session"
-                                                 className="min-w-[40px] min-h-[40px] p-2 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-[#EF2F38] dark:hover:text-[#EF2F38] rounded-[8px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors cursor-pointer active:scale-90 touch-manipulation"
+                                                 className="min-w-[40px] min-h-[40px] p-2 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-[#EF2F38] dark:hover:text-[#EF2F38] rounded-[8px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                                                >
                                                  <CopySimple className="w-4 h-4"/>
                                                </button>
                                                <button onClick={() => handleDeleteClass(c.id)} title={t('act_delete')}
-                                                 className="min-w-[40px] min-h-[40px] p-2 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-500 rounded-[8px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] hover:bg-red-500/10 transition-colors cursor-pointer active:scale-90 touch-manipulation"
+                                                 className="min-w-[40px] min-h-[40px] p-2 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-red-500 rounded-[8px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] hover:bg-red-500/10 transition-colors cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                                                >
                                                  <Trash className="w-4 h-4"/>
                                                </button>
@@ -785,7 +751,7 @@ export function ScheduleView() {
                            {(searchQuery || categoryFilter !== 'All') && (
                              <button
                                onClick={() => { setSearchQuery(''); setCategoryFilter('All'); }}
-                               className="mt-3 px-3 py-1.5 min-h-[34px] text-xs text-[#EF2F38] font-bold uppercase tracking-wider hover:underline cursor-pointer active:scale-95 touch-manipulation"
+                               className="mt-3 px-3 py-1.5 min-h-[34px] text-xs text-[#EF2F38] font-bold uppercase tracking-wider hover:underline cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                              >
                                Reset Filters
                              </button>
@@ -862,7 +828,7 @@ export function ScheduleView() {
                                key={status}
                                onClick={() => setCapacityStatusFilter(status)}
                                className={cn(
-                                 "px-3 py-1.5 min-h-[36px] rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation whitespace-nowrap",
+                                 "px-3 py-1.5 min-h-[36px] rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation whitespace-nowrap pointer-coarse:min-h-11",
                                  capacityStatusFilter === status
                                    ? "bg-white dark:bg-[#1C1C1C] text-neutral-900 dark:text-white shadow-sm font-black"
                                    : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white"
@@ -889,7 +855,7 @@ export function ScheduleView() {
                          value={categoryFilter}
                          onChange={e => setCategoryFilter(e.target.value)}
                          aria-label="Filter category in capacity planner"
-                         className="w-full sm:w-auto bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] px-3 py-1.5 min-h-[38px] text-xs font-semibold focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                         className="w-full sm:w-auto bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] px-3 py-1.5 min-h-[38px] text-xs font-semibold focus:outline-none focus:border-[#EF2F38] cursor-pointer pointer-coarse:min-h-11"
                        >
                          <option value="All">{t('dir_all_classes')}</option>
                          {CATEGORIES.map(cat => <option key={cat} value={cat}>{formatCategoryLocalized(cat, t)}</option>)}
@@ -916,7 +882,7 @@ export function ScheduleView() {
                                 <div>
                                    <div className="flex items-center gap-2">
                                      <p className="font-bold text-neutral-900 dark:text-white">{c.name}</p>
-                                     <span className="text-[8px] px-1.5 py-0.5 rounded-[6px] bg-neutral-100 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300 font-bold uppercase tracking-wider font-mono">
+                                     <span className="text-[9px] px-1.5 py-0.5 rounded-[6px] bg-neutral-100 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300 font-bold uppercase tracking-wider font-mono">
                                        {c.classType}
                                      </span>
                                    </div>
@@ -944,7 +910,7 @@ export function ScheduleView() {
                                             type="button"
                                             onClick={() => handleQuickAdjustCapacity(c.id, -5)}
                                             title="Reduce capacity by 5"
-                                            className="min-w-[34px] min-h-[34px] flex items-center justify-center text-xs font-mono font-bold text-neutral-600 dark:text-neutral-400 hover:text-red-500 rounded-[6px] transition-colors cursor-pointer active:scale-90 touch-manipulation"
+                                            className="min-w-[34px] min-h-[34px] flex items-center justify-center text-xs font-mono font-bold text-neutral-600 dark:text-neutral-400 hover:text-red-500 rounded-[6px] transition-colors cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                                           >
                                             -5
                                           </button>
@@ -953,7 +919,7 @@ export function ScheduleView() {
                                             type="button"
                                             onClick={() => handleQuickAdjustCapacity(c.id, 5)}
                                             title="Expand capacity by 5"
-                                            className="min-w-[34px] min-h-[34px] flex items-center justify-center text-xs font-mono font-bold text-neutral-600 dark:text-neutral-400 hover:text-emerald-500 rounded-[6px] transition-colors cursor-pointer active:scale-90 touch-manipulation"
+                                            className="min-w-[34px] min-h-[34px] flex items-center justify-center text-xs font-mono font-bold text-neutral-600 dark:text-neutral-400 hover:text-emerald-500 rounded-[6px] transition-colors cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                                           >
                                             +5
                                           </button>
@@ -963,7 +929,7 @@ export function ScheduleView() {
                                         type="button"
                                         onClick={() => { setEnrollModalTab('unenrolled'); setShowEnrollModal(c.id); }}
                                         title="View Cohort Roster"
-                                        className="min-w-[36px] min-h-[36px] flex items-center justify-center p-2 bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 text-neutral-700 dark:text-neutral-300 rounded-[8px] transition-colors cursor-pointer active:scale-90 touch-manipulation"
+                                        className="min-w-[36px] min-h-[36px] flex items-center justify-center p-2 bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 text-neutral-700 dark:text-neutral-300 rounded-[8px] transition-colors cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                                       >
                                         <Users className="w-4 h-4" />
                                       </button>
@@ -972,7 +938,7 @@ export function ScheduleView() {
                                           type="button"
                                           onClick={() => handleEditClass(c)}
                                           title="Edit Session"
-                                          className="min-w-[36px] min-h-[36px] flex items-center justify-center p-2 bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 text-neutral-700 dark:text-neutral-300 rounded-[8px] transition-colors cursor-pointer active:scale-90 touch-manipulation"
+                                          className="min-w-[36px] min-h-[36px] flex items-center justify-center p-2 bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 text-neutral-700 dark:text-neutral-300 rounded-[8px] transition-colors cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                                         >
                                           <PencilSimple className="w-4 h-4" />
                                         </button>
@@ -1014,7 +980,7 @@ export function ScheduleView() {
                                     <button
                                       type="button"
                                       onClick={() => handleQuickAdjustCapacity(oc.cls.id, 5)}
-                                      className="flex-1 sm:flex-initial px-3 py-1.5 min-h-[36px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-[8px] text-[9px] font-bold uppercase tracking-wider hover:bg-emerald-500 hover:text-white transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
+                                      className="flex-1 sm:flex-initial px-3 py-1.5 min-h-[36px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-[8px] text-[9px] font-bold uppercase tracking-wider hover:bg-emerald-500 hover:text-white transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11"
                                     >
                                       +5 Slots
                                     </button>
@@ -1022,7 +988,7 @@ export function ScheduleView() {
                                   <button
                                     type="button"
                                     onClick={() => { setEnrollModalTab('enrolled'); setShowEnrollModal(oc.cls.id); }}
-                                    className="flex-1 sm:flex-initial px-3 py-1.5 min-h-[36px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-[9px] font-bold uppercase tracking-wider hover:bg-neutral-200 transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
+                                    className="flex-1 sm:flex-initial px-3 py-1.5 min-h-[36px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-[9px] font-bold uppercase tracking-wider hover:bg-neutral-200 transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11"
                                   >
                                     Manage Cohort
                                   </button>
@@ -1079,12 +1045,13 @@ export function ScheduleView() {
         {showClassModal && (
           <Portal>
             <div className="fixed inset-0 bg-neutral-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200 overflow-y-auto">
+                <ModalA11y label="Class details" onClose={() => setShowClassModal(null)} />
                 <motion.div {...dialogMotion} className="w-full max-w-md bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col my-auto max-h-[92dvh] overflow-hidden">
                   <div className="p-3.5 sm:p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#0F0F0F] shrink-0">
                      <h2 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-neutral-800 dark:text-white">
                        {showClassModal === 'new' ? t('sch_new_course') : t('sch_edit_course')}
                      </h2>
-                     <button onClick={() => setShowClassModal(null)} className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-[8px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors cursor-pointer active:scale-90 touch-manipulation" aria-label="Close modal"><X className="w-5 h-5"/></button>
+                     <button onClick={() => setShowClassModal(null)} className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-[8px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11" aria-label="Close modal"><X className="w-5 h-5"/></button>
                   </div>
 
                   <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto bg-white dark:bg-[#0A0A0A] text-neutral-900 dark:text-white">
@@ -1105,7 +1072,7 @@ export function ScheduleView() {
                               type="button"
                               onClick={() => setClassForm({ ...classForm, classType: cat })}
                               className={cn(
-                                "px-3 py-2.5 min-h-[42px] border rounded-[8px] text-[10px] font-bold uppercase tracking-wider transition-all text-center shadow-sm cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center",
+                                "px-3 py-2.5 min-h-[42px] border rounded-[8px] text-[10px] font-bold uppercase tracking-wider transition-all text-center shadow-sm cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11",
                                 classForm.classType === cat 
                                   ? "bg-neutral-900 dark:bg-white border-neutral-950 dark:border-white text-white dark:text-black font-extrabold" 
                                   : "bg-white dark:bg-[#141414] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
@@ -1133,7 +1100,7 @@ export function ScheduleView() {
                                   setClassForm({ ...classForm, daysOfWeek: updatedDays });
                                 }}
                                 className={cn(
-                                  "px-3 py-1.5 min-h-[38px] rounded-[8px] text-[10px] font-bold uppercase tracking-wider border transition-all shadow-sm cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center",
+                                  "px-3 py-1.5 min-h-[38px] rounded-[8px] text-[10px] font-bold uppercase tracking-wider border transition-all shadow-sm cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11",
                                   isSelected 
                                     ? "bg-[#EF2F38] border-[#EF2F38] text-white font-extrabold" 
                                     : "bg-neutral-50 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626]"
@@ -1153,7 +1120,7 @@ export function ScheduleView() {
                              value={classForm.coachId} 
                              onChange={e => setClassForm({...classForm, coachId: e.target.value})}
                              aria-label="Assign instructor"
-                             className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 shadow-sm font-semibold cursor-pointer"
+                             className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 shadow-sm font-semibold cursor-pointer pointer-coarse:min-h-11"
                            >
                               <option value="" className="text-black dark:text-white dark:bg-neutral-900">{t('sch_no_instructor')}</option>
                               {coaches.map(c => (
@@ -1395,6 +1362,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
 
   return (
     <div className="fixed inset-0 bg-neutral-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200 overflow-y-auto">
+      <ModalA11y label="Class enrollment" onClose={onClose} />
       <motion.div 
         {...dialogMotion}
         className="w-full max-w-2xl bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col my-auto max-h-[92dvh] overflow-hidden text-neutral-900 dark:text-white"
@@ -1432,7 +1400,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
               )}
             >
               {t('sch_tab_unenrolled_candidates')}
-              <span className="px-1.5 py-0.5 bg-neutral-200 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-[8px] font-mono font-bold">
+              <span className="px-1.5 py-0.5 bg-neutral-200 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-[9px] font-mono font-bold">
                 {state.students.filter(s => s.studentStatus === 'Active' && !enrolledStudentIds.has(s.id)).length}
               </span>
             </button>
@@ -1444,7 +1412,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
               )}
             >
               {t('sch_tab_enrolled_cohort')}
-              <span className="px-1.5 py-0.5 bg-neutral-200 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-[8px] font-mono font-bold">
+              <span className="px-1.5 py-0.5 bg-neutral-200 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-[9px] font-mono font-bold">
                 {enrolledCount}
               </span>
             </button>
@@ -1456,7 +1424,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
               )}
             >
               {t('sch_tab_all_active')}
-              <span className="px-1.5 py-0.5 bg-neutral-200 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-[8px] font-mono font-bold">
+              <span className="px-1.5 py-0.5 bg-neutral-200 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-[9px] font-mono font-bold">
                 {state.students.filter(s => s.studentStatus === 'Active').length}
               </span>
             </button>
@@ -1481,7 +1449,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                      value={selectedBranchFilter} 
                      onChange={e => setSelectedBranchFilter(e.target.value)}
                      aria-label="Filter branch in cohort roster"
-                     className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] px-3 py-2 min-h-[40px] text-xs focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                     className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] px-3 py-2 min-h-[40px] text-xs focus:outline-none focus:border-[#EF2F38] cursor-pointer pointer-coarse:min-h-11"
                    >
                       <option value="All">{t('dir_all_branches')}</option>
                       <option value="ClassBranch">{t('sch_home_branch_only')}</option>
@@ -1496,7 +1464,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                      value={selectedBeltFilter} 
                      onChange={e => setSelectedBeltFilter(e.target.value)}
                      aria-label="Filter belt in cohort roster"
-                     className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] px-3 py-2 min-h-[40px] text-xs focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                     className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] px-3 py-2 min-h-[40px] text-xs focus:outline-none focus:border-[#EF2F38] cursor-pointer pointer-coarse:min-h-11"
                    >
                       <option value="All">{t('dir_all_belts')}</option>
                       {BELTS.map(b => (
@@ -1525,7 +1493,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                      <button
                        type="button"
                        onClick={toggleSelectAll}
-                       className="flex items-center gap-1.5 font-bold text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white cursor-pointer bg-neutral-100 dark:bg-[#1C1C1C] px-2.5 py-1.5 min-h-[34px] rounded-[8px] border border-neutral-200 dark:border-neutral-800 transition-colors active:scale-95 touch-manipulation"
+                       className="flex items-center gap-1.5 font-bold text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white cursor-pointer bg-neutral-100 dark:bg-[#1C1C1C] px-2.5 py-1.5 min-h-[34px] rounded-[8px] border border-neutral-200 dark:border-neutral-800 transition-colors active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                      >
                        <CheckSquare className="w-3.5 h-3.5 text-[#EF2F38]" />
                        <span>{selectedStudentIds.size === filteredStudents.length ? 'Deselect All' : `Select All (${filteredStudents.length})`}</span>
@@ -1540,7 +1508,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                          value={turnoutSort}
                          onChange={e => setTurnoutSort(e.target.value as any)}
                          aria-label="Sort turnout"
-                         className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 text-[10px] rounded-[8px] px-2.5 py-1 min-h-[34px] cursor-pointer focus:outline-none font-semibold"
+                         className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 text-[10px] rounded-[8px] px-2.5 py-1 min-h-[34px] cursor-pointer focus:outline-none font-semibold pointer-coarse:min-h-11"
                        >
                          <option value="default">Sort: Name (A-Z)</option>
                          <option value="turnout-asc">Sort: Lowest Turnout First</option>
@@ -1565,7 +1533,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                              'Bulk Attendance Confirmation'
                            );
                         }}
-                        className="text-[#EF2F38] hover:text-[#EF2F38]/80 font-bold uppercase tracking-wider text-[9px] flex items-center gap-1 cursor-pointer bg-[#EF2F38]/5 border border-[#EF2F38]/10 px-2.5 py-1.5 min-h-[34px] rounded-[8px] transition-colors active:scale-95 touch-manipulation"
+                        className="text-[#EF2F38] hover:text-[#EF2F38]/80 font-bold uppercase tracking-wider text-[9px] flex items-center gap-1 cursor-pointer bg-[#EF2F38]/5 border border-[#EF2F38]/10 px-2.5 py-1.5 min-h-[34px] rounded-[8px] transition-colors active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                       >
                         <Check className="w-3 h-3"/> Mark All Present
                       </button>
@@ -1630,7 +1598,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                                 {student.khmerName && (
                                    <span className="text-[10px] text-neutral-600 dark:text-neutral-400 font-khmer">{student.khmerName}</span>
                                 )}
-                                <span className="inline-flex items-center justify-center px-2 py-0.5 bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-[8px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-300">
+                                <span className="inline-flex items-center justify-center px-2 py-0.5 bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-[9px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-300">
                                    {formatBelt(student.currentBelt, student.dob)}
                                 </span>
                              </div>
@@ -1640,7 +1608,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                                 <span className="flex items-center gap-1">
                                    <MapPin className="w-3 h-3 text-[#EF2F38] shrink-0"/>
                                    {isHomeBranch ? (
-                                     <span className="text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-wider text-[8px] bg-emerald-500/10 border border-emerald-500/20 px-1 py-0.5 rounded-[6px]">{t('sch_badge_home_branch')}</span>
+                                     <span className="text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-wider text-[9px] bg-emerald-500/10 border border-emerald-500/20 px-1 py-0.5 rounded-[6px]">{t('sch_badge_home_branch')}</span>
                                    ) : (
                                      <span className="truncate">{studentBranch?.name || t('sch_external_branch')}</span>
                                    )}
@@ -1693,7 +1661,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                                      type="button"
                                      onClick={() => handleQuickAttendance(student.id, 'Present')}
                                      className={cn(
-                                       "min-w-[38px] sm:min-w-[36px] min-h-[38px] sm:min-h-[36px] px-2.5 py-1.5 rounded-[6px] text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all duration-150 cursor-pointer border active:scale-90 touch-manipulation",
+                                       "min-w-[38px] sm:min-w-[36px] min-h-[38px] sm:min-h-[36px] px-2.5 py-1.5 rounded-[6px] text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all duration-150 cursor-pointer border active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11",
                                        currentStatus === 'Present'
                                          ? "bg-green-500/20 border-green-500/50 text-green-700 dark:text-green-400 font-black shadow-sm"
                                          : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-green-700 dark:hover:text-green-400 hover:bg-green-500/10 font-bold"
@@ -1706,7 +1674,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                                      type="button"
                                      onClick={() => handleQuickAttendance(student.id, 'Late')}
                                      className={cn(
-                                       "min-w-[38px] sm:min-w-[36px] min-h-[38px] sm:min-h-[36px] px-2.5 py-1.5 rounded-[6px] text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all duration-150 cursor-pointer border active:scale-90 touch-manipulation",
+                                       "min-w-[38px] sm:min-w-[36px] min-h-[38px] sm:min-h-[36px] px-2.5 py-1.5 rounded-[6px] text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all duration-150 cursor-pointer border active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11",
                                        currentStatus === 'Late'
                                          ? "bg-amber-500/20 border-amber-500/50 text-amber-700 dark:text-amber-400 font-black shadow-sm"
                                          : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-amber-700 dark:hover:text-amber-400 hover:bg-amber-500/10 font-bold"
@@ -1719,7 +1687,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                                      type="button"
                                      onClick={() => handleQuickAttendance(student.id, 'Absent')}
                                      className={cn(
-                                       "min-w-[38px] sm:min-w-[36px] min-h-[38px] sm:min-h-[36px] px-2.5 py-1.5 rounded-[6px] text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all duration-150 cursor-pointer border active:scale-90 touch-manipulation",
+                                       "min-w-[38px] sm:min-w-[36px] min-h-[38px] sm:min-h-[36px] px-2.5 py-1.5 rounded-[6px] text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all duration-150 cursor-pointer border active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11",
                                        currentStatus === 'Absent'
                                          ? "bg-red-500/20 border-red-500/50 text-red-700 dark:text-red-400 font-black shadow-sm"
                                          : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-500/10 font-bold"
@@ -1736,7 +1704,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                             disabled={isProcessingId !== null || (isFull && !isEnrolled)}
                             onClick={() => handleToggleEnroll(student.id, isEnrolled)}
                             className={cn(
-                              "w-full sm:w-auto px-4 py-2 min-h-[40px] rounded-[8px] text-[11px] font-black uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 border shadow-sm disabled:opacity-40 select-none cursor-pointer active:scale-95 touch-manipulation",
+                              "w-full sm:w-auto px-4 py-2 min-h-[40px] rounded-[8px] text-[11px] font-black uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 border shadow-sm disabled:opacity-40 select-none cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                               isEnrolled 
                                 ? "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500"
                                 : conflicts.length > 0
@@ -1789,7 +1757,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                type="button"
                disabled={isBatchEnrolling || isFull}
                onClick={handleBatchEnroll}
-               className="px-4 py-2 min-h-[42px] bg-[#EF2F38] text-white rounded-[8px] text-[10px] font-black uppercase tracking-wider hover:bg-[#d4252e] transition-colors flex items-center gap-2 shadow-md disabled:opacity-50 cursor-pointer active:scale-95 touch-manipulation"
+               className="px-4 py-2 min-h-[42px] bg-[#EF2F38] text-white rounded-[8px] text-[10px] font-black uppercase tracking-wider hover:bg-[#d4252e] transition-colors flex items-center gap-2 shadow-md disabled:opacity-50 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
              >
                {isBatchEnrolling ? (
                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />

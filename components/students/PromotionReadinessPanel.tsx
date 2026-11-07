@@ -54,15 +54,15 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                   )}
                 >
                   <div className="space-y-0.5 sm:space-y-1 min-w-0">
-                    <p className="text-[8px] sm:text-[10px] text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-wider truncate flex items-center gap-1.5">
+                    <p className="text-[9px] sm:text-[10px] text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-wider truncate flex items-center gap-1.5">
                       <span>Test-Ready</span>
-                      {filterEligibility === 'Ready' && <span className="text-[7px] px-1 py-0.2 bg-emerald-500 text-white rounded font-mono font-black">ACTIVE</span>}
+                      {filterEligibility === 'Ready' && <span className="text-[9px] px-1 py-0.2 bg-emerald-500 text-white rounded font-mono font-black">ACTIVE</span>}
                     </p>
                     <h4 className="text-base sm:text-2xl font-black text-emerald-700 dark:text-emerald-400 font-mono flex items-center gap-1.5">
                       {totalReadyCandidates}
                       {totalReadyCandidates > 0 && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />}
                     </h4>
-                    <p className="text-[8px] text-neutral-400 dark:text-[#666] font-mono truncate hidden sm:block">Eligible for promotion</p>
+                    <p className="text-[9px] text-neutral-400 dark:text-[#666] font-mono truncate hidden sm:block">Eligible for promotion</p>
                   </div>
                   <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-emerald-500/10 dark:bg-green-500/10 border border-emerald-500/30 dark:border-green-500/20 flex items-center justify-center text-emerald-700 dark:text-green-400 shrink-0 ml-1">
                     <Checks className="w-3.5 h-3.5 sm:w-5 sm:h-5" weight="bold" />
@@ -81,14 +81,14 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                   )}
                 >
                   <div className="space-y-0.5 sm:space-y-1 min-w-0">
-                    <p className="text-[8px] sm:text-[10px] text-amber-700 dark:text-amber-400 font-bold uppercase tracking-wider truncate flex items-center gap-1.5">
+                    <p className="text-[9px] sm:text-[10px] text-amber-700 dark:text-amber-400 font-bold uppercase tracking-wider truncate flex items-center gap-1.5">
                       <span>Developing</span>
-                      {filterEligibility === 'Developing' && <span className="text-[7px] px-1 py-0.2 bg-amber-500 text-black rounded font-mono font-black">ACTIVE</span>}
+                      {filterEligibility === 'Developing' && <span className="text-[9px] px-1 py-0.2 bg-amber-500 text-black rounded font-mono font-black">ACTIVE</span>}
                     </p>
                     <h4 className="text-base sm:text-2xl font-black text-amber-700 dark:text-amber-400 font-mono">
                       {totalDevelopingCandidates}
                     </h4>
-                    <p className="text-[8px] text-neutral-400 dark:text-[#666] font-mono truncate hidden sm:block">In-progress candidates</p>
+                    <p className="text-[9px] text-neutral-400 dark:text-[#666] font-mono truncate hidden sm:block">In-progress candidates</p>
                   </div>
                   <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0 ml-1">
                     <Clock className="w-3.5 h-3.5 sm:w-5 sm:h-5" weight="bold" />
@@ -98,7 +98,7 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                 {/* 3. Average PRI Score across active roster */}
                 <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2.5 sm:p-4 flex items-center justify-between shadow-xs">
                   <div className="space-y-0.5 sm:space-y-1 min-w-0 flex-1 pr-2">
-                    <p className="text-[8px] sm:text-[10px] text-neutral-500 dark:text-[#888] font-bold uppercase tracking-wider truncate">Avg Roster PRI</p>
+                    <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-[#888] font-bold uppercase tracking-wider truncate">Avg Roster PRI</p>
                     <h4 className="text-base sm:text-2xl font-black text-neutral-900 dark:text-white font-mono">{avgPri}%</h4>
                     <div className="w-full bg-neutral-200 dark:bg-[#202020] h-1 sm:h-1.5 rounded-full overflow-hidden mt-1 max-w-[120px]">
                       <div
@@ -119,9 +119,9 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                   className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] hover:border-red-500/40 rounded-[8px] p-2.5 sm:p-4 flex items-center justify-between text-left transition-all duration-200 cursor-pointer active:scale-95 touch-manipulation shadow-xs"
                 >
                   <div className="space-y-0.5 sm:space-y-1 min-w-0">
-                    <p className="text-[8px] sm:text-[10px] text-neutral-500 dark:text-[#888] font-bold uppercase tracking-wider truncate">Recent Promoted</p>
+                    <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-[#888] font-bold uppercase tracking-wider truncate">Recent Promoted</p>
                     <h4 className="text-base sm:text-2xl font-black text-neutral-900 dark:text-white font-mono">{recentPromotionsCount}</h4>
-                    <p className="text-[8px] text-[#EF2F38] font-mono truncate hidden sm:block">View history ledger →</p>
+                    <p className="text-[9px] text-[#EF2F38] font-mono truncate hidden sm:block">View history ledger →</p>
                   </div>
                   <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-600 dark:text-red-500 shrink-0 ml-1">
                     <ShieldCheck className="w-3.5 h-3.5 sm:w-5 sm:h-5" weight="bold" />
@@ -268,11 +268,11 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                               </td>
                               <td className="px-4 py-2.5">
                                 <div className="flex items-center gap-1.5">
-                                  <span className={cn("px-2 py-0.5 rounded text-[8px] font-bold border tracking-wider uppercase", student.currentBelt.toLowerCase().includes('poom') || student.currentBelt.toLowerCase().includes('dan') || student.currentBelt.toLowerCase() === 'black' ? "bg-neutral-900 text-white border-neutral-700 dark:bg-black dark:text-neutral-100 dark:border-neutral-700" : student.currentBelt === 'Red' ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30" : student.currentBelt === 'Brown' ? "bg-amber-900/10 text-amber-800 dark:text-amber-500 border-amber-800/30" : student.currentBelt === 'Blue' ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30" : student.currentBelt === 'Green' ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : student.currentBelt === 'White' ? "bg-neutral-100 text-neutral-800 dark:bg-white/10 dark:text-neutral-200 border-neutral-300 dark:border-white/20" : "bg-yellow-500/15 text-yellow-800 dark:text-yellow-400 border-yellow-500/40" )}>
+                                  <span className={cn("px-2 py-0.5 rounded text-[9px] font-bold border tracking-wider uppercase", student.currentBelt.toLowerCase().includes('poom') || student.currentBelt.toLowerCase().includes('dan') || student.currentBelt.toLowerCase() === 'black' ? "bg-neutral-900 text-white border-neutral-700 dark:bg-black dark:text-neutral-100 dark:border-neutral-700" : student.currentBelt === 'Red' ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30" : student.currentBelt === 'Brown' ? "bg-amber-900/10 text-amber-800 dark:text-amber-500 border-amber-800/30" : student.currentBelt === 'Blue' ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30" : student.currentBelt === 'Green' ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : student.currentBelt === 'White' ? "bg-neutral-100 text-neutral-800 dark:bg-white/10 dark:text-neutral-200 border-neutral-300 dark:border-white/20" : "bg-yellow-500/15 text-yellow-800 dark:text-yellow-400 border-yellow-500/40" )}>
                                     {student.currentBelt}
                                   </span>
                                   <CaretRight className="w-3 h-3 text-neutral-400 dark:text-[#666]" />
-                                  <span className="px-2 py-0.5 rounded text-[8px] font-bold border tracking-wider uppercase bg-red-500/10 dark:bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30 font-mono">
+                                  <span className="px-2 py-0.5 rounded text-[9px] font-bold border tracking-wider uppercase bg-red-500/10 dark:bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30 font-mono">
                                     {targetBelt}
                                   </span>
                                 </div>
@@ -334,7 +334,7 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                               </td>
                               <td className="px-4 py-2.5 text-center">
                                 <span className={cn(
-                                  "inline-block px-2.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider border",
+                                  "inline-block px-2.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border",
                                   eligibilityStatus === 'Ready' ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20" :
                                   eligibilityStatus === 'Developing' ? "bg-yellow-500/10 text-yellow-700 dark:text-yellow-500 border-yellow-500/20" :
                                   "bg-neutral-200 dark:bg-neutral-500/10 text-neutral-600 dark:text-[#666] border-neutral-300 dark:border-transparent"
@@ -422,7 +422,7 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
 
                             <div className="flex items-center gap-1.5 shrink-0">
                               <span className={cn(
-                                "px-1.5 py-0.5 rounded text-[8px] font-mono font-bold border",
+                                "px-1.5 py-0.5 rounded text-[9px] font-mono font-bold border",
                                 pri >= 80 ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" :
                                 pri >= 50 ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30" :
                                 "bg-neutral-100 dark:bg-[#1A1A1A] text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-[#262626]"
@@ -430,7 +430,7 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                                 {pri}% PRI
                               </span>
                               <span className={cn(
-                                "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider border",
+                                "px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border",
                                 eligibilityStatus === 'Ready' ? "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30" :
                                 eligibilityStatus === 'Developing' ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30" :
                                 "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-[#777] border-neutral-200 dark:border-[#262626]"

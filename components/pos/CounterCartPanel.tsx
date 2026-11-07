@@ -73,7 +73,7 @@ interface CounterCartPanelProps {
 export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTotal, resumeParkedCart, discardParkedCart, cart, parkCurrentCart, clearCart, studentComboboxRef, selectedStudentId, setSelectedStudentId, setStudentSearchTerm, selectedStudent, getBeltColorClass, state, studentSearchTerm, setIsStudentDropdownOpen, isStudentDropdownOpen, filteredStudents, getCartItemKey, updateQuantity, removeFromCart, setIsNotesExpanded, isNotesExpanded, orderNotes, setOrderNotes, clampedDiscount, discountPercent, setDiscountPercent, subtotal, discountAmount, grandTotal, setPaymentMethod, paymentMethod, cashTendered, setCashTendered, isCashInsufficient, tenderedAmountNumber, changeDue, setIsKhqrModalOpen, canCreateOrder, executeCompleteSale, isCatalogLoading, dataErrors, isCheckoutPending }: CounterCartPanelProps) {
   return <>{<div
             id="pos-checkout-cart"
-            className="lg:col-span-4 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-90px)] flex flex-col bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 shadow-sm relative"
+            className="lg:col-span-4 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100dvh-90px)] flex flex-col bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 shadow-sm relative"
           >
             {/* Parked / Held Cart Notification Banner */}
             {parkedCart && (
@@ -322,7 +322,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                         <button
                           type="button"
                           onClick={() => updateQuantity(itemKey, -1)}
-                          className="w-7 h-7 min-w-[28px] min-h-[28px] flex items-center justify-center bg-neutral-200 hover:bg-neutral-300 dark:bg-[#1a1a1a] dark:hover:bg-[#262626] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[6px] cursor-pointer active:scale-90 touch-manipulation"
+                          className="w-7 h-7 min-w-[28px] min-h-[28px] flex items-center justify-center bg-neutral-200 hover:bg-neutral-300 dark:bg-[#1a1a1a] dark:hover:bg-[#262626] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[6px] cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                           title="Decrease"
                         >
                           <Minus size={11} weight="bold" />
@@ -333,7 +333,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                         <button
                           type="button"
                           onClick={() => updateQuantity(itemKey, 1)}
-                          className="w-7 h-7 min-w-[28px] min-h-[28px] flex items-center justify-center bg-neutral-200 hover:bg-neutral-300 dark:bg-[#1a1a1a] dark:hover:bg-[#262626] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[6px] cursor-pointer active:scale-90 touch-manipulation"
+                          className="w-7 h-7 min-w-[28px] min-h-[28px] flex items-center justify-center bg-neutral-200 hover:bg-neutral-300 dark:bg-[#1a1a1a] dark:hover:bg-[#262626] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[6px] cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                           title="Increase"
                         >
                           <Plus size={11} weight="bold" />
@@ -341,7 +341,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                         <button
                           type="button"
                           onClick={() => removeFromCart(itemKey)}
-                          className="w-7 h-7 min-w-[28px] min-h-[28px] flex items-center justify-center text-neutral-400 hover:text-[#EF2F38] dark:text-neutral-500 dark:hover:text-[#EF2F38] ml-0.5 cursor-pointer transition-colors active:scale-90 touch-manipulation"
+                          className="w-7 h-7 min-w-[28px] min-h-[28px] flex items-center justify-center text-neutral-400 hover:text-[#EF2F38] dark:text-neutral-500 dark:hover:text-[#EF2F38] ml-0.5 cursor-pointer transition-colors active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                           title="Remove"
                         >
                           <Trash size={13} />
@@ -404,7 +404,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                       type="button"
                       onClick={() => setDiscountPercent(d)}
                       className={cn(
-                        "flex-1 py-1 min-h-[34px] text-[10px] font-mono rounded-[6px] border transition cursor-pointer font-bold active:scale-95 touch-manipulation",
+                        "flex-1 py-1 min-h-[34px] text-[10px] font-mono rounded-[6px] border transition cursor-pointer font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                         discountPercent === d
                           ? "bg-[#EF2F38] text-white border-[#EF2F38] shadow-sm"
                           : "bg-neutral-100 dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
@@ -498,7 +498,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                         key={bill}
                         type="button"
                         onClick={() => setCashTendered(String(bill))}
-                        className="flex-1 py-1.5 min-h-[36px] bg-white hover:bg-neutral-100 dark:bg-[#141414] dark:hover:bg-[#202020] border border-neutral-200 dark:border-[#262626] text-xs font-mono text-neutral-800 dark:text-[#ccc] rounded-[6px] transition cursor-pointer font-bold active:scale-95 touch-manipulation"
+                        className="flex-1 py-1.5 min-h-[36px] bg-white hover:bg-neutral-100 dark:bg-[#141414] dark:hover:bg-[#202020] border border-neutral-200 dark:border-[#262626] text-xs font-mono text-neutral-800 dark:text-[#ccc] rounded-[6px] transition cursor-pointer font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                       >
                         ${bill}
                       </button>
@@ -506,7 +506,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                     <button
                       type="button"
                       onClick={() => setCashTendered(grandTotal.toFixed(2))}
-                      className="px-2.5 py-1.5 min-h-[36px] bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 border border-emerald-300 dark:border-emerald-500/30 text-xs font-mono text-emerald-800 dark:text-emerald-400 font-bold rounded-[6px] transition cursor-pointer active:scale-95 touch-manipulation"
+                      className="px-2.5 py-1.5 min-h-[36px] bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 border border-emerald-300 dark:border-emerald-500/30 text-xs font-mono text-emerald-800 dark:text-emerald-400 font-bold rounded-[6px] transition cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                       title="Exact amount"
                     >
                       Exact

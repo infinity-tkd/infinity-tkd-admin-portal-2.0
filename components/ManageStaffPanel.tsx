@@ -1,4 +1,5 @@
 'use client';
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import { copyText } from '@/lib/clipboard';
 import { ContactActions, TelegramContactField } from './ContactActions';
 
@@ -334,6 +335,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
   return (
     <Portal>
       <div className="fixed inset-0 z-[100] flex justify-end">
+        <ModalA11y label="Staff profile" onClose={onClose} />
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -378,7 +380,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                     {copiedField === 'Username' ? (
                       <Check className="w-3 h-3 text-emerald-500" />
                     ) : (
-                      <Copy className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <Copy className="w-3 h-3 hover-reveal" />
                     )}
                   </button>
                   <span className={cn(
@@ -524,7 +526,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                           src={editForm.profilePicturePath}
                           alt="Preview"
                           containerClassName="w-9 h-9 rounded-[8px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] overflow-hidden flex items-center justify-center shadow-sm shrink-0"
-                          fallback={<span className="text-[7px] text-red-500 uppercase font-black">Err</span>}
+                          fallback={<span className="text-[9px] text-red-500 uppercase font-black">Err</span>}
                         />
                       )}
                     </div>
@@ -1285,6 +1287,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
         {showSaveConfirm && (
           <Portal>
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4 animate-in fade-in">
+              <ModalA11y label="Confirm staff changes" onClose={() => setShowSaveConfirm(false)} />
               <motion.div
                 {...dialogMotion}
                 className="w-full max-w-sm bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-6 text-center shadow-2xl flex flex-col items-center text-neutral-900 dark:text-white"
@@ -1333,6 +1336,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
       {showPasswordModal && (
         <Portal>
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+            <ModalA11y label="Reset staff password" onClose={() => setShowPasswordModal(false)} />
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
               <div className="p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#1A1A1A]">
                 <div className="flex items-center gap-2.5">
@@ -1423,6 +1427,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
       {showDanModal && (
         <Portal>
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+            <ModalA11y label="Kukkiwon Dan record" onClose={() => setShowDanModal(false)} />
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
               <div className="p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#1A1A1A]">
                 <div className="flex items-center gap-2.5">

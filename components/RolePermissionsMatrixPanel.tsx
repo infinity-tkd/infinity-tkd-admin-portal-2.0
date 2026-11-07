@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import React, { useState, useMemo } from 'react';
 import { useAppStore, Role, User } from '@/lib/store';
 import { PERMISSION_DEFINITIONS, ROLE_PERMISSIONS, PermissionKey, hasPermission, MODULE_DEFINITIONS, ModuleDefinition } from '@/lib/security';
@@ -18,7 +19,9 @@ import { Eye } from '@phosphor-icons/react/dist/csr/Eye';
 import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
 import { cn } from '@/lib/utils';
 import { playChime } from '@/lib/soundEffects';
-import { UserPermissionsModal } from './UserPermissionsModal';
+
+// Opened rarely: loaded on demand to keep this view's bundle small.
+const UserPermissionsModal = dynamic(() => import('./UserPermissionsModal').then(module => module.UserPermissionsModal), { ssr: false });
 
 const EDITABLE_ROLES: { role: Role; label: string; badgeClass: string }[] = [
   { role: 'Admin', label: 'Admin', badgeClass: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20' },

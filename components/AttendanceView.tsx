@@ -40,6 +40,7 @@ import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
 
 import { cn } from '@/lib/utils';
 import { useT } from '@/hooks/useTranslation';
+import { PageHeader, SegmentedTabs } from './ui/PageHeader';
 
 
 
@@ -567,37 +568,26 @@ export function AttendanceView() {
   };
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto space-y-4">
-      {/* Header Tabs */}
-      <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="text-base font-bold text-neutral-900 dark:text-white tracking-tight flex items-center gap-2">
-              <CalendarCheck className="w-5 h-5 text-[#EF2F38]"/>
-              {t('att_title')}
-            </h1>
-            <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono tracking-widest mt-0.5">{t('att_subtitle')}</p>
-            <Link href="/operations?view=sessions" className="mt-1 inline-flex min-h-11 items-center text-xs font-medium text-red-700 dark:text-red-300">Dated sessions, rescheduling and holidays</Link>
-          </div>
+    <div className="w-full max-w-[1600px] mx-auto space-y-4 pb-12 sm:space-y-5">
+      <PageHeader
+        icon={<CalendarCheck weight="bold" />}
+        eyebrow="Daily check-in"
+        title={t('att_title')}
+        description={t('att_subtitle')}
+        actions={<SegmentedTabs label="Attendance views" value={activeTab} onChange={setActiveTab} items={[
+          { id: 'roster', label: t('att_status'), icon: <UsersThree /> },
+          { id: 'analytics', label: t('lms_student_progress'), icon: <ChartLine /> },
+        ]} />}
+      >
+        <div className="mt-1 flex flex-wrap items-center gap-x-3">
+          <Link href="/operations?view=sessions" className="inline-flex min-h-11 items-center text-xs font-semibold text-brand hover:underline">Dated sessions, rescheduling and holidays</Link>
           {isReadOnlyAttendance && (
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-[8px] bg-blue-500/10 border border-blue-500/30 text-blue-700 dark:text-blue-400 text-xs font-bold uppercase tracking-wider">
-              <span>👁️</span> Read-Only Mode
+            <span className="inline-flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">
+              Read-Only Mode
             </span>
           )}
         </div>
-        <div className="flex w-full md:w-auto bg-neutral-100 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] p-1 shrink-0">
-          <button onClick={() => setActiveTab('roster')}
-            className={cn("flex-1 md:flex-none justify-center px-3 sm:px-4 py-2 min-h-[38px] rounded-[6px] flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all active:scale-95 touch-manipulation cursor-pointer", activeTab === 'roster' ? "bg-white dark:bg-[#1C1C1C] text-neutral-900 dark:text-white shadow-sm font-black" : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white")}
-          >
-            <UsersThree className="w-3.5 h-3.5"/> {t('att_status')}
-          </button>
-          <button onClick={() => setActiveTab('analytics')}
-            className={cn("flex-1 md:flex-none justify-center px-3 sm:px-4 py-2 min-h-[38px] rounded-[6px] flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all active:scale-95 touch-manipulation cursor-pointer", activeTab === 'analytics' ? "bg-white dark:bg-[#1C1C1C] text-neutral-900 dark:text-white shadow-sm font-black" : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white")}
-          >
-            <ChartLine className="w-3.5 h-3.5"/> {t('lms_student_progress')}
-          </button>
-        </div>
-      </div>
+      </PageHeader>
 
       <MakeupAttendancePanel />
       {activeTab === 'roster' && <AttendanceRosterPanel t={t} selectedDate={selectedDate} setSelectedDate={setSelectedDate} setStatusFilter={setStatusFilter} isReadOnlyAttendance={isReadOnlyAttendance} setIsKioskOpen={setIsKioskOpen} requestCommitRoster={requestCommitRoster} isCommitting={isCommitting} filteredStudents={filteredStudents} isAttendanceLocked={isAttendanceLocked} search={search} setSearch={setSearch} filterBranch={filterBranch} setFilterBranch={setFilterBranch} setFilterClass={setFilterClass} state={state} filterClass={filterClass} branchClasses={branchClasses} selectedClassObj={selectedClassObj} getLocalizedDayName={getLocalizedDayName} selectedClassCoach={selectedClassCoach} isScheduleMismatch={isScheduleMismatch} selectedDateDay={selectedDateDay} overrideMismatch={overrideMismatch} setOverrideMismatch={setOverrideMismatch} statusFilter={statusFilter} totalRosterCount={totalRosterCount} presentRosterCount={presentRosterCount} lateRosterCount={lateRosterCount} absentRosterCount={absentRosterCount} unmarkedRosterCount={unmarkedRosterCount} canBulkAction={canBulkAction} requestBulkMark={requestBulkMark} finalFilteredStudents={finalFilteredStudents} lang={lang} requestResetSelection={requestResetSelection} markedPercentage={markedPercentage} commitMessage={commitMessage} selectedAttendance={selectedAttendance} getStudentEnrollDate={getStudentEnrollDate} setStatsStudentId={setStatsStudentId} canMarkAttendance={canMarkAttendance} canDeleteAttendance={canDeleteAttendance} markAttendance={handleRosterMark} />}
@@ -639,7 +629,7 @@ export function AttendanceView() {
 
               <button
                 onClick={() => setConfirmModal(null)}
-                className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
+                className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center pointer-coarse:min-h-11 pointer-coarse:min-w-11"
               >
                 <X className="w-4 h-4" />
               </button>

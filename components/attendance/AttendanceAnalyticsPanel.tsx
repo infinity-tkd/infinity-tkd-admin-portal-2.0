@@ -57,12 +57,12 @@ export function AttendanceAnalyticsPanel({ t, academyAttendanceRate, studentAtte
                <h2 className="text-xl sm:text-2xl font-mono text-amber-600 dark:text-amber-400 font-bold">
                  {studentAttendanceRates.filter(sar => sar.rate === 100 && sar.totalSessions >= 3).length}
                </h2>
-               <p className="text-[8.5px] sm:text-[9px] text-neutral-500 dark:text-[#888] mt-1.5 sm:mt-2 font-mono uppercase tracking-tight truncate">{t('att_min_3_sessions')}</p>
+               <p className="text-[9px] text-neutral-500 dark:text-[#888] mt-1.5 sm:mt-2 font-mono uppercase tracking-tight truncate">{t('att_min_3_sessions')}</p>
              </div>
              <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-5 shadow-sm">
                <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-[#888] uppercase font-bold tracking-widest mb-1 truncate">{t('att_total_classes')}</p>
                <h2 className="text-xl sm:text-2xl font-mono text-indigo-600 dark:text-indigo-400 font-bold">{totalRecordsCount}</h2>
-               <p className="text-[8.5px] sm:text-[9px] text-neutral-500 dark:text-[#888] mt-1.5 sm:mt-2 font-mono uppercase tracking-tight truncate">{t('att_lifetime_records')}</p>
+               <p className="text-[9px] text-neutral-500 dark:text-[#888] mt-1.5 sm:mt-2 font-mono uppercase tracking-tight truncate">{t('att_lifetime_records')}</p>
              </div>
              <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-5 shadow-sm">
                 <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-[#888] uppercase font-bold tracking-widest mb-1 truncate">{t('att_discipline_status')}</p>
@@ -94,7 +94,7 @@ export function AttendanceAnalyticsPanel({ t, academyAttendanceRate, studentAtte
                       <div className="flex items-center gap-4">
                          <div className="text-right">
                             <span className="text-xs font-mono text-neutral-900 dark:text-white font-bold">{ba.attendanceRate}%</span>
-                            <p className="text-[8px] text-neutral-600 dark:text-neutral-400 uppercase font-bold">{t('nav_attendance')}</p>
+                            <p className="text-[9px] text-neutral-600 dark:text-neutral-400 uppercase font-bold">{t('nav_attendance')}</p>
                          </div>
                          <div className="w-16 h-1.5 bg-neutral-100 dark:bg-[#0F0F0F] rounded-full overflow-hidden border border-neutral-200 dark:border-[#262626]/40">
                            <div className="h-full bg-[#EF2F38]" style={{ width: `${ba.attendanceRate}%` }} />
@@ -612,7 +612,7 @@ export function AttendanceAnalyticsPanel({ t, academyAttendanceRate, studentAtte
                           e.stopPropagation();
                           setStatsStudentId(st.student.id);
                         }}
-                        className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1F1F1F] dark:hover:bg-[#2A2A2A] text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-[#333] transition-colors cursor-pointer active:scale-95 touch-manipulation min-h-[32px] flex items-center gap-1"
+                        className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1F1F1F] dark:hover:bg-[#2A2A2A] text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-[#333] transition-colors cursor-pointer active:scale-95 touch-manipulation min-h-[32px] flex items-center gap-1 pointer-coarse:min-h-11"
                       >
                         History
                       </button>

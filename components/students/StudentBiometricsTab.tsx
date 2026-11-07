@@ -167,7 +167,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                       <h4 className="text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] font-mono tracking-wider mb-2">{"// Torso Circumferences"}</h4>
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                         <div>
-                          <label className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_neck')}</label>
+                          <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_neck')}</label>
                           <input
                             type="number"
                             step="0.1"
@@ -178,7 +178,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           />
                         </div>
                         <div>
-                          <label className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_shoulder_width')}</label>
+                          <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_shoulder_width')}</label>
                           <input
                             type="number"
                             step="0.1"
@@ -189,7 +189,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           />
                         </div>
                         <div>
-                          <label className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_chest')}</label>
+                          <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_chest')}</label>
                           <input
                             type="number"
                             step="0.1"
@@ -200,7 +200,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           />
                         </div>
                         <div>
-                          <label className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_waist')}</label>
+                          <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_waist')}</label>
                           <input
                             type="number"
                             step="0.1"
@@ -211,7 +211,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           />
                         </div>
                         <div>
-                          <label className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_hips')}</label>
+                          <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_hips')}</label>
                           <input
                             type="number"
                             step="0.1"
@@ -229,7 +229,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                       <h4 className="text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] font-mono tracking-wider mb-2">{"// Limbs Circumferences"}</h4>
                       <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
                         <div>
-                          <label className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_left_arm')}</label>
+                          <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_left_arm')}</label>
                           <input
                             type="number"
                             step="0.1"
@@ -240,7 +240,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           />
                         </div>
                         <div>
-                          <label className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_right_arm')}</label>
+                          <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_right_arm')}</label>
                           <input
                             type="number"
                             step="0.1"
@@ -251,7 +251,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           />
                         </div>
                         <div>
-                          <label className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">L Thigh</label>
+                          <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">L Thigh</label>
                           <input
                             type="number"
                             step="0.1"
@@ -262,7 +262,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           />
                         </div>
                         <div>
-                          <label className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">R Thigh</label>
+                          <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">R Thigh</label>
                           <input
                             type="number"
                             step="0.1"
@@ -273,7 +273,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           />
                         </div>
                         <div>
-                          <label className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">L Calf</label>
+                          <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">L Calf</label>
                           <input
                             type="number"
                             step="0.1"
@@ -284,7 +284,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           />
                         </div>
                         <div>
-                          <label className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">R Calf</label>
+                          <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">R Calf</label>
                           <input
                             type="number"
                             step="0.1"

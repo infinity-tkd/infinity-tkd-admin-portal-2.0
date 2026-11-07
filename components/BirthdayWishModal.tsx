@@ -1,5 +1,6 @@
 'use client';
 
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import { dialogMotion } from '@/lib/motion';
 import React, { useState, useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
@@ -51,6 +52,7 @@ export function BirthdayWishModal() {
       {show && (
         <Portal>
           <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 pt-[env(safe-area-inset-top)] pb-[calc(1rem+env(safe-area-inset-bottom))] animate-in fade-in">
+            <ModalA11y label="Birthday wishes" onClose={handleClose} />
             <motion.div
               {...dialogMotion}
 

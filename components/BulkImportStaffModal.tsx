@@ -1,4 +1,5 @@
 'use client';
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import { copyText } from '@/lib/clipboard';
 
 import Papa from 'papaparse';
@@ -479,6 +480,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
   return (
     <Portal>
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+        <ModalA11y label="Bulk import staff" onClose={onClose} locked={isProcessing} />
         <div className="w-full max-w-4xl bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col max-h-[94dvh] overflow-hidden text-neutral-900 dark:text-white">
 
           {/* Header */}

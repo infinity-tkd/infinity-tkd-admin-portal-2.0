@@ -306,7 +306,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                           <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">{t('panel_guardian_name')}</p>
                           <p className="text-xs text-neutral-900 dark:text-white font-bold mt-0.5">{student.emergencyContactName || '—'}</p>
                           {student.emergencyContactRelation && (
-                            <span className="inline-block mt-1 text-[8px] bg-neutral-100 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300 font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-[8px] border border-neutral-200 dark:border-[#333]">
+                            <span className="inline-block mt-1 text-[9px] bg-neutral-100 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300 font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-[8px] border border-neutral-200 dark:border-[#333]">
                               {student.emergencyContactRelation}
                             </span>
                           )}
@@ -392,7 +392,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                           return (
                             <div className="mt-1 flex flex-col items-center gap-1">
                               <p className="text-sm font-mono font-bold text-neutral-900 dark:text-white">{bmiVal}</p>
-                              <span className={cn("text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border", info.color)}>
+                              <span className={cn("text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border", info.color)}>
                                 {info.label}
                               </span>
                             </div>
@@ -596,7 +596,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                         <div className="flex items-center gap-2 flex-wrap">
                                           <span className="font-bold text-neutral-900 dark:text-white">{c.name}</span>
                                           <span className={cn(
-                                            "px-1.5 py-0.5 rounded-[8px] text-[8px] font-bold uppercase tracking-wider border",
+                                            "px-1.5 py-0.5 rounded-[8px] text-[9px] font-bold uppercase tracking-wider border",
                                             c.classType === 'Elite Team' ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' :
                                             c.classType === 'Kid Class' ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20' :
                                             c.classType === 'Private Class' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' :

@@ -2,10 +2,11 @@
 import React, { useId } from 'react';
 import { cn } from '@/lib/utils';
 
-export const inputClass = 'h-10 w-full rounded-lg border border-neutral-300 bg-white px-3 text-sm text-neutral-900 focus:border-[#EF2F38] focus:outline-none disabled:opacity-60 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white';
-export const primaryButton = 'inline-flex min-h-10 items-center justify-center rounded-lg bg-[#EF2F38] px-4 py-2 text-xs font-bold text-white hover:bg-[#d6262f] disabled:opacity-40';
-export const secondaryButton = 'inline-flex min-h-10 items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-800 hover:bg-neutral-50 disabled:opacity-40 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800';
-export const cardClass = 'rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-[#141414]';
+// Belt-test controls use the portal theme tokens (see components/ui/styles.ts).
+export const inputClass = 'min-h-11 w-full rounded-lg border border-line-strong bg-surface-muted px-3 text-sm text-ink placeholder:text-ink-subtle focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20 disabled:opacity-60 dark:border-line dark:bg-control';
+export const primaryButton = 'inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-xs font-bold text-on-brand shadow-sm hover:bg-brand-strong disabled:opacity-40 touch-manipulation';
+export const secondaryButton = 'inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-line bg-control px-3 py-2 text-xs font-semibold text-ink hover:bg-control-hover disabled:opacity-40 touch-manipulation';
+export const cardClass = 'rounded-lg border border-line bg-surface p-4 shadow-xs';
 
 export function Labeled({ label, children, wide = false, hint }: { label: string; children: React.ReactElement<{ id?: string; 'aria-describedby'?: string }>; wide?: boolean; hint?: string }) {
   const id = useId(), hintId = useId();

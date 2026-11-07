@@ -218,7 +218,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                                     className="w-full px-4 py-2.5 text-left text-xs text-neutral-700 dark:text-neutral-300 hover:bg-[#EF2F38]/5 hover:text-[#EF2F38] dark:hover:bg-[#EF2F38]/10 dark:hover:text-[#EF2F38] transition-colors flex justify-between items-center group font-medium cursor-pointer"
                                   >
                                     <span>{exercise}</span>
-                                    <Plus className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 text-[#EF2F38] transition-opacity" />
+                                    <Plus aria-hidden="true" className="hover-reveal w-3.5 h-3.5 text-[#EF2F38]" />
                                   </button>
                                 ))
                               ) : !exerciseSearch.trim() ? (
@@ -338,7 +338,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                       {newRoutine.publishToStudents && <label className="block text-xs font-medium">Publication reason<textarea required minLength={5} maxLength={500} rows={2} value={newRoutine.publicationReason} onChange={event => setNewRoutine({ ...newRoutine, publicationReason: event.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white p-2 text-sm dark:border-neutral-700 dark:bg-neutral-950" /></label>}
                     </div>
              <button type="submit" disabled={isSaving || !newRoutine.selectedExercises.length || (newRoutine.publishToStudents && newRoutine.publicationReason.trim().length < 5)}
-               className="w-full bg-amber-500 text-black hover:bg-amber-600 py-3 min-h-[42px] rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all mt-2 cursor-pointer shadow-sm active:scale-95 touch-manipulation"
+               className="w-full bg-amber-500 text-black hover:bg-amber-600 py-3 min-h-[42px] rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all mt-2 cursor-pointer shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
              >
                {isSaving ? 'Saving…' : newRoutine.publishToStudents ? 'Publish routine' : 'Save private draft'}
              </button>

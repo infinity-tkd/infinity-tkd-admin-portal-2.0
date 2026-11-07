@@ -239,20 +239,20 @@ export function AttendanceDatePicker({ value, onChange }: DatePickerProps) {
               <button
                 type="button"
                 onClick={() => handleQuickSelect(0)}
-                className="py-1 bg-neutral-100 dark:bg-[#0F0F0F] hover:bg-neutral-200 dark:hover:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-[8px] font-black uppercase tracking-wider text-center text-neutral-800 dark:text-[#E4E4E4] transition-colors cursor-pointer"
+                className="py-1 bg-neutral-100 dark:bg-[#0F0F0F] hover:bg-neutral-200 dark:hover:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-[9px] font-black uppercase tracking-wider text-center text-neutral-800 dark:text-[#E4E4E4] transition-colors cursor-pointer"
               >
                 {lang === 'kh' ? 'ថ្ងៃនេះ' : lang === 'zh' ? '今天' : 'Today'}
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickSelect(-1)}
-                className="py-1 bg-neutral-100 dark:bg-[#0F0F0F] hover:bg-neutral-200 dark:hover:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-[8px] font-black uppercase tracking-wider text-center text-neutral-800 dark:text-[#E4E4E4] transition-colors cursor-pointer"
+                className="py-1 bg-neutral-100 dark:bg-[#0F0F0F] hover:bg-neutral-200 dark:hover:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-[9px] font-black uppercase tracking-wider text-center text-neutral-800 dark:text-[#E4E4E4] transition-colors cursor-pointer"
               >
                 {lang === 'kh' ? 'ម្សិលមិញ' : lang === 'zh' ? '昨天' : 'Yesterday'}
               </button>
             </div>
 
-            <div className="grid grid-cols-7 gap-1 text-center py-2 text-[7px] font-black uppercase tracking-widest text-neutral-600 dark:text-neutral-400">
+            <div className="grid grid-cols-7 gap-1 text-center py-2 text-[9px] font-black uppercase tracking-widest text-neutral-600 dark:text-neutral-400">
               <span>{t('day_short_mon')}</span>
               <span>{t('day_short_tue')}</span>
               <span>{t('day_short_wed')}</span>

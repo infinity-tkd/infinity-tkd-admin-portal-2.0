@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useModalFocus } from '@/hooks/use-modal-focus';
 import { X } from '@phosphor-icons/react/dist/csr/X';
 import { Pulse } from '@phosphor-icons/react/dist/csr/Pulse';
 
@@ -33,6 +34,8 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
   const [storageEstimate, setStorageEstimate] = useState<{ usage: number; quota: number } | null>(null);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const dialog = useRef<HTMLDivElement>(null);
+  useModalFocus(dialog, onClose, isOpen);
 
   const loadDiagnostics = async () => {
     setIsRefreshing(true);
@@ -144,7 +147,9 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
   return (
     <Portal>
       <div
-        className="fixed inset-0 z-[120] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+        ref={dialog}
+        tabIndex={-1}
+        className="fixed inset-0 z-[120] bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200 outline-none"
         onClick={onClose}
         role="dialog"
         aria-modal="true"

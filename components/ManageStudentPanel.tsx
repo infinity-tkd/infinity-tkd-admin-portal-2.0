@@ -1,4 +1,5 @@
 'use client';
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import { copyText } from '@/lib/clipboard';
 import { MembershipSchedulePanel } from './MembershipSchedulePanel';
 import { StudentTimeline } from './operations/StudentTimeline';
@@ -51,7 +52,6 @@ import { Portal } from '@/components/Portal';
 import { SafeImage } from '@/components/SafeImage';
 
 import { useT } from '@/hooks/useTranslation';
-import { StudentDossierModal } from '@/components/StudentDossierModal';
 import dynamic from 'next/dynamic';
 
 
@@ -59,6 +59,9 @@ import { AnatomyStudioModal } from './AnatomyStudioModal';
 import { resolveStudentMuscleLoads } from '@/lib/anatomy-integration';
 
 import type { BulkBeltRow, BulkAchievementRow } from '@/components/students/student-editor-types';
+
+// Opened rarely: loaded on demand to keep this view's bundle small.
+const StudentDossierModal = dynamic(() => import('@/components/StudentDossierModal').then(module => module.StudentDossierModal), { ssr: false });
 const StudentProfileEditor = dynamic(() => import('@/components/students/StudentProfileEditor').then(module => module.StudentProfileEditor), { ssr: false, loading: () => <p role="status" className="p-4 text-sm text-neutral-500">Loading…</p> });
 const StudentProfileOverview = dynamic(() => import('@/components/students/StudentProfileOverview').then(module => module.StudentProfileOverview), { ssr: false, loading: () => <p role="status" className="p-4 text-sm text-neutral-500">Loading…</p> });
 const StudentBeltsTab = dynamic(() => import('@/components/students/StudentBeltsTab').then(module => module.StudentBeltsTab), { ssr: false, loading: () => <p role="status" className="p-4 text-sm text-neutral-500">Loading…</p> });
@@ -836,12 +839,13 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
         animate={isMobile ? { y: 0 } : { x: 0 }}
         exit={isMobile ? { y: '100%' } : { x: '100%' }}
         className={cn(
-          "fixed inset-x-0 bottom-0 top-[10vh] rounded-t-[8px] md:inset-x-auto md:top-0 md:inset-y-0 md:right-0 w-full bg-white dark:bg-[#0A0A0A] border-t md:border-t-0 md:border-l border-neutral-200 dark:border-[#262626] z-50 flex flex-col shadow-2xl md:rounded-none overflow-hidden text-neutral-900 dark:text-white transition-all duration-355 ease-in-out",
+          "fixed inset-x-0 bottom-0 top-[10dvh] rounded-t-[8px] md:inset-x-auto md:top-0 md:inset-y-0 md:right-0 w-full bg-white dark:bg-[#0A0A0A] border-t md:border-t-0 md:border-l border-neutral-200 dark:border-[#262626] z-50 flex flex-col shadow-2xl md:rounded-none overflow-hidden text-neutral-900 dark:text-white transition-all duration-355 ease-in-out",
           (activeTab === 'biometrics' || isExpanded)
             ? "md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl"
             : "md:max-w-xl lg:max-w-2xl"
         )}
       >
+        <ModalA11y label="Student profile" onClose={onClose} />
         <div className="md:hidden flex justify-center py-3 bg-neutral-50 dark:bg-[#0F0F0F] shrink-0">
           <div className="w-10 h-1 bg-neutral-300 dark:bg-[#262626] rounded-full"/>
         </div>
@@ -918,7 +922,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
             <button
               type="button"
               onClick={() => setShowDossierModal(true)}
-              className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] text-neutral-600 dark:text-neutral-300 rounded-[8px] border border-neutral-200 dark:border-[#262626] transition-colors cursor-pointer active:scale-95 touch-manipulation"
+              className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] text-neutral-600 dark:text-neutral-300 rounded-[8px] border border-neutral-200 dark:border-[#262626] transition-colors cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
               title="Download / Print Dossier"
             >
               <IdentificationCard className="w-4 h-4" />
@@ -1094,6 +1098,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
          {showDeleteConfirm && (
            <Portal>
              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+               <ModalA11y label="Delete student" onClose={() => setShowDeleteConfirm(false)} />
                <div className="w-full max-w-sm bg-white dark:bg-[#0F0F0F] border border-red-500/50 rounded-[8px] p-6 shadow-2xl max-h-[90dvh] overflow-y-auto">
                   <h3 className="text-lg font-bold text-red-500 mb-2">{t('confirm_delete_student_title')}</h3>
                   <p className="text-sm text-neutral-600 dark:text-[#E4E4E4] mb-6">{t('confirm_delete_student_desc').replace('Chan Dara', student.englishName)}</p>
@@ -1127,6 +1132,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
            {showSaveConfirm && (
              <Portal>
                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+                 <ModalA11y label="Confirm student changes" onClose={() => setShowSaveConfirm(false)} />
                  <div className="w-full max-w-sm bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-6 shadow-2xl max-h-[90dvh] overflow-y-auto">
                     <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">{t('confirm_save_student_title')}</h3>
                     <p className="text-sm text-neutral-500 dark:text-[#999] mb-6">{t('confirm_save_student_desc')}</p>
@@ -1160,6 +1166,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
          {showBeltModal && (
            <Portal>
              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+               <ModalA11y label="Belt promotion" onClose={() => { setShowBeltModal(false); setEditingBeltHistoryId(null); }} />
                <div className="w-full max-w-md bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col max-h-[90dvh] overflow-hidden text-neutral-900 dark:text-white">
                   <div className="p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#0F0F0F] shrink-0">
                      <h2 className="text-sm font-bold uppercase tracking-widest">{editingBeltHistoryId !== null ? "Edit Belt Promotion" : t('panel_log_belt_promotion')}</h2>
@@ -1309,7 +1316,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                              )}
                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                <div>
-                                 <label className="block text-[8px] uppercase font-bold text-neutral-400 mb-1">Category</label>
+                                 <label className="block text-[9px] uppercase font-bold text-neutral-400 mb-1">Category</label>
                                  <select
                                    className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-red-500"
                                    value={event.category}
@@ -1333,7 +1340,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                                </div>
 
                                <div>
-                                 <label className="block text-[8px] uppercase font-bold text-neutral-400 mb-1">Division</label>
+                                 <label className="block text-[9px] uppercase font-bold text-neutral-400 mb-1">Division</label>
                                  <select
                                    className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-red-500"
                                    value={event.division}
@@ -1352,7 +1359,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                                </div>
 
                                <div>
-                                 <label className="block text-[8px] uppercase font-bold text-neutral-400 mb-1">Medal / Rank</label>
+                                 <label className="block text-[9px] uppercase font-bold text-neutral-400 mb-1">Medal / Rank</label>
                                  <select
                                    className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-red-500"
                                    value={event.medalRank}
@@ -1372,7 +1379,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
 
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
                                <div>
-                                 <label className="block text-[8px] uppercase font-bold text-neutral-400 mb-1">Age Division</label>
+                                 <label className="block text-[9px] uppercase font-bold text-neutral-400 mb-1">Age Division</label>
                                  <select
                                    className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-red-500"
                                    value={event.ageDivision || 'No Age Requirement'}
@@ -1394,7 +1401,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                                </div>
 
                                <div>
-                                 <label className="block text-[8px] uppercase font-bold text-neutral-400 mb-1">Belt Division</label>
+                                 <label className="block text-[9px] uppercase font-bold text-neutral-400 mb-1">Belt Division</label>
                                  <select
                                    className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-red-500"
                                    value={event.beltDivision || 'No Belt Requirement'}
@@ -1420,7 +1427,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                              </div>
 
                              <div className="mt-2.5">
-                               <label className="block text-[8px] uppercase font-bold text-neutral-400 mb-1">Notes / Remarks</label>
+                               <label className="block text-[9px] uppercase font-bold text-neutral-400 mb-1">Notes / Remarks</label>
                                <input
                                  type="text"
                                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-red-500"
@@ -1455,6 +1462,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
             {showPasswordModal && can('action:staff_manage') && (
               <Portal>
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+                  <ModalA11y label="Reset student portal password" onClose={() => setShowPasswordModal(false)} />
                   <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] animate-in fade-in zoom-in-95 duration-150">
                     <div className="p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#1A1A1A] shrink-0">
                       <div className="flex items-center gap-2.5">
@@ -1556,6 +1564,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
             {showProvisionModal && can('action:staff_manage') && (
               <Portal>
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+                  <ModalA11y label="Provision portal account" onClose={() => setShowProvisionModal(false)} />
                   <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] animate-in fade-in zoom-in-95 duration-150">
                     <div className="p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#1A1A1A] shrink-0">
                       <div className="flex items-center gap-2.5">

@@ -1,5 +1,6 @@
 'use client';
 
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useAppStore } from '@/lib/store';
 import { UserPlus } from '@phosphor-icons/react/dist/csr/UserPlus';
@@ -144,6 +145,7 @@ export function HouseholdManagementModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 pt-[env(safe-area-inset-top)] pb-[calc(1rem+env(safe-area-inset-bottom))]">
+      <ModalA11y label="Household management" onClose={onClose} />
       <div className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white w-full max-w-4xl rounded-[8px] p-5 font-sans flex flex-col max-h-[90dvh] shadow-2xl overflow-hidden transition-colors">
         
         {/* Header */}
@@ -327,6 +329,7 @@ export function HouseholdManagementModal({
       {/* CREATE HOUSEHOLD MODAL */}
       {isCreatingHousehold && (
         <div className="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <ModalA11y label="Create household" onClose={() => setIsCreatingHousehold(false)} />
           <form onSubmit={handleCreateHousehold} className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white w-full max-w-md rounded-[8px] p-5 font-mono space-y-4 shadow-2xl max-h-[90dvh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
               <h3 className="text-xs font-black tracking-wider text-[#EF2F38]">{"// CREATE HOUSEHOLD GUARDIAN"}</h3>
@@ -394,6 +397,7 @@ export function HouseholdManagementModal({
 
       {paymentReview && (
         <div className="fixed inset-0 z-[10000] bg-black/80 flex items-center justify-center p-4">
+          <ModalA11y label="Review family payment" onClose={() => setPaymentReview(null)} locked={collecting || !!retryPayload.current} />
           <div className="bg-white dark:bg-neutral-950 text-neutral-900 dark:text-white rounded-lg p-5 w-full max-w-md space-y-4 max-h-[90dvh] overflow-y-auto">
             <h3 className="font-bold">Review family collection: {paymentReview.guardianName}</h3>
             <ul className="text-sm space-y-2">{paymentReview.entries.map(entry=><li key={entry.studentId}>{entry.name} — {entry.month} {entry.year}: ${entry.amount.toFixed(2)}</li>)}</ul>
@@ -420,6 +424,7 @@ export function HouseholdManagementModal({
       {/* FAMILY TUITION RECEIPT MODAL */}
       {familyReceipt && (
         <div className="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <ModalA11y label="Family tuition receipt" onClose={() => setFamilyReceipt(null)} />
           <div className="bg-white text-neutral-900 w-full max-w-sm rounded-[8px] p-6 font-mono shadow-2xl space-y-4 max-h-[90dvh] overflow-y-auto">
             <div className="text-center border-b border-neutral-300 pb-3">
               <h2 className="text-sm font-black tracking-widest text-[#EF2F38]">INFINITY TAEKWONDO ACADEMY</h2>

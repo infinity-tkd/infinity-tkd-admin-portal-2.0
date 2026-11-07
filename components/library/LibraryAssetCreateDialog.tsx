@@ -833,7 +833,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                     </div>
 
                     <button type="submit" disabled={isSaving}
-                      className="w-full bg-[#EF2F38] text-white hover:bg-[#d6262f] py-3 min-h-[42px] rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all mt-2 shadow-sm cursor-pointer active:scale-95 touch-manipulation"
+                      className="w-full bg-[#EF2F38] text-white hover:bg-[#d6262f] py-3 min-h-[42px] rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all mt-2 shadow-sm cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                     >
                       {t('lib_add_to_library')}
                     </button>

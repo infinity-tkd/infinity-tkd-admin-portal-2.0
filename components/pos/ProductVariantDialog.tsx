@@ -242,7 +242,7 @@ export function ProductVariantDialog({ selectedVariantModalProduct, modalSelecte
                     <button
                       type="button"
                       onClick={() => setSelectedVariantModalProduct(null)}
-                      className="px-4 py-2 min-h-[42px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-[#888] text-xs rounded-[8px] hover:text-neutral-900 dark:hover:text-white cursor-pointer font-bold active:scale-95 touch-manipulation"
+                      className="px-4 py-2 min-h-[42px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-[#888] text-xs rounded-[8px] hover:text-neutral-900 dark:hover:text-white cursor-pointer font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                     >
                       Cancel
                     </button>
@@ -258,7 +258,7 @@ export function ProductVariantDialog({ selectedVariantModalProduct, modalSelecte
                           'success'
                         );
                       }}
-                      className="px-5 py-2 min-h-[42px] bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-bold rounded-[8px] shadow-sm cursor-pointer disabled:opacity-40 transition-colors active:scale-95 touch-manipulation flex items-center gap-1.5"
+                      className="px-5 py-2 min-h-[42px] bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-bold rounded-[8px] shadow-sm cursor-pointer disabled:opacity-40 transition-colors active:scale-95 touch-manipulation flex items-center gap-1.5 pointer-coarse:min-h-11"
                     >
                       <ShoppingCart size={15} weight="bold" />
                       <span>
