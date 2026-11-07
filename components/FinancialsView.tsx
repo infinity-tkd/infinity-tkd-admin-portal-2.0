@@ -56,6 +56,8 @@ import { CalendarCheck } from '@phosphor-icons/react/dist/csr/CalendarCheck';
 
 
 
+import { PageHeader, SegmentedTabs } from './ui/PageHeader';
+import { buttonClass } from './ui/styles';
 import { cn } from '@/lib/utils';
 
 
@@ -817,47 +819,26 @@ export function FinancialsView() {
   }, [calendarMonth, calendarYear, state.students, state.scholarships, state.academyProfile, state.branches, state.classEnrollments, calendarFilterBranch, calendarSearch, getStudentEnrollDate, calendarFilterStatus, cycleFinance]);
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto space-y-4 pb-12">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3 text-xs dark:border-neutral-800"><p>Monthly totals show tuition allocated to billing cycles, including verified partial allocations. Credits and waivers are not cash income. Unbilled cycles use current-rate estimates until their invoices are verified.</p><Link href="/operations?view=reconciliation" className="inline-flex min-h-11 items-center rounded-lg border px-3 font-semibold">Cash collections and bank reconciliation</Link></div>
-      {/* Top Header & Tab switcher */}
-      <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="text-base font-bold text-neutral-900 dark:text-white tracking-tight flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-[#EF2F38]"/>
-              Academy Tuition & Billing CRM
-            </h1>
-            <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono tracking-widest mt-0.5">Payment Ledgers & Receivables</p>
-          </div>
-          {isReadOnlyLedger && (
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-[8px] bg-blue-500/10 border border-blue-500/30 text-blue-700 dark:text-blue-400 text-xs font-bold uppercase tracking-wider">
-              <span>👁️</span> Read-Only Mode
-            </span>
-          )}
-        </div>
-        <div className="flex bg-neutral-100 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] p-1 shrink-0 flex-nowrap overflow-x-auto no-scrollbar scrollbar-none w-full md:w-auto gap-1">
-          <button onClick={() => setActiveTab('ledger')}
-            className={cn("px-3 sm:px-4 py-2 min-h-[38px] rounded-[6px] flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 active:scale-95 touch-manipulation", activeTab === 'ledger' ? "bg-white dark:bg-[#1C1C1C] text-neutral-900 dark:text-white shadow-sm font-black" : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white")}
-          >
-            <FileText className="w-3.5 h-3.5"/> Ledger Grid
-          </button>
-          <button onClick={() => setActiveTab('revenue')}
-            className={cn("px-3 sm:px-4 py-2 min-h-[38px] rounded-[6px] flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 active:scale-95 touch-manipulation", activeTab === 'revenue' ? "bg-white dark:bg-[#1C1C1C] text-neutral-900 dark:text-white shadow-sm font-black" : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white")}
-          >
-            <ChartLine className="w-3.5 h-3.5"/> Revenue Dashboard
-          </button>
-          <button onClick={() => setActiveTab('transactions')}
-            className={cn("px-3 sm:px-4 py-2 min-h-[38px] rounded-[6px] flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 active:scale-95 touch-manipulation", activeTab === 'transactions' ? "bg-white dark:bg-[#1C1C1C] text-neutral-900 dark:text-white shadow-sm font-black" : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white")}
-          >
-            <Receipt className="w-3.5 h-3.5"/> Transactions Log
-          </button>
-          <button onClick={() => setActiveTab('calendar')}
-            className={cn("px-3 sm:px-4 py-2 min-h-[38px] rounded-[6px] flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 active:scale-95 touch-manipulation", activeTab === 'calendar' ? "bg-white dark:bg-[#1C1C1C] text-neutral-900 dark:text-white shadow-sm font-black" : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white")}
-          >
-            <CalendarCheck className="w-3.5 h-3.5 text-[#EF2F38]"/> Renewal Calendar
-          </button>
-        </div>
-      </div>
+    <div className="w-full max-w-[1600px] mx-auto space-y-4 pb-12 sm:space-y-5">
+      <PageHeader
+        icon={<CreditCard weight="bold" />}
+        eyebrow="Payment ledgers & receivables"
+        title="Academy Tuition & Billing CRM"
+        description="Monthly totals show tuition allocated to billing cycles, including verified partial allocations. Credits and waivers are not cash income. Unbilled cycles use current-rate estimates until their invoices are verified."
+        actions={<Link href="/operations?view=reconciliation" className={cn(buttonClass(), 'whitespace-normal py-2 text-center')}>Cash collections and bank reconciliation</Link>}
+      >
+        {isReadOnlyLedger && (
+          <span className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">
+            Read-Only Mode
+          </span>
+        )}
+      </PageHeader>
+      <SegmentedTabs label="Financial views" value={activeTab} onChange={setActiveTab} className="grid grid-cols-2 lg:flex lg:w-fit" items={[
+        { id: 'ledger', label: 'Ledger Grid', icon: <FileText /> },
+        { id: 'revenue', label: 'Revenue Dashboard', icon: <ChartLine /> },
+        { id: 'transactions', label: 'Transactions Log', icon: <Receipt /> },
+        { id: 'calendar', label: 'Renewal Calendar', icon: <CalendarCheck /> },
+      ]} />
 
       {activeTab === 'ledger' && <TuitionLedgerPanel filteredStudents={filteredStudents} filterYear={filterYear} search={search} setSearch={setSearch} setLedgerPage={setLedgerPage} setLedgerStatusFilter={setLedgerStatusFilter} ledgerStatusFilter={ledgerStatusFilter} setFilterYear={setFilterYear} currentActualYear={currentActualYear} filterMonth={filterMonth} setFilterMonth={setFilterMonth} months={months} filterBranch={filterBranch} setFilterBranch={setFilterBranch} state={state} filterScholarship={filterScholarship} setFilterScholarship={setFilterScholarship} setLedgerSortField={setLedgerSortField} setLedgerSortDirection={setLedgerSortDirection} standardMonthlyFee={standardMonthlyFee} alertSearch={alertSearch} setIsAlertsCollapsedMobile={setIsAlertsCollapsedMobile} isAlertsCollapsedMobile={isAlertsCollapsedMobile} setAlertSearch={setAlertSearch} setStudentDetailsId={setStudentDetailsId} setPaymentAmounts={setPaymentAmounts} isReadOnlyLedger={isReadOnlyLedger} paymentBusy={paymentBusy} payInvoice={payInvoice} showNotification={showNotification} totalCollected={totalCollected} outstandingBalance={outstandingBalance} totalScholarshipDiscounts={totalScholarshipDiscounts} setLedgerViewMode={setLedgerViewMode} ledgerViewMode={ledgerViewMode} exportLedgerMatrixToCsv={exportLedgerMatrixToCsv} paginatedStudents={paginatedStudents} getStudentEnrollDate={getStudentEnrollDate} currentActualMonthIndex={currentActualMonthIndex} cycleFinance={cycleFinance} handleLedgerSort={handleLedgerSort} ledgerSortField={ledgerSortField} ledgerSortDirection={ledgerSortDirection} monthlyLedgerMatrixTotals={monthlyLedgerMatrixTotals} ledgerPage={ledgerPage} ledgerPerPage={ledgerPerPage} setLedgerPerPage={setLedgerPerPage} totalLedgerPages={totalLedgerPages} />}
 

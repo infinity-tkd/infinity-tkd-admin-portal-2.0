@@ -326,7 +326,7 @@ return <>
                     </div>
 
                     {/* Scrollable Receipt Preview Box (Fixed Scrollbar Clip Issue) */}
-                    <div className="w-full max-w-[480px] flex-1 overflow-y-auto custom-scrollbar pr-2 py-2 flex flex-col items-center justify-start border border-[#262626] bg-[#0A0A0A] rounded-[8px] shadow-inner max-h-[56vh] md:max-h-[58vh]">
+                    <div className="w-full max-w-[480px] flex-1 overflow-y-auto custom-scrollbar pr-2 py-2 flex flex-col items-center justify-start border border-[#262626] bg-[#0A0A0A] rounded-[8px] shadow-inner max-h-[56dvh] md:max-h-[58dvh]">
                       <div 
                         id="receipt-print-area" 
                         style={{
@@ -362,21 +362,21 @@ return <>
                   <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                     <button 
                       onClick={() => setShowReceipt()} 
-                      className="flex-1 sm:flex-none px-4 py-2 min-h-[38px] bg-[#1A1A1A] hover:bg-[#262626] border border-[#262626] text-[#CCC] hover:text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
+                      className="flex-1 sm:flex-none px-4 py-2 min-h-[38px] bg-[#1A1A1A] hover:bg-[#262626] border border-[#262626] text-[#CCC] hover:text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11"
                     >
                       Close Panel
                     </button>
 
                     <button 
                       onClick={handleSaveToAdmin}
-                      className="flex-1 sm:flex-none px-4 py-2 min-h-[38px] bg-[#1A1A1A] hover:bg-[#262626] border border-green-500/20 text-[#10B981] hover:text-green-400 font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
+                      className="flex-1 sm:flex-none px-4 py-2 min-h-[38px] bg-[#1A1A1A] hover:bg-[#262626] border border-green-500/20 text-[#10B981] hover:text-green-400 font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11"
                     >
                       Ledger information
                     </button>
 
                     <button 
                       onClick={handleSaveAsImage}
-                      className="flex-1 sm:flex-none px-4 py-2 min-h-[38px] bg-[#1A1A1A] hover:bg-[#262626] border border-blue-500/20 text-blue-400 hover:text-blue-300 font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                      className="flex-1 sm:flex-none px-4 py-2 min-h-[38px] bg-[#1A1A1A] hover:bg-[#262626] border border-blue-500/20 text-blue-400 hover:text-blue-300 font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                     >
                       <Image aria-label="Save image" alt="Save image" className="w-3.5 h-3.5" /> Save as Image
                     </button>
@@ -384,7 +384,7 @@ return <>
                     <button 
                       onClick={handleSaveAsPdf} 
                       style={{ backgroundColor: receiptAccentColor }}
-                      className="flex-1 sm:flex-none px-5 py-2 min-h-[38px] text-white text-white-override font-bold uppercase tracking-widest text-[10px] rounded-[8px] hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5 shadow-md shadow-black/40 cursor-pointer active:scale-95 touch-manipulation"
+                      className="flex-1 sm:flex-none px-5 py-2 min-h-[38px] text-white text-white-override font-bold uppercase tracking-widest text-[10px] rounded-[8px] hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5 shadow-md shadow-black/40 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                     >
                       <FilePdf className="w-3.5 h-3.5 text-white" /> Save as PDF
                     </button>

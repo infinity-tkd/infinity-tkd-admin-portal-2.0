@@ -214,10 +214,10 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                                     >
                                       <div className="flex items-center justify-between gap-1">
                                         <span className="text-[10px] font-bold text-white">{item.month} {item.year}</span>
-                                        <span className="text-[8px] bg-indigo-500/20 text-indigo-400 font-mono font-bold px-1.5 py-0.5 rounded-[8px]">#{idx + 1}</span>
+                                        <span className="text-[9px] bg-indigo-500/20 text-indigo-400 font-mono font-bold px-1.5 py-0.5 rounded-[8px]">#{idx + 1}</span>
                                       </div>
                                       <div className="flex items-end justify-between mt-2.5">
-                                        <span className="text-[8px] text-[#666] uppercase tracking-wider font-mono">Billed</span>
+                                        <span className="text-[9px] text-[#666] uppercase tracking-wider font-mono">Billed</span>
                                         <span className="text-[11px] font-bold text-green-400 font-mono">${item.amount.toFixed(2)}</span>
                                       </div>
                                     </div>
@@ -334,7 +334,7 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                                              showNotification(`Payment recorded for ${m} ${filterYear}: ${inputAmt.toFixed(2)}`, 'success');
                                            } catch (error) { showNotification(error instanceof Error ? error.message : 'Payment was not recorded.', 'error'); }
                                           }}
-                                          className="px-3.5 py-1.5 min-h-[32px] bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 rounded-[6px] text-[10px] font-bold uppercase tracking-widest transition-colors shadow-xs cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
+                                          className="px-3.5 py-1.5 min-h-[32px] bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 rounded-[6px] text-[10px] font-bold uppercase tracking-widest transition-colors shadow-xs cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
                                         >
                                           Mark Paid
                                         </button>
@@ -350,7 +350,7 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                                             year: filterYear,
                                             amount: payment?.amountUsd !== undefined ? payment.amountUsd : requiredAmt
                                           })}
-                                          className="px-3.5 py-1.5 min-h-[32px] bg-[#1A1A1A] hover:bg-[#262626] border border-[#333] hover:border-[#444] text-[#E4E4E4] hover:text-white rounded-[6px] text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                                          className="px-3.5 py-1.5 min-h-[32px] bg-[#1A1A1A] hover:bg-[#262626] border border-[#333] hover:border-[#444] text-[#E4E4E4] hover:text-white rounded-[6px] text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                                         >
                                           <FileText className="w-3.5 h-3.5"/> E-Receipt
                                         </button>

@@ -65,7 +65,7 @@ export function StockAdjustmentDialog({ handleAdjustStock, adjustingProduct, set
                         const found = adjustingProduct.variants?.find(v => v.id === vId) || null;
                         setAdjustingVariant(found);
                       }}
-                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38] cursor-pointer pointer-coarse:min-h-11"
                     >
                       <option value="" disabled>Choose the size or style to adjust</option>
                       {adjustingProduct.variants.map((v) => (
@@ -92,7 +92,7 @@ export function StockAdjustmentDialog({ handleAdjustStock, adjustingProduct, set
                     aria-label="Stock adjustment reason"
                     value={adjustReason}
                     onChange={(e) => setAdjustReason(e.target.value as any)}
-                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38] cursor-pointer pointer-coarse:min-h-11"
                   >
                     <option value="RESTOCK">Restock (Adding incoming shipment)</option>
                     <option value="DAMAGE_WRITE_OFF">Damage / Defect Write-off (Deduct stock)</option>
@@ -136,14 +136,14 @@ export function StockAdjustmentDialog({ handleAdjustStock, adjustingProduct, set
                     setAdjustingProduct(null);
                     setAdjustingVariant(null);
                   }}
-                  className="px-4 py-2 min-h-[42px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-[#888] text-xs rounded-[8px] hover:text-neutral-900 dark:hover:text-white cursor-pointer transition-colors font-bold active:scale-95 touch-manipulation"
+                  className="px-4 py-2 min-h-[42px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-[#888] text-xs rounded-[8px] hover:text-neutral-900 dark:hover:text-white cursor-pointer transition-colors font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isAdjustSubmitting}
-                  className="px-5 py-2 min-h-[42px] bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-bold rounded-[8px] shadow-sm cursor-pointer disabled:opacity-50 transition-colors active:scale-95 touch-manipulation"
+                  className="px-5 py-2 min-h-[42px] bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-bold rounded-[8px] shadow-sm cursor-pointer disabled:opacity-50 transition-colors active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                 >
                   {isAdjustSubmitting ? 'Updating...' : 'Save Stock Adjustment'}
                 </button>

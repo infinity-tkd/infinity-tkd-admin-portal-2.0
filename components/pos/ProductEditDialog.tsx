@@ -117,7 +117,7 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                     <select
                       aria-label="Product category" value={editFormData.category}
                       onChange={e => setEditFormData({ ...editFormData, category: e.target.value as any })}
-                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38] cursor-pointer pointer-coarse:min-h-11"
                     >
                       {dynamicCategories.filter(c => c !== 'All').map(c => (
                         <option key={c} value={c}>{c}</option>
@@ -183,7 +183,7 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                   onClick={() => {
                     handleDeleteProduct(editingProduct.id, editingProduct.name);
                   }}
-                  className="px-3 py-2 min-h-[42px] bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/30 dark:hover:bg-rose-900/40 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 text-xs rounded-[8px] cursor-pointer transition-colors font-bold flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation"
+                  className="px-3 py-2 min-h-[42px] bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/30 dark:hover:bg-rose-900/40 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 text-xs rounded-[8px] cursor-pointer transition-colors font-bold flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                   title="Archive this product while preserving stock and history"
                 >
                   <Trash size={14} />
@@ -196,14 +196,14 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                       setIsEditItemOpen(false);
                       setEditingProduct(null);
                     }}
-                    className="flex-1 sm:flex-initial px-4 py-2 min-h-[42px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-[#888] text-xs rounded-[8px] hover:text-neutral-900 dark:hover:text-white cursor-pointer transition-colors font-bold active:scale-95 touch-manipulation"
+                    className="flex-1 sm:flex-initial px-4 py-2 min-h-[42px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-[#888] text-xs rounded-[8px] hover:text-neutral-900 dark:hover:text-white cursor-pointer transition-colors font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isEditSubmitting || !editFormData.name.trim() || !editFormData.sku.trim() || Boolean(editItemSkuConflict) || !editItemSkuFormatValid.isValid}
-                    className="flex-1 sm:flex-initial px-5 py-2 min-h-[42px] bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-bold rounded-[8px] shadow-sm cursor-pointer disabled:opacity-50 transition-colors active:scale-95 touch-manipulation"
+                    className="flex-1 sm:flex-initial px-5 py-2 min-h-[42px] bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-bold rounded-[8px] shadow-sm cursor-pointer disabled:opacity-50 transition-colors active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                   >
                     {isEditSubmitting ? 'Saving...' : 'Save Changes'}
                   </button>

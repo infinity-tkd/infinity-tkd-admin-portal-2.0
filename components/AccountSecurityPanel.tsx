@@ -255,7 +255,7 @@ export function AccountSecurityPanel() {
             type="button"
             onClick={handleLogoutAllDevices}
             disabled={isRevoking}
-            className="w-full sm:w-auto px-3.5 py-2 min-h-[42px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-600 dark:text-red-400 text-xs font-mono font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+            className="w-full sm:w-auto px-3.5 py-2 min-h-[42px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-600 dark:text-red-400 text-xs font-mono font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
           >
             <SignOut className="w-3.5 h-3.5" weight="bold" /> 
             <span>{isRevoking ? 'Signing out…' : 'Sign out other devices'}</span>
@@ -305,7 +305,7 @@ export function AccountSecurityPanel() {
                       setActiveSessions(prev => prev.filter(s => s.id !== session.id));
                       showNotification(`Session on ${session.device} revoked.`, 'info');
                     }}
-                    className="w-full sm:w-auto px-3 py-1.5 min-h-[38px] flex items-center justify-center text-xs font-mono font-bold uppercase tracking-wider text-red-600 dark:text-red-400 hover:bg-red-500/10 rounded-[8px] border border-red-500/30 transition-all cursor-pointer active:scale-95 touch-manipulation"
+                    className="w-full sm:w-auto px-3 py-1.5 min-h-[38px] flex items-center justify-center text-xs font-mono font-bold uppercase tracking-wider text-red-600 dark:text-red-400 hover:bg-red-500/10 rounded-[8px] border border-red-500/30 transition-all cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                   >
                     Revoke Token
                   </button>

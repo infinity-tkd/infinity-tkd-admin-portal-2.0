@@ -1,7 +1,9 @@
 'use client';
 
 import { dialogMotion } from '@/lib/motion';
-import React from 'react';
+import React, { useId, useRef } from 'react';
+import { Portal } from '@/components/Portal';
+import { useModalFocus } from '@/hooks/use-modal-focus';
 import { useAppStore, type SystemConfirm } from '@/lib/store';
 import { motion, AnimatePresence, useIsPresent } from 'motion/react';
 import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
@@ -20,6 +22,11 @@ function ConfirmContent({ confirmData }: { confirmData: SystemConfirm }) {
   const { state, hideConfirm } = useAppStore();
   const t = useT();
   const present = useIsPresent();
+  const panel = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  const messageId = useId();
+  // Escape cancels, Tab stays inside, and focus returns to the control that asked.
+  useModalFocus(panel, () => handleCancel(), present);
 
   // Localized default headers based on language
   const getHeader = () => {
@@ -130,9 +137,11 @@ function ConfirmContent({ confirmData }: { confirmData: SystemConfirm }) {
   };
 
   return (
-      <div inert={!present} className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      <Portal>
+      <div inert={!present} className="fixed inset-0 z-[9999] flex items-end justify-center p-3 sm:items-center sm:p-4">
         {/* Backdrop blur with overlay */}
         <motion.div
+          aria-hidden="true"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -143,12 +152,17 @@ function ConfirmContent({ confirmData }: { confirmData: SystemConfirm }) {
         {/* Modal Card container */}
         <motion.div
           {...dialogMotion}
-
+          ref={panel}
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+          aria-describedby={messageId}
+          tabIndex={-1}
           style={{
             boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px ${modalTheme.glowColor}`,
           }}
           className={cn(
-            "relative w-full max-w-md bg-white dark:bg-[#0F0F0F] border rounded-[8px] p-5 sm:p-6 text-center overflow-hidden z-10 shadow-2xl",
+            "relative w-full max-w-md bg-white dark:bg-[#0F0F0F] border rounded-[8px] p-5 sm:p-6 text-center overflow-hidden z-10 shadow-2xl outline-none mb-[env(safe-area-inset-bottom,0px)] sm:mb-0",
             modalTheme.borderColor
           )}
         >
@@ -183,12 +197,12 @@ function ConfirmContent({ confirmData }: { confirmData: SystemConfirm }) {
           </div>
 
           {/* Title Header */}
-          <h2 className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white tracking-wide mb-2 px-4 sm:px-6">
+          <h2 id={titleId} className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white tracking-wide mb-2 px-4 sm:px-6">
             {headerText}
           </h2>
 
           {/* Message Content */}
-          <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed mb-6 font-medium whitespace-pre-line px-2">
+          <p id={messageId} className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed mb-6 font-medium whitespace-pre-line px-2">
             {confirmData.message}
           </p>
 
@@ -214,6 +228,7 @@ function ConfirmContent({ confirmData }: { confirmData: SystemConfirm }) {
           </div>
         </motion.div>
       </div>
+      </Portal>
   );
 }
 

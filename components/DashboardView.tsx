@@ -1,10 +1,11 @@
 'use client';
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import {useAttendanceActions} from '@/hooks/use-attendance-actions';
 import {activeClassEnrollmentCounts} from '@/lib/attendance-roster';
 import { BirthdayWishActionModal } from '@/components/dashboard/BirthdayWishActionModal';
 
 import { dialogMotion } from '@/lib/motion';
-import { academyDate } from '@/lib/dates';
+import { academyDate, addCalendarDays } from '@/lib/dates';
 import { tuitionCycle } from '@/lib/tuition-cycle';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -41,6 +42,9 @@ import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
 
 import { Phone } from '@phosphor-icons/react/dist/csr/Phone';
 import { cn, formatBelt, calculatePromotionReadiness, calculateChurnRisk } from '@/lib/utils';
+import { GraduationCap } from '@phosphor-icons/react/dist/csr/GraduationCap';
+import { PageHeader, SegmentedTabs } from './ui/PageHeader';
+import { KpiCard } from './ui/KpiCard';
 import { SafeImage } from '@/components/SafeImage';
 import { Portal } from '@/components/Portal';
 
@@ -483,9 +487,8 @@ export function DashboardView() {
     if (activeSts.length === 0) return { trend: 0, baseline: 75 };
 
     // Get list of records from past 30 days, excluding today to avoid today's partial check-in affecting baseline
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
+    // Count back in academy calendar days so the window matches todayDate (UTC dates lag a day before 07:00 in Phnom Penh).
+    const thirtyDaysAgoStr = addCalendarDays(todayDate, -30);
 
     const pastRecords = records.filter(r => r.date >= thirtyDaysAgoStr && r.date < todayDate);
     if (pastRecords.length === 0) return { trend: 0, baseline: 75 };
@@ -822,152 +825,80 @@ export function DashboardView() {
   };
 
   return (
-    <div className="space-y-4 pb-8 text-neutral-900 dark:text-white">
-      {/* Dynamic Master Welcome Header */}
-      <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] py-3 sm:py-3.5 px-3.5 sm:px-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 relative overflow-hidden shadow-sm">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(239,47,56,0.06)_0%,transparent_70%)] pointer-events-none" />
-        <div className="space-y-0.5">
-          <span className="text-[8px] sm:text-[8.5px] uppercase tracking-widest text-[#EF2F38] font-mono font-black">{t('dash_center_title')}</span>
-          <h1 className="text-base sm:text-lg font-bold tracking-tight">
-            {t('dash_welcome_master')}, {state.currentUser?.displayName || 'Admin'}
-          </h1>
-          <p className="text-[10px] sm:text-[11px] text-neutral-500 dark:text-[#666] font-medium">{t('dash_operations_sync')}</p>
-        </div>
-        <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 bg-white dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] shadow-sm">
-          <CalendarBlank className="w-3.5 h-3.5 text-[#EF2F38]" />
-          <span className="text-[10px] sm:text-[11px] font-bold font-mono uppercase tracking-wider">
-            {mounted ? currentLocalTime.toLocaleDateString(state.language === 'en' ? 'en-US' : state.language === 'zh' ? 'zh-CN' : 'km-KH', { weekday: 'short', month: 'short', day: 'numeric' }) : '---'}
-          </span>
-        </div>
-      </div>
+    <div className="mx-auto w-full max-w-[1600px] space-y-4 pb-12 text-neutral-900 dark:text-white sm:space-y-5">
+      <PageHeader
+        icon={<GraduationCap weight="bold" />}
+        eyebrow={t('dash_center_title')}
+        title={<>{t('dash_welcome_master')}, {state.currentUser?.displayName || 'Admin'}</>}
+        description={t('dash_operations_sync')}
+        actions={
+          <div className="flex min-h-10 items-center justify-center gap-2 rounded-lg border border-line bg-surface px-3 shadow-xs">
+            <CalendarBlank className="h-4 w-4 text-brand" aria-hidden="true" />
+            <span className="font-mono text-[11px] font-bold uppercase tracking-wider">
+              {mounted ? currentLocalTime.toLocaleDateString(state.language === 'en' ? 'en-US' : state.language === 'zh' ? 'zh-CN' : 'km-KH', { weekday: 'short', month: 'short', day: 'numeric' }) : '---'}
+            </span>
+          </div>
+        }
+      />
 
-      {/* Dashboard Sub-Tabs Selector */}
-      <div className="flex bg-neutral-100 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] p-0.5 w-full sm:w-fit shadow-inner">
-        <button
-          onClick={() => setDashboardTab('overview')}
-          className={cn(
-            "flex-1 sm:flex-none px-3 sm:px-4 py-2 sm:py-1.5 rounded-[6px] sm:rounded-[8px] flex items-center justify-center gap-1.5 text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer",
-            dashboardTab === 'overview'
-              ? "bg-white dark:bg-[#262626] text-neutral-900 dark:text-white shadow-sm border border-neutral-200 dark:border-neutral-800"
-              : "text-neutral-500 dark:text-[#666] hover:text-[#EF2F38] dark:hover:text-white"
-          )}
-        >
-          <ChartBar className="w-3.5 h-3.5" />
-          {t('dash_tab_roster_ops')}
-        </button>
-        <button
-          onClick={() => setDashboardTab('intelligence')}
-          className={cn(
-            "flex-1 sm:flex-none px-3 sm:px-4 py-2 sm:py-1.5 rounded-[6px] sm:rounded-[8px] flex items-center justify-center gap-1.5 text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer",
-            dashboardTab === 'intelligence'
-              ? "bg-white dark:bg-[#262626] text-neutral-900 dark:text-white shadow-sm border border-neutral-200 dark:border-neutral-800"
-              : "text-neutral-500 dark:text-[#666] hover:text-[#EF2F38] dark:hover:text-white"
-          )}
-        >
-          <SparkleIcon className="w-3.5 h-3.5 text-[#EF2F38]" />
-          {t('dash_tab_intelligence')}
-        </button>
-      </div>
+      <SegmentedTabs label="Dashboard views" value={dashboardTab} onChange={setDashboardTab} items={[
+        { id: 'overview', label: t('dash_tab_roster_ops'), icon: <ChartBar /> },
+        { id: 'intelligence', label: t('dash_tab_intelligence'), icon: <SparkleIcon className="text-brand" /> },
+      ]} />
 
       {dashboardTab === 'overview' ? (
         <>
-          {/* Row 1 - High-Value Core KPIs (2-col on mobile, 4-col on iPad & desktop) */}
+          {/* Core KPIs (2 columns on phones, 4 from tablets) */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3.5">
-            {/* KPI 1: Active Roster */}
-            <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 relative overflow-hidden group shadow-sm hover:border-neutral-300 dark:hover:border-[#383838] transition-all">
-              <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 text-neutral-400 dark:text-neutral-500 group-hover:text-[#EF2F38] transition-colors">
-                <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </div>
-              <p className="text-[8px] sm:text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider sm:tracking-widest mb-0.5 sm:mb-1 truncate pr-5">{t('dash_roster_strength')}</p>
-              <p className="text-base sm:text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
-                {activeCount} <span className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-normal">/ {totalStudents}</span>
-              </p>
-              <div className="mt-1.5 sm:mt-2 flex items-center justify-between text-[7.5px] sm:text-[8.5px] font-mono flex-wrap gap-1">
-                <span className="text-green-600 dark:text-green-500 font-bold">● {activeCount} {t('act_active')}</span>
-                <span className="text-neutral-500 dark:text-neutral-400">{inactiveCount} pending</span>
-              </div>
-            </div>
-
-            {/* KPI 2: Tuition Health / Tournament Placements */}
+            <KpiCard
+              label={t('dash_roster_strength')}
+              value={<>{activeCount} <span className="text-xs font-medium text-ink-subtle">/ {totalStudents}</span></>}
+              icon={<Users weight="bold" />}
+              hint={<span className="flex flex-wrap justify-between gap-1 font-mono"><span className="font-bold text-emerald-700 dark:text-emerald-400">● {activeCount} {t('act_active')}</span><span>{inactiveCount} pending</span></span>}
+            />
             {!canViewFinancials ? (
-              <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 relative overflow-hidden group shadow-sm hover:border-neutral-300 dark:hover:border-[#383838] transition-all">
-                <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 text-neutral-400 dark:text-neutral-500 group-hover:text-yellow-500 transition-colors">
-                  <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </div>
-                <p className="text-[8px] sm:text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider sm:tracking-widest mb-0.5 sm:mb-1 truncate pr-5">Achievements</p>
-                <p className="text-base sm:text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
-                  {state.achievements.length} <span className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-normal">Placements</span>
-                </p>
-                <div className="mt-1.5 sm:mt-2 flex items-center justify-between text-[7.5px] sm:text-[8.5px] font-mono flex-wrap gap-1">
-                  <span className="text-yellow-600 dark:text-yellow-500 font-bold">● {state.achievements.filter(a => a.medalRank === 'Gold').length} Gold</span>
-                  <span className="text-neutral-500 dark:text-neutral-400">{state.achievements.filter(a => a.medalRank === 'Silver' || a.medalRank === 'Bronze').length} S/B</span>
-                </div>
-              </div>
+              <KpiCard
+                label="Achievements"
+                tone="amber"
+                value={<>{state.achievements.length} <span className="text-xs font-medium text-ink-subtle">Placements</span></>}
+                icon={<Crown weight="bold" />}
+                hint={<span className="flex flex-wrap justify-between gap-1 font-mono"><span className="font-bold text-amber-700 dark:text-amber-400">● {state.achievements.filter(a => a.medalRank === 'Gold').length} Gold</span><span>{state.achievements.filter(a => a.medalRank === 'Silver' || a.medalRank === 'Bronze').length} S/B</span></span>}
+              />
             ) : (
-              <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 relative overflow-hidden group shadow-sm hover:border-neutral-300 dark:hover:border-[#383838] transition-all">
-                <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 text-neutral-400 dark:text-neutral-500 group-hover:text-green-500 transition-colors">
-                  <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </div>
-                <p className="text-[8px] sm:text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider sm:tracking-widest mb-0.5 sm:mb-1 truncate pr-5">{t('dash_tuition_collection')}</p>
-                <p className="text-base sm:text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
-                  {financialForecast.expected > 0 ? Math.round((financialForecast.actual / financialForecast.expected) * 100) : 100}% <span className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-normal">{t('dash_collected')}</span>
-                </p>
-                <div className="mt-1.5 sm:mt-2 flex items-center justify-between text-[7.5px] sm:text-[8.5px] font-mono flex-wrap gap-1">
-                  <span className="text-green-600 dark:text-green-500 font-bold">${financialForecast.actual.toFixed(0)} {t('fin_paid')}</span>
-                  <span className="text-neutral-500 dark:text-neutral-400">${(financialForecast.expected - financialForecast.actual).toFixed(0)} left</span>
-                </div>
-              </div>
+              <KpiCard
+                label={t('dash_tuition_collection')}
+                tone="green"
+                value={<>{financialForecast.expected > 0 ? Math.round((financialForecast.actual / financialForecast.expected) * 100) : 100}% <span className="text-xs font-medium text-ink-subtle">{t('dash_collected')}</span></>}
+                icon={<Coins weight="bold" />}
+                hint={<span className="flex flex-wrap justify-between gap-1 font-mono"><span className="font-bold text-emerald-700 dark:text-emerald-400">${financialForecast.actual.toFixed(0)} {t('fin_paid')}</span><span>${(financialForecast.expected - financialForecast.actual).toFixed(0)} left</span></span>}
+              />
             )}
-
-            {/* KPI 3: Daily Roster / Turnout */}
-            <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 relative overflow-hidden group shadow-sm hover:border-neutral-300 dark:hover:border-[#383838] transition-all">
-              <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 text-neutral-400 dark:text-neutral-500 group-hover:text-indigo-400 transition-colors">
-                <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </div>
-              <p className="text-[8px] sm:text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider sm:tracking-widest mb-0.5 sm:mb-1 truncate pr-5">{t('dash_turnout')}</p>
-              <p className="text-base sm:text-xl font-bold tracking-tight flex items-baseline gap-1 pt-0.5 text-neutral-900 dark:text-white">
-                <span>{attendanceRate}%</span>
-                {turnoutTrendStats.trend !== 0 && (
-                  <span className={cn(
-                    "text-[7.5px] sm:text-[8.5px] font-bold font-mono px-1 py-0.2 rounded flex items-center gap-0.5 leading-none shrink-0",
-                    turnoutTrendStats.trend > 0
-                      ? "bg-green-500/15 text-green-600 dark:text-green-400 border border-green-500/20"
-                      : "bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/20"
-                  )}>
-                    {turnoutTrendStats.trend > 0 ? '+' : ''}{turnoutTrendStats.trend}%
-                    {turnoutTrendStats.trend > 0 ? <TrendUp className="w-2 h-2 text-green-500" /> : <TrendUp className="w-2 h-2 text-red-500 rotate-180" />}
-                  </span>
-                )}
-              </p>
-              <div className="mt-1.5 sm:mt-2 flex items-center justify-between text-[7.5px] sm:text-[8.5px] font-mono flex-wrap gap-1">
-                {isClassLoggedToday ? (
-                  <>
-                    <span className="text-indigo-600 dark:text-indigo-400 font-bold">{presentToday} present</span>
-                    <span className="text-neutral-500 dark:text-neutral-400">{activeCount - presentToday} unmarked</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-indigo-600 dark:text-indigo-400">{t('dash_latest_session_turnout')}</span>
-                    <span className="text-neutral-500 dark:text-neutral-400">no class</span>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* KPI 4: LMS Video Progress */}
-            <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 relative overflow-hidden group shadow-sm hover:border-neutral-300 dark:hover:border-[#383838] transition-all">
-              <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 text-neutral-400 dark:text-neutral-500 group-hover:text-yellow-500 transition-colors">
-                <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </div>
-              <p className="text-[8px] sm:text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider sm:tracking-widest mb-0.5 sm:mb-1 truncate pr-5">{t('dash_lms_engagement')}</p>
-              <p className="text-base sm:text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
-                {state.videoProgress.filter(p => p.status === 'Completed').length} <span className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-normal">done</span>
-              </p>
-              <div className="mt-1.5 sm:mt-2 flex items-center justify-between text-[7.5px] sm:text-[8.5px] font-mono flex-wrap gap-1">
-                <span className="text-yellow-600 dark:text-yellow-500 font-bold">{state.curriculumVideos.length} syllabus</span>
-                <span className="text-neutral-500 dark:text-neutral-400">tracked</span>
-              </div>
-            </div>
+            <KpiCard
+              label={t('dash_turnout')}
+              tone="blue"
+              value={<span className="inline-flex items-baseline gap-1.5">{attendanceRate}%{turnoutTrendStats.trend !== 0 && (
+                <span className={cn(
+                  "inline-flex items-center gap-0.5 rounded border px-1 py-0.5 font-mono text-[10px] font-bold leading-none",
+                  turnoutTrendStats.trend > 0
+                    ? "border-emerald-500/20 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                    : "border-red-500/20 bg-red-500/15 text-red-700 dark:text-red-400"
+                )}>
+                  {turnoutTrendStats.trend > 0 ? '+' : ''}{turnoutTrendStats.trend}%
+                  <TrendUp aria-hidden="true" className={cn("h-2.5 w-2.5", turnoutTrendStats.trend < 0 && "rotate-180")} />
+                </span>
+              )}</span>}
+              icon={<CheckCircle weight="bold" />}
+              hint={<span className="flex flex-wrap justify-between gap-1 font-mono">{isClassLoggedToday
+                ? <><span className="font-bold text-blue-700 dark:text-blue-400">{presentToday} present</span><span>{activeCount - presentToday} unmarked</span></>
+                : <><span className="text-blue-700 dark:text-blue-400">{t('dash_latest_session_turnout')}</span><span>no class</span></>}</span>}
+            />
+            <KpiCard
+              label={t('dash_lms_engagement')}
+              tone="violet"
+              value={<>{state.videoProgress.filter(p => p.status === 'Completed').length} <span className="text-xs font-medium text-ink-subtle">done</span></>}
+              icon={<Crown weight="bold" />}
+              hint={<span className="flex flex-wrap justify-between gap-1 font-mono"><span className="font-bold text-violet-700 dark:text-violet-400">{state.curriculumVideos.length} syllabus</span><span>tracked</span></span>}
+            />
           </div>
 
           {/* Live Session Command Hub & Active Roster */}
@@ -995,7 +926,7 @@ export function DashboardView() {
                   <select
                     aria-label="Dashboard class" value={selectedClassId || ''}
                     onChange={(e) => setSelectedClassId(Number(e.target.value))}
-                    className="w-full sm:w-auto bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[8px] px-2.5 py-1.5 text-xs sm:text-[11px] min-h-[38px] sm:min-h-0 font-bold focus:outline-none focus:border-[#EF2F38]/50 shadow-sm cursor-pointer"
+                    className="w-full sm:w-auto bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[8px] px-2.5 py-1.5 text-xs sm:text-[11px] min-h-[38px] sm:min-h-0 font-bold focus:outline-none focus:border-[#EF2F38]/50 shadow-sm cursor-pointer pointer-coarse:min-h-11"
                   >
                     {todayClasses.map(c => {
                       const enrolled = activeEnrollmentCounts.get(c.id) ?? 0;
@@ -1022,7 +953,7 @@ export function DashboardView() {
                   <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider font-mono">
                     Today&apos;s Schedule ({todayClasses.length})
                   </span>
-                  <span className="text-[8px] text-neutral-400 dark:text-neutral-500 font-mono">
+                  <span className="text-[9px] text-neutral-400 dark:text-neutral-500 font-mono">
                     {new Date(todayDate).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                   </span>
                 </div>
@@ -1069,7 +1000,7 @@ export function DashboardView() {
                             </span>
                           </div>
                           <span className={cn(
-                            "text-[8px] font-mono font-bold px-1.5 py-0.5 rounded-full shrink-0 uppercase tracking-wider",
+                            "text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full shrink-0 uppercase tracking-wider",
                             isSelected
                               ? "bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20"
                               : "bg-neutral-100 dark:bg-[#1E1E1E] text-neutral-600 dark:text-neutral-400"
@@ -1080,7 +1011,7 @@ export function DashboardView() {
 
                         {/* Occupancy and Turnout Bars */}
                         <div className="space-y-1.5 pt-1 border-t border-neutral-100 dark:border-[#222]">
-                          <div className="flex items-center justify-between text-[8px] font-mono">
+                          <div className="flex items-center justify-between text-[9px] font-mono">
                             <span className="text-neutral-500 dark:text-neutral-400">
                               Enrolled: <strong className="text-neutral-800 dark:text-neutral-200">{enrolled}/{cls.capacity || '—'}</strong>
                             </span>
@@ -1126,31 +1057,31 @@ export function DashboardView() {
                         {activeClass ? activeClass.name : 'No Class Selected'}
                       </h3>
                       {activeClass && (
-                        <span className="text-[8.5px] font-mono px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-[#1E1E1E] text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-[#333]">
+                        <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-[#1E1E1E] text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-[#333]">
                           {activeClass.startTime} - {activeClass.endTime}
                         </span>
                       )}
                     </div>
-                    <p className="text-[8.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
+                    <p className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
                       {classStudents.length} total enrolled active students
                     </p>
                   </div>
 
                   {/* Attendance Stats Pills */}
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-[8px] font-mono font-bold px-2 py-0.5 rounded-full bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20">
+                    <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20">
                       Present: {presentCount}
                     </span>
-                    <span className="text-[8px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                    <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
                       Late: {lateCount}
                     </span>
-                    <span className="text-[8px] font-mono font-bold px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
+                    <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
                       Absent: {absentCount}
                     </span>
-                    <span className="text-[8px] font-mono font-bold px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-[#1F1F1F] text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-[#333]">
+                    <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-[#1F1F1F] text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-[#333]">
                       Unmarked: {unmarkedCount}
                     </span>
-                    <span className="text-[8px] font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20">
+                    <span className="text-[9px] font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20">
                       Turnout: {classTurnoutPct}%
                     </span>
                   </div>
@@ -1189,7 +1120,7 @@ export function DashboardView() {
                         key={tab}
                         onClick={() => setRosterStatusFilter(tab)}
                         className={cn(
-                          "px-2 py-1 rounded-[6px] text-[8px] sm:text-[8.5px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer",
+                          "px-2 py-1 rounded-[6px] text-[9px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer",
                           rosterStatusFilter === tab
                             ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 shadow-sm"
                             : "bg-white dark:bg-[#1A1A1A] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-neutral-200 dark:border-[#2D2D2D]"
@@ -1209,7 +1140,7 @@ export function DashboardView() {
                   {canMarkAttendance && <button
                     onClick={handleMarkAllClassPresent}
                     disabled={attendanceActions.busy || (classStudents.length === 0)}
-                    className="w-full sm:w-auto px-2.5 h-8 sm:h-auto py-1.5 bg-green-600 hover:bg-green-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-[6px] text-[9px] sm:text-[8.5px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1 shadow-sm shrink-0 cursor-pointer active:scale-95 touch-manipulation"
+                    className="w-full sm:w-auto px-2.5 h-8 sm:h-auto py-1.5 bg-green-600 hover:bg-green-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-[6px] text-[9px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1 shadow-sm shrink-0 cursor-pointer active:scale-95 touch-manipulation"
                     title="Mark all eligible enrolled students as Present"
                   >
                     <CheckCircle className="w-3 h-3" />
@@ -1246,12 +1177,12 @@ export function DashboardView() {
                                 </span>
                               )}
                               {isNotYetEnrolled && (
-                                <span className="px-1 py-0.2 rounded bg-red-950/40 border border-red-500/30 text-red-400 font-bold uppercase tracking-widest text-[7px] whitespace-nowrap shrink-0">
+                                <span className="px-1 py-0.2 rounded bg-red-950/40 border border-red-500/30 text-red-400 font-bold uppercase tracking-widest text-[9px] whitespace-nowrap shrink-0">
                                   {t('panel_not_enrolled_yet')}
                                 </span>
                               )}
                             </h4>
-                            <div className="flex items-center gap-2 mt-1 text-[8px] text-neutral-500 dark:text-neutral-400 font-mono">
+                            <div className="flex items-center gap-2 mt-1 text-[9px] text-neutral-500 dark:text-neutral-400 font-mono">
                               <span className="uppercase tracking-wider font-semibold text-neutral-700 dark:text-neutral-300">
                                 {translateBeltFormatted(student.currentBelt, student.dob)}
                               </span>
@@ -1277,7 +1208,7 @@ export function DashboardView() {
                             disabled={attendanceActions.busy || (isNotYetEnrolled)}
                             onClick={() => attendanceActions.mark(student.id, todayDate, 'Present', selectedClassId ?? undefined)}
                             className={cn(
-                              "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[8.5px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation",
+                              "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[9px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                               isNotYetEnrolled
                                 ? "opacity-25 cursor-not-allowed border-transparent text-neutral-400 bg-neutral-200 dark:bg-[#1A1A1A]"
                                 : currentStatus === 'Present'
@@ -1291,7 +1222,7 @@ export function DashboardView() {
                             disabled={attendanceActions.busy || (isNotYetEnrolled)}
                             onClick={() => attendanceActions.mark(student.id, todayDate, 'Late', selectedClassId ?? undefined)}
                             className={cn(
-                              "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[8.5px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation",
+                              "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[9px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                               isNotYetEnrolled
                                 ? "opacity-25 cursor-not-allowed border-transparent text-neutral-400 bg-neutral-200 dark:bg-[#1A1A1A]"
                                 : currentStatus === 'Late'
@@ -1305,7 +1236,7 @@ export function DashboardView() {
                             disabled={attendanceActions.busy || (isNotYetEnrolled)}
                             onClick={() => attendanceActions.mark(student.id, todayDate, 'Absent', selectedClassId ?? undefined)}
                             className={cn(
-                              "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[8.5px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation",
+                              "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[9px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                               isNotYetEnrolled
                                 ? "opacity-25 cursor-not-allowed border-transparent text-neutral-400 bg-neutral-200 dark:bg-[#1A1A1A]"
                                 : currentStatus === 'Absent'
@@ -1318,7 +1249,7 @@ export function DashboardView() {
                           {canDeleteAttendance && currentStatus !== 'Unmarked' && (
                             <button
                               onClick={() => handleUnmarkStudent(student.id)}
-                              className="px-2 py-1 min-h-[32px] sm:min-h-[28px] text-[8px] font-bold uppercase tracking-wider rounded-[6px] border border-neutral-200 dark:border-[#2D2D2D] bg-white dark:bg-[#1A1A1A] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation shrink-0"
+                              className="px-2 py-1 min-h-[32px] sm:min-h-[28px] text-[9px] font-bold uppercase tracking-wider rounded-[6px] border border-neutral-200 dark:border-[#2D2D2D] bg-white dark:bg-[#1A1A1A] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation shrink-0 pointer-coarse:min-h-11"
                               title="Reset back to Unmarked" disabled={attendanceActions.busy}
                             >
                               <ArrowsCounterClockwise className="w-3.5 h-3.5" />
@@ -1365,7 +1296,7 @@ export function DashboardView() {
                         <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
                         <h2 className="text-xs font-bold uppercase tracking-widest">{t('dash_intake_queue')}</h2>
                       </div>
-                      <span className="px-1.5 py-0.5 bg-red-500/10 border border-red-500/20 text-[#EF2F38] text-[8px] font-bold rounded-full font-mono">
+                      <span className="px-1.5 py-0.5 bg-red-500/10 border border-red-500/20 text-[#EF2F38] text-[9px] font-bold rounded-full font-mono">
                         {pendingIntake.length} {t('dash_waiting')}
                       </span>
                     </div>
@@ -1387,7 +1318,7 @@ export function DashboardView() {
                           </div>
                           <button
                             onClick={() => handleApproveStudent(student.id)}
-                            className="px-3 py-1.5 h-7.5 sm:h-8 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-black text-[9px] sm:text-[8.5px] font-black uppercase tracking-widest rounded-[6px] sm:rounded-[8px] transition-colors flex items-center justify-center sm:justify-start sm:w-fit gap-1 shadow-sm w-full cursor-pointer active:scale-95 touch-manipulation"
+                            className="px-3 py-1.5 h-7.5 sm:h-8 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-black text-[9px] font-black uppercase tracking-widest rounded-[6px] sm:rounded-[8px] transition-colors flex items-center justify-center sm:justify-start sm:w-fit gap-1 shadow-sm w-full cursor-pointer active:scale-95 touch-manipulation"
                           >
                             <span>{t('dash_approve_student')}</span>
                             <ArrowRight className="w-2.5 h-2.5" />
@@ -1414,12 +1345,12 @@ export function DashboardView() {
                         </div>
                         <div>
                           <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white">{t('dash_outstanding_tuition')}</h2>
-                          <p className="text-[8px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">{t('dash_ledger_sync')}</p>
+                          <p className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">{t('dash_ledger_sync')}</p>
                         </div>
                       </div>
 
                       {/* Summary Counter badge */}
-                      <span className="px-1.5 py-0.5 bg-[#EF2F38]/5 border border-[#EF2F38]/15 text-[#EF2F38] text-[8px] font-bold rounded-full font-mono tracking-wide w-fit">
+                      <span className="px-1.5 py-0.5 bg-[#EF2F38]/5 border border-[#EF2F38]/15 text-[#EF2F38] text-[9px] font-bold rounded-full font-mono tracking-wide w-fit">
                         {filteredUnpaidTuition.length} Pending • ${totalOutstandingAmount.toFixed(2)} Outstanding
                       </span>
                     </div>
@@ -1440,7 +1371,7 @@ export function DashboardView() {
                       </div>
 
                       <div className="flex items-center gap-1.5 w-full sm:w-auto shrink-0 justify-between sm:justify-end">
-                        <span className="text-[8.5px] uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono">Group:</span>
+                        <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono">Group:</span>
                         <select
                           value={tuitionGroupFilter}
                           onChange={(e) => setTuitionGroupFilter(e.target.value as any)}
@@ -1499,10 +1430,10 @@ export function DashboardView() {
                           <div className="space-y-0.5 min-w-0 flex-1">
                             <h4 className="text-[11px] font-bold text-neutral-800 dark:text-neutral-300 leading-none truncate">{student.englishName}</h4>
 
-                            <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[8.5px] text-neutral-500 font-mono font-medium">
+                            <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[9px] text-neutral-500 font-mono font-medium">
                               {/* Belt Rank with dot indicator */}
                               <span className="flex items-center gap-0.5">
-                                <span className={cn("text-[8px] leading-none", getBeltColor(student.currentBelt))}>●</span>
+                                <span className={cn("text-[9px] leading-none", getBeltColor(student.currentBelt))}>●</span>
                                 <span>{translateBeltFormatted(student.currentBelt, student.dob)}</span>
                               </span>
 
@@ -1551,11 +1482,11 @@ export function DashboardView() {
                               <span className="text-[#EF2F38] font-bold text-xs font-mono tracking-tight leading-none">
                                 ${studentOwed.toFixed(2)}
                               </span>
-                              <span className="px-1 py-0.2 rounded bg-red-500/10 text-[#EF2F38] border border-red-500/20 text-[6px] font-bold uppercase tracking-wider font-mono">
+                              <span className="px-1 py-0.2 rounded bg-red-500/10 text-[#EF2F38] border border-red-500/20 text-[9px] font-bold uppercase tracking-wider font-mono">
                                 {t('dash_overdue')}
                               </span>
                             </div>
-                            <span className="block text-[7px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 font-bold">
+                            <span className="block text-[9px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 font-bold">
                               {t('dash_unpaid_for')} {currentMonthName} • Overdue {overdueDays}d
                             </span>
                           </div>
@@ -1570,7 +1501,7 @@ export function DashboardView() {
                                   console.error(err);
                               }
                             }}
-                            className="px-2.5 sm:px-3 h-7.5 sm:h-8 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-[6px] sm:rounded-[8px] text-[9px] sm:text-[8.5px] font-bold uppercase tracking-wider transition-all duration-150 flex items-center gap-1 shadow-sm cursor-pointer whitespace-nowrap touch-manipulation"
+                            className="px-2.5 sm:px-3 h-7.5 sm:h-8 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-[6px] sm:rounded-[8px] text-[9px] font-bold uppercase tracking-wider transition-all duration-150 flex items-center gap-1 shadow-sm cursor-pointer whitespace-nowrap touch-manipulation"
                             title="Quick Pay Invoice"
                           >
                             <Coins className="w-3 h-3" />
@@ -1655,15 +1586,15 @@ export function DashboardView() {
                               <div className="flex items-center gap-1.5">
                                 <span className="text-[11px] font-bold truncate text-neutral-900 dark:text-white">{student.englishName}</span>
                                 {isBirthdayToday && (
-                                  <span className="px-1 py-0.2 bg-[#EF2F38] text-white text-[6px] font-black uppercase tracking-wider rounded-full animate-bounce shrink-0">
+                                  <span className="px-1 py-0.2 bg-[#EF2F38] text-white text-[9px] font-black uppercase tracking-wider rounded-full animate-bounce shrink-0">
                                     {t('dash_today')}
                                   </span>
                                 )}
                               </div>
-                              <span className="block text-[8px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 flex items-center flex-wrap gap-1 leading-none">
+                              <span className="block text-[9px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 flex items-center flex-wrap gap-1 leading-none">
                                 <span>{t('dash_age_belt').replace('{age}', String(age)).replace('{belt}', student.currentBelt)}</span>
                                 <span className="text-neutral-300 dark:text-neutral-700 select-none">•</span>
-                                <span className="text-[7.5px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded px-1 py-0.2 text-neutral-500 dark:text-neutral-400 font-bold font-mono">{student.dob}</span>
+                                <span className="text-[9px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded px-1 py-0.2 text-neutral-500 dark:text-neutral-400 font-bold font-mono">{student.dob}</span>
                               </span>
                             </div>
                           </div>
@@ -1706,7 +1637,7 @@ export function DashboardView() {
                 </div>
 
                 {/* Bottom mini-summary */}
-                <div className="py-2 px-3 bg-white dark:bg-[#0F0F0F] border-t border-neutral-200 dark:border-[#262626] text-[8px] text-neutral-500 dark:text-neutral-400 font-mono text-center flex items-center justify-center gap-1.5 rounded-b-[8px] shadow-sm">
+                <div className="py-2 px-3 bg-white dark:bg-[#0F0F0F] border-t border-neutral-200 dark:border-[#262626] text-[9px] text-neutral-500 dark:text-neutral-400 font-mono text-center flex items-center justify-center gap-1.5 rounded-b-[8px] shadow-sm">
                   <span>{t('dash_selected_birthdays').replace('{count}', String(birthdayStudents.length))}</span>
                 </div>
               </div>
@@ -1718,7 +1649,7 @@ export function DashboardView() {
                     <Crown className="w-3.5 h-3.5 text-yellow-500" />
                     <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white">{t('dash_promotion_readiness')}</h2>
                   </div>
-                  <span className="text-[8.5px] text-neutral-500 dark:text-neutral-400 font-mono uppercase font-bold tracking-widest">
+                  <span className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono uppercase font-bold tracking-widest">
                     {t('dash_pri_ranked')}
                   </span>
                 </div>
@@ -1732,7 +1663,7 @@ export function DashboardView() {
                           <div className="flex items-center gap-1.5">
                             <span className="text-[11px] font-bold text-neutral-800 dark:text-neutral-300 leading-none">{candidate.student.englishName}</span>
                             <span className={cn(
-                              "px-1 py-0.2 rounded text-[6.5px] font-mono font-bold uppercase border",
+                              "px-1 py-0.2 rounded text-[9px] font-mono font-bold uppercase border",
                               candidate.rank === 'Gold' ? "bg-amber-500/10 text-amber-600 border-amber-500/20 animate-pulse" :
                               candidate.rank === 'Silver' ? "bg-neutral-500/10 text-neutral-600 border-neutral-500/20" :
                               "bg-orange-500/10 text-orange-600 border-orange-500/20"
@@ -1740,12 +1671,12 @@ export function DashboardView() {
                               {t(`dash_${candidate.rank.toLowerCase()}_candidate` as any)} ({candidate.pri}%)
                             </span>
                           </div>
-                          <span className="px-1 py-0.2 bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 rounded-[3px] text-[7px] font-bold uppercase font-mono">
+                          <span className="px-1 py-0.2 bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 rounded-[3px] text-[9px] font-bold uppercase font-mono">
                             {translateBeltFormatted(candidate.student.currentBelt, candidate.student.dob)}
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-1 text-[8px] font-mono border-t border-neutral-100 dark:border-[#1A1A1A] pt-1.5">
+                        <div className="grid grid-cols-2 gap-1 text-[9px] font-mono border-t border-neutral-100 dark:border-[#1A1A1A] pt-1.5">
                           <div className="flex items-center gap-1">
                             <Clock className={cn("w-3 h-3 shrink-0", report?.daysEligible ? "text-green-500" : "text-neutral-400")} />
                             <span className={report?.daysEligible ? "text-neutral-700 dark:text-neutral-300 font-bold" : "text-neutral-400"}>
@@ -1812,7 +1743,7 @@ export function DashboardView() {
                   <span className="text-[10px] sm:text-xs font-mono font-bold text-neutral-400">/100</span>
                 </div>
                 <div className="h-6 w-px bg-neutral-200 dark:bg-neutral-800" />
-                <span className={cn("px-2 py-0.5 rounded text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider font-mono border", healthScoreMetrics.badgeBg)}>
+                <span className={cn("px-2 py-0.5 rounded text-[9px] sm:text-[9.5px] font-bold uppercase tracking-wider font-mono border", healthScoreMetrics.badgeBg)}>
                   {healthScoreMetrics.statusText}
                 </span>
               </div>
@@ -1823,7 +1754,7 @@ export function DashboardView() {
               {/* Pillar 1: Turnout */}
               <div className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-3 sm:p-4 rounded-[8px] flex flex-col justify-between">
                 <div className="flex items-center justify-between">
-                  <span className="text-[8.5px] sm:text-[9.5px] uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
+                  <span className="text-[9px] sm:text-[9.5px] uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-indigo-500" />
                     {t('dash_health_turnout')}
                   </span>
@@ -1837,7 +1768,7 @@ export function DashboardView() {
                     style={{ width: `${healthScoreMetrics.turnoutScore}%` }}
                   />
                 </div>
-                <span className="text-[8.5px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
+                <span className="text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
                   Optimal: <strong className="text-neutral-700 dark:text-neutral-300">{attendanceDensityStats.optimalDay}</strong> ({attendanceDensityStats.optimalRate}%)
                 </span>
               </div>
@@ -1845,7 +1776,7 @@ export function DashboardView() {
               {/* Pillar 2: Financial Compliance */}
               <div className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-3 sm:p-4 rounded-[8px] flex flex-col justify-between">
                 <div className="flex items-center justify-between">
-                  <span className="text-[8.5px] sm:text-[9.5px] uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
+                  <span className="text-[9px] sm:text-[9.5px] uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
                     <Coins className="w-3.5 h-3.5 text-emerald-500" />
                     {t('dash_health_finance')}
                   </span>
@@ -1859,7 +1790,7 @@ export function DashboardView() {
                     style={{ width: `${healthScoreMetrics.financialScore}%` }}
                   />
                 </div>
-                <span className="text-[8.5px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
+                <span className="text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
                   Collected: <strong className="text-neutral-700 dark:text-neutral-300">${financialForecast.actual.toFixed(0)}</strong> / ${expectedMonthlyRevenue.toFixed(0)}
                 </span>
               </div>
@@ -1867,7 +1798,7 @@ export function DashboardView() {
               {/* Pillar 3: Testing Pipeline */}
               <div className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-3 sm:p-4 rounded-[8px] flex flex-col justify-between">
                 <div className="flex items-center justify-between">
-                  <span className="text-[8.5px] sm:text-[9.5px] uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
+                  <span className="text-[9px] sm:text-[9.5px] uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
                     <Crown className="w-3.5 h-3.5 text-amber-500" />
                     {t('dash_health_pipeline')}
                   </span>
@@ -1881,7 +1812,7 @@ export function DashboardView() {
                     style={{ width: `${healthScoreMetrics.testingPipelineScore}%` }}
                   />
                 </div>
-                <span className="text-[8.5px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
+                <span className="text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
                   Ready: <strong className="text-amber-600 dark:text-amber-400">{healthScoreMetrics.goldCount} Gold</strong>, {healthScoreMetrics.silverCount} Silver
                 </span>
               </div>
@@ -1889,7 +1820,7 @@ export function DashboardView() {
               {/* Pillar 4: Retention Guard */}
               <div className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-3 sm:p-4 rounded-[8px] flex flex-col justify-between">
                 <div className="flex items-center justify-between">
-                  <span className="text-[8.5px] sm:text-[9.5px] uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
+                  <span className="text-[9px] sm:text-[9.5px] uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
                     <ShieldCheck className="w-3.5 h-3.5 text-[#EF2F38]" />
                     {t('dash_health_retention')}
                   </span>
@@ -1903,7 +1834,7 @@ export function DashboardView() {
                     style={{ width: `${healthScoreMetrics.retentionScore}%` }}
                   />
                 </div>
-                <span className="text-[8.5px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
+                <span className="text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
                   Hazards: <strong className={healthScoreMetrics.highRiskCount > 0 ? "text-[#EF2F38]" : "text-neutral-700 dark:text-neutral-300"}>{healthScoreMetrics.highRiskCount} High</strong>, {healthScoreMetrics.mediumRiskCount} Med
                 </span>
               </div>
@@ -1936,18 +1867,18 @@ export function DashboardView() {
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-2.5">
                     <div className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-2.5 sm:p-3 rounded-[8px] shadow-sm">
-                      <span className="text-[8px] sm:text-[9px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-mono block mb-0.5">{t('dash_expected_revenue')}</span>
+                      <span className="text-[9px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-mono block mb-0.5">{t('dash_expected_revenue')}</span>
                       <span className="text-base sm:text-lg font-bold font-mono tracking-tight text-neutral-900 dark:text-white">${expectedMonthlyRevenue.toFixed(0)}</span>
                     </div>
                     <div className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-2.5 sm:p-3 rounded-[8px] shadow-sm">
-                      <span className="text-[8px] sm:text-[9px] uppercase tracking-widest text-[#EF2F38] font-mono block mb-0.5">{t('dash_simulated_forecast')}</span>
+                      <span className="text-[9px] uppercase tracking-widest text-[#EF2F38] font-mono block mb-0.5">{t('dash_simulated_forecast')}</span>
                       <span className="text-base sm:text-lg font-bold font-mono tracking-tight text-[#EF2F38]">${predictedRevenueDynamic.toFixed(0)}</span>
                     </div>
                   </div>
 
                   {/* Scenario Presets */}
                   <div className="space-y-1.5">
-                    <span className="text-[8px] sm:text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono block">Scenario Presets</span>
+                    <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono block">Scenario Presets</span>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                       {[
                         { label: t('dash_scenario_baseline'), rate: 5 },
@@ -1960,7 +1891,7 @@ export function DashboardView() {
                           type="button"
                           onClick={() => setForecastChurnRate(sc.rate)}
                           className={cn(
-                            "px-1.5 py-1 rounded text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-wider border transition-all text-center cursor-pointer",
+                            "px-1.5 py-1 rounded text-[9px] font-mono font-bold uppercase tracking-wider border transition-all text-center cursor-pointer",
                             forecastChurnRate === sc.rate
                               ? "bg-[#EF2F38] text-white border-[#EF2F38] shadow-sm"
                               : "bg-white dark:bg-[#0F0F0F] text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-[#262626] hover:border-neutral-400 dark:hover:border-neutral-600"
@@ -1974,7 +1905,7 @@ export function DashboardView() {
 
                   {/* Manual Churn simulation slider */}
                   <div className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-2.5 sm:p-3 rounded-[8px] shadow-sm space-y-1.5">
-                    <div className="flex justify-between text-[8px] sm:text-[9px] uppercase font-bold text-neutral-500 font-mono">
+                    <div className="flex justify-between text-[9px] uppercase font-bold text-neutral-500 font-mono">
                       <span>Simulated Churn Stress</span>
                       <span className="text-[#EF2F38] font-bold">{forecastChurnRate}% Loss Multiplier</span>
                     </div>
@@ -2049,7 +1980,7 @@ export function DashboardView() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex justify-between items-center bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-500/20 p-2.5 rounded-[8px]">
                   <div>
-                    <span className="block text-[8px] sm:text-[9px] text-green-700 dark:text-green-400 font-mono uppercase tracking-wider font-bold leading-none">{t('dash_optimal_training_day')}</span>
+                    <span className="block text-[9px] text-green-700 dark:text-green-400 font-mono uppercase tracking-wider font-bold leading-none">{t('dash_optimal_training_day')}</span>
                     <span className="text-xs font-bold text-neutral-800 dark:text-white leading-none mt-1 block">{attendanceDensityStats.optimalDay}</span>
                   </div>
                   <span className="text-sm sm:text-base font-bold text-green-600 dark:text-green-400 font-mono leading-none">{attendanceDensityStats.optimalRate}%</span>
@@ -2057,7 +1988,7 @@ export function DashboardView() {
 
                 <div className="flex justify-between items-center bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-500/20 p-2.5 rounded-[8px]">
                   <div>
-                    <span className="block text-[8px] sm:text-[9px] text-red-700 dark:text-red-400 font-mono uppercase tracking-wider font-bold leading-none">{t('dash_at_risk_density_day')}</span>
+                    <span className="block text-[9px] text-red-700 dark:text-red-400 font-mono uppercase tracking-wider font-bold leading-none">{t('dash_at_risk_density_day')}</span>
                     <span className="text-xs font-bold text-neutral-800 dark:text-white leading-none mt-1 block">{attendanceDensityStats.lowDay}</span>
                   </div>
                   <span className="text-sm sm:text-base font-bold text-red-600 dark:text-red-400 font-mono leading-none">{attendanceDensityStats.lowRate}%</span>
@@ -2089,11 +2020,11 @@ export function DashboardView() {
                           )}
                           style={{ height: `${d.rate || 6}%` }}
                         />
-                        <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] sm:text-[10px] font-bold font-mono opacity-0 group-hover:opacity-100 transition-opacity bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-1 rounded shadow pointer-events-none">
+                        <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[9px] sm:text-[10px] font-bold font-mono opacity-0 group-hover:opacity-100 transition-opacity bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-1 rounded shadow pointer-events-none">
                           {d.rate}%
                         </span>
                       </div>
-                      <span className="text-[8px] sm:text-[9px] font-bold text-neutral-600 dark:text-neutral-400 font-mono">{d.dayName}</span>
+                      <span className="text-[9px] font-bold text-neutral-600 dark:text-neutral-400 font-mono">{d.dayName}</span>
                     </div>
                   ))}
                 </div>
@@ -2136,7 +2067,7 @@ export function DashboardView() {
                         type="button"
                         onClick={() => setPriRankFilter(tab.key as any)}
                         className={cn(
-                          "px-2 py-0.5 rounded text-[8.5px] sm:text-[9.5px] font-mono font-bold uppercase tracking-wider border transition-all cursor-pointer whitespace-nowrap",
+                          "px-2 py-0.5 rounded text-[9px] sm:text-[9.5px] font-mono font-bold uppercase tracking-wider border transition-all cursor-pointer whitespace-nowrap",
                           priRankFilter === tab.key
                             ? "bg-amber-500 text-amber-950 font-black border-amber-500 shadow-sm"
                             : "bg-white dark:bg-[#0F0F0F] text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-[#262626] hover:border-neutral-300 dark:hover:border-neutral-700"
@@ -2192,10 +2123,10 @@ export function DashboardView() {
                             )}
                           </div>
                           <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-[8px] sm:text-[9px] text-[#EF2F38] dark:text-red-400 font-mono uppercase tracking-wider font-bold leading-none">
+                            <span className="text-[9px] text-[#EF2F38] dark:text-red-400 font-mono uppercase tracking-wider font-bold leading-none">
                               {translateBeltFormatted(candidate.student.currentBelt, candidate.student.dob)}
                             </span>
-                            <span className="text-[8px] sm:text-[9px] text-neutral-400 font-mono leading-none">• {candidate.student.id}</span>
+                            <span className="text-[9px] text-neutral-400 font-mono leading-none">• {candidate.student.id}</span>
                           </div>
                         </div>
                       </div>
@@ -2204,19 +2135,19 @@ export function DashboardView() {
                       <div className="flex flex-wrap items-center justify-between lg:justify-end gap-2 w-full lg:w-auto border-t lg:border-t-0 border-neutral-100 dark:border-[#1A1A1A] pt-1.5 lg:pt-0">
                         {/* 4 Pillars Explicit Badges */}
                         <div className="flex flex-wrap gap-1 sm:gap-1.5">
-                          <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-[8px] sm:text-[9px] font-mono", report?.daysEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Time in Grade">
+                          <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-[9px] font-mono", report?.daysEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Time in Grade">
                             <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
                             <span>{report?.daysElapsed}/{report?.daysRequired}d</span>
                           </span>
-                          <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-[8px] sm:text-[9px] font-mono", report?.attendanceEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Attendance Count">
+                          <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-[9px] font-mono", report?.attendanceEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Attendance Count">
                             <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
                             <span>{report?.attendanceSince}/{report?.attendanceRequired}</span>
                           </span>
-                          <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-[8px] sm:text-[9px] font-mono", report?.syllabusEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Syllabus Progress">
+                          <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-[9px] font-mono", report?.syllabusEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Syllabus Progress">
                             <Play className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
                             <span>{report?.syllabusCompletedPct}%</span>
                           </span>
-                          <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-[8px] sm:text-[9px] font-mono", report?.physicalEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Physical Skills">
+                          <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-[9px] font-mono", report?.physicalEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Physical Skills">
                             <ShieldCheck className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
                             <span>{report?.skillsGradedCount}/{report?.totalSkillsCount}</span>
                           </span>
@@ -2225,7 +2156,7 @@ export function DashboardView() {
                         {/* Candidate Readiness Rank */}
                         <div className="shrink-0">
                           <span className={cn(
-                            "px-2 py-0.5 rounded text-[8.5px] sm:text-[9px] font-bold uppercase tracking-wider border font-mono",
+                            "px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border font-mono",
                             candidate.rank === 'Gold' ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30" :
                             candidate.rank === 'Silver' ? "bg-slate-500/10 text-slate-700 dark:text-slate-300 border-slate-500/30" :
                             "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/30"
@@ -2286,7 +2217,7 @@ export function DashboardView() {
                         type="button"
                         onClick={() => setChurnFilter(tab.key as any)}
                         className={cn(
-                          "px-2 py-0.5 rounded text-[8.5px] sm:text-[9.5px] font-mono font-bold uppercase tracking-wider border transition-all cursor-pointer whitespace-nowrap",
+                          "px-2 py-0.5 rounded text-[9px] sm:text-[9.5px] font-mono font-bold uppercase tracking-wider border transition-all cursor-pointer whitespace-nowrap",
                           churnFilter === tab.key
                             ? "bg-[#EF2F38] text-white border-[#EF2F38] shadow-sm"
                             : "bg-white dark:bg-[#0F0F0F] text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-[#262626] hover:border-neutral-300 dark:hover:border-neutral-700"
@@ -2343,12 +2274,12 @@ export function DashboardView() {
                               <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-sans leading-none">{hazard.student.khmerName}</span>
                             )}
                           </div>
-                          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[8.5px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono">
+                          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono">
                             <span>Last Class: {hazard.lastDate === 'Never' ? 'Never' : hazard.lastDate}</span>
                             <span className="text-neutral-300 dark:text-neutral-700">•</span>
                             <span className="text-[#EF2F38] font-bold">{hazard.daysSinceLastClass}d inactive</span>
                           </div>
-                          <div className="text-[8.5px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono leading-none">
+                          <div className="text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono leading-none">
                             Missed: <strong className="text-neutral-700 dark:text-neutral-300">{hazard.estimatedMissedClasses} classes</strong> (Expected {hazard.expectedWeeklyFrequency}x/wk)
                           </div>
                         </div>
@@ -2358,7 +2289,7 @@ export function DashboardView() {
                       <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto border-t sm:border-t-0 border-neutral-100 dark:border-[#1A1A1A] pt-2 sm:pt-0">
                         <div className="flex flex-col items-start sm:items-end leading-none">
                           <span className={cn(
-                            "px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider border font-mono",
+                            "px-1.5 py-0.5 rounded text-[9px] sm:text-[9.5px] font-bold uppercase tracking-wider border font-mono",
                             isHigh ? "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/25" :
                             "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/25"
                           )}>
@@ -2373,7 +2304,7 @@ export function DashboardView() {
                               href={whatsAppUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-2.5 py-1 min-h-[28px] bg-emerald-500/10 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-400 hover:text-white border border-emerald-500/20 hover:border-transparent rounded-[6px] text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95 touch-manipulation"
+                              className="px-2.5 py-1 min-h-[28px] bg-emerald-500/10 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-400 hover:text-white border border-emerald-500/20 hover:border-transparent rounded-[6px] text-[9px] sm:text-[9.5px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                               title="Direct WhatsApp check-in"
                             >
                               <PaperPlaneTilt className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -2383,7 +2314,7 @@ export function DashboardView() {
                           {hazard.student.emergencyContactPhone && (
                             <a
                               href={`tel:${hazard.student.emergencyContactPhone}`}
-                              className="px-2.5 py-1 min-h-[28px] bg-[#EF2F38]/10 hover:bg-[#EF2F38] text-[#EF2F38] hover:text-white border border-[#EF2F38]/20 hover:border-transparent rounded-[6px] text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95 touch-manipulation"
+                              className="px-2.5 py-1 min-h-[28px] bg-[#EF2F38]/10 hover:bg-[#EF2F38] text-[#EF2F38] hover:text-white border border-[#EF2F38]/20 hover:border-transparent rounded-[6px] text-[9px] sm:text-[9.5px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                               title={`Call: ${hazard.student.emergencyContactPhone}`}
                             >
                               <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -2435,7 +2366,7 @@ export function DashboardView() {
               {beltDistribution.map(belt => (
                 <div key={belt.key} className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-2.5 sm:p-3 rounded-[8px] space-y-2 flex flex-col justify-between">
                   <div className="flex items-center justify-between">
-                    <span className={cn("px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9.5px] font-bold font-mono uppercase tracking-wider", belt.color)}>
+                    <span className={cn("px-1.5 py-0.5 rounded text-[9px] sm:text-[9.5px] font-bold font-mono uppercase tracking-wider", belt.color)}>
                       {belt.name}
                     </span>
                     <span className="text-xs sm:text-sm font-bold font-mono text-neutral-900 dark:text-white">
@@ -2449,7 +2380,7 @@ export function DashboardView() {
                         style={{ width: `${belt.pct}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-[8px] sm:text-[9px] text-neutral-500 dark:text-neutral-400 font-mono">
+                    <div className="flex justify-between text-[9px] text-neutral-500 dark:text-neutral-400 font-mono">
                       <span>Roster Share</span>
                       <strong className="text-neutral-700 dark:text-neutral-300">{belt.pct}%</strong>
                     </div>
@@ -2464,6 +2395,7 @@ export function DashboardView() {
       {activeHelpSection && (
         <Portal>
           <div className="fixed inset-0 bg-neutral-950/75 backdrop-blur-sm z-[120] flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setActiveHelpSection(null)}>
+            <ModalA11y label="Help" onClose={() => setActiveHelpSection(null)} />
             <motion.div
               {...dialogMotion}
               onClick={(e) => e.stopPropagation()}
@@ -2472,7 +2404,7 @@ export function DashboardView() {
               {/* Header */}
               <div className="flex justify-between items-start border-b border-neutral-200 dark:border-[#262626] pb-3">
                 <div className="space-y-1">
-                  <span className="text-[8px] font-bold uppercase tracking-widest text-[#EF2F38] font-mono">{t('dash_intel_guide')}</span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-[#EF2F38] font-mono">{t('dash_intel_guide')}</span>
                   <h3 className="text-sm font-black text-neutral-800 dark:text-white mt-1">
                     {helpContent[activeHelpSection].title}
                   </h3>
@@ -2484,7 +2416,7 @@ export function DashboardView() {
 
               {/* Math Formula Card */}
               <div className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 text-center">
-                <span className="text-[7.5px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest block font-mono mb-1">{t('dash_math_formula')}</span>
+                <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest block font-mono mb-1">{t('dash_math_formula')}</span>
                 <code className="text-[10px] font-mono text-red-500 dark:text-red-400 font-bold">{helpContent[activeHelpSection].math}</code>
               </div>
 

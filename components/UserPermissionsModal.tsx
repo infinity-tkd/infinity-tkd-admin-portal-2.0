@@ -1,5 +1,6 @@
 'use client';
 
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import React, { useState, useMemo } from 'react';
 import { User, useAppStore } from '@/lib/store';
 import { PERMISSION_DEFINITIONS, MODULE_DEFINITIONS, ModuleDefinition, PermissionKey, hasPermission } from '@/lib/security';
@@ -230,6 +231,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
   return (
     <Portal>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-5 animate-in fade-in">
+        <ModalA11y label="User permissions" onClose={onClose} />
         <div className="w-full max-w-4xl max-h-[94dvh] my-auto bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col text-neutral-900 dark:text-white overflow-hidden">
 
           {/* Header */}
@@ -598,7 +600,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 sm:flex-none px-4 py-2 min-h-[42px] bg-neutral-200 dark:bg-[#1A1A1A] text-neutral-800 dark:text-neutral-300 font-bold uppercase tracking-wider text-xs rounded-[8px] hover:bg-neutral-300 dark:hover:bg-[#262626] cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
+                className="flex-1 sm:flex-none px-4 py-2 min-h-[42px] bg-neutral-200 dark:bg-[#1A1A1A] text-neutral-800 dark:text-neutral-300 font-bold uppercase tracking-wider text-xs rounded-[8px] hover:bg-neutral-300 dark:hover:bg-[#262626] cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11"
               >
                 Cancel
               </button>
@@ -607,7 +609,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                 type="button"
                 onClick={handleSave}
                 disabled={isSaving || modifiedCount === 0}
-                className="flex-1 sm:flex-none px-4 py-2 min-h-[42px] bg-purple-600 hover:bg-purple-500 text-white font-bold uppercase tracking-wider text-xs rounded-[8px] disabled:opacity-50 cursor-pointer shadow-sm shadow-purple-600/20 flex items-center justify-center gap-2 transition-all active:scale-95 touch-manipulation"
+                className="flex-1 sm:flex-none px-4 py-2 min-h-[42px] bg-purple-600 hover:bg-purple-500 text-white font-bold uppercase tracking-wider text-xs rounded-[8px] disabled:opacity-50 cursor-pointer shadow-sm shadow-purple-600/20 flex items-center justify-center gap-2 transition-all active:scale-95 touch-manipulation pointer-coarse:min-h-11"
               >
                 <FloppyDisk className="w-4 h-4" weight="bold" />
                 <span>{isSaving ? 'Saving...' : `Save Access (${modifiedCount} changes)`}</span>

@@ -61,7 +61,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                 <p className="text-[9px] sm:text-[10px] text-emerald-700 dark:text-emerald-400 uppercase font-bold tracking-widest mb-1 truncate">Realized Income</p>
                 <h2 className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">${transactionStats.totalCollected.toFixed(2)}</h2>
               </div>
-              <p className="text-[8.5px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
+              <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
                 Confirmed collections
               </p>
             </div>
@@ -72,7 +72,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                 <p className="text-[9px] sm:text-[10px] text-indigo-600 dark:text-indigo-400 uppercase font-bold tracking-widest mb-1 truncate">Transactions</p>
                 <h2 className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">{transactionStats.count}</h2>
               </div>
-              <p className="text-[8.5px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
+              <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
                 {transactionStats.paidCount} settlements
               </p>
             </div>
@@ -83,7 +83,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                 <p className="text-[9px] sm:text-[10px] text-blue-600 dark:text-blue-400 uppercase font-bold tracking-widest mb-1 truncate">Avg Ticket</p>
                 <h2 className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">${transactionStats.avgVal.toFixed(2)}</h2>
               </div>
-              <p className="text-[8.5px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
+              <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
                 Avg per receipt
               </p>
             </div>
@@ -94,7 +94,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                 <p className="text-[9px] sm:text-[10px] text-amber-700 dark:text-amber-400 uppercase font-bold tracking-widest mb-1 truncate">Peak Payment</p>
                 <h2 className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">${transactionStats.maxVal.toFixed(2)}</h2>
               </div>
-              <p className="text-[8.5px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
+              <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
                 Highest payment
               </p>
             </div>
@@ -403,7 +403,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                                     </span>
                                   )}
                                   {scholarship && scholarship.discountPercentage > 0 && (
-                                    <span className="px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-bold uppercase text-[7px] border border-indigo-500/20">
+                                    <span className="px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-bold uppercase text-[9px] border border-indigo-500/20">
                                       {scholarship.typeName}
                                     </span>
                                   )}
@@ -503,7 +503,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                 <button
                   onClick={() => setTxnPage(p => Math.max(1, p - 1))}
                   disabled={txnPage <= 1}
-                  className="px-3 py-1.5 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 min-h-[34px]"
+                  className="px-3 py-1.5 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 min-h-[34px] pointer-coarse:min-h-11"
                 >
                   <CaretLeft className="w-3.5 h-3.5" />
                   <span>Prev</span>
@@ -516,7 +516,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                 <button
                   onClick={() => setTxnPage(p => Math.min(totalTxnPages, p + 1))}
                   disabled={txnPage >= totalTxnPages}
-                  className="px-3 py-1.5 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 min-h-[34px]"
+                  className="px-3 py-1.5 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 min-h-[34px] pointer-coarse:min-h-11"
                 >
                   <span>Next</span>
                   <CaretRight className="w-3.5 h-3.5" />

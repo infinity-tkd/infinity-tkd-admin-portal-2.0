@@ -133,7 +133,8 @@ try {
   await nav.getByRole('button', {name:/preferences/i}).click();
   await page.getByRole('button',{name:/dark.*night/i}).click();
   await nav.getByRole('button', {name:/academy/i}).click();
-  await page.waitForFunction(() => { const heading=Array.from(document.querySelectorAll('h1')).find(element=>/settings/i.test(element.textContent)); const card=heading?.closest('[class*=shadow-sm]'); return document.documentElement.classList.contains('dark') && card && Number(getComputedStyle(card).backgroundColor.match(/\d+/)?.[0])<100; });
+  // The page header is no longer a card (shared PageHeader); dark mode must still give light heading text on dark settings surfaces.
+  await page.waitForFunction(() => { const heading=Array.from(document.querySelectorAll('h1')).find(element=>/settings/i.test(element.textContent)); const menu=document.querySelector('nav[aria-label="Settings sections"]'); return document.documentElement.classList.contains('dark') && heading && Number(getComputedStyle(heading).color.match(/\d+/)?.[0])>200 && menu && Number(getComputedStyle(menu).backgroundColor.match(/\d+/)?.[0])<100; });
   await page.screenshot({ path: 'scratch/settings-dark.png', fullPage: true });
   await nav.getByRole('button', {name:/accounts/i}).click();
   userFailure = true;

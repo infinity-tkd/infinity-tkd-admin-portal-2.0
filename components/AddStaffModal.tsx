@@ -1,4 +1,5 @@
 'use client';
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import { TelegramContactField } from './ContactActions';
 
 import { dialogMotion } from '@/lib/motion';
@@ -179,6 +180,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
     return (
       <Portal>
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 pt-[env(safe-area-inset-top)] pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          <ModalA11y label="Staff account created" onClose={onClose} />
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -208,6 +210,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
   return (
     <Portal>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 pt-[env(safe-area-inset-top)] pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <ModalA11y label="Add staff member" onClose={onClose} locked={isSaving} />
         <motion.div
           {...dialogMotion}
           className="w-full max-w-4xl bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col max-h-[90dvh] text-neutral-900 dark:text-white"
@@ -278,7 +281,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                         src={form.profilePicturePath}
                         alt="Preview"
                         containerClassName="w-10 h-10 rounded-[8px] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] overflow-hidden flex items-center justify-center shadow-md dark:shadow-black/40"
-                        fallback={<span className="text-[8px] text-red-500 uppercase font-black tracking-tighter bg-red-500/10 border border-red-500/20 px-1 py-0.5 rounded">Err / Private</span>}
+                        fallback={<span className="text-[9px] text-red-500 uppercase font-black tracking-tighter bg-red-500/10 border border-red-500/20 px-1 py-0.5 rounded">Err / Private</span>}
                       />
                     </div>
                   )}
@@ -543,6 +546,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
         {showConfirm && (
           <Portal>
             <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[110] flex items-center justify-center p-4 animate-in fade-in">
+              <ModalA11y label="Confirm new staff account" onClose={() => setShowConfirm(false)} locked={isSaving} />
               <motion.div {...dialogMotion}
                 className="w-full max-w-sm bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-6 text-center shadow-2xl flex flex-col items-center text-neutral-900 dark:text-white"
               >

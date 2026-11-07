@@ -1,5 +1,6 @@
 'use client';
 
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAppStore } from '@/lib/store';
 import { IDLE_TIMEOUT_MS, WARNING_DURATION_MS } from '@/lib/security';
@@ -96,6 +97,7 @@ export function SessionTimeoutModal() {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+      <ModalA11y label="Session expiring" onClose={() => {}} locked={true} />
       <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-6 max-w-md w-full shadow-2xl text-center space-y-4 max-h-[90dvh] overflow-y-auto">
         <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center mx-auto">
           <Clock className="w-6 h-6 animate-pulse" />

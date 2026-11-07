@@ -64,7 +64,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                       setCalendarMonth(monthsListGlobal[monthIdx - 1]);
                     }
                   }}
-                  className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#0F0F0F] dark:hover:bg-[#1F1F1F] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation"
+                  className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#0F0F0F] dark:hover:bg-[#1F1F1F] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                   title="Previous Month"
                   aria-label="Previous Month"
                 >
@@ -91,7 +91,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                       setCalendarMonth(monthsListGlobal[monthIdx + 1]);
                     }
                   }}
-                  className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#0F0F0F] dark:hover:bg-[#1F1F1F] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation"
+                  className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-[#0F0F0F] dark:hover:bg-[#1F1F1F] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[8px] transition-colors cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                   title="Next Month"
                   aria-label="Next Month"
                 >
@@ -334,7 +334,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                         </span>
 
                         {dueStudents.length > 0 && (
-                          <span className="text-[8px] sm:text-[9px] font-bold font-mono px-1 sm:px-1.5 py-0.2 sm:py-0.5 rounded-[4px] sm:rounded-[6px] bg-neutral-100 dark:bg-[#1A1A1A] text-neutral-700 dark:text-[#CCC] border border-neutral-200 dark:border-[#262626]">
+                          <span className="text-[9px] font-bold font-mono px-1 sm:px-1.5 py-0.2 sm:py-0.5 rounded-[4px] sm:rounded-[6px] bg-neutral-100 dark:bg-[#1A1A1A] text-neutral-700 dark:text-[#CCC] border border-neutral-200 dark:border-[#262626]">
                             <span className="hidden sm:inline">{dueStudents.length} {dueStudents.length === 1 ? 'due' : 'dues'}</span>
                             <span className="sm:hidden">{dueStudents.length}</span>
                           </span>
@@ -373,7 +373,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                                 />
                               ))}
                               {dueStudents.length > 3 && (
-                                <div className="w-5 h-5 rounded-full bg-neutral-200 dark:bg-[#262626] text-[8px] font-mono font-bold text-neutral-800 dark:text-white flex items-center justify-center border border-white dark:border-[#141414] shrink-0">
+                                <div className="w-5 h-5 rounded-full bg-neutral-200 dark:bg-[#262626] text-[9px] font-mono font-bold text-neutral-800 dark:text-white flex items-center justify-center border border-white dark:border-[#141414] shrink-0">
                                   +{dueStudents.length - 3}
                                 </div>
                               )}
@@ -382,22 +382,22 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                             {/* Status Pills */}
                             <div className="flex items-center gap-1 flex-wrap">
                               {overdueCount > 0 && (
-                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-red-500/10 text-red-600 dark:text-red-400 text-[8px] font-mono font-bold border border-red-500/20">
+                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-red-500/10 text-red-600 dark:text-red-400 text-[9px] font-mono font-bold border border-red-500/20">
                                   <span className="w-1 h-1 rounded-full bg-red-500"></span> {overdueCount}
                                 </span>
                               )}
                               {pendingCount > 0 && (
-                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[8px] font-mono font-bold border border-amber-500/20">
+                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[9px] font-mono font-bold border border-amber-500/20">
                                   <span className="w-1 h-1 rounded-full bg-amber-500"></span> {pendingCount}
                                 </span>
                               )}
                               {paidCount > 0 && (
-                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-green-500/10 text-green-600 dark:text-green-400 text-[8px] font-mono font-bold border border-green-500/20">
+                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-green-500/10 text-green-600 dark:text-green-400 text-[9px] font-mono font-bold border border-green-500/20">
                                   <span className="w-1 h-1 rounded-full bg-green-500"></span> {paidCount}
                                 </span>
                               )}
                               {waivedCount > 0 && (
-                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[8px] font-mono font-bold border border-purple-500/20">
+                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[9px] font-mono font-bold border border-purple-500/20">
                                   <span className="w-1 h-1 rounded-full bg-purple-500"></span> {waivedCount}
                                 </span>
                               )}
@@ -412,7 +412,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
 
                       {/* Footer Amount */}
                       {dueStudents.length > 0 && (
-                        <div className="text-[8px] sm:text-[9px] font-mono text-center sm:text-right text-neutral-600 dark:text-[#888] pt-0.5 sm:pt-1 border-t border-neutral-200/80 dark:border-[#1F1F1F] truncate">
+                        <div className="text-[9px] font-mono text-center sm:text-right text-neutral-600 dark:text-[#888] pt-0.5 sm:pt-1 border-t border-neutral-200/80 dark:border-[#1F1F1F] truncate">
                           {dayExpectedSum > 0 ? (
                             <span className="text-neutral-900 dark:text-white font-bold">${dayExpectedSum >= 1000 ? `${(dayExpectedSum/1000).toFixed(1)}k` : dayExpectedSum.toFixed(0)}</span>
                           ) : (
@@ -474,7 +474,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                               : "bg-neutral-100 dark:bg-[#1C1C1C] text-neutral-900 dark:text-white border border-neutral-200 dark:border-[#2A2A2A]"
                           )}>
                             <span className="text-xs font-black leading-none">{dayNum}</span>
-                            <span className="text-[8px] uppercase tracking-wider font-bold opacity-80">{calendarMonth.slice(0, 3)}</span>
+                            <span className="text-[9px] uppercase tracking-wider font-bold opacity-80">{calendarMonth.slice(0, 3)}</span>
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
@@ -482,7 +482,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                                 Day {dayNum} Cohort • {cohort.length} {cohort.length === 1 ? 'Student' : 'Students'}
                               </h3>
                               {isToday && (
-                                <span className="px-1.5 py-0.2 rounded text-[8px] font-bold uppercase tracking-wider bg-[#EF2F38] text-white">
+                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-[#EF2F38] text-white">
                                   Today
                                 </span>
                               )}

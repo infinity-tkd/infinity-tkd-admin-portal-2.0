@@ -1,4 +1,5 @@
 'use client';
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import NextImage from 'next/image';
 
 import React, { useRef, useState, useEffect } from 'react';
@@ -388,6 +389,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
       {/* Background overlay screen */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-[env(safe-area-inset-top)] pb-[calc(1rem+env(safe-area-inset-bottom))] bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+<ModalA11y label="Student dossier" onClose={onClose} />
 
         {/* Document Panel Container */}
         <div className={`relative bg-neutral-900 border border-neutral-800 rounded-[8px] shadow-2xl flex flex-col overflow-hidden max-h-[96dvh] transition-all duration-300 ${isFullScreen ? 'w-full h-full max-w-none' : 'w-full max-w-4xl h-[90dvh]'}`}>

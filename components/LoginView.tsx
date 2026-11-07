@@ -1,4 +1,5 @@
 'use client';
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import { copyText } from '@/lib/clipboard';
 import NextImage from 'next/image';
 
@@ -325,7 +326,7 @@ export function LoginView() {
             type="button"
             onClick={toggleTheme}
             aria-label="Toggle dark/light theme"
-            className="p-2 min-h-[34px] min-w-[34px] flex items-center justify-center bg-white/70 dark:bg-[#141414]/80 hover:bg-white dark:hover:bg-[#1E1E1E] backdrop-blur-md border border-neutral-200/80 dark:border-neutral-800 rounded-[8px] text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-all cursor-pointer shadow-xs"
+            className="p-2 min-h-[34px] min-w-[34px] flex items-center justify-center bg-white/70 dark:bg-[#141414]/80 hover:bg-white dark:hover:bg-[#1E1E1E] backdrop-blur-md border border-neutral-200/80 dark:border-neutral-800 rounded-[8px] text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-all cursor-pointer shadow-xs pointer-coarse:min-h-11 pointer-coarse:min-w-11"
           >
             {state.theme === 'dark' ? (
               <Sun size={15} weight="bold" className="text-amber-400" />
@@ -435,7 +436,7 @@ export function LoginView() {
                   tabIndex={-1}
                   onClick={() => setShowPassword((prev) => !prev)}
                   aria-label={showPassword ? t('login_hide_pw') : t('login_show_pw')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-white transition p-2 min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-white transition p-2 min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                 >
                   {showPassword ? <EyeClosed size={16} /> : <Eye size={16} />}
                 </button>
@@ -517,6 +518,7 @@ export function LoginView() {
       <AnimatePresence>
         {showHelpModal && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <ModalA11y label="Sign-in help" onClose={() => setShowHelpModal(false)} />
             <motion.div
               {...dialogMotion}
               className="w-full max-w-md bg-white dark:bg-[#141414] border border-neutral-200 dark:border-neutral-800 rounded-[8px] p-6 shadow-2xl flex flex-col gap-4 text-neutral-900 dark:text-white max-h-[90dvh] overflow-y-auto"

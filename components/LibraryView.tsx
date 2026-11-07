@@ -50,6 +50,8 @@ import { Stack } from '@phosphor-icons/react/dist/csr/Stack';
 import { AnatomyStudioModal } from '@/components/AnatomyStudioModal';
 
 import { cn, normalizeCategory, getCategoryTranslationKey, getYouTubeId, parseAssetDescription, MistakeCorrection, VocabularyItem, QuestionAnswerItem } from '@/lib/utils';
+import { PageHeader } from './ui/PageHeader';
+import { buttonClass } from './ui/styles';
 import { LessonMediaPlayer } from './library/LessonMediaPlayer';
 import { Portal } from '@/components/Portal';
 import { useT } from '@/hooks/useTranslation';
@@ -660,79 +662,57 @@ export function LibraryView() {
   };
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto space-y-4 sm:space-y-6 pb-12">
-      {/* Header Panel */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
-         <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 bg-red-500/10 border border-red-500/20 rounded-[8px] flex items-center justify-center shrink-0 shadow-sm">
-              <BookOpen className="w-6 h-6 text-[#EF2F38]" weight="bold" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 rounded-[6px] text-[10px] font-bold uppercase tracking-wider font-mono">
-                  Curriculum & Training Library
-                </span>
-              </div>
-              <h1 className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white uppercase tracking-wider mt-0.5">{t('nav_library')}</h1>
-              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 uppercase tracking-wide">{t('lib_subtitle')}</p>
-            </div>
-         </div>
-         {(isElevated || activeTab !== 'routines') && (
-            <div className="flex flex-wrap gap-2 items-center">
-               {isElevated && <button type="button" onClick={() => setShowPublicationPanel(true)} className="rounded-[8px] border border-neutral-300 bg-neutral-100 px-3.5 py-2 text-xs font-bold text-neutral-800 dark:border-neutral-700 dark:bg-[#1C1C1C] dark:text-neutral-200 min-h-[42px]">Student library</button>}
-               {isElevated && activeTab !== 'routines' && (
-                 <button onClick={() => {
-                   setNewAsset(prev => ({
-                     ...prev,
-                     category: activeTab === 'tkd' ? 'Forms (Poomsae)' : activeTab === 'dance' ? 'Dance: Hiphop' : 'Strength',
-                     minBeltLevel: activeTab === 'tkd' ? 'White' : activeTab === 'dance' ? 'Dance' : 'Fitness'
-                   }));
-                   setShowAddModal(true);
-                 }}
-                   className="bg-[#EF2F38] text-white hover:bg-[#d6262f] px-4 py-2 min-h-[42px] rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm cursor-pointer touch-manipulation active:scale-95"
-                 >
-                   <Plus className="w-4 h-4" weight="bold"/> {t('lib_add_asset')}
-                 </button>
-               )}
-              {activeTab !== 'routines' && (
-                <>
-                  <button onClick={() => { setSelected3DAsset(null); setShow3DStudio(true); }}
-                    className="bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#2C2C2C] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#262626] px-3.5 py-2 min-h-[42px] rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm cursor-pointer touch-manipulation active:scale-95"
-                    title={t('lib_3d_studio')}
-                  >
-                    <Stack className="w-4 h-4 text-[#EF2F38]" weight="bold"/> {t('lib_3d_studio')}
-                  </button>
-                  {isElevated && <button onClick={() => setShowBulkModal(true)}
-                    className="bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#2C2C2C] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#262626] px-3.5 py-2 min-h-[42px] rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm cursor-pointer touch-manipulation active:scale-95"
-                  >
-                    <UploadSimple className="w-4 h-4 text-[#EF2F38]"/> {t('lib_bulk_upload')}
-                  </button>}
-                </>
-              )}
-              {isElevated && <button onClick={() => {
-                setEditingRoutine(null);
-                setNewRoutine({
-                  title: '',
-                  description: '',
-                  routineType: 'Taekwondo Workout',
-                  difficulty: 'Intermediate',
-                  prepareSeconds: 10,
-                  workSeconds: 30,
-                  restSeconds: 15,
-                  rounds: 6,
-                  selectedExercises: [],
-                  publishToStudents: false,
-                  publicationReason: '',
-                });
-                setShowRoutineModal(true);
-              }}
-                className="bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#2C2C2C] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#262626] px-3.5 py-2 min-h-[42px] rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm cursor-pointer touch-manipulation active:scale-95"
-              >
-                <Timer className="w-4 h-4 text-amber-500 dark:text-amber-400" weight="bold"/> {t('lib_build_routine')}
-              </button>}
-            </div>
+    <div className="w-full max-w-[1600px] mx-auto space-y-4 sm:space-y-5 pb-12">
+      <PageHeader
+        icon={<BookOpen weight="bold" />}
+        eyebrow="Curriculum & Training Library"
+        title={t('nav_library')}
+        description={t('lib_subtitle')}
+        actions={(isElevated || activeTab !== 'routines') ? <>
+          {isElevated && <button type="button" onClick={() => setShowPublicationPanel(true)} className={buttonClass()}>Student library</button>}
+          {isElevated && activeTab !== 'routines' && (
+            <button type="button" onClick={() => {
+              setNewAsset(prev => ({
+                ...prev,
+                category: activeTab === 'tkd' ? 'Forms (Poomsae)' : activeTab === 'dance' ? 'Dance: Hiphop' : 'Strength',
+                minBeltLevel: activeTab === 'tkd' ? 'White' : activeTab === 'dance' ? 'Dance' : 'Fitness'
+              }));
+              setShowAddModal(true);
+            }} className={buttonClass({ variant: 'primary' })}>
+              <Plus className="w-4 h-4" weight="bold"/> {t('lib_add_asset')}
+            </button>
           )}
-      </div>
+          {activeTab !== 'routines' && (
+            <>
+              <button type="button" onClick={() => { setSelected3DAsset(null); setShow3DStudio(true); }} className={buttonClass()} title={t('lib_3d_studio')}>
+                <Stack className="w-4 h-4 text-brand" weight="bold"/> {t('lib_3d_studio')}
+              </button>
+              {isElevated && <button type="button" onClick={() => setShowBulkModal(true)} className={buttonClass()}>
+                <UploadSimple className="w-4 h-4 text-brand"/> {t('lib_bulk_upload')}
+              </button>}
+            </>
+          )}
+          {isElevated && <button type="button" onClick={() => {
+            setEditingRoutine(null);
+            setNewRoutine({
+              title: '',
+              description: '',
+              routineType: 'Taekwondo Workout',
+              difficulty: 'Intermediate',
+              prepareSeconds: 10,
+              workSeconds: 30,
+              restSeconds: 15,
+              rounds: 6,
+              selectedExercises: [],
+              publishToStudents: false,
+              publicationReason: '',
+            });
+            setShowRoutineModal(true);
+          }} className={buttonClass()}>
+            <Timer className="w-4 h-4 text-amber-500 dark:text-amber-400" weight="bold"/> {t('lib_build_routine')}
+          </button>}
+        </> : undefined}
+      />
 
       {/* Primary Dashboard Navigation Tabs */}
       {(() => {
@@ -744,7 +724,7 @@ export function LibraryView() {
         return (
           <div className="bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-1.5 grid grid-cols-2 sm:grid-cols-4 gap-1.5 shadow-sm">
              <button type="button" aria-pressed={activeTab === 'tkd'} onClick={() => { setActiveTab('tkd'); setSelectedSubCategory('All'); }}
-               className={cn("py-2.5 px-3 min-h-[42px] text-xs font-bold uppercase tracking-wider rounded-[6px] transition-all flex items-center justify-center gap-2 cursor-pointer touch-manipulation active:scale-95",
+               className={cn("py-2.5 px-3 min-h-[42px] text-xs font-bold uppercase tracking-wider rounded-[6px] transition-all flex items-center justify-center gap-2 cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11",
                  activeTab === 'tkd'
                    ? "bg-white dark:bg-[#1C1C1C] text-neutral-900 dark:text-white shadow-sm border border-neutral-200/60 dark:border-neutral-800 font-black"
                    : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white hover:bg-white/50 dark:hover:bg-neutral-800/40"
@@ -757,7 +737,7 @@ export function LibraryView() {
                </span>
              </button>
              <button type="button" aria-pressed={activeTab === 'fitness'} onClick={() => { setActiveTab('fitness'); setSelectedSubCategory('All'); }}
-               className={cn("py-2.5 px-3 min-h-[42px] text-xs font-bold uppercase tracking-wider rounded-[6px] transition-all flex items-center justify-center gap-2 cursor-pointer touch-manipulation active:scale-95",
+               className={cn("py-2.5 px-3 min-h-[42px] text-xs font-bold uppercase tracking-wider rounded-[6px] transition-all flex items-center justify-center gap-2 cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11",
                  activeTab === 'fitness'
                    ? "bg-white dark:bg-[#1C1C1C] text-neutral-900 dark:text-white shadow-sm border border-neutral-200/60 dark:border-neutral-800 font-black"
                    : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white hover:bg-white/50 dark:hover:bg-neutral-800/40"
@@ -770,7 +750,7 @@ export function LibraryView() {
                </span>
              </button>
              <button type="button" aria-pressed={activeTab === 'dance'} onClick={() => { setActiveTab('dance'); setSelectedSubCategory('All'); }}
-               className={cn("py-2.5 px-3 min-h-[42px] text-xs font-bold uppercase tracking-wider rounded-[6px] transition-all flex items-center justify-center gap-2 cursor-pointer touch-manipulation active:scale-95",
+               className={cn("py-2.5 px-3 min-h-[42px] text-xs font-bold uppercase tracking-wider rounded-[6px] transition-all flex items-center justify-center gap-2 cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11",
                  activeTab === 'dance'
                    ? "bg-white dark:bg-[#1C1C1C] text-neutral-900 dark:text-white shadow-sm border border-neutral-200/60 dark:border-neutral-800 font-black"
                    : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white hover:bg-white/50 dark:hover:bg-neutral-800/40"
@@ -783,7 +763,7 @@ export function LibraryView() {
                </span>
              </button>
              <button type="button" aria-pressed={activeTab === 'routines'} onClick={() => { setActiveTab('routines'); setSelectedSubCategory('All'); }}
-               className={cn("py-2.5 px-3 min-h-[42px] text-xs font-bold uppercase tracking-wider rounded-[6px] transition-all flex items-center justify-center gap-2 cursor-pointer touch-manipulation active:scale-95",
+               className={cn("py-2.5 px-3 min-h-[42px] text-xs font-bold uppercase tracking-wider rounded-[6px] transition-all flex items-center justify-center gap-2 cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11",
                  activeTab === 'routines'
                    ? "bg-white dark:bg-[#1C1C1C] text-neutral-900 dark:text-white shadow-sm border border-neutral-200/60 dark:border-neutral-800 font-black"
                    : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white hover:bg-white/50 dark:hover:bg-neutral-800/40"
@@ -869,14 +849,14 @@ export function LibraryView() {
              <div>
                <div className="flex items-center justify-between mb-3">
                  <div className="flex gap-1.5 flex-wrap">
-                   <span className={cn("px-2 py-0.5 rounded-[6px] text-[8px] font-bold uppercase tracking-wider border shadow-sm",
+                   <span className={cn("px-2 py-0.5 rounded-[6px] text-[9px] font-bold uppercase tracking-wider border shadow-sm",
                      template.difficulty === 'Elite' ? 'bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/20 text-purple-700 dark:text-purple-400' :
                      template.difficulty === 'Advanced' ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400' :
                      template.difficulty === 'Intermediate' ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400' : 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
                    )}>
                      {template.difficulty}
                    </span>
-                   <span className="px-2 py-0.5 rounded-[6px] text-[8px] font-bold uppercase tracking-wider bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 shadow-sm">
+                   <span className="px-2 py-0.5 rounded-[6px] text-[9px] font-bold uppercase tracking-wider bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 shadow-sm">
                      {template.structure?.routineType || 'Taekwondo Workout'}
                    </span>
                  </div>
@@ -889,7 +869,7 @@ export function LibraryView() {
                <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed line-clamp-3 mb-4">{template.description}</p>
 
                <div className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 mb-4">
-                 <span className="block text-[8px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider mb-2">Sequence Flow ({template.structure.exercises.length} Exercises)</span>
+                 <span className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider mb-2">Sequence Flow ({template.structure.exercises.length} Exercises)</span>
                  <ul className="text-[10px] text-neutral-700 dark:text-neutral-300 space-y-1 font-mono">
                    {template.structure.exercises.slice(0, 3).map((ex: string, i: number) => (
                      <li key={i} className="truncate">• {ex}</li>
@@ -909,7 +889,7 @@ export function LibraryView() {
 
                 <div className="flex gap-2">
                   <button onClick={() => setRunningWorkout(template)}
-                    className="bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] border border-neutral-300 dark:border-neutral-700 text-amber-600 dark:text-amber-400 p-2.5 min-h-[38px] min-w-[38px] rounded-[8px] transition-all flex items-center justify-center shadow-sm cursor-pointer touch-manipulation active:scale-95"
+                    className="bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] border border-neutral-300 dark:border-neutral-700 text-amber-600 dark:text-amber-400 p-2.5 min-h-[38px] min-w-[38px] rounded-[8px] transition-all flex items-center justify-center shadow-sm cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                     title={t('lib_title_start_timer')}
                   >
                     <Timer className="w-4 h-4" weight="fill"/>
@@ -933,13 +913,13 @@ export function LibraryView() {
                           });
                           setShowRoutineModal(true);
                         }}
-                        className="bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 p-2.5 min-h-[38px] min-w-[38px] rounded-[8px] transition-all flex items-center justify-center shadow-sm cursor-pointer touch-manipulation active:scale-95"
+                        className="bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 p-2.5 min-h-[38px] min-w-[38px] rounded-[8px] transition-all flex items-center justify-center shadow-sm cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                         title={t('lib_edit_routine')}
                       >
                         <PencilSimple className="w-4 h-4"/>
                       </button>
                       <button disabled={'publicationState' in template && template.publicationState !== 'draft'} onClick={() => handleDeleteRoutine(template.id, template.title)}
-                        className="bg-neutral-100 hover:bg-red-50 dark:bg-[#1C1C1C] dark:hover:bg-red-950/20 border border-neutral-300 dark:border-neutral-700 text-red-600 dark:text-red-500 p-2.5 min-h-[38px] min-w-[38px] rounded-[8px] transition-all flex items-center justify-center shadow-sm cursor-pointer touch-manipulation active:scale-95"
+                        className="bg-neutral-100 hover:bg-red-50 dark:bg-[#1C1C1C] dark:hover:bg-red-950/20 border border-neutral-300 dark:border-neutral-700 text-red-600 dark:text-red-500 p-2.5 min-h-[38px] min-w-[38px] rounded-[8px] transition-all flex items-center justify-center shadow-sm cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                         title={'publicationState' in template && template.publicationState !== 'draft' ? 'Published routines are retained for students and assignment history' : 'Archive private draft'}
                       >
                         <Trash className="w-4 h-4"/>
@@ -978,13 +958,13 @@ export function LibraryView() {
                     )}
                   </div>
                   {(publication === 'draft' || publication === 'changes') && (
-                    <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-[6px] border border-amber-400/40 bg-amber-950/80 text-[8px] font-bold uppercase tracking-wider text-amber-200">
+                    <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-[6px] border border-amber-400/40 bg-amber-950/80 text-[9px] font-bold uppercase tracking-wider text-amber-200">
                       {publication === 'draft' ? 'Private draft' : 'Unpublished changes'}
                     </span>
                   )}
 
                   {/* Subcategory Label badge */}
-                  <span className="absolute bottom-3 left-3 px-2 py-0.5 bg-black/75 backdrop-blur-sm border border-white/10 rounded-[6px] text-[8px] font-bold uppercase tracking-wider text-neutral-200">
+                  <span className="absolute bottom-3 left-3 px-2 py-0.5 bg-black/75 backdrop-blur-sm border border-white/10 rounded-[6px] text-[9px] font-bold uppercase tracking-wider text-neutral-200">
                     {video.category.startsWith('Fitness:') || video.category.startsWith('Dance:')
                       ? (t(getCategoryTranslationKey(video.category)) || video.category.replace('Fitness: ', '').replace('Dance: ', ''))
                       : (t(getCategoryTranslationKey(normalizeCategory(video.category))) || video.category)}
@@ -992,14 +972,14 @@ export function LibraryView() {
 
                   {/* Belt label badge (TKD only) */}
                   {activeTab === 'tkd' && (
-                    <span className="absolute top-3 right-3 px-2 py-0.5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-[6px] text-[8px] font-bold uppercase tracking-wider text-[#EF2F38]">
+                    <span className="absolute top-3 right-3 px-2 py-0.5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-[6px] text-[9px] font-bold uppercase tracking-wider text-[#EF2F38]">
                       {video.minBeltLevel}
                     </span>
                   )}
 
                   {/* Difficulty Badge */}
                   {details.difficulty && (
-                    <span className={cn("absolute top-3 left-3 px-2 py-0.5 border rounded-[6px] text-[8px] font-bold uppercase tracking-wider shadow-sm",
+                    <span className={cn("absolute top-3 left-3 px-2 py-0.5 border rounded-[6px] text-[9px] font-bold uppercase tracking-wider shadow-sm",
                       details.difficulty === 'Elite' ? 'bg-purple-950/70 border-purple-500/30 text-purple-400' :
                       details.difficulty === 'Advanced' ? 'bg-red-950/70 border-red-500/30 text-red-400' :
                       details.difficulty === 'Intermediate' ? 'bg-amber-950/70 border-amber-500/30 text-amber-400' : 'bg-emerald-950/70 border-emerald-500/30 text-emerald-400'
@@ -1025,12 +1005,12 @@ export function LibraryView() {
                     {details.focusZones && details.focusZones.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-3">
                         {details.focusZones.slice(0, 3).map((zone, i) => (
-                          <span key={i} className="px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 text-[8px] font-semibold rounded-[4px] font-sans uppercase tracking-wider">
+                          <span key={i} className="px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 text-[9px] font-semibold rounded-[4px] font-sans uppercase tracking-wider">
                             {zone}
                           </span>
                         ))}
                         {details.focusZones.length > 3 && (
-                          <span className="text-[8px] text-neutral-400 dark:text-neutral-500 font-medium self-center ml-1">
+                          <span className="text-[9px] text-neutral-400 dark:text-neutral-500 font-medium self-center ml-1">
                             +{details.focusZones.length - 3} more
                           </span>
                         )}
@@ -1046,7 +1026,7 @@ export function LibraryView() {
                           setSelected3DAsset(video);
                           setShow3DStudio(true);
                         }}
-                        className="text-neutral-500 hover:text-[#EF2F38] dark:hover:text-[#EF2F38] transition-colors p-1.5 min-h-[32px] rounded-[6px] hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer flex items-center gap-1 touch-manipulation active:scale-95"
+                        className="text-neutral-500 hover:text-[#EF2F38] dark:hover:text-[#EF2F38] transition-colors p-1.5 min-h-[32px] rounded-[6px] hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer flex items-center gap-1 touch-manipulation active:scale-95 pointer-coarse:min-h-11"
                         title={t('lib_3d_biomechanics')}
                       >
                         <Stack className="w-3.5 h-3.5 text-[#EF2F38]" weight="bold"/>
@@ -1058,7 +1038,7 @@ export function LibraryView() {
                             if (!(await copyText(video.videoUrl || ''))) { showNotification('Copying is unavailable. Select the text and copy it manually.', 'warning'); return; }
                             showNotification("Video URL copied to clipboard!", 'success');
                           }}
-                          className="text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors p-1.5 min-h-[32px] rounded-[6px] hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer touch-manipulation active:scale-95"
+                          className="text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors p-1.5 min-h-[32px] rounded-[6px] hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11"
                           title="Copy Video Link"
                         >
                           <Copy className="w-3.5 h-3.5"/>
@@ -1067,13 +1047,13 @@ export function LibraryView() {
                       {isElevated && (
                         <>
                           <button onClick={(e) => { e.stopPropagation(); handleStartEdit(video); }}
-                            className="text-neutral-500 hover:text-[#EF2F38] dark:hover:text-[#EF2F38] transition-colors p-1.5 min-h-[32px] rounded-[6px] hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer touch-manipulation active:scale-95"
+                            className="text-neutral-500 hover:text-[#EF2F38] dark:hover:text-[#EF2F38] transition-colors p-1.5 min-h-[32px] rounded-[6px] hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11"
                             title={t('act_edit')}
                           >
                             <PencilSimple className="w-3.5 h-3.5"/>
                           </button>
                           <button onClick={(e) => { e.stopPropagation(); confirmDeleteVideo(video.id, video.title); }}
-                            className="text-neutral-500 hover:text-red-500 transition-colors p-1.5 min-h-[32px] rounded-[6px] hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer touch-manipulation active:scale-95"
+                            className="text-neutral-500 hover:text-red-500 transition-colors p-1.5 min-h-[32px] rounded-[6px] hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11"
                             title={t('lib_title_remove_library')}
                           >
                             <Trash className="w-3.5 h-3.5"/>
@@ -1104,7 +1084,7 @@ export function LibraryView() {
                  setSelectedSubCategory('All');
                  setSelectedRoutineType('All');
                }}
-               className="mt-2 px-4 py-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 rounded-[8px] text-xs font-bold transition-all min-h-[36px] active:scale-95 touch-manipulation cursor-pointer inline-flex items-center gap-1.5"
+               className="mt-2 px-4 py-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 rounded-[8px] text-xs font-bold transition-all min-h-[36px] active:scale-95 touch-manipulation cursor-pointer inline-flex items-center gap-1.5 pointer-coarse:min-h-11"
              >
                Reset All Filters
              </button>
@@ -1172,7 +1152,7 @@ function LessonPlayerDialog({ video, t, onClose }: { video: CurriculumVideo; t: 
         <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="library-player-title" tabIndex={-1} className="w-full max-w-3xl bg-[#0A0A0A] border border-[#262626] rounded-[10px] overflow-hidden shadow-2xl flex flex-col max-h-[85dvh]">
           <div className="p-4 md:p-5 border-b border-[#262626] bg-[#0F0F0F] flex justify-between items-center gap-4">
             <div className="min-w-0">
-              <span className="text-[8px] font-bold uppercase tracking-wider px-2.5 py-0.5 bg-red-500/10 border border-red-500/20 text-[#EF2F38] rounded-[6px]">
+              <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 bg-red-500/10 border border-red-500/20 text-[#EF2F38] rounded-[6px]">
                 {t(getCategoryTranslationKey(video.category)) || video.category.replace('Fitness: ', '').replace('Dance: ', '')}
               </span>
               <h3 id="library-player-title" className="text-sm md:text-base font-bold text-white mt-1.5 leading-tight break-words">{video.title}</h3>

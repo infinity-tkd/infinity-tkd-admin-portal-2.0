@@ -236,7 +236,7 @@ export function StudentSkillsTab({ t, canEdit, handleOpenBulkAchvModal, setShowA
                             )}
                            <p className="text-sm font-bold text-neutral-900 dark:text-white pr-28 tracking-tight">{a.eventName}</p>
                            <div className="flex flex-wrap items-center gap-2 mt-2 mb-2.5">
-                             <span className={cn("px-2 py-0.5 rounded-[8px] text-[8px] font-black uppercase tracking-widest border flex items-center gap-1 shadow-sm", medalStyle.badge)}>
+                             <span className={cn("px-2 py-0.5 rounded-[8px] text-[9px] font-black uppercase tracking-widest border flex items-center gap-1 shadow-sm", medalStyle.badge)}>
                                <Trophy className={cn("w-3 h-3", medalStyle.icon)} weight="fill" />
                                <span>
                                  {a.medalRank === 'Gold' ? t('panel_medal_gold') :

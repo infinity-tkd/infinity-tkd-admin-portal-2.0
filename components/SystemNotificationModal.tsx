@@ -237,7 +237,7 @@ URL: ${typeof window !== 'undefined' ? window.location.href : ''}`;
               <button
                 type="button"
                 onClick={handleCopyDetails}
-                className="w-full sm:w-auto px-3.5 py-2 min-h-[40px] rounded-[8px] border border-neutral-300 dark:border-[#2D2D2D] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#252525] text-neutral-800 dark:text-neutral-200 font-bold text-xs uppercase tracking-wider font-mono flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                className="w-full sm:w-auto px-3.5 py-2 min-h-[40px] rounded-[8px] border border-neutral-300 dark:border-[#2D2D2D] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#252525] text-neutral-800 dark:text-neutral-200 font-bold text-xs uppercase tracking-wider font-mono flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all pointer-coarse:min-h-11"
               >
                 {copied ? (
                   <>

@@ -22,6 +22,8 @@ export function useCalendarEvents(from: string, to: string) {
     try {
       const result = await portalRequest<CalendarData>(url + (cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''));
       if (current !== generation.current) return;
+      // A malformed payload shows the inline Retry state instead of crashing the calendar view.
+      if (!Array.isArray(result?.events) || !result.permissions || !result.lookups) throw new Error('The calendar returned an unexpected response. Please retry.');
       setData(previous => cursor && previous ? { ...result, events: [...new Map([...previous.events, ...result.events].map(event => [event.id, event])).values()] } : result);
       setError('');
     } catch (cause) { if (current === generation.current) setError(cause instanceof Error ? cause.message : 'Events could not be loaded. Please retry.'); }

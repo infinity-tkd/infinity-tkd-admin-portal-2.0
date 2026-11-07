@@ -6,6 +6,8 @@ import { canMarkLibraryLessonComplete, isPrivateLibraryDraft } from '@/lib/libra
 import { lessonThumbnailUrl } from '@/lib/lesson-media';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
+import { PageHeader, SegmentedTabs } from './ui/PageHeader';
+import { buttonClass } from './ui/styles';
 import { useAppStore, CurriculumVideo } from '@/lib/store';
 import { motion, AnimatePresence } from 'motion/react';
 import { VideoCamera } from '@phosphor-icons/react/dist/csr/VideoCamera';
@@ -161,84 +163,33 @@ export function LmsView() {
   const trackCompletionPct = totalTrackRequired > 0 ? Math.round((completedInTrack / totalTrackRequired) * 100) : 0;
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto space-y-4 sm:space-y-6 pb-12 font-sans">
-      {/* Top Header Panel */}
-      <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 bg-red-500/10 border border-red-500/20 rounded-[8px] flex items-center justify-center shrink-0 shadow-sm">
-            <GraduationCap className="w-6 h-6 text-[#EF2F38]" weight="bold" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 rounded-[6px] text-[10px] font-bold uppercase tracking-wider font-mono">
-                E-Learning & Curriculum
-              </span>
-            </div>
-            <h1 className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white tracking-tight mt-0.5">
-              {t('lms_title')}
-            </h1>
-            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono tracking-wide mt-0.5">
-              {t('lms_subtitle')}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2.5 flex-wrap">
-          {can('action:curriculum_edit') && <button type="button" onClick={() => setShowPublicationPanel(true)} className="min-h-[42px] rounded-[8px] border border-neutral-300 bg-neutral-100 px-4 py-2 text-xs font-bold text-neutral-800 dark:border-neutral-700 dark:bg-[#1C1C1C] dark:text-neutral-200">Student library</button>}
-          {isElevated && (
-            <>
-              {can('page:library') && <Link
-                href="/library"
-                className="px-4 py-2 min-h-[42px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-[#262626] rounded-[8px] text-xs font-bold transition-all flex items-center gap-2 shadow-sm shrink-0 active:scale-95 touch-manipulation"
-              >
-                <BookOpen className="w-4 h-4 text-[#EF2F38]" weight="bold" />
-                <span>{can('action:curriculum_edit') ? t('lms_manage_in_library') : t('nav_library')}</span>
-              </Link>}
-              <button
-                type="button"
-                onClick={() => {
-                  setSelected3DAsset(null);
-                  setShow3DStudio(true);
-                }}
-                className="px-4 py-2 min-h-[42px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-[#262626] rounded-[8px] text-xs font-bold transition-all flex items-center gap-2 shadow-sm shrink-0 cursor-pointer active:scale-95 touch-manipulation"
-                title={t('lib_3d_studio')}
-              >
-                <Stack className="w-4 h-4 text-[#EF2F38]" weight="bold" />
-                <span>{t('lib_3d_studio')}</span>
-              </button>
-            </>
+    <div className="w-full max-w-[1600px] mx-auto space-y-4 sm:space-y-5 pb-12 font-sans">
+      <PageHeader
+        icon={<GraduationCap weight="bold" />}
+        eyebrow="E-Learning & Curriculum"
+        title={t('lms_title')}
+        description={t('lms_subtitle')}
+        actions={(can('action:curriculum_edit') || isElevated) ? <>
+          {can('action:curriculum_edit') && <button type="button" onClick={() => setShowPublicationPanel(true)} className={buttonClass()}>Student library</button>}
+          {isElevated && can('page:library') && (
+            <Link href="/library" className={buttonClass()}>
+              <BookOpen className="h-4 w-4 text-brand" weight="bold" />
+              <span>{can('action:curriculum_edit') ? t('lms_manage_in_library') : t('nav_library')}</span>
+            </Link>
           )}
-
-          <div className="flex bg-neutral-100 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] p-1 gap-1">
-            <button
-              onClick={() => setActiveTab('syllabus')}
-              className={cn(
-                "px-4 py-2 min-h-[42px] rounded-[6px] text-xs font-bold transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center gap-1.5",
-                activeTab === 'syllabus'
-                  ? "bg-white dark:bg-[#1A1A1A] text-neutral-900 dark:text-white shadow-sm border border-neutral-200/60 dark:border-[#333]"
-                  : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-              )}
-            >
-              <VideoCamera className="w-4 h-4 text-[#EF2F38]" />
-              <span>{t('lms_tab_syllabus')}</span>
+          {isElevated && (
+            <button type="button" onClick={() => { setSelected3DAsset(null); setShow3DStudio(true); }} className={buttonClass()} title={t('lib_3d_studio')}>
+              <Stack className="h-4 w-4 text-brand" weight="bold" />
+              <span>{t('lib_3d_studio')}</span>
             </button>
-            {role !== 'Student' && (
-              <button
-                onClick={() => setActiveTab('analytics')}
-                className={cn(
-                  "px-4 py-2 min-h-[42px] rounded-[6px] text-xs font-bold transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center gap-1.5",
-                  activeTab === 'analytics'
-                    ? "bg-white dark:bg-[#1A1A1A] text-neutral-900 dark:text-white shadow-sm border border-neutral-200/60 dark:border-[#333]"
-                    : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-                )}
-              >
-                <CheckSquare className="w-4 h-4 text-[#EF2F38]" />
-                <span>{t('lms_tab_testing')}</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+          )}
+        </> : undefined}
+      />
+
+      <SegmentedTabs label="E-learning views" value={activeTab} onChange={setActiveTab} items={[
+        { id: 'syllabus', label: t('lms_tab_syllabus'), icon: <VideoCamera /> },
+        { id: 'analytics', label: t('lms_tab_testing'), icon: <CheckSquare />, hidden: role === 'Student' },
+      ]} />
 
       {activeTab === 'syllabus' && (
         <div className="space-y-4 sm:space-y-6">
@@ -260,7 +211,7 @@ export function LmsView() {
                     key={belt}
                     onClick={() => setSelectedTrackBelt(belt)}
                     className={cn(
-                      "px-4 py-2 min-h-[42px] rounded-[8px] text-xs font-bold tracking-tight whitespace-nowrap transition-all cursor-pointer shrink-0 flex items-center gap-2 active:scale-95 touch-manipulation",
+                      "px-4 py-2 min-h-[42px] rounded-[8px] text-xs font-bold tracking-tight whitespace-nowrap transition-all cursor-pointer shrink-0 flex items-center gap-2 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                       isActive
                         ? "bg-[#EF2F38] text-white shadow-sm ring-2 ring-[#EF2F38]/20 font-black"
                         : "bg-neutral-50 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#252525] border border-neutral-200 dark:border-[#262626]"
@@ -273,7 +224,7 @@ export function LmsView() {
               <button
                 onClick={() => setSelectedTrackBelt('All')}
                 className={cn(
-                  "px-4 py-2 min-h-[42px] rounded-[8px] text-xs font-bold tracking-tight whitespace-nowrap transition-all cursor-pointer shrink-0 border active:scale-95 touch-manipulation",
+                  "px-4 py-2 min-h-[42px] rounded-[8px] text-xs font-bold tracking-tight whitespace-nowrap transition-all cursor-pointer shrink-0 border active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                   selectedTrackBelt === 'All'
                     ? "bg-[#EF2F38] text-white border-[#EF2F38] shadow-sm ring-2 ring-[#EF2F38]/20 font-black"
                     : "bg-neutral-50 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#252525] border-neutral-200 dark:border-[#262626]"
@@ -377,7 +328,7 @@ export function LmsView() {
                 aria-label={t('lib_all_categories')}
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full sm:w-64 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[8px] px-3.5 min-h-[42px] text-xs focus:outline-none focus:border-[#EF2F38] font-bold cursor-pointer shadow-sm"
+                className="w-full sm:w-64 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[8px] px-3.5 min-h-[42px] text-xs focus:outline-none focus:border-[#EF2F38] font-bold cursor-pointer shadow-sm pointer-coarse:min-h-11"
               >
                 <option value="All">{t('lib_all_categories')}</option>
                 <option value="Forms (Poomsae)">{t('cat_poomsae')}</option>
@@ -468,7 +419,7 @@ export function LmsView() {
                                void toggleVideoProgress(effectiveStudent.id, video.id, !isWatched).catch(() => {});
                              }}
                              className={cn(
-                               "flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all border cursor-pointer active:scale-95 touch-manipulation",
+                               "flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all border cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                                isWatched
                                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
                                  : "bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-300 dark:border-[#333] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:border-neutral-400"
@@ -488,7 +439,7 @@ export function LmsView() {
                            type="button"
                            aria-label={`${t('lms_watch')}: ${video.title}`}
                            onClick={() => handlePlayVideo(video)}
-                           className="px-3.5 py-1.5 min-h-[36px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] text-neutral-900 dark:text-white text-[10px] font-bold uppercase tracking-wider rounded-[6px] border border-neutral-300 dark:border-[#262626] transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center gap-1"
+                           className="px-3.5 py-1.5 min-h-[36px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] text-neutral-900 dark:text-white text-[10px] font-bold uppercase tracking-wider rounded-[6px] border border-neutral-300 dark:border-[#262626] transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center gap-1 pointer-coarse:min-h-11"
                          >
                            <PlayCircle size={14} className="text-[#EF2F38]" weight="fill" />
                            <span>{t('lms_watch')}</span>
@@ -540,7 +491,7 @@ export function LmsView() {
           const isTkd = activePlayVideo.category && !activePlayVideo.category.startsWith('Fitness:') && activePlayVideo.minBeltLevel !== 'Fitness';
           const isWatched = effectiveStudent ? studentWatchedIds.has(activePlayVideo.id) : false;
           const hasStudyContent = !!(parsed.terminology?.length || parsed.studyGuide?.length || parsed.performance?.length);
-          const tabClass = (tab: typeof playerTab) => cn("px-3 py-1.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer min-h-[32px]", playerTab === tab ? "bg-[#222] text-white border border-white/10" : "text-[#777] hover:text-white");
+          const tabClass = (tab: typeof playerTab) => cn("px-3 py-1.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer min-h-[32px] pointer-coarse:min-h-11", playerTab === tab ? "bg-[#222] text-white border border-white/10" : "text-[#777] hover:text-white");
           const emptyTab = (message: string) => <p className="text-[10px] text-[#555] italic text-center py-6">{message}</p>;
 
           return (
@@ -622,7 +573,7 @@ export function LmsView() {
                             disabled={!isWatched && !canMarkLibraryLessonComplete(activePlayVideo)}
                             onClick={() => void toggleVideoProgress(effectiveStudent.id, activePlayVideo.id, !isWatched).catch(() => {})}
                             className={cn(
-                              "px-4 py-2.5 rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 border min-h-[40px] cursor-pointer touch-manipulation active:scale-95",
+                              "px-4 py-2.5 rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 border min-h-[40px] cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11",
                               isWatched
                                 ? "bg-[#1A1A1A] border-[#333] text-[#AAA] hover:text-white hover:bg-[#252525]"
                                 : "bg-emerald-600 border-emerald-500 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-950/40"
@@ -635,7 +586,7 @@ export function LmsView() {
                         <button
                           type="button"
                           onClick={() => setActivePlayVideo(null)}
-                          className="px-4 py-2.5 bg-[#1A1A1A] hover:bg-[#262626] border border-[#262626] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider transition-colors min-h-[40px] cursor-pointer touch-manipulation active:scale-95"
+                          className="px-4 py-2.5 bg-[#1A1A1A] hover:bg-[#262626] border border-[#262626] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider transition-colors min-h-[40px] cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11"
                         >
                           {t('act_close')}
                         </button>
@@ -672,7 +623,7 @@ export function LmsView() {
                         type="button"
                         aria-pressed={playerTab === 'biomechanics'}
                         onClick={() => setPlayerTab('biomechanics')}
-                        className={cn("px-3 py-1.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer flex items-center gap-1.5 min-h-[32px]", playerTab === 'biomechanics' ? "bg-[#222] text-[#EF2F38] border border-[#EF2F38]/30" : "text-[#777] hover:text-white")}
+                        className={cn("px-3 py-1.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer flex items-center gap-1.5 min-h-[32px] pointer-coarse:min-h-11", playerTab === 'biomechanics' ? "bg-[#222] text-[#EF2F38] border border-[#EF2F38]/30" : "text-[#777] hover:text-white")}
                       >
                         <Stack className="w-3.5 h-3.5 text-[#EF2F38]" weight="bold"/>
                         <span>3D Studio</span>
@@ -685,17 +636,17 @@ export function LmsView() {
                         <div className="space-y-4">
                           {/* Sets & Reps */}
                           <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px]">
-                            <span className="block text-[8px] uppercase font-black text-[#555] tracking-wider mb-1">Target Reps & Sets</span>
+                            <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider mb-1">Target Reps & Sets</span>
                             <span className="text-xs font-bold text-neutral-300 font-mono">{parsed.repsSets || t('lib_self_paced')}</span>
                           </div>
 
                           {/* Focus Zones */}
                           {parsed.focusZones && parsed.focusZones.length > 0 && (
                             <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px]">
-                              <span className="block text-[8px] uppercase font-black text-[#555] tracking-wider mb-2">Target Focus Areas</span>
+                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider mb-2">Target Focus Areas</span>
                               <div className="flex flex-wrap gap-1">
                                 {parsed.focusZones.map((zone, idx) => (
-                                  <span key={idx} className="px-1.5 py-0.5 bg-[#262626] text-[#999] border border-white/5 text-[8px] font-black uppercase tracking-wider rounded">{zone}</span>
+                                  <span key={idx} className="px-1.5 py-0.5 bg-[#262626] text-[#999] border border-white/5 text-[9px] font-black uppercase tracking-wider rounded">{zone}</span>
                                 ))}
                               </div>
                             </div>
@@ -704,13 +655,13 @@ export function LmsView() {
                           {/* Instructions */}
                           {parsed.instructions && parsed.instructions.length > 0 && (
                             <div className="space-y-2">
-                              <span className="block text-[8px] uppercase font-black text-[#555] tracking-wider">Execution Steps</span>
+                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider">Execution Steps</span>
                               <ol className="space-y-2">
                                 {parsed.instructions.map((step, idx) => {
                                   const cleanStep = step.replace(/^Step\s+\d+:\s*/i, '');
                                   return (
                                     <li key={idx} className="flex items-start gap-2 text-xs text-[#999] leading-relaxed">
-                                      <span className="w-4 h-4 rounded-full bg-[#EF2F38]/10 border border-[#EF2F38]/20 text-[#EF2F38] text-[8px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                      <span className="w-4 h-4 rounded-full bg-[#EF2F38]/10 border border-[#EF2F38]/20 text-[#EF2F38] text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                                       <span>{cleanStep}</span>
                                     </li>
                                   );
@@ -725,7 +676,7 @@ export function LmsView() {
                         <div className="space-y-3">
                           {parsed.principles && parsed.principles.length > 0 && (
                             <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px] space-y-1.5">
-                              <span className="block text-[8px] uppercase font-black text-[#555] tracking-wider">Core Principles</span>
+                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider">Core Principles</span>
                               <ul className="space-y-1 text-xs text-[#999]">
                                 {parsed.principles.map((item, idx) => (
                                   <li key={idx} className="flex items-start gap-1.5">• {item}</li>
@@ -735,7 +686,7 @@ export function LmsView() {
                           )}
                           {parsed.prerequisites && parsed.prerequisites.length > 0 && (
                             <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px] space-y-1.5">
-                              <span className="block text-[8px] uppercase font-black text-[#555] tracking-wider">Prerequisites</span>
+                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider">Prerequisites</span>
                               <ul className="space-y-1 text-xs text-[#999]">
                                 {parsed.prerequisites.map((item, idx) => (
                                   <li key={idx} className="flex items-start gap-1.5">• {item}</li>
@@ -751,11 +702,11 @@ export function LmsView() {
                         <div className="space-y-3">
                           {parsed.drillingMethods && parsed.drillingMethods.length > 0 && (
                             <div className="p-3.5 bg-[#141414] border border-[#262626] rounded-[8px] space-y-2">
-                              <span className="block text-[8px] uppercase font-black text-[#555] tracking-wider">Drilling Methods</span>
+                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider">Drilling Methods</span>
                               <ul className="space-y-1.5">
                                 {parsed.drillingMethods.map((item, idx) => (
                                   <li key={idx} className="flex items-start gap-2 text-xs text-[#999]">
-                                    <span className="w-4 h-4 rounded-full bg-[#EF2F38]/10 border border-[#EF2F38]/20 text-[#EF2F38] text-[8px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                    <span className="w-4 h-4 rounded-full bg-[#EF2F38]/10 border border-[#EF2F38]/20 text-[#EF2F38] text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                                     <span>{item}</span>
                                   </li>
                                 ))}
@@ -770,7 +721,7 @@ export function LmsView() {
                         <div className="space-y-3">
                           {!!parsed.performance?.length && (
                             <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px] space-y-1.5">
-                              <span className="block text-[8px] uppercase font-black text-[#555] tracking-wider">Performance criteria</span>
+                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider">Performance criteria</span>
                               <ul className="space-y-1 text-xs text-[#999]">
                                 {parsed.performance.map((item, idx) => <li key={idx} className="flex items-start gap-1.5">• {item}</li>)}
                               </ul>
@@ -778,7 +729,7 @@ export function LmsView() {
                           )}
                           {!!parsed.terminology?.length && (
                             <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px] space-y-2">
-                              <span className="block text-[8px] uppercase font-black text-[#555] tracking-wider">Terminology</span>
+                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider">Terminology</span>
                               <dl className="space-y-2 text-xs">
                                 {parsed.terminology.map((term, idx) => (
                                   <div key={idx} className="border-b border-[#262626] pb-2 last:border-0 last:pb-0">
@@ -791,7 +742,7 @@ export function LmsView() {
                           )}
                           {!!parsed.studyGuide?.length && (
                             <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px] space-y-2">
-                              <span className="block text-[8px] uppercase font-black text-[#555] tracking-wider">Study guide</span>
+                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider">Study guide</span>
                               {parsed.studyGuide.map((item, idx) => (
                                 <details key={idx} className="rounded-[6px] border border-[#262626] bg-[#0F0F0F] p-2.5 text-xs">
                                   <summary className="cursor-pointer font-semibold text-neutral-200">{item.question || 'Question'}</summary>
@@ -809,11 +760,11 @@ export function LmsView() {
                             parsed.mistakes.map((item, idx) => (
                               <div key={idx} className="border border-[#262626] rounded-[8px] overflow-hidden bg-[#111]/30 text-xs">
                                 <div className="p-3 bg-red-500/[0.02] border-b border-[#262626] flex flex-col">
-                                  <span className="px-1.5 py-0.5 rounded bg-red-500/15 text-red-500 text-[8px] font-black uppercase tracking-wider mb-1.5 w-max">Mistake</span>
+                                  <span className="px-1.5 py-0.5 rounded bg-red-500/15 text-red-500 text-[9px] font-black uppercase tracking-wider mb-1.5 w-max">Mistake</span>
                                   <span className="text-[#E4E4E4] font-medium leading-relaxed font-sans">{item.mistake || "—"}</span>
                                 </div>
                                 <div className="p-3 bg-emerald-500/[0.02] flex flex-col">
-                                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[8px] font-black uppercase tracking-wider mb-1.5 w-max">Correction</span>
+                                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[9px] font-black uppercase tracking-wider mb-1.5 w-max">Correction</span>
                                   <span className="text-[#E4E4E4] font-medium leading-relaxed font-sans">{item.correction || "—"}</span>
                                 </div>
                               </div>
@@ -847,7 +798,7 @@ export function LmsView() {
                               <div className="space-y-3">
                                 {primaryMuscles.length > 0 && (
                                   <div className="p-3 bg-[#141414] border border-red-500/20 rounded-[8px] space-y-1.5">
-                                    <span className="text-[8px] uppercase font-black text-red-400 tracking-wider flex items-center gap-1">
+                                    <span className="text-[9px] uppercase font-black text-red-400 tracking-wider flex items-center gap-1">
                                       <Flame className="w-3 h-3 text-[#EF2F38]" weight="fill" />
                                       {t('lib_primary_muscles')}
                                     </span>
@@ -863,7 +814,7 @@ export function LmsView() {
 
                                 {secondaryMuscles.length > 0 && (
                                   <div className="p-3 bg-[#141414] border border-amber-500/20 rounded-[8px] space-y-1.5">
-                                    <span className="text-[8px] uppercase font-black text-amber-400 tracking-wider flex items-center gap-1">
+                                    <span className="text-[9px] uppercase font-black text-amber-400 tracking-wider flex items-center gap-1">
                                       <Sparkle className="w-3 h-3 text-amber-500" weight="fill" />
                                       {t('lib_secondary_muscles')}
                                     </span>
@@ -1181,7 +1132,7 @@ function LmsAnalyticsTab() {
             </div>
             <button
               onClick={() => setShowManager(!showManager)}
-              className="px-4 py-2 bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-[#E4E4E4] hover:text-[#EF2F38] hover:border-[#EF2F38]/40 font-bold uppercase tracking-wider text-[10px] rounded-[8px] transition-colors min-h-[38px] cursor-pointer touch-manipulation active:scale-95"
+              className="px-4 py-2 bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-[#E4E4E4] hover:text-[#EF2F38] hover:border-[#EF2F38]/40 font-bold uppercase tracking-wider text-[10px] rounded-[8px] transition-colors min-h-[38px] cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11"
             >
               {showManager ? t('lms_close_editor') : t('lms_edit_belt_skills')}
             </button>
@@ -1261,7 +1212,7 @@ function LmsAnalyticsTab() {
                             )}
                           >
                             <span className="truncate pr-2">{asset.title}</span>
-                            <span className="text-[8px] text-neutral-500 dark:text-[#666] shrink-0 font-mono bg-neutral-100 dark:bg-[#1A1A1A] px-1.5 py-0.5 rounded border border-neutral-200 dark:border-[#262626] uppercase">
+                            <span className="text-[9px] text-neutral-500 dark:text-[#666] shrink-0 font-mono bg-neutral-100 dark:bg-[#1A1A1A] px-1.5 py-0.5 rounded border border-neutral-200 dark:border-[#262626] uppercase">
                               {t(getCategoryTranslationKey(asset.category)) || asset.category}
                             </span>
                           </div>
@@ -1279,7 +1230,7 @@ function LmsAnalyticsTab() {
                 <button
                   type="submit"
                   disabled={isSubmittingTech}
-                  className="w-full py-2.5 min-h-[42px] bg-[#EF2F38] text-white font-bold uppercase tracking-wider text-[11px] rounded-[8px] hover:bg-[#d6262f] transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-95 touch-manipulation"
+                  className="w-full py-2.5 min-h-[42px] bg-[#EF2F38] text-white font-bold uppercase tracking-wider text-[11px] rounded-[8px] hover:bg-[#d6262f] transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                 >
                   {isSubmittingTech ? t('act_saving') : t('lms_add_skill_to_belt')}
                 </button>
@@ -1502,7 +1453,7 @@ function LmsAnalyticsTab() {
                                <div className="flex items-center gap-2">
                                   <span className="text-[10px] font-bold text-neutral-600 dark:text-neutral-400 font-mono">PRI: {pri}%</span>
                                   <span className={cn(
-                                    "px-2 py-0.5 rounded-[6px] text-[8px] font-bold uppercase tracking-wider border",
+                                    "px-2 py-0.5 rounded-[6px] text-[9px] font-bold uppercase tracking-wider border",
                                     eligibilityStatus === 'Ready' ? "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400" :
                                     eligibilityStatus === 'Developing' ? "bg-sky-500/10 border-sky-500/20 text-sky-600 dark:text-sky-400" :
                                     "bg-neutral-100 dark:bg-[#1A1A1A] border-neutral-200 dark:border-[#262626] text-neutral-500 dark:text-[#666]"
@@ -1705,7 +1656,7 @@ function LmsAnalyticsTab() {
                                      <div className="flex items-center gap-2">
                                         <span className="text-sm font-bold text-neutral-900 dark:text-white font-mono bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] px-2.5 py-0.5 rounded-[6px]">PRI: {report.pri}%</span>
                                         <span className={cn(
-                                           "px-2.5 py-1 rounded-[6px] text-[8px] font-bold uppercase tracking-wider border transition-all duration-300",
+                                           "px-2.5 py-1 rounded-[6px] text-[9px] font-bold uppercase tracking-wider border transition-all duration-300",
                                            report.eligibilityStatus === 'Ready' ? "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400 shadow-md shadow-amber-500/5" :
                                            report.eligibilityStatus === 'Developing' ? "bg-sky-500/10 border-sky-500/20 text-sky-600 dark:text-sky-400" :
                                            "bg-neutral-100 dark:bg-[#1A1A1A] border-neutral-200 dark:border-[#262626] text-neutral-500 dark:text-[#666]"
@@ -1808,7 +1759,7 @@ function LmsAnalyticsTab() {
                                                                       type="button"
                                                                       onClick={() => handleGradePhysical(selectedStudent.id, skillName, selectedStudent.currentBelt, level)}
                                                                       className={cn(
-                                                                         "px-3 py-1.5 rounded-[6px] border text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer min-h-[34px] touch-manipulation active:scale-95",
+                                                                         "px-3 py-1.5 rounded-[6px] border text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer min-h-[34px] touch-manipulation active:scale-95 pointer-coarse:min-h-11",
                                                                          isActive
                                                                             ? (level === 'Outstanding' ? 'bg-emerald-600 border-emerald-500 text-white shadow-sm' :
                                                                                level === 'Proficient' ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm' :
@@ -1857,12 +1808,12 @@ function LmsAnalyticsTab() {
                                      <div className="flex items-center gap-2">
                                         <h4 className="text-sm font-bold text-neutral-900 dark:text-white">{t.translateText(video.title)}</h4>
                                         {isCurrentBeltRequirement && !isDraft && (
-                                          <span className="px-2 py-0.5 bg-red-500/10 text-[#EF2F38] border border-red-500/20 rounded-[6px] text-[8px] font-bold uppercase tracking-wider">
+                                          <span className="px-2 py-0.5 bg-red-500/10 text-[#EF2F38] border border-red-500/20 rounded-[6px] text-[9px] font-bold uppercase tracking-wider">
                                             {t.translateText("Current Syllabus")}
                                           </span>
                                         )}
                                         {isDraft && (
-                                          <span className="px-2 py-0.5 bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 rounded-[6px] text-[8px] font-bold uppercase tracking-wider">
+                                          <span className="px-2 py-0.5 bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 rounded-[6px] text-[9px] font-bold uppercase tracking-wider">
                                             Private draft
                                           </span>
                                         )}

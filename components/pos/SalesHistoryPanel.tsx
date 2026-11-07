@@ -73,7 +73,7 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
                       aria-pressed={salesPeriodFilter === period}
                       onClick={() => setSalesPeriodFilter(period)}
                       className={cn(
-                        "min-w-0 flex-1 sm:flex-initial px-1.5 sm:px-2.5 py-1 min-h-[38px] text-[10px] font-mono rounded-[6px] transition cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation",
+                        "min-w-0 flex-1 sm:flex-initial px-1.5 sm:px-2.5 py-1 min-h-[38px] text-[10px] font-mono rounded-[6px] transition cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                         salesPeriodFilter === period
                           ? "bg-[#EF2F38] text-white font-bold shadow-sm"
                           : "text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
@@ -123,7 +123,7 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
                   <button
                     type="button"
                     onClick={() => void onRefresh()}
-                    className="px-3 py-2 min-h-[38px] text-xs text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 rounded-[8px] font-mono border border-rose-300 dark:border-rose-500/20 cursor-pointer transition-colors whitespace-nowrap font-bold shrink-0 active:scale-95 touch-manipulation flex items-center justify-center"
+                    className="px-3 py-2 min-h-[38px] text-xs text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 rounded-[8px] font-mono border border-rose-300 dark:border-rose-500/20 cursor-pointer transition-colors whitespace-nowrap font-bold shrink-0 active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11"
                   >
                     Refresh sales
                   </button>
@@ -260,7 +260,7 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
                     <button
                       type="button"
                       onClick={() => setCompletedTx(tx)}
-                      className="flex-1 py-2 min-h-[38px] bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-[#1a1a1a] dark:text-neutral-200 dark:border-[#262626] rounded-[8px] text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation"
+                      className="flex-1 py-2 min-h-[38px] bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-[#1a1a1a] dark:text-neutral-200 dark:border-[#262626] rounded-[8px] text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                     >
                       <Printer size={13} />
                       <span>Print Receipt</span>
@@ -268,7 +268,7 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
                     <button
                       type="button"
                       onClick={() => handleVoidSale(tx.txId)}
-                      className="px-3 py-2 min-h-[38px] bg-neutral-100 hover:bg-red-600 hover:text-white text-rose-700 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-red-600 dark:hover:text-white dark:text-rose-400 dark:border-[#262626] rounded-[8px] text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation" disabled={!canCancelOrder}
+                      className="px-3 py-2 min-h-[38px] bg-neutral-100 hover:bg-red-600 hover:text-white text-rose-700 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-red-600 dark:hover:text-white dark:text-rose-400 dark:border-[#262626] rounded-[8px] text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation pointer-coarse:min-h-11" disabled={!canCancelOrder}
                     >
                       <Trash size={13} />
                       <span>Void</span>

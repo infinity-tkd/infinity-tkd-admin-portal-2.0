@@ -1,5 +1,6 @@
 'use client';
 
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import { academyDate } from '@/lib/dates';
 import { TelegramContactField } from './ContactActions';
 
@@ -170,6 +171,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
     return (
       <Portal>
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 pt-[env(safe-area-inset-top)] pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          <ModalA11y label="Student account created" onClose={onClose} />
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -200,6 +202,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
   return (
     <Portal>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-[env(safe-area-inset-top)] pb-[calc(1rem+env(safe-area-inset-bottom))] bg-black/80 backdrop-blur-sm animate-in fade-in sm:overflow-y-auto">
+         <ModalA11y label="Add student" onClose={onClose} locked={isSubmitting} />
          <div className="w-full max-w-2xl bg-white dark:bg-[#0F0F0F] sm:border border-neutral-200 dark:border-[#262626] sm:rounded-[8px] shadow-2xl flex flex-col sm:my-8 max-h-full sm:max-h-[90dvh] absolute sm:relative inset-0 sm:inset-auto overflow-hidden text-neutral-900 dark:text-white">
             <div className="p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#0F0F0F] z-10 shrink-0">
              <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-white">{t('dir_add_student')}</h2>
@@ -264,7 +267,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                            src={form.profilePicturePath}
                            alt="Preview"
                            containerClassName="w-10 h-10 rounded-[8px] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] overflow-hidden flex items-center justify-center shadow-md dark:shadow-black/40"
-                           fallback={<span className="text-[8px] text-red-500 uppercase font-black tracking-tighter bg-red-500/10 border border-red-500/20 px-1 py-0.5 rounded">Err / Private</span>}
+                           fallback={<span className="text-[9px] text-red-500 uppercase font-black tracking-tighter bg-red-500/10 border border-red-500/20 px-1 py-0.5 rounded">Err / Private</span>}
                          />
                        </div>
                      )}
@@ -481,7 +484,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                          )}
                        >
                          <div className="flex items-center justify-between">
-                           <span className="text-[8px] font-black uppercase tracking-wider">Default</span>
+                           <span className="text-[9px] font-black uppercase tracking-wider">Default</span>
                            {form.classId === '' && <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0"/>}
                          </div>
                          <div>
@@ -509,7 +512,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                            >
                              <div className="flex items-center justify-between gap-1">
                                <span className={cn(
-                                 "px-1.5 py-0.5 rounded-[8px] text-[7px] font-black uppercase tracking-wider border",
+                                 "px-1.5 py-0.5 rounded-[8px] text-[9px] font-black uppercase tracking-wider border",
                                  isSelected ? "bg-white/10 border-white/20 text-white dark:bg-neutral-100 dark:border-neutral-200 dark:text-neutral-800" : `${style.bg} ${style.border} ${style.text}`
                                )}>
                                  {c.classType}
@@ -517,7 +520,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
 
                                <div className="flex items-center gap-1.5 shrink-0">
                                  {isFull && (
-                                   <span className="bg-red-500/10 text-red-500 border border-red-500/20 px-1 py-0.5 rounded-[8px] text-[7px] font-black tracking-wider leading-none">FULL</span>
+                                   <span className="bg-red-500/10 text-red-500 border border-red-500/20 px-1 py-0.5 rounded-[8px] text-[9px] font-black tracking-wider leading-none">FULL</span>
                                  )}
                                  {isSelected && <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0"/>}
                                </div>

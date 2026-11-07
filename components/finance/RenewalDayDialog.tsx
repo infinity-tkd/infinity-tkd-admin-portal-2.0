@@ -114,22 +114,22 @@ export function RenewalDayDialog({ selectedCalendarDay, calendarData, setSelecte
                               <div className="flex items-center gap-2">
                                 <button type="button" onClick={() => {setSelectedCalendarDay(null);setStudentDetailsId(student.id);setPaymentAmounts({});}} className="text-xs font-bold text-neutral-900 hover:text-[#EF2F38] dark:text-white tracking-tight text-left">{student.englishName}</button>
                                 {billingStatus === 'Paid' && (
-                                  <span className="px-2 py-0.5 rounded-[8px] bg-green-500/10 text-green-600 dark:text-green-400 font-bold uppercase text-[8px] border border-green-500/30 flex items-center gap-1">
+                                  <span className="px-2 py-0.5 rounded-[8px] bg-green-500/10 text-green-600 dark:text-green-400 font-bold uppercase text-[9px] border border-green-500/30 flex items-center gap-1">
                                     <CheckCircle className="w-2.5 h-2.5" /> Paid
                                   </span>
                                 )}
                                 {billingStatus === 'Overdue' && (
-                                  <span className="px-2 py-0.5 rounded-[8px] bg-red-500/10 text-red-600 dark:text-red-400 font-bold uppercase text-[8px] border border-red-500/30 flex items-center gap-1">
+                                  <span className="px-2 py-0.5 rounded-[8px] bg-red-500/10 text-red-600 dark:text-red-400 font-bold uppercase text-[9px] border border-red-500/30 flex items-center gap-1">
                                     <Warning className="w-2.5 h-2.5" /> Overdue
                                   </span>
                                 )}
                                 {['Due Soon','Due today','Within grace'].includes(billingStatus) && (
-                                  <span className="px-2 py-0.5 rounded-[8px] bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold uppercase text-[8px] border border-amber-500/30 flex items-center gap-1">
+                                  <span className="px-2 py-0.5 rounded-[8px] bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold uppercase text-[9px] border border-amber-500/30 flex items-center gap-1">
                                     <Clock className="w-2.5 h-2.5" /> {billingStatus}
                                   </span>
                                 )}
                                 {billingStatus === 'Waived' && (
-                                  <span className="px-2 py-0.5 rounded-[8px] bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold uppercase text-[8px] border border-purple-500/30">
+                                  <span className="px-2 py-0.5 rounded-[8px] bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold uppercase text-[9px] border border-purple-500/30">
                                     Waived (100%)
                                   </span>
                                 )}

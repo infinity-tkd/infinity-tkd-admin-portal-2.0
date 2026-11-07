@@ -22,7 +22,8 @@ import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { useAppStore } from '@/lib/store';
 
 import { supabase } from '@/lib/supabase';
-import { cn } from '@/lib/utils';
+import { PageHeader, SegmentedTabs } from './ui/PageHeader';
+import { buttonClass } from './ui/styles';
 
 import { generateUniqueSku, validateSkuFormat } from '@/lib/sku-generator';
 
@@ -1692,133 +1693,47 @@ export function InventoryPosView() {
         </div>
       )}
 
-      {/* Top Header & 4 Tab Switcher */}
-      <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 flex flex-col xl:flex-row xl:items-center justify-between gap-3 sm:gap-4 shadow-sm">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Storefront className="w-5 h-5 text-[#EF2F38] shrink-0" />
-            <h1 className="text-sm sm:text-base font-bold text-neutral-900 dark:text-white tracking-tight">
-              Pro-Shop
-            </h1>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-[6px] bg-red-500/10 text-[#EF2F38] border border-red-500/20 shrink-0">
-              Shop management
-            </span>
-            {isPosReadOnly && (
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-[6px] bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0">
-                Read-only access
-              </span>
-            )}
-          </div>
-          <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono tracking-wider sm:tracking-widest mt-0.5 truncate">
-            Counter sales, student orders and product catalog
-          </p>
-        </div>
-
-        {/* Action Controls & Tab Switcher */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0 w-full xl:w-auto">
-          {/* 4 Main Mode Tabs */}
-          <div role="group" aria-label="Shop workspace" className="grid grid-cols-4 sm:flex bg-neutral-100 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] p-1 sm:overflow-x-auto sm:no-scrollbar sm:flex-nowrap max-w-full gap-1 flex-1 sm:flex-initial">
-            <button
-              type="button"
-              aria-label="TERMINAL" aria-pressed={activeMainTab === 'terminal'} onClick={() => setActiveMainTab('terminal')}
-              className={cn(
-                "relative min-w-0 px-1 py-2 min-h-[50px] sm:min-h-[38px] sm:px-3 sm:py-1.5 rounded-[6px] flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-bold font-mono uppercase tracking-wide sm:tracking-wider transition-all cursor-pointer whitespace-nowrap sm:shrink-0 active:scale-95 touch-manipulation",
-                activeMainTab === 'terminal'
-                  ? "bg-white text-neutral-900 shadow-sm border border-neutral-200/80 dark:bg-neutral-800 dark:text-white dark:border-neutral-700"
-                  : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200/50 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-neutral-800/50"
-              )}
-            >
-              <Storefront size={14} weight="bold" />
-              TERMINAL
+      <PageHeader
+        icon={<Storefront weight="bold" />}
+        eyebrow="Shop management"
+        title="Pro-Shop"
+        description="Counter sales, student orders and product catalog"
+        actions={<>
+          {(activeMainTab === 'terminal' || activeMainTab === 'inventory') && (
+            <button type="button" onClick={openAddItemModal} className={buttonClass({ variant: 'primary' })} disabled={!canManageInventory}>
+              <Plus size={14} weight="bold" />
+              ADD ITEM
             </button>
-            <button
-              type="button"
-              aria-label="STUDENT ORDERS" aria-pressed={activeMainTab === 'orders'} onClick={() => setActiveMainTab('orders')}
-              className={cn(
-                "relative min-w-0 px-1 py-2 min-h-[50px] sm:min-h-[38px] sm:px-3 sm:py-1.5 rounded-[6px] flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-bold font-mono uppercase tracking-wide sm:tracking-wider transition-all cursor-pointer whitespace-nowrap sm:shrink-0 active:scale-95 touch-manipulation",
-                activeMainTab === 'orders'
-                  ? "bg-white text-neutral-900 shadow-sm border border-neutral-200/80 dark:bg-neutral-800 dark:text-white dark:border-neutral-700"
-                  : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200/50 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-neutral-800/50"
-              )}
-            >
-              <Package size={14} weight="bold" />
-              <span className="sm:hidden">Orders</span><span className="hidden sm:inline">Student orders</span>
-              {pendingOrdersCount > 0 && (
-                <span aria-hidden="true" className="absolute right-0.5 top-0.5 sm:static sm:ml-0.5 px-1.5 py-0.2 text-[9px] bg-[#EF2F38] text-white rounded-full font-bold">
-                  {pendingOrdersCount}
-                </span>
-              )}
+          )}
+          {activeMainTab === 'inventory' && (
+            <button type="button" onClick={exportInventoryCsv} className={buttonClass()}>
+              <FileArrowDown size={14} weight="bold" />
+              EXPORT CSV
             </button>
-            <button
-              type="button"
-              aria-label="INVENTORY" aria-pressed={activeMainTab === 'inventory'} onClick={() => setActiveMainTab('inventory')}
-              className={cn(
-                "relative min-w-0 px-1 py-2 min-h-[50px] sm:min-h-[38px] sm:px-3 sm:py-1.5 rounded-[6px] flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-bold font-mono uppercase tracking-wide sm:tracking-wider transition-all cursor-pointer whitespace-nowrap sm:shrink-0 active:scale-95 touch-manipulation",
-                activeMainTab === 'inventory'
-                  ? "bg-white text-neutral-900 shadow-sm border border-neutral-200/80 dark:bg-neutral-800 dark:text-white dark:border-neutral-700"
-                  : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200/50 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-neutral-800/50"
-              )}
-            >
-              <Tag size={14} weight="bold" />
-              INVENTORY
-              {lowStockCount > 0 && (
-                <span aria-hidden="true" className="absolute right-0.5 top-0.5 sm:static sm:ml-0.5 px-1.5 py-0.2 text-[9px] bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-300 dark:border-amber-500/30 rounded-full font-bold">
-                  {lowStockCount}
-                </span>
-              )}
+          )}
+          {activeMainTab === 'history' && (
+            <button type="button" onClick={exportSalesCsv} className={buttonClass()}>
+              <FileArrowDown size={14} weight="bold" />
+              EXPORT CSV
             </button>
-            <button
-              type="button"
-              aria-label={'SALES (' + salesHistory.length + ')'} aria-pressed={activeMainTab === 'history'} onClick={() => setActiveMainTab('history')}
-              className={cn(
-                "relative min-w-0 px-1 py-2 min-h-[50px] sm:min-h-[38px] sm:px-3 sm:py-1.5 rounded-[6px] flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-bold font-mono uppercase tracking-wide sm:tracking-wider transition-all cursor-pointer whitespace-nowrap sm:shrink-0 active:scale-95 touch-manipulation",
-                activeMainTab === 'history'
-                  ? "bg-white text-neutral-900 shadow-sm border border-neutral-200/80 dark:bg-neutral-800 dark:text-white dark:border-neutral-700"
-                  : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200/50 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-neutral-800/50"
-              )}
-            >
-              <ClockCounterClockwise size={14} weight="bold" />
-              <span className="sm:hidden">Sales</span><span className="hidden sm:inline">Sales ({salesHistory.length})</span>
-            </button>
-          </div>
+          )}
+        </>}
+      >
+        {isPosReadOnly && (
+          <span className="mt-2 inline-flex items-center rounded-md border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 font-mono text-[10px] font-bold text-blue-700 dark:text-blue-400">
+            Read-only access
+          </span>
+        )}
+      </PageHeader>
 
-          {/* Quick Header Action Buttons */}
-          <div className="flex items-center gap-2 shrink-0">
-            {(activeMainTab === 'terminal' || activeMainTab === 'inventory') && (
-              <button
-                type="button"
-                onClick={openAddItemModal}
-                className="flex-1 sm:flex-initial px-3.5 py-2 min-h-[38px] bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-mono font-bold uppercase rounded-[8px] transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation" disabled={!canManageInventory}
-              >
-                <Plus size={14} weight="bold" />
-                ADD ITEM
-              </button>
-            )}
-
-            {activeMainTab === 'inventory' && (
-              <button
-                type="button"
-                onClick={exportInventoryCsv}
-                className="flex-1 sm:flex-initial px-3 py-2 min-h-[38px] bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-[#1a1a1a] dark:text-[#E4E4E4] dark:border-[#262626] text-xs font-mono font-bold uppercase rounded-[8px] transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation"
-              >
-                <FileArrowDown size={14} weight="bold" />
-                EXPORT CSV
-              </button>
-            )}
-
-            {activeMainTab === 'history' && (
-              <button
-                type="button"
-                onClick={exportSalesCsv}
-                className="flex-1 sm:flex-initial px-3 py-2 min-h-[38px] bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-[#1a1a1a] dark:text-[#E4E4E4] dark:border-[#262626] text-xs font-mono font-bold uppercase rounded-[8px] transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation"
-              >
-                <FileArrowDown size={14} weight="bold" />
-                EXPORT CSV
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+      <SegmentedTabs label="Shop workspace" stacked value={activeMainTab} onChange={setActiveMainTab} className="grid grid-cols-4 sm:flex" items={[
+        { id: 'terminal', ariaLabel: 'TERMINAL', icon: <Storefront weight="bold" />, label: 'TERMINAL' },
+        { id: 'orders', ariaLabel: 'STUDENT ORDERS', icon: <Package weight="bold" />, label: <><span className="sm:hidden">Orders</span><span className="hidden sm:inline">Student orders</span></>,
+          badge: pendingOrdersCount > 0 ? <span aria-hidden="true" className="absolute right-0.5 top-0.5 rounded-full bg-brand px-1.5 text-[9px] font-bold text-on-brand sm:static">{pendingOrdersCount}</span> : undefined },
+        { id: 'inventory', ariaLabel: 'INVENTORY', icon: <Tag weight="bold" />, label: 'INVENTORY',
+          badge: lowStockCount > 0 ? <span aria-hidden="true" className="absolute right-0.5 top-0.5 rounded-full border border-amber-300 bg-amber-100 px-1.5 text-[9px] font-bold text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-400 sm:static">{lowStockCount}</span> : undefined },
+        { id: 'history', ariaLabel: 'SALES (' + salesHistory.length + ')', icon: <ClockCounterClockwise weight="bold" />, label: <><span className="sm:hidden">Sales</span><span className="hidden sm:inline">Sales ({salesHistory.length})</span></> },
+      ]} />
 
       {/* ========================================================================= */}
       {/* VIEW 1: POS CHECKOUT TERMINAL                                             */}

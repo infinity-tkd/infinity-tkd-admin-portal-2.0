@@ -1,4 +1,6 @@
 'use client';
+import dynamic from 'next/dynamic';
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import { copyText } from '@/lib/clipboard';
 import { ContactActions } from './ContactActions';
 
@@ -31,16 +33,21 @@ import { CalendarCheck } from '@phosphor-icons/react/dist/csr/CalendarCheck';
 
 
 
-import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
 import { cn } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
 import { calculateDanEligibility, formatDanRank, getDanStripes } from '@/lib/kukkiwon';
 
-import { AddStaffModal } from './AddStaffModal';
-import { BulkImportStaffModal } from './BulkImportStaffModal';
+import { PageHeader } from './ui/PageHeader';
+import { KpiCard } from './ui/KpiCard';
+import { buttonClass, filterSelectClass, toolbarClass } from './ui/styles';
+import { FilterRail, SearchField, ViewToggle } from './ui/Toolbar';
 import { ManageStaffPanel } from './ManageStaffPanel';
 import { SafeImage } from '@/components/SafeImage';
 import { useT } from '@/hooks/useTranslation';
+
+// Opened rarely: loaded on demand to keep this view's bundle small.
+const AddStaffModal = dynamic(() => import('./AddStaffModal').then(module => module.AddStaffModal), { ssr: false });
+const BulkImportStaffModal = dynamic(() => import('./BulkImportStaffModal').then(module => module.BulkImportStaffModal), { ssr: false });
 
 const ROLE_HIERARCHY: Record<string, number> = {
     'Admin': 1,
@@ -188,117 +195,40 @@ export function StaffView() {
   }).length;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-12">
-      {/* Header Widget */}
-      <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm transition-colors">
-         <div>
-            <h1 className="text-lg sm:text-xl font-bold text-neutral-900 dark:text-white tracking-tight font-black">{t('stf_title')}</h1>
-            <p className="text-xs text-neutral-500 dark:text-[#888] font-mono mt-1 font-semibold">{t('stf_subtitle')}</p>
-         </div>
-         {canEditStaff && (
-           <div className="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
-             <button
-               onClick={() => setIsBulkImporting(true)}
-               className="flex-1 sm:flex-none px-3 sm:px-3.5 h-8 sm:h-9 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation"
-             >
-               Bulk Import
-             </button>
-             <button
-               onClick={() => setIsAdding(true)}
-               className="flex-1 sm:flex-none px-3 sm:px-3.5 h-8 sm:h-9 bg-[#EF2F38] hover:bg-[#D0252D] text-white rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-colors uppercase tracking-wider shadow-md shadow-[#EF2F38]/20 whitespace-nowrap flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation"
-             >
-               + {t('stf_add_staff')}
-             </button>
-           </div>
-         )}
-      </div>
+    <div className="mx-auto w-full max-w-[1600px] space-y-4 pb-12 sm:space-y-5">
+      <PageHeader
+        icon={<UsersThree weight="bold" />}
+        eyebrow="Academy team"
+        meta={`${totalStaffCount} staff`}
+        title={t('stf_title')}
+        description={t('stf_subtitle')}
+        actions={canEditStaff ? <>
+          <button type="button" onClick={() => setIsBulkImporting(true)} className={buttonClass()}>
+            Bulk Import
+          </button>
+          <button type="button" onClick={() => setIsAdding(true)} className={buttonClass({ variant: 'primary' })}>
+            + {t('stf_add_staff')}
+          </button>
+        </> : undefined}
+      />
 
-      {/* KPI Stat Cards Bar - Horizontal swipe rail on mobile, grid on desktop */}
-      <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar touch-pan-x -mx-3.5 px-3.5 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 lg:grid-cols-5 sm:gap-3">
-        <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2.5 sm:p-4 flex items-center gap-2.5 sm:gap-3 shadow-xs shrink-0 min-w-[125px] sm:min-w-0">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-red-500/10 text-[#EF2F38] flex items-center justify-center shrink-0">
-            <UsersThree className="w-4 h-4 sm:w-5 sm:h-5" weight="bold" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[9px] sm:text-[10px] font-mono uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider truncate">Total Staff</p>
-            <p className="text-sm sm:text-xl font-black text-neutral-900 dark:text-white font-mono">{totalStaffCount}</p>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2.5 sm:p-4 flex items-center gap-2.5 sm:gap-3 shadow-xs shrink-0 min-w-[125px] sm:min-w-0">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-            <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" weight="bold" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[9px] sm:text-[10px] font-mono uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider truncate">Head Coaches</p>
-            <p className="text-sm sm:text-xl font-black text-neutral-900 dark:text-white font-mono">{headCoachesCount}</p>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2.5 sm:p-4 flex items-center gap-2.5 sm:gap-3 shadow-xs shrink-0 min-w-[125px] sm:min-w-0">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-            <Checks className="w-4 h-4 sm:w-5 sm:h-5" weight="bold" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[9px] sm:text-[10px] font-mono uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider truncate">Active Access</p>
-            <p className="text-sm sm:text-xl font-black text-neutral-900 dark:text-white font-mono">{activeStaffCount}</p>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2.5 sm:p-4 flex items-center gap-2.5 sm:gap-3 shadow-xs shrink-0 min-w-[125px] sm:min-w-0">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-            <Medal className="w-4 h-4 sm:w-5 sm:h-5" weight="bold" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[9px] sm:text-[10px] font-mono uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider truncate">Black Belts</p>
-            <p className="text-sm sm:text-xl font-black text-neutral-900 dark:text-white font-mono">{blackBeltsCount}</p>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2.5 sm:p-4 flex items-center gap-2.5 sm:gap-3 shadow-xs shrink-0 min-w-[125px] sm:min-w-0">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 relative">
-            <CalendarCheck className="w-4 h-4 sm:w-5 sm:h-5" weight="bold" />
-            {eligibleForTestCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-            )}
-          </div>
-          <div className="min-w-0">
-            <p className="text-[9px] sm:text-[10px] font-mono uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider truncate">Test-Ready</p>
-            <p className="text-sm sm:text-xl font-black text-emerald-600 dark:text-emerald-400 font-mono">{eligibleForTestCount}</p>
-          </div>
-        </div>
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
+        <KpiCard label="Total Staff" value={totalStaffCount} tone="brand" icon={<UsersThree weight="bold" />} />
+        <KpiCard label="Head Coaches" value={headCoachesCount} tone="blue" icon={<ShieldCheck weight="bold" />} />
+        <KpiCard label="Active Access" value={activeStaffCount} tone="green" icon={<Checks weight="bold" />} />
+        <KpiCard label="Black Belts" value={blackBeltsCount} tone="amber" icon={<Medal weight="bold" />} />
+        <KpiCard label="Test-Ready" value={eligibleForTestCount} tone="green" icon={<CalendarCheck weight="bold" />} className="col-span-2 sm:col-span-1" />
       </div>
 
       {/* Advanced Filters & Device View Controls */}
-      <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 flex flex-col md:flex-row gap-2 sm:gap-4 items-stretch md:items-center justify-between shadow-sm transition-colors">
-        {/* Search Bar - Clean, Native Height & Font */}
-        <div className="relative flex bg-neutral-100 dark:bg-[#0F0F0F] rounded-[6px] sm:rounded-[8px] border border-neutral-200 dark:border-[#262626] px-2.5 w-full md:max-w-sm shrink-0 h-8.5 sm:h-10 items-center">
-          <MagnifyingGlass className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-400 dark:text-[#666] shrink-0 mr-2" />
-          <input
-            type="text"
-            placeholder={t('stf_search_placeholder')}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-transparent border-none text-neutral-900 dark:text-[#E4E4E4] text-[11px] sm:text-xs focus:outline-none placeholder:text-neutral-400 dark:placeholder:text-[#666] font-mono pr-6"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch('')}
-              className="absolute right-2 p-1 text-neutral-400 hover:text-neutral-600 dark:hover:text-white cursor-pointer flex items-center justify-center active:scale-90"
-              aria-label="Clear search"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
+      <div className={toolbarClass}>
+        <SearchField value={search} onChange={setSearch} placeholder={t('stf_search_placeholder')} className="w-full md:max-w-sm md:shrink-0" />
 
-        {/* Filter Strip: Horizontal Scrolling on Mobile, Flex on Desktop */}
-        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar touch-pan-x -mx-3 px-3 sm:mx-0 sm:px-0 sm:flex-wrap w-full md:w-auto md:justify-end">
-          {/* Role Filter */}
+        <FilterRail className="md:justify-end">
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-8 sm:h-9 shrink-0 focus:outline-none font-bold font-mono cursor-pointer transition-colors shadow-2xs"
+            className={filterSelectClass}
             aria-label="Filter staff by role"
           >
             <option value="All">{t('stf_all_roles')}</option>
@@ -312,7 +242,7 @@ export function StaffView() {
           <select
             value={danFilter}
             onChange={(e) => setDanFilter(e.target.value)}
-            className="bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-8 sm:h-9 shrink-0 focus:outline-none font-bold font-mono cursor-pointer transition-colors shadow-2xs"
+            className={filterSelectClass}
             aria-label="Filter staff by Kukkiwon Dan rank"
           >
             <option value="All">All Dan Ranks</option>
@@ -328,7 +258,7 @@ export function StaffView() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-8 sm:h-9 shrink-0 focus:outline-none font-bold font-mono cursor-pointer transition-colors shadow-2xs"
+            className={filterSelectClass}
             aria-label="Filter staff by account status"
           >
             <option value="All">{t('stf_all_accounts')}</option>
@@ -339,8 +269,8 @@ export function StaffView() {
           {/* Sort Selector: Default Sort by Role Hierarchy */}
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-            className="bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-8 sm:h-9 shrink-0 focus:outline-none font-bold font-mono cursor-pointer transition-colors shadow-2xs"
+            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+            className={filterSelectClass}
             aria-label="Sort staff members"
           >
             <option value="role">Sort: Role (Default)</option>
@@ -350,43 +280,15 @@ export function StaffView() {
             <option value="status">Sort: Active First</option>
           </select>
 
-          {/* View Mode Segmented Switcher */}
-          <div className="flex items-center bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] p-0.5 shrink-0 h-8 sm:h-9">
-            <button
-              type="button"
-              onClick={() => setViewMode('grid')}
-              title="Grid Cards View"
-              aria-label="Grid view"
-              className={cn(
-                "p-1 rounded-[5px] sm:rounded-[6px] transition-all cursor-pointer h-6.5 w-6.5 sm:h-7 sm:w-7 flex items-center justify-center active:scale-95 touch-manipulation",
-                viewMode === 'grid'
-                  ? "bg-white dark:bg-[#262626] text-[#EF2F38] dark:text-white shadow-xs font-bold"
-                  : "text-neutral-500 dark:text-[#777] hover:text-neutral-900 dark:hover:text-white"
-              )}
-            >
-              <SquaresFour className="w-3.5 h-3.5 sm:w-4 sm:h-4" weight="bold" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('table')}
-              title="Detailed Table View"
-              aria-label="Table view"
-              className={cn(
-                "p-1 rounded-[5px] sm:rounded-[6px] transition-all cursor-pointer h-6.5 w-6.5 sm:h-7 sm:w-7 flex items-center justify-center active:scale-95 touch-manipulation",
-                viewMode === 'table'
-                  ? "bg-white dark:bg-[#262626] text-[#EF2F38] dark:text-white shadow-xs font-bold"
-                  : "text-neutral-500 dark:text-[#777] hover:text-neutral-900 dark:hover:text-white"
-              )}
-            >
-              <ListDashes className="w-3.5 h-3.5 sm:w-4 sm:h-4" weight="bold" />
-            </button>
-          </div>
+          <ViewToggle label="Staff layout" value={viewMode} onChange={setViewMode} options={[
+            { id: 'grid', label: 'Grid view', title: 'Grid Cards View', icon: <SquaresFour weight="bold" /> },
+            { id: 'table', label: 'Table view', title: 'Detailed Table View', icon: <ListDashes weight="bold" /> },
+          ]} />
 
-          {/* Total Count Badge */}
-          <div className="text-[9.5px] sm:text-[10px] uppercase font-bold text-neutral-600 dark:text-[#888] font-mono bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] px-2 sm:px-2.5 rounded-[6px] sm:rounded-[8px] shrink-0 h-8 sm:h-9 flex items-center justify-center whitespace-nowrap">
-            {t('stf_total')}: <span className="text-neutral-900 dark:text-white font-bold ml-1">{staffMembers.length}</span>
+          <div className="flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-lg border border-line bg-control px-3 font-mono text-[10px] font-bold uppercase text-ink-muted">
+            {t('stf_total')}: <span className="ml-1 font-bold text-ink">{staffMembers.length}</span>
           </div>
-        </div>
+        </FilterRail>
       </div>
 
       {/* Directory Content Area */}
@@ -504,7 +406,7 @@ export function StaffView() {
                               <span>{formatDanRank(staff.currentDan)} ({getDanStripes(staff.currentDan)})</span>
                             </span>
                             {el.status === 'ELIGIBLE' ? (
-                              <span className="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 animate-pulse">
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 animate-pulse">
                                 ✅ Legit to Test
                               </span>
                             ) : el.status === 'TIME_PENDING' ? (
@@ -732,7 +634,7 @@ export function StaffView() {
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                   {el.status === 'ELIGIBLE' ? (
-                                    <span className="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
+                                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
                                       ✅ Legit to Test
                                     </span>
                                   ) : el.status === 'TIME_PENDING' ? (
@@ -1066,6 +968,7 @@ export function StaffView() {
         {passwordTargetStaff && (
           <Portal>
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in">
+              <ModalA11y label="Reset staff password" onClose={() => setPasswordTargetStaff(null)} />
               <motion.div
                 {...dialogMotion}
                 className="w-full max-w-md max-h-[90dvh] bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col text-neutral-900 dark:text-white overflow-hidden"
@@ -1129,7 +1032,7 @@ export function StaffView() {
                   <button
                     type="button"
                     onClick={() => setPasswordTargetStaff(null)}
-                    className="h-8 sm:h-9 px-3.5 sm:px-4 bg-neutral-200 dark:bg-[#1A1A1A] text-neutral-800 dark:text-[#AAA] font-bold uppercase tracking-wider text-[11px] sm:text-xs rounded-[6px] sm:rounded-[8px] hover:bg-neutral-300 dark:hover:bg-[#262626] active:scale-95 touch-manipulation cursor-pointer transition-all"
+                    className="h-9 pointer-coarse:h-11 px-3.5 sm:px-4 bg-neutral-200 dark:bg-[#1A1A1A] text-neutral-800 dark:text-[#AAA] font-bold uppercase tracking-wider text-[11px] sm:text-xs rounded-[6px] sm:rounded-[8px] hover:bg-neutral-300 dark:hover:bg-[#262626] active:scale-95 touch-manipulation cursor-pointer transition-all"
                   >
                     Cancel
                   </button>
@@ -1137,7 +1040,7 @@ export function StaffView() {
                     type="button"
                     onClick={handleResetStaffPassword}
                     disabled={isResettingPassword || !staffNewPassword}
-                    className="h-8 sm:h-9 px-3.5 sm:px-4 bg-[#EF2F38] text-white font-bold uppercase tracking-wider text-[11px] sm:text-xs rounded-[6px] sm:rounded-[8px] hover:bg-[#D0252D] disabled:opacity-50 active:scale-95 touch-manipulation cursor-pointer shadow-sm shadow-[#EF2F38]/20 flex items-center gap-1.5 transition-all"
+                    className="h-9 pointer-coarse:h-11 px-3.5 sm:px-4 bg-[#EF2F38] text-white font-bold uppercase tracking-wider text-[11px] sm:text-xs rounded-[6px] sm:rounded-[8px] hover:bg-[#D0252D] disabled:opacity-50 active:scale-95 touch-manipulation cursor-pointer shadow-sm shadow-[#EF2F38]/20 flex items-center gap-1.5 transition-all"
                   >
                     {isResettingPassword ? (
                       <>

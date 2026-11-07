@@ -1,4 +1,5 @@
 'use client';
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import { copyText } from '@/lib/clipboard';
 
 import { dialogMotion } from '@/lib/motion';
@@ -658,6 +659,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
   return (
     <Portal>
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+        <ModalA11y label="Bulk import students" onClose={onClose} locked={isProcessing} />
         <style dangerouslySetInnerHTML={{ __html: `
           /* Scoped overrides to protect interactive table controls from global light-theme input overrides */
           .bulk-table-control {
@@ -1196,6 +1198,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
         {showHelp && (
           <Portal>
             <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in">
+              <ModalA11y label="Student import help" onClose={() => setShowHelp(false)} />
               <motion.div
                 {...dialogMotion}
                 className="w-full max-w-lg bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col overflow-hidden max-h-[85dvh]"

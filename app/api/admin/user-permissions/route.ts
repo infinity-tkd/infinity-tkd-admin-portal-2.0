@@ -48,6 +48,8 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const targetUserId = searchParams.get('userId');
+    // A malformed id would otherwise reach the database and come back as a server error.
+    if (targetUserId !== null && !z.string().uuid().safeParse(targetUserId).success) return NextResponse.json({success:false,error:{message:'Invalid user ID.'}},{status:422});
     const caller = callerRes.context!;
     const isRoot = ['Root','Super Root'].includes(caller.role);
     if (targetUserId && targetUserId !== caller.userId && !isRoot) return NextResponse.json({success:false,error:{message:'You can only view your own permission overrides.'}},{status:403});

@@ -803,12 +803,12 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
 
                     <div className="p-4 md:p-5 border-t border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex justify-end gap-2.5 shrink-0">
                       <button type="button" onClick={() => setEditAsset(null)}
-                        className="px-4 py-2 min-h-[40px] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-xs font-bold uppercase hover:bg-neutral-100 dark:hover:bg-[#1C1C1C] transition-all cursor-pointer active:scale-95 touch-manipulation"
+                        className="px-4 py-2 min-h-[40px] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-xs font-bold uppercase hover:bg-neutral-100 dark:hover:bg-[#1C1C1C] transition-all cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                       >
                         {t('lib_bulk_cancel')}
                       </button>
                       <button type="submit" disabled={isSaving}
-                        className="px-4 py-2 min-h-[40px] bg-[#EF2F38] text-white rounded-[8px] text-xs font-bold uppercase hover:bg-[#d6262f] transition-all shadow-sm cursor-pointer active:scale-95 touch-manipulation"
+                        className="px-4 py-2 min-h-[40px] bg-[#EF2F38] text-white rounded-[8px] text-xs font-bold uppercase hover:bg-[#d6262f] transition-all shadow-sm cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                       >
                         {t('act_save_changes')}
                       </button>
@@ -821,18 +821,18 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                     <div className="p-4 md:p-5 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex justify-between items-center shrink-0">
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 bg-neutral-100 dark:bg-[#1a1a1a] border border-neutral-200 dark:border-[#262626]/40 text-neutral-600 dark:text-neutral-400 rounded-[6px] shadow-sm">
+                          <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 bg-neutral-100 dark:bg-[#1a1a1a] border border-neutral-200 dark:border-[#262626]/40 text-neutral-600 dark:text-neutral-400 rounded-[6px] shadow-sm">
                             {selectedDetailAsset.category.startsWith('Fitness:') || selectedDetailAsset.category.startsWith('Dance:')
                               ? (t(getCategoryTranslationKey(selectedDetailAsset.category)) || selectedDetailAsset.category.replace('Fitness: ', '').replace('Dance: ', ''))
                               : (t(getCategoryTranslationKey(normalizeCategory(selectedDetailAsset.category))) || selectedDetailAsset.category)}
                           </span>
                           {selectedDetailAsset.minBeltLevel !== 'Fitness' && selectedDetailAsset.minBeltLevel !== 'Dance' && (
-                            <span className="text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 bg-red-500/10 border border-red-500/20 text-[#EF2F38] rounded-[6px] shadow-sm">
+                            <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 bg-red-500/10 border border-red-500/20 text-[#EF2F38] rounded-[6px] shadow-sm">
                               {t(getBeltTranslationKey(selectedDetailAsset.minBeltLevel))} {t('lms_belt_req_suffix')}
                             </span>
                           )}
                           {parseAssetDescription(selectedDetailAsset.description).difficulty && (
-                            <span className={cn("text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 border rounded-[6px] shadow-sm",
+                            <span className={cn("text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 border rounded-[6px] shadow-sm",
                               parseAssetDescription(selectedDetailAsset.description).difficulty === 'Elite' ? 'bg-purple-500/10 border-purple-500/20 text-purple-600 dark:text-purple-400' :
                               parseAssetDescription(selectedDetailAsset.description).difficulty === 'Advanced' ? 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400' :
                               parseAssetDescription(selectedDetailAsset.description).difficulty === 'Intermediate' ? 'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
@@ -878,17 +878,17 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                       {selectedDetailAsset.category !== 'Theory & Terminology' && (
                         <div className="grid grid-cols-2 gap-4">
                           <div className="p-4 bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                            <span className="block text-[8px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-1">{t('lib_target_reps_sets')}</span>
+                            <span className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-1">{t('lib_target_reps_sets')}</span>
                             <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200 font-mono">
                               {parseAssetDescription(selectedDetailAsset.description).repsSets || t('lib_self_paced')}
                             </span>
                           </div>
                           <div className="p-4 bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                            <span className="block text-[8px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-1">{t('lib_focus_areas')}</span>
+                            <span className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-1">{t('lib_focus_areas')}</span>
                             <div className="flex flex-wrap gap-1 mt-0.5">
                               {parseAssetDescription(selectedDetailAsset.description).focusZones && parseAssetDescription(selectedDetailAsset.description).focusZones!.length > 0 ? (
                                 parseAssetDescription(selectedDetailAsset.description).focusZones!.map((zone, i) => (
-                                  <span key={i} className="px-1.5 py-0.5 bg-neutral-200/50 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 text-[8px] font-bold rounded uppercase tracking-wider font-sans">
+                                  <span key={i} className="px-1.5 py-0.5 bg-neutral-200/50 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 text-[9px] font-bold rounded uppercase tracking-wider font-sans">
                                     {zone}
                                   </span>
                                 ))
@@ -925,7 +925,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                               <div className="space-y-4 flex flex-col justify-center">
                                 {primaryMuscles.length > 0 && (
                                   <div className="space-y-1.5">
-                                    <span className="block text-[8px] uppercase font-black text-red-500 tracking-wide flex items-center gap-1">
+                                    <span className="block text-[9px] uppercase font-black text-red-500 tracking-wide flex items-center gap-1">
                                       <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
                                       Primary Target
                                     </span>
@@ -940,7 +940,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                 )}
                                 {secondaryMuscles.length > 0 && (
                                   <div className="space-y-1.5">
-                                    <span className="block text-[8px] uppercase font-black text-sky-500 dark:text-sky-400 tracking-wide flex items-center gap-1">
+                                    <span className="block text-[9px] uppercase font-black text-sky-500 dark:text-sky-400 tracking-wide flex items-center gap-1">
                                       <span className="w-1.5 h-1.5 bg-sky-500 rounded-full" />
                                       Secondary / Stabilizers
                                     </span>
@@ -958,7 +958,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                               {/* Right side: 3D Holographic Model viewport */}
                               <div className="relative border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden bg-neutral-100/40 dark:bg-[#0A0A0A] flex flex-col justify-between min-h-[420px] h-[420px]">
                                 <div className="flex justify-between items-center p-3 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50/50 dark:bg-[#111111]/50 z-10">
-                                  <span className="text-[8px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Muscle reference</span>
+                                  <span className="text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Muscle reference</span>
                                   <div className="flex items-center gap-2">
                                     {/* Fullscreen toggle button */}
                                     <button
@@ -1028,11 +1028,11 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {hasPrereqs && (
                                   <div className="p-4 bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-sm">
-                                    <span className="block text-[8px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-3">Skill Prerequisites</span>
+                                    <span className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-3">Skill Prerequisites</span>
                                     <ul className="space-y-2">
                                       {parsed.prerequisites!.map((item, idx) => (
                                         <li key={idx} className="flex items-start gap-2.5 text-xs text-neutral-600 dark:text-neutral-300">
-                                          <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-[#EF2F38] text-[8px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                          <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-[#EF2F38] text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                                           <span className="leading-relaxed font-sans">{item}</span>
                                         </li>
                                       ))}
@@ -1041,11 +1041,11 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                 )}
                                 {hasPrinciples && (
                                   <div className="p-4 bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-sm">
-                                    <span className="block text-[8px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-3">Principle of the Skill</span>
+                                    <span className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-3">Principle of the Skill</span>
                                     <ul className="space-y-2">
                                       {parsed.principles!.map((item, idx) => (
                                         <li key={idx} className="flex items-start gap-2.5 text-xs text-neutral-600 dark:text-neutral-300">
-                                          <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-[#EF2F38] text-[8px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                          <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-[#EF2F38] text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                                           <span className="leading-relaxed font-sans">{item}</span>
                                         </li>
                                       ))}
@@ -1063,7 +1063,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                   <ul className="space-y-2.5">
                                     {parsed.drillingMethods!.map((item, idx) => (
                                       <li key={idx} className="flex items-start gap-2.5 text-xs text-neutral-600 dark:text-neutral-300">
-                                        <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-[#EF2F38] text-[8px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                        <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-[#EF2F38] text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                                         <span className="leading-relaxed font-sans">{item}</span>
                                       </li>
                                     ))}
@@ -1083,7 +1083,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                         {/* Mistake Side */}
                                         <div className="bg-red-500/[0.015] dark:bg-red-500/[0.005] p-3.5 flex flex-col">
                                           <div className="flex items-center gap-1.5 mb-1.5">
-                                            <span className="px-2 py-0.5 rounded-[8px] bg-red-500/10 text-red-500 border border-red-500/20 text-[8px] font-black uppercase tracking-wider">Mistake</span>
+                                            <span className="px-2 py-0.5 rounded-[8px] bg-red-500/10 text-red-500 border border-red-500/20 text-[9px] font-black uppercase tracking-wider">Mistake</span>
                                             <span className="text-[10px] font-mono font-bold text-neutral-400 dark:text-neutral-500">#{idx + 1}</span>
                                           </div>
                                           <p className="text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed font-sans font-medium">
@@ -1093,7 +1093,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                         {/* Correction Side */}
                                         <div className="bg-emerald-500/[0.015] dark:bg-emerald-500/[0.005] p-3.5 flex flex-col font-medium">
                                           <div className="flex items-center gap-1.5 mb-1.5">
-                                            <span className="px-2 py-0.5 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[8px] font-black uppercase tracking-wider">Correction</span>
+                                            <span className="px-2 py-0.5 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[9px] font-black uppercase tracking-wider">Correction</span>
                                           </div>
                                           <p className="text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed font-sans font-medium">
                                             {item.correction || "—"}
@@ -1114,7 +1114,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                   <ul className="space-y-2.5">
                                     {parsed.performance!.map((item, idx) => (
                                       <li key={idx} className="flex items-start gap-2.5 text-xs text-neutral-600 dark:text-neutral-300">
-                                        <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-[#EF2F38] text-[8px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                        <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-[#EF2F38] text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                                         <span className="leading-relaxed font-sans">{item}</span>
                                       </li>
                                     ))}

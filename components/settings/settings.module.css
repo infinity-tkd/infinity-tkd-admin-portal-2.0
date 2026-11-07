@@ -1,20 +1,16 @@
+/* Settings uses the portal theme tokens (app/globals.css) so it matches every other page. */
 .workspace {
   --settings-accent: var(--color-red-700);
-  --settings-action: var(--color-red-600);
-  --settings-surface: var(--color-white);
-  --settings-soft: var(--color-neutral-50);
-  --settings-border: var(--color-neutral-200);
-  --settings-text: var(--color-neutral-900);
-  --settings-muted: var(--color-neutral-600);
+  --settings-action: var(--ui-brand);
+  --settings-surface: var(--ui-surface);
+  --settings-soft: var(--ui-surface-inset);
+  --settings-border: var(--ui-line);
+  --settings-text: var(--ui-ink);
+  --settings-muted: var(--ui-ink-muted);
   color: var(--settings-text);
 }
 :global(.dark) .workspace {
   --settings-accent: var(--color-red-400);
-  --settings-surface: var(--color-neutral-900);
-  --settings-soft: var(--color-neutral-950);
-  --settings-border: var(--color-neutral-700);
-  --settings-text: var(--color-neutral-100);
-  --settings-muted: var(--color-neutral-400);
 }
 .shell { display: grid; gap: 1rem; grid-template-columns: minmax(0,1fr); }
 .navigation { display: flex; flex-wrap: wrap; align-self: start; gap: .25rem; padding: .375rem; background: var(--settings-surface); border: 1px solid var(--settings-border); border-radius: .5rem; }

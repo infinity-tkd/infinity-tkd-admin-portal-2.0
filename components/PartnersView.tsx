@@ -1,11 +1,10 @@
 'use client';
 
-import { dialogMotion } from '@/lib/motion';
 import { academyDate } from '@/lib/dates';
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useAppStore, Partner, PartnerType, PartnerStatus } from '@/lib/store';
-import { motion, AnimatePresence } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
 import { Handshake } from '@phosphor-icons/react/dist/csr/Handshake';
 import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
 import { Plus } from '@phosphor-icons/react/dist/csr/Plus';
@@ -34,8 +33,12 @@ import { SquaresFour } from '@phosphor-icons/react/dist/csr/SquaresFour';
 
 import { ArrowsClockwise } from '@phosphor-icons/react/dist/csr/ArrowsClockwise';
 import { cn } from '@/lib/utils';
-import { Portal } from './Portal';
 import { SafeImage } from './SafeImage';
+import { PageHeader } from './ui/PageHeader';
+import { KpiCard } from './ui/KpiCard';
+import { EmptyState, ErrorBanner } from './ui/States';
+import { Dialog, DialogBody, DialogFooter, DialogHeader } from './ui/Dialog';
+import { buttonClass, fieldClass, filterSelectClass, labelClass } from './ui/styles';
 
 const PARTNER_TYPES: PartnerType[] = [
   'MOU',
@@ -414,278 +417,137 @@ export function PartnersView() {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-[#0A0A0A] overflow-y-auto">
-      {/* Top Banner & KPI Summary */}
-      <div className="p-4 sm:p-6 border-b border-neutral-200 dark:border-[#262626] space-y-4 sm:space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[8px] bg-[#EF2F38]/10 border border-[#EF2F38]/30 flex items-center justify-center text-[#EF2F38] shrink-0">
-              <Handshake className="w-5 h-5" weight="bold" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#EF2F38] bg-red-500/10 px-2 py-0.5 rounded-[6px] border border-red-500/20">
-                  INFINITY TKD · INSTITUTIONAL DIRECTORY
-                </span>
-                <span className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
-                  {filteredPartners.length} of {totalCount} Partners
-                </span>
-              </div>
-              <h1 className="text-lg sm:text-xl font-bold font-sans tracking-tight text-neutral-900 dark:text-white mt-1">
-                Partners & MOU Directory
-              </h1>
-              <p className="text-xs text-neutral-600 dark:text-neutral-400 font-medium">
-                Manage academy collaborations, institutional MOUs, sponsors, and key working contacts
-              </p>
-            </div>
-          </div>
+    <div className="mx-auto w-full max-w-[1600px] space-y-4 pb-12 sm:space-y-5">
+      <PageHeader
+        icon={<Handshake weight="bold" />}
+        eyebrow="Infinity TKD · Institutional directory"
+        meta={`${filteredPartners.length} of ${totalCount} Partners`}
+        title="Partners & MOU Directory"
+        description="Manage academy collaborations, institutional MOUs, sponsors, and key working contacts"
+        actions={<>
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            title="Synchronize partners with database"
+            aria-label="Synchronize partner directory"
+            className={buttonClass()}
+          >
+            <ArrowsClockwise className={cn("w-4 h-4", isRefreshing && "motion-safe:animate-spin text-brand")} weight="bold" />
+            <span>Sync</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            disabled={isRefreshing || Boolean(loadError && state.partners.length === 0)}
+            className={buttonClass()}
+          >
+            <DownloadSimple className="w-4 h-4" weight="bold" />
+            <span>Export CSV</span>
+          </button>
+          {canCreate && (
+            <button type="button" onClick={handleOpenAdd} className={buttonClass({ variant: 'primary' })}>
+              <Plus className="w-4 h-4" weight="bold" />
+              <span>Add Partner</span>
+            </button>
+          )}
+        </>}
+      />
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+      {loadError && (
+        <ErrorBanner
+          title="Partner directory unavailable"
+          action={<button type="button" onClick={handleRefresh} disabled={isRefreshing} className="min-h-11 rounded-lg border border-current px-4 font-semibold disabled:opacity-50">{isRefreshing ? 'Retrying…' : 'Retry'}</button>}
+        >
+          <p>{loadError}</p>
+          {state.partners.length > 0 && <p className="mt-1 text-xs">Previously loaded records are shown. Changes may not be up to date.</p>}
+        </ErrorBanner>
+      )}
+
+      {/* Metric cards double as quick filters */}
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 md:grid-cols-4">
+        <KpiCard label="Total Partners" value={totalCount} icon={<Buildings weight="bold" />} active={activeKpiFilter === 'all'} onClick={() => handleKpiClick('all')} />
+        <KpiCard label="Active MOUs" value={activeMouCount} tone="green" icon={<ShieldCheck weight="bold" />} active={activeKpiFilter === 'mou'} onClick={() => handleKpiClick('mou')} />
+        <KpiCard label="Sponsors & Vendors" value={sponsorsSuppliersCount} tone="blue" icon={<Sparkle weight="bold" />} active={activeKpiFilter === 'sponsor'} onClick={() => handleKpiClick('sponsor')} />
+        <KpiCard label="Renewal Attention" value={expiringSoonCount} tone="amber" icon={<Warning weight="bold" />} active={activeKpiFilter === 'expiring'} onClick={() => handleKpiClick('expiring')} />
+      </div>
+
+      {/* Search & Filter Toolbar */}
+      <div className="flex flex-col items-stretch justify-between gap-2.5 sm:gap-3 md:flex-row md:items-center">
+        <div className="relative max-w-md flex-1">
+          <MagnifyingGlass aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-subtle" />
+          <input
+            type="search"
+            aria-label="Search partners"
+            placeholder="Search partner, founder, contact person, Telegram..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className={cn(fieldClass, 'pl-10 pr-11 text-xs [&::-webkit-search-cancel-button]:hidden')}
+          />
+          {search && (
             <button
               type="button"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              title="Synchronize partners with database"
-              aria-label="Synchronize partner directory"
-              className="flex-1 sm:flex-none min-h-[42px] px-3.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation transition-all disabled:opacity-50"
+              onClick={() => setSearch('')}
+              className="absolute right-0.5 top-1/2 flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-ink-subtle hover:text-ink touch-manipulation"
+              title="Clear Search"
+              aria-label="Clear search"
             >
-              <ArrowsClockwise className={cn("w-4 h-4", isRefreshing && "animate-spin text-[#EF2F38]")} weight="bold" />
-              <span>Sync</span>
+              <X className="h-3.5 w-3.5" />
             </button>
-
-            <button
-              type="button"
-              onClick={handleExportCsv}
-              disabled={isRefreshing || Boolean(loadError && state.partners.length === 0)}
-              className="flex-1 sm:flex-none min-h-[42px] px-3.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation transition-all"
-            >
-              <DownloadSimple className="w-4 h-4" weight="bold" />
-              <span>Export CSV</span>
-            </button>
-
-            {canCreate && (
-              <button
-                type="button"
-                onClick={handleOpenAdd}
-                className="flex-1 sm:flex-none min-h-[42px] px-4 bg-[#EF2F38] hover:bg-[#d4252e] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation transition-all shadow-sm"
-              >
-                <Plus className="w-4 h-4" weight="bold" />
-                <span>Add Partner</span>
-              </button>
-            )}
-          </div>
+          )}
         </div>
 
-        {loadError && (
-          <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
-            <div className="min-w-0 flex-1">
-              <p className="font-semibold">Partner directory unavailable</p>
-              <p className="mt-1">{loadError}</p>
-              {state.partners.length > 0 && <p className="mt-1 text-xs">Previously loaded records are shown. Changes may not be up to date.</p>}
-            </div>
-            <button type="button" onClick={handleRefresh} disabled={isRefreshing} className="min-h-11 rounded-md border border-current px-4 font-semibold disabled:opacity-50">{isRefreshing ? 'Retrying…' : 'Retry'}</button>
-          </div>
-        )}
-
-        {/* 4 Metric KPI Cards with Click-to-Filter Interaction */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3.5">
-          <button
-            type="button"
-            onClick={() => handleKpiClick('all')}
-            className={cn(
-              "w-full text-left bg-neutral-50 dark:bg-[#141414] border rounded-[8px] p-3 sm:p-4 flex items-center justify-between shadow-2xs transition-all cursor-pointer active:scale-95 touch-manipulation",
-              activeKpiFilter === 'all'
-                ? "ring-2 ring-[#EF2F38]/40 border-[#EF2F38] bg-red-500/[0.04] dark:bg-red-500/[0.08]"
-                : "border-neutral-200 dark:border-[#262626] hover:border-neutral-300 dark:hover:border-[#383838]"
-            )}
-          >
-            <div className="min-w-0">
-              <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 truncate">Total Partners</p>
-              <p className="text-xl sm:text-2xl font-black font-mono text-neutral-900 dark:text-white mt-0.5">{totalCount}</p>
-            </div>
-            <div className="w-9 h-9 rounded-[8px] bg-neutral-200/80 dark:bg-[#1C1C1C] flex items-center justify-center text-neutral-700 dark:text-neutral-300 shrink-0 border border-neutral-200 dark:border-[#262626]">
-              <Buildings className="w-4 h-4" weight="bold" />
-            </div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleKpiClick('mou')}
-            className={cn(
-              "w-full text-left bg-neutral-50 dark:bg-[#141414] border rounded-[8px] p-3 sm:p-4 flex items-center justify-between shadow-2xs transition-all cursor-pointer active:scale-95 touch-manipulation",
-              activeKpiFilter === 'mou'
-                ? "ring-2 ring-emerald-500/50 border-emerald-500 bg-emerald-500/[0.06]"
-                : "border-neutral-200 dark:border-[#262626] hover:border-emerald-500/40"
-            )}
-          >
-            <div className="min-w-0">
-              <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 truncate">Active MOUs</p>
-              <p className="text-xl sm:text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-0.5">{activeMouCount}</p>
-            </div>
-            <div className="w-9 h-9 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20">
-              <ShieldCheck className="w-4 h-4" weight="bold" />
-            </div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleKpiClick('sponsor')}
-            className={cn(
-              "w-full text-left bg-neutral-50 dark:bg-[#141414] border rounded-[8px] p-3 sm:p-4 flex items-center justify-between shadow-2xs transition-all cursor-pointer active:scale-95 touch-manipulation",
-              activeKpiFilter === 'sponsor'
-                ? "ring-2 ring-blue-500/50 border-blue-500 bg-blue-500/[0.06]"
-                : "border-neutral-200 dark:border-[#262626] hover:border-blue-500/40"
-            )}
-          >
-            <div className="min-w-0">
-              <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 truncate">Sponsors & Vendors</p>
-              <p className="text-xl sm:text-2xl font-black font-mono text-blue-600 dark:text-blue-400 mt-0.5">{sponsorsSuppliersCount}</p>
-            </div>
-            <div className="w-9 h-9 rounded-[8px] bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/20">
-              <Sparkle className="w-4 h-4" weight="bold" />
-            </div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleKpiClick('expiring')}
-            className={cn(
-              "w-full text-left bg-neutral-50 dark:bg-[#141414] border rounded-[8px] p-3 sm:p-4 flex items-center justify-between shadow-2xs transition-all cursor-pointer active:scale-95 touch-manipulation",
-              activeKpiFilter === 'expiring'
-                ? "ring-2 ring-amber-500/50 border-amber-500 bg-amber-500/[0.06]"
-                : "border-neutral-200 dark:border-[#262626] hover:border-amber-500/40"
-            )}
-          >
-            <div className="min-w-0">
-              <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 truncate">Renewal Attention</p>
-              <p className="text-xl sm:text-2xl font-black font-mono text-amber-600 dark:text-amber-400 mt-0.5">{expiringSoonCount}</p>
-            </div>
-            <div className="w-9 h-9 rounded-[8px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/20">
-              <Warning className="w-4 h-4" weight="bold" />
-            </div>
-          </button>
-        </div>
-
-        {/* Search & Filter Toolbar */}
-        <div className="flex flex-col md:flex-row gap-2.5 sm:gap-3 items-stretch md:items-center justify-between pt-1">
-          {/* Search Box with Clear Button */}
-          <div className="relative flex-1 max-w-md">
-            <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 dark:text-neutral-500 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search partner, founder, contact person, Telegram..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-9 min-h-[40px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 transition-all font-sans"
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 min-w-[32px] min-h-[32px] flex items-center justify-center text-neutral-400 hover:text-neutral-600 dark:hover:text-white rounded-[6px] active:scale-90 touch-manipulation cursor-pointer"
-                title="Clear Search"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Filters Row */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar touch-pan-x -mx-4 px-4 sm:mx-0 sm:px-0">
-            {/* Type Filter */}
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              aria-label="Filter partner type"
-              className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-xs text-neutral-800 dark:text-neutral-200 px-3 min-h-[40px] shrink-0 focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 font-bold font-mono cursor-pointer active:scale-95 touch-manipulation"
-            >
-              <option value="all">All Types</option>
-              {PARTNER_TYPES.map(type => (
-                <option key={type} value={type}>{type}</option>
-              ))}
+        <div className="no-scrollbar -mx-3.5 flex touch-pan-x items-center gap-2 overflow-x-auto px-3.5 sm:mx-0 sm:px-0">
+          <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} aria-label="Filter partner type" className={filterSelectClass}>
+            <option value="all">All Types</option>
+            {PARTNER_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+          </select>
+          <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} aria-label="Filter partner status" className={filterSelectClass}>
+            <option value="all">All Statuses</option>
+            {PARTNER_STATUSES.map(st => <option key={st} value={st}>{st}</option>)}
+          </select>
+          {countryList.length > 0 && (
+            <select value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)} aria-label="Filter partner country" className={filterSelectClass}>
+              <option value="all">All Countries</option>
+              {countryList.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
-
-            {/* Status Filter */}
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              aria-label="Filter partner status"
-              className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-xs text-neutral-800 dark:text-neutral-200 px-3 min-h-[40px] shrink-0 focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 font-bold font-mono cursor-pointer active:scale-95 touch-manipulation"
-            >
-              <option value="all">All Statuses</option>
-              {PARTNER_STATUSES.map(st => (
-                <option key={st} value={st}>{st}</option>
-              ))}
-            </select>
-
-            {/* Country Filter */}
-            {countryList.length > 0 && (
-              <select
-                value={selectedCountry}
-                onChange={(e) => setSelectedCountry(e.target.value)}
-                aria-label="Filter partner country"
-                className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-xs text-neutral-800 dark:text-neutral-200 px-3 min-h-[40px] shrink-0 focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 font-bold font-mono cursor-pointer active:scale-95 touch-manipulation"
-              >
-                <option value="all">All Countries</option>
-                {countryList.map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-            )}
-
-            {/* View Mode Toggle */}
-            <div className="flex items-center bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-0.5 shrink-0 min-h-[40px]">
+          )}
+          <div role="group" aria-label="Partner layout" className="flex min-h-11 shrink-0 items-center rounded-lg border border-line bg-control p-0.5">
+            {([['grid', 'Grid Cards View', SquaresFour], ['table', 'List Table View', ListDashes]] as const).map(([mode, label, Icon]) => (
               <button
+                key={mode}
                 type="button"
-                onClick={() => setViewMode('grid')}
+                onClick={() => setViewMode(mode)}
+                aria-pressed={viewMode === mode}
+                aria-label={label}
+                title={label}
                 className={cn(
-                  "min-w-[34px] min-h-[34px] flex items-center justify-center rounded-[6px] transition-colors cursor-pointer active:scale-95 touch-manipulation",
-                  viewMode === 'grid'
-                    ? "bg-white dark:bg-[#2A2A2A] text-neutral-900 dark:text-white shadow-2xs font-bold"
-                    : "text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
+                  "flex size-10 cursor-pointer items-center justify-center rounded-md transition-colors touch-manipulation",
+                  viewMode === mode ? "bg-surface text-ink shadow-2xs" : "text-ink-subtle hover:text-ink"
                 )}
-                title="Grid Cards View"
               >
-                <SquaresFour className="w-4 h-4" weight="bold" />
+                <Icon className="h-4 w-4" weight="bold" />
               </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('table')}
-                className={cn(
-                  "min-w-[34px] min-h-[34px] flex items-center justify-center rounded-[6px] transition-colors cursor-pointer active:scale-95 touch-manipulation",
-                  viewMode === 'table'
-                    ? "bg-white dark:bg-[#2A2A2A] text-neutral-900 dark:text-white shadow-2xs font-bold"
-                    : "text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
-                )}
-                title="List Table View"
-              >
-                <ListDashes className="w-4 h-4" weight="bold" />
-              </button>
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="p-4 sm:p-6 flex-1" aria-busy={isRefreshing}>
+      <div aria-busy={isRefreshing}>
         {filteredPartners.length === 0 ? (
-          <div className="py-20 text-center border border-dashed border-neutral-200 dark:border-[#262626] rounded-[8px] bg-neutral-50/50 dark:bg-[#141414]">
-            <Handshake className="w-12 h-12 text-neutral-400 dark:text-neutral-500 mx-auto mb-3" />
-            <h3 className="text-sm font-bold text-neutral-900 dark:text-white uppercase tracking-wider">{isRefreshing ? 'Loading partners…' : loadError ? 'Directory could not be verified' : 'No Partners Found'}</h3>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 font-mono mt-1 max-w-sm mx-auto">
-              {loadError ? 'Use Retry above after the connection or account setup issue is resolved.' : isRefreshing ? 'Retrieving the latest partner records.' : 'No partner records matching your search or filters. Try adjusting your search query or add a new partner.'}
-            </p>
-            {canCreate && !loadError && !isRefreshing && (
-              <button
-                type="button"
-                onClick={handleOpenAdd}
-                className="mt-4 px-4 py-2 bg-[#EF2F38] hover:bg-[#d4252e] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
-              >
-                <Plus className="w-4 h-4" weight="bold" />
+          <EmptyState
+            busy={isRefreshing}
+            icon={<Handshake />}
+            title={isRefreshing ? 'Loading partners…' : loadError ? 'Directory could not be verified' : 'No Partners Found'}
+            description={loadError ? 'Use Retry above after the connection or account setup issue is resolved.' : isRefreshing ? 'Retrieving the latest partner records.' : 'No partner records matching your search or filters. Try adjusting your search query or add a new partner.'}
+            action={canCreate && !loadError && !isRefreshing ? (
+              <button type="button" onClick={handleOpenAdd} className={buttonClass({ variant: 'primary' })}>
+                <Plus className="h-4 w-4" weight="bold" />
                 <span>Add Partner</span>
               </button>
-            )}
-          </div>
+            ) : undefined}
+          />
         ) : viewMode === 'grid' ? (
           /* GRID VIEW */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
@@ -741,7 +603,7 @@ export function PartnersView() {
                           <button
                             type="button"
                             onClick={(e) => handleOpenEdit(partner, e)}
-                            className="min-w-[36px] min-h-[36px] p-2 rounded-[6px] hover:bg-neutral-100 dark:hover:bg-[#1C1C1C] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer active:scale-90 touch-manipulation flex items-center justify-center"
+                            className="min-w-[36px] min-h-[36px] p-2 rounded-[6px] hover:bg-neutral-100 dark:hover:bg-[#1C1C1C] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer active:scale-90 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                             title="Edit Partner"
                           >
                             <PencilSimple className="w-4 h-4" />
@@ -750,7 +612,7 @@ export function PartnersView() {
                             <button
                               type="button"
                               onClick={(e) => handleDeletePartner(partner, e)}
-                              className="min-w-[36px] min-h-[36px] p-2 rounded-[6px] hover:bg-red-500/10 text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 transition-colors cursor-pointer active:scale-90 touch-manipulation flex items-center justify-center"
+                              className="min-w-[36px] min-h-[36px] p-2 rounded-[6px] hover:bg-red-500/10 text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-500 transition-colors cursor-pointer active:scale-90 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                               title="Delete Partner"
                             >
                               <Trash className="w-4 h-4" />
@@ -801,7 +663,7 @@ export function PartnersView() {
                           href={partner.telegramLink || `https://t.me/${partner.telegramUsername.replace(/^@/, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="min-h-[36px] px-2.5 py-1 bg-[#229ED9]/10 hover:bg-[#229ED9] text-[#229ED9] hover:text-white rounded-[6px] text-[11px] font-mono font-bold flex items-center gap-1.5 transition-all active:scale-95 touch-manipulation border border-[#229ED9]/20"
+                          className="min-h-[36px] px-2.5 py-1 bg-[#229ED9]/10 hover:bg-[#229ED9] text-[#229ED9] hover:text-white rounded-[6px] text-[11px] font-mono font-bold flex items-center gap-1.5 transition-all active:scale-95 touch-manipulation border border-[#229ED9]/20 pointer-coarse:min-h-11"
                           title={`Open Telegram: @${partner.telegramUsername.replace(/^@/, '')}`}
                         >
                           <PaperPlaneTilt className="w-3.5 h-3.5" weight="fill" />
@@ -813,7 +675,7 @@ export function PartnersView() {
                       {partner.phone && (
                         <a
                           href={`tel:${partner.phone}`}
-                          className="min-w-[36px] min-h-[36px] p-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-neutral-300 rounded-[6px] flex items-center justify-center transition-colors border border-neutral-200 dark:border-[#262626] active:scale-90 touch-manipulation"
+                          className="min-w-[36px] min-h-[36px] p-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-neutral-300 rounded-[6px] flex items-center justify-center transition-colors border border-neutral-200 dark:border-[#262626] active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                           title={`Call: ${partner.phone}`}
                         >
                           <Phone className="w-4 h-4" />
@@ -824,7 +686,7 @@ export function PartnersView() {
                       {partner.email && (
                         <a
                           href={`mailto:${partner.email}`}
-                          className="min-w-[36px] min-h-[36px] p-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-neutral-300 rounded-[6px] flex items-center justify-center transition-colors border border-neutral-200 dark:border-[#262626] active:scale-90 touch-manipulation"
+                          className="min-w-[36px] min-h-[36px] p-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-neutral-300 rounded-[6px] flex items-center justify-center transition-colors border border-neutral-200 dark:border-[#262626] active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                           title={`Email: ${partner.email}`}
                         >
                           <Envelope className="w-4 h-4" />
@@ -837,7 +699,7 @@ export function PartnersView() {
                           href={partner.websiteUrl.startsWith('http') ? partner.websiteUrl : `https://${partner.websiteUrl}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="min-w-[36px] min-h-[36px] p-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-neutral-300 rounded-[6px] flex items-center justify-center transition-colors border border-neutral-200 dark:border-[#262626] active:scale-90 touch-manipulation"
+                          className="min-w-[36px] min-h-[36px] p-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-neutral-300 rounded-[6px] flex items-center justify-center transition-colors border border-neutral-200 dark:border-[#262626] active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                           title="Visit Website"
                         >
                           <Globe className="w-4 h-4" />
@@ -848,7 +710,7 @@ export function PartnersView() {
                     <button
                       type="button"
                       onClick={() => setDetailPartner(partner)}
-                      className="min-h-[36px] px-2 text-xs font-bold font-mono text-[#EF2F38] hover:text-[#d4252e] hover:underline uppercase tracking-wider flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation"
+                      className="min-h-[36px] px-2 text-xs font-bold font-mono text-[#EF2F38] hover:text-[#d4252e] hover:underline uppercase tracking-wider flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                     >
                       <span>Details</span>
                       <ArrowSquareOut className="w-3.5 h-3.5" />
@@ -908,7 +770,7 @@ export function PartnersView() {
                         <button
                           type="button"
                           onClick={(e) => handleOpenEdit(partner, e)}
-                          className="min-w-[34px] min-h-[34px] p-1.5 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[6px] flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer"
+                          className="min-w-[34px] min-h-[34px] p-1.5 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[6px] flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                           title="Edit"
                         >
                           <PencilSimple className="w-4 h-4" />
@@ -918,7 +780,7 @@ export function PartnersView() {
                         <button
                           type="button"
                           onClick={(e) => handleDeletePartner(partner, e)}
-                          className="min-w-[34px] min-h-[34px] p-1.5 text-neutral-500 hover:text-red-500 rounded-[6px] flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer"
+                          className="min-w-[34px] min-h-[34px] p-1.5 text-neutral-500 hover:text-red-500 rounded-[6px] flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                           title="Delete"
                         >
                           <Trash className="w-4 h-4" />
@@ -957,7 +819,7 @@ export function PartnersView() {
                           href={partner.telegramLink || `https://t.me/${partner.telegramUsername.replace(/^@/, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="min-h-[34px] px-2 py-1 bg-[#229ED9]/10 text-[#229ED9] rounded-[6px] text-[10px] font-mono font-bold flex items-center gap-1 border border-[#229ED9]/20 active:scale-95 touch-manipulation"
+                          className="min-h-[34px] px-2 py-1 bg-[#229ED9]/10 text-[#229ED9] rounded-[6px] text-[10px] font-mono font-bold flex items-center gap-1 border border-[#229ED9]/20 active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                         >
                           <PaperPlaneTilt className="w-3 h-3" weight="fill" />
                           <span>@{partner.telegramUsername.replace(/^@/, '')}</span>
@@ -966,7 +828,7 @@ export function PartnersView() {
                       {partner.phone && (
                         <a
                           href={`tel:${partner.phone}`}
-                          className="min-w-[34px] min-h-[34px] p-1.5 bg-neutral-100 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[6px] flex items-center justify-center border border-neutral-200 dark:border-[#262626] active:scale-90 touch-manipulation"
+                          className="min-w-[34px] min-h-[34px] p-1.5 bg-neutral-100 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[6px] flex items-center justify-center border border-neutral-200 dark:border-[#262626] active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                           title="Call"
                         >
                           <Phone className="w-3.5 h-3.5" />
@@ -975,7 +837,7 @@ export function PartnersView() {
                       {partner.email && (
                         <a
                           href={`mailto:${partner.email}`}
-                          className="min-w-[34px] min-h-[34px] p-1.5 bg-neutral-100 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[6px] flex items-center justify-center border border-neutral-200 dark:border-[#262626] active:scale-90 touch-manipulation"
+                          className="min-w-[34px] min-h-[34px] p-1.5 bg-neutral-100 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[6px] flex items-center justify-center border border-neutral-200 dark:border-[#262626] active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                           title="Email"
                         >
                           <Envelope className="w-3.5 h-3.5" />
@@ -986,7 +848,7 @@ export function PartnersView() {
                     <button
                       type="button"
                       onClick={() => setDetailPartner(partner)}
-                      className="min-h-[34px] px-2 text-xs font-bold font-mono text-[#EF2F38] hover:text-[#d4252e] hover:underline uppercase tracking-wider flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation"
+                      className="min-h-[34px] px-2 text-xs font-bold font-mono text-[#EF2F38] hover:text-[#d4252e] hover:underline uppercase tracking-wider flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                     >
                       <span>Details</span>
                       <ArrowSquareOut className="w-3.5 h-3.5" />
@@ -1120,7 +982,7 @@ export function PartnersView() {
                             <button
                               type="button"
                               onClick={() => setDetailPartner(partner)}
-                              className="min-w-[34px] min-h-[34px] p-1.5 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[6px] transition-colors flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer"
+                              className="min-w-[34px] min-h-[34px] p-1.5 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[6px] transition-colors flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                               title="View Details"
                             >
                               <ArrowSquareOut className="w-4 h-4" />
@@ -1129,7 +991,7 @@ export function PartnersView() {
                               <button
                                 type="button"
                                 onClick={(e) => handleOpenEdit(partner, e)}
-                                className="min-w-[34px] min-h-[34px] p-1.5 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[6px] transition-colors flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer"
+                                className="min-w-[34px] min-h-[34px] p-1.5 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-[6px] transition-colors flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                                 title="Edit"
                               >
                                 <PencilSimple className="w-4 h-4" />
@@ -1139,7 +1001,7 @@ export function PartnersView() {
                               <button
                                 type="button"
                                 onClick={(e) => handleDeletePartner(partner, e)}
-                                className="min-w-[34px] min-h-[34px] p-1.5 text-neutral-500 hover:text-red-500 rounded-[6px] transition-colors flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer"
+                                className="min-w-[34px] min-h-[34px] p-1.5 text-neutral-500 hover:text-red-500 rounded-[6px] transition-colors flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                                 title="Delete"
                               >
                                 <Trash className="w-4 h-4" />
@@ -1160,14 +1022,9 @@ export function PartnersView() {
       {/* Detail Slide-Over Drawer Modal */}
       <AnimatePresence>
         {detailPartner && (
-          <Portal>
-            <div className="fixed inset-0 bg-neutral-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
-              <motion.div
-                {...dialogMotion}
-                className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] w-full max-w-2xl max-h-[92dvh] my-auto flex flex-col overflow-hidden shadow-2xl text-neutral-900 dark:text-white"
-              >
+          <Dialog onClose={() => setDetailPartner(null)} label={`${detailPartner.brandName || detailPartner.name} details`}>
                 {/* Drawer Header */}
-                <div className="p-4 sm:p-5 bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626] flex items-center justify-between shrink-0">
+                <div className="p-4 sm:p-5 bg-surface-inset border-b border-line flex items-center justify-between gap-3 shrink-0">
                   <div className="flex items-center gap-3 min-w-0">
                     {detailPartner.logoUrl ? (
                       <SafeImage
@@ -1207,7 +1064,7 @@ export function PartnersView() {
                           setDetailPartner(null);
                           handleOpenEdit(p);
                         }}
-                        className="min-h-[38px] px-3.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center"
+                        className={buttonClass()}
                       >
                         Edit
                       </button>
@@ -1225,7 +1082,7 @@ export function PartnersView() {
                 </div>
 
                 {/* Drawer Body */}
-                <div className="p-4 sm:p-6 overflow-y-auto space-y-5 text-xs">
+                <DialogBody className="space-y-5 text-xs">
                   {/* Overview / Scope */}
                   {detailPartner.description && (
                     <div>
@@ -1273,7 +1130,7 @@ export function PartnersView() {
                                 href={detailPartner.telegramLink || `https://t.me/${detailPartner.telegramUsername.replace(/^@/, '')}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[#229ED9] hover:underline font-bold min-h-[34px] flex items-center active:scale-95 touch-manipulation"
+                                className="text-[#229ED9] hover:underline font-bold min-h-[34px] flex items-center active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                               >
                                 @{detailPartner.telegramUsername.replace(/^@/, '')}
                               </a>
@@ -1284,7 +1141,7 @@ export function PartnersView() {
                               <span className="text-neutral-400 dark:text-neutral-500">Phone:</span>
                               <a
                                 href={`tel:${detailPartner.phone}`}
-                                className="text-neutral-700 dark:text-neutral-300 hover:text-[#EF2F38] min-h-[34px] flex items-center active:scale-95 touch-manipulation"
+                                className="text-neutral-700 dark:text-neutral-300 hover:text-[#EF2F38] min-h-[34px] flex items-center active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                               >
                                 {detailPartner.phone}
                               </a>
@@ -1295,7 +1152,7 @@ export function PartnersView() {
                               <span className="text-neutral-400 dark:text-neutral-500">Email:</span>
                               <a
                                 href={`mailto:${detailPartner.email}`}
-                                className="text-neutral-700 dark:text-neutral-300 hover:text-[#EF2F38] truncate max-w-[180px] min-h-[34px] flex items-center active:scale-95 touch-manipulation"
+                                className="text-neutral-700 dark:text-neutral-300 hover:text-[#EF2F38] truncate max-w-[180px] min-h-[34px] flex items-center active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                               >
                                 {detailPartner.email}
                               </a>
@@ -1347,7 +1204,7 @@ export function PartnersView() {
                             href={detailPartner.websiteUrl.startsWith('http') ? detailPartner.websiteUrl : `https://${detailPartner.websiteUrl}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[#EF2F38] hover:underline font-bold truncate block min-h-[30px] flex items-center active:scale-95 touch-manipulation"
+                            className="text-[#EF2F38] hover:underline font-bold truncate block min-h-[30px] flex items-center active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                           >
                             Open Link ↗
                           </a>
@@ -1364,7 +1221,7 @@ export function PartnersView() {
                           href={detailPartner.contractDocumentUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-3.5 py-2 min-h-[38px] bg-[#EF2F38] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 hover:bg-[#d4252e] active:scale-95 touch-manipulation"
+                          className="px-3.5 py-2 min-h-[38px] bg-[#EF2F38] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 hover:bg-[#d4252e] active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                         >
                           <FileText className="w-4 h-4" />
                           <span>View Document</span>
@@ -1396,139 +1253,115 @@ export function PartnersView() {
                       </p>
                     </div>
                   )}
-                </div>
-              </motion.div>
-            </div>
-          </Portal>
+                </DialogBody>
+          </Dialog>
         )}
       </AnimatePresence>
 
       {/* Add / Edit Partner Modal */}
       <AnimatePresence>
         {isAddModalOpen && (
-          <Portal>
-            <div className="fixed inset-0 bg-neutral-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
-              <motion.div
-                {...dialogMotion}
-                className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] w-full max-w-2xl max-h-[92dvh] my-auto flex flex-col overflow-hidden shadow-2xl text-neutral-900 dark:text-white"
-              >
-                {/* Modal Header */}
-                <div className="p-4 sm:p-5 bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626] flex items-center justify-between shrink-0">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-[6px] bg-[#EF2F38]/10 text-[#EF2F38] flex items-center justify-center font-bold">
-                      <Handshake className="w-4 h-4" weight="bold" />
-                    </div>
-                    <div>
-                      <h2 className="text-sm font-bold text-neutral-900 dark:text-white uppercase tracking-wider">
-                        {editingPartner ? 'Edit Partner / MOU' : 'Add New Partner / MOU'}
-                      </h2>
-                      <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">
-                        Register collaboration details, contacts, and agreement terms
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsAddModalOpen(false)}
-                    className="min-w-[44px] min-h-[44px] p-2 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1C1C1C] rounded-[8px] flex items-center justify-center active:scale-90 touch-manipulation cursor-pointer"
-                    title="Close"
-                    aria-label="Close Partner Form"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
+          <Dialog onClose={() => setIsAddModalOpen(false)} locked={isSaving}>
+                <DialogHeader
+                  icon={<Handshake weight="bold" />}
+                  title={editingPartner ? 'Edit Partner / MOU' : 'Add New Partner / MOU'}
+                  description="Register collaboration details, contacts, and agreement terms"
+                  onClose={() => setIsAddModalOpen(false)}
+                  closeLabel="Close Partner Form"
+                />
 
                 {/* Form Body */}
-                <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-xs font-mono">
+                <form onSubmit={handleFormSubmit} className="flex min-h-0 flex-1 flex-col">
+                <DialogBody className="space-y-4 text-xs sm:p-5">
                   {/* Section 1: Institution & Brand */}
                   <div className="space-y-3 pb-3 border-b border-neutral-200 dark:border-[#262626]">
                     <h3 className="text-[10px] uppercase font-bold text-[#EF2F38] tracking-wider">1. Institution & Brand Identity</h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Legal / Organization Name *</label>
+                      <label className="block">
+                        <span className={labelClass}>Legal / Organization Name *</span>
                         <input
                           type="text"
                           required
                           placeholder="e.g. Korea National Sport University"
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="w-full px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-sans"
+                          className={fieldClass}
                         />
-                      </div>
+                      </label>
 
-                      <div>
-                        <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Brand / Display Name</label>
+                      <label className="block">
+                        <span className={labelClass}>Brand / Display Name</span>
                         <input
                           type="text"
                           placeholder="e.g. KNSU Taekwondo"
                           value={formData.brandName || ''}
                           onChange={(e) => setFormData({ ...formData, brandName: e.target.value })}
-                          className="w-full px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-sans"
+                          className={fieldClass}
                         />
-                      </div>
+                      </label>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Collaboration Type</label>
+                      <label className="block">
+                        <span className={labelClass}>Collaboration Type</span>
                         <select
                           value={formData.partnerType}
                           onChange={(e) => setFormData({ ...formData, partnerType: e.target.value as PartnerType })}
-                          className="w-full px-3 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-800 dark:text-neutral-200 focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 font-bold cursor-pointer active:scale-95 touch-manipulation"
+                          className={cn(fieldClass, 'cursor-pointer font-bold')}
                         >
                           {PARTNER_TYPES.map(t => (
                             <option key={t} value={t}>{t}</option>
                           ))}
                         </select>
-                      </div>
+                      </label>
 
-                      <div>
-                        <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Status</label>
+                      <label className="block">
+                        <span className={labelClass}>Status</span>
                         <select
                           value={formData.status}
                           onChange={(e) => setFormData({ ...formData, status: e.target.value as PartnerStatus })}
-                          className="w-full px-3 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-800 dark:text-neutral-200 focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 font-bold cursor-pointer active:scale-95 touch-manipulation"
+                          className={cn(fieldClass, 'cursor-pointer font-bold')}
                         >
                           {PARTNER_STATUSES.map(s => (
                             <option key={s} value={s}>{s}</option>
                           ))}
                         </select>
-                      </div>
+                      </label>
 
-                      <div>
-                        <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Country / Region</label>
+                      <label className="block">
+                        <span className={labelClass}>Country / Region</span>
                         <input
                           type="text"
                           placeholder="e.g. Cambodia, South Korea"
                           value={formData.country || ''}
                           onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                          className="w-full px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-sans"
+                          className={fieldClass}
                         />
-                      </div>
+                      </label>
                     </div>
 
-                    <div>
-                      <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Logo URL</label>
+                    <label className="block">
+                      <span className={labelClass}>Logo URL</span>
                       <input
                         type="url"
                         placeholder="https://example.com/logo.png"
                         value={formData.logoUrl || ''}
                         onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
-                        className="w-full px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-sans"
+                        className={fieldClass}
                       />
-                    </div>
+                    </label>
 
-                    <div>
-                      <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">MOU / Collaboration Scope</label>
+                    <label className="block">
+                      <span className={labelClass}>MOU / Collaboration Scope</span>
                       <textarea
                         rows={3}
                         placeholder="Key deliverables, student training camps, referee certifications..."
                         value={formData.collaborationScope || ''}
                         onChange={(e) => setFormData({ ...formData, collaborationScope: e.target.value })}
-                        className="w-full p-3 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 resize-none leading-relaxed text-xs sm:text-sm font-sans"
+                        className={cn(fieldClass, 'resize-none py-3 leading-relaxed')}
                       />
-                    </div>
+                    </label>
                   </div>
 
                   {/* Section 2: Contact Persons & Telegram */}
@@ -1536,34 +1369,32 @@ export function PartnersView() {
                     <h3 className="text-[10px] uppercase font-bold text-[#EF2F38] tracking-wider">2. Working Contacts & Telegram (Liaison)</h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Contact Manager / Liaison Name</label>
+                      <label className="block">
+                        <span className={labelClass}>Contact Manager / Liaison Name</span>
                         <input
                           type="text"
                           placeholder="e.g. Sokha Mean"
                           value={formData.contactName || ''}
                           onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
-                          className="w-full px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-sans"
+                          className={fieldClass}
                         />
-                      </div>
+                      </label>
 
-                      <div>
-                        <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Contact Title / Role</label>
+                      <label className="block">
+                        <span className={labelClass}>Contact Title / Role</span>
                         <input
                           type="text"
                           placeholder="e.g. Partnership Director"
                           value={formData.contactRole || ''}
                           onChange={(e) => setFormData({ ...formData, contactRole: e.target.value })}
-                          className="w-full px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-sans"
+                          className={fieldClass}
                         />
-                      </div>
+                      </label>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">
-                          <span className="text-[#229ED9] font-bold">✈ Telegram Username</span>
-                        </label>
+                      <label className="block">
+                        <span className={labelClass}><span className="text-[#229ED9] font-bold">✈ Telegram Username</span></span>
                         <input
                           type="text"
                           placeholder="e.g. @sokhamean"
@@ -1576,55 +1407,55 @@ export function PartnersView() {
                               telegramLink: val ? `https://t.me/${val.replace(/^@/, '')}` : ''
                             });
                           }}
-                          className="w-full px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-sans"
+                          className={fieldClass}
                         />
-                      </div>
+                      </label>
 
-                      <div>
-                        <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Phone / Mobile</label>
+                      <label className="block">
+                        <span className={labelClass}>Phone / Mobile</span>
                         <input
                           type="tel"
                           placeholder="e.g. +855 12 345 678"
                           value={formData.phone || ''}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          className="w-full px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-sans"
+                          className={fieldClass}
                         />
-                      </div>
+                      </label>
 
-                      <div>
-                        <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Email / Gmail</label>
+                      <label className="block">
+                        <span className={labelClass}>Email / Gmail</span>
                         <input
                           type="email"
                           placeholder="partner@example.com"
                           value={formData.email || ''}
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          className="w-full px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-sans"
+                          className={fieldClass}
                         />
-                      </div>
+                      </label>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      <div>
-                        <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Founder / President Name</label>
+                      <label className="block">
+                        <span className={labelClass}>Founder / President Name</span>
                         <input
                           type="text"
                           placeholder="e.g. Grandmaster Kim"
                           value={formData.founderName || ''}
                           onChange={(e) => setFormData({ ...formData, founderName: e.target.value })}
-                          className="w-full px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-sans"
+                          className={fieldClass}
                         />
-                      </div>
+                      </label>
 
-                      <div>
-                        <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Website URL</label>
+                      <label className="block">
+                        <span className={labelClass}>Website URL</span>
                         <input
                           type="text"
                           placeholder="https://example.com"
                           value={formData.websiteUrl || ''}
                           onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
-                          className="w-full px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-sans"
+                          className={fieldClass}
                         />
-                      </div>
+                      </label>
                     </div>
                   </div>
 
@@ -1633,49 +1464,50 @@ export function PartnersView() {
                     <h3 className="text-[10px] uppercase font-bold text-[#EF2F38] tracking-wider">3. Agreement Dates & Document Ref</h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">MOU Signed Date</label>
+                      <label className="block">
+                        <span className={labelClass}>MOU Signed Date</span>
                         <input
                           type="date"
                           value={formData.mouSignedDate || ''}
                           onChange={(e) => setFormData({ ...formData, mouSignedDate: e.target.value })}
-                          className="w-full px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-mono [color-scheme:light] dark:[color-scheme:dark]"
+                          className={cn(fieldClass, 'font-mono')}
                         />
-                      </div>
+                      </label>
 
-                      <div>
-                        <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">MOU Expiry / Renewal Date</label>
+                      <label className="block">
+                        <span className={labelClass}>MOU Expiry / Renewal Date</span>
                         <input
                           type="date"
                           value={formData.mouExpiryDate || ''}
                           onChange={(e) => setFormData({ ...formData, mouExpiryDate: e.target.value })}
-                          className="w-full px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-mono [color-scheme:light] dark:[color-scheme:dark]"
+                          className={cn(fieldClass, 'font-mono')}
                         />
-                      </div>
+                      </label>
                     </div>
 
-                    <div>
-                      <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Contract Document URL (Google Drive / PDF)</label>
+                    <label className="block">
+                      <span className={labelClass}>Contract Document URL (Google Drive / PDF)</span>
                       <input
                         type="url"
                         placeholder="https://drive.google.com/file/d/..."
                         value={formData.contractDocumentUrl || ''}
                         onChange={(e) => setFormData({ ...formData, contractDocumentUrl: e.target.value })}
-                        className="w-full px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-sans"
+                        className={fieldClass}
                       />
-                    </div>
+                    </label>
 
                     {/* Tags input */}
                     <div>
-                      <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Tags (press Enter to add)</label>
+                      <label htmlFor="partner-tag-input" className={labelClass}>Tags (press Enter to add)</label>
                       <div className="flex items-center gap-1.5 mb-2 flex-wrap">
                         {formData.tags?.map(t => (
-                          <span key={t} className="px-2.5 py-1 rounded-[6px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 text-[11px] flex items-center gap-1">
+                          <span key={t} className="px-2.5 py-1 rounded-md bg-control border border-line text-ink text-[11px] flex items-center gap-1">
                             <span>#{t}</span>
                             <button
                               type="button"
                               onClick={() => handleRemoveTag(t)}
-                              className="min-w-[20px] min-h-[20px] flex items-center justify-center text-neutral-400 hover:text-red-500 rounded-[4px] active:scale-90 touch-manipulation cursor-pointer"
+                              aria-label={`Remove tag ${t}`}
+                              className="-my-1 -mr-1.5 size-7 pointer-coarse:size-9 flex items-center justify-center text-ink-subtle hover:text-red-500 rounded touch-manipulation cursor-pointer"
                             >
                               ×
                             </button>
@@ -1684,6 +1516,7 @@ export function PartnersView() {
                       </div>
                       <div className="flex gap-2">
                         <input
+                          id="partner-tag-input"
                           type="text"
                           placeholder="e.g. equipment, discounts, university"
                           value={tagInput}
@@ -1694,51 +1527,38 @@ export function PartnersView() {
                               handleAddTag();
                             }
                           }}
-                          className="flex-1 px-3.5 min-h-[42px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 text-xs sm:text-sm font-sans"
+                          className={cn(fieldClass, 'flex-1')}
                         />
-                        <button
-                          type="button"
-                          onClick={handleAddTag}
-                          className="px-4 min-h-[42px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[8px] text-xs font-bold active:scale-95 touch-manipulation cursor-pointer"
-                        >
+                        <button type="button" onClick={handleAddTag} className={buttonClass()}>
                           Add Tag
                         </button>
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-[10px] text-neutral-600 dark:text-neutral-400 mb-1 font-semibold">Internal Notes</label>
+                    <label className="block">
+                      <span className={labelClass}>Internal Notes</span>
                       <textarea
                         rows={3}
                         placeholder="Internal communication history, renewal terms, reminders..."
                         value={formData.notes || ''}
                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                        className="w-full p-3 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 resize-none leading-relaxed text-xs sm:text-sm font-sans"
+                        className={cn(fieldClass, 'resize-none py-3 leading-relaxed')}
                       />
-                    </div>
+                    </label>
                   </div>
+                </DialogBody>
 
-                  {/* Submit buttons */}
-                  <div className="pt-3 border-t border-neutral-200 dark:border-[#262626] flex items-center justify-end gap-2.5">
-                    <button
-                      type="button"
-                      onClick={() => setIsAddModalOpen(false)}
-                      className="flex-1 sm:flex-none px-4 py-2.5 min-h-[44px] rounded-[8px] bg-neutral-100 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-[#262626] font-bold uppercase tracking-wider text-xs hover:bg-neutral-200 dark:hover:bg-[#262626] active:scale-95 touch-manipulation flex items-center justify-center cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isSaving}
-                      className="flex-1 sm:flex-none px-5 py-2.5 min-h-[44px] rounded-[8px] bg-[#EF2F38] hover:bg-[#d4252e] text-white font-bold uppercase tracking-wider text-xs disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm shadow-[#EF2F38]/20 active:scale-95 touch-manipulation"
-                    >
-                      <span>{isSaving ? 'Saving...' : editingPartner ? 'Update Partner' : 'Save Partner'}</span>
-                    </button>
-                  </div>
+                {/* Actions stay visible while the long form scrolls */}
+                <DialogFooter>
+                  <button type="button" onClick={() => setIsAddModalOpen(false)} disabled={isSaving} className={buttonClass()}>
+                    Cancel
+                  </button>
+                  <button type="submit" disabled={isSaving} className={buttonClass({ variant: 'primary' })}>
+                    <span>{isSaving ? 'Saving…' : editingPartner ? 'Update Partner' : 'Save Partner'}</span>
+                  </button>
+                </DialogFooter>
                 </form>
-              </motion.div>
-            </div>
-          </Portal>
+          </Dialog>
         )}
       </AnimatePresence>
     </div>

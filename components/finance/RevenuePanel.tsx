@@ -140,7 +140,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                     style={{ width: `${Math.min(collectionRate, 100)}%` }}
                   />
                </div>
-               <p className="text-[8.5px] sm:text-[9px] text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">
+               <p className="text-[9px] text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">
                  ${(totalExpected - totalScholarshipDiscounts).toFixed(0)} Net Due
                </p>
              </div>
@@ -148,19 +148,19 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
              <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-5 shadow-sm">
                <p className="text-[9px] sm:text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest mb-1 truncate">Realized Revenue</p>
                <h2 className="text-xl sm:text-2xl font-mono text-emerald-700 dark:text-emerald-400 font-bold">${totalCollected.toFixed(2)}</h2>
-               <p className="text-[8.5px] sm:text-[9px] text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">Confirmed tuition yield</p>
+               <p className="text-[9px] text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">Confirmed tuition yield</p>
              </div>
 
              <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-5 shadow-sm">
                <p className="text-[9px] sm:text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest mb-1 truncate">Outstanding Dues</p>
                <h2 className="text-xl sm:text-2xl font-mono text-rose-700 dark:text-rose-400 font-bold">${outstandingBalance.toFixed(2)}</h2>
-               <p className="text-[8.5px] sm:text-[9px] text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">{agingReceivables.length} accounts overdue</p>
+               <p className="text-[9px] text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">{agingReceivables.length} accounts overdue</p>
              </div>
 
              <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-5 shadow-sm">
                <p className="text-[9px] sm:text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest mb-1 truncate">Subsidies</p>
                <h2 className="text-xl sm:text-2xl font-mono text-indigo-600 dark:text-indigo-400 font-bold">${totalScholarshipDiscounts.toFixed(2)}</h2>
-               <p className="text-[8.5px] sm:text-[9px] text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">Academy waivers</p>
+               <p className="text-[9px] text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">Academy waivers</p>
              </div>
           </div>
 
@@ -224,7 +224,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                       />
                     </div>
 
-                    <div className="space-y-0.5 text-[8.5px] sm:text-[9px] font-mono">
+                    <div className="space-y-0.5 text-[9px] font-mono">
                       <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
                         <span>Rec:</span>
                         <span className="font-bold text-emerald-700 dark:text-emerald-400">${item.collected.toFixed(0)}</span>
@@ -286,7 +286,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                     <button
                       onClick={() => setAgingSeverityFilter('all')}
                       className={cn(
-                        "px-2.5 py-1 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 min-h-[30px]",
+                        "px-2.5 py-1 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 min-h-[30px] pointer-coarse:min-h-11",
                         agingSeverityFilter === 'all'
                           ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 font-black shadow-xs"
                           : "bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
@@ -297,7 +297,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                     <button
                       onClick={() => setAgingSeverityFilter('1m')}
                       className={cn(
-                        "px-2.5 py-1 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 min-h-[30px]",
+                        "px-2.5 py-1 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 min-h-[30px] pointer-coarse:min-h-11",
                         agingSeverityFilter === '1m'
                           ? "bg-amber-500 text-white font-black shadow-xs"
                           : "bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-amber-700 dark:text-amber-400 hover:bg-amber-500/10"
@@ -308,7 +308,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                     <button
                       onClick={() => setAgingSeverityFilter('2m_plus')}
                       className={cn(
-                        "px-2.5 py-1 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 min-h-[30px]",
+                        "px-2.5 py-1 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 min-h-[30px] pointer-coarse:min-h-11",
                         agingSeverityFilter === '2m_plus'
                           ? "bg-rose-600 text-white font-black shadow-xs"
                           : "bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-rose-700 dark:text-rose-400 hover:bg-rose-500/10"
@@ -359,7 +359,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                               <span className="font-mono font-bold text-rose-700 dark:text-rose-400 text-sm block">
                                 ${ar.owed.toFixed(2)}
                               </span>
-                              <span className="text-[8.5px] text-neutral-500 dark:text-neutral-400 font-mono">
+                              <span className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono">
                                 Total Owed
                               </span>
                             </div>
@@ -370,7 +370,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                               Cycles:
                             </span>
                             {ar.overdueMonths.map(om => (
-                              <span key={om} className="px-1.5 py-0.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/25 rounded text-[8.5px] font-mono font-bold">
+                              <span key={om} className="px-1.5 py-0.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/25 rounded text-[9px] font-mono font-bold">
                                 {om}
                               </span>
                             ))}

@@ -6,6 +6,8 @@ import { ArrowClockwise } from '@phosphor-icons/react/dist/csr/ArrowClockwise';
 import { House } from '@phosphor-icons/react/dist/csr/House';
 import Link from 'next/link';
 import { reportClientError } from '@/lib/client-telemetry';
+import { buttonClass } from '@/components/ui/styles';
+import { cn } from '@/lib/utils';
 
 interface SegmentErrorFallbackProps {
   error: Error & { digest?: string };
@@ -25,46 +27,39 @@ export function SegmentErrorFallback({
   }, [error, sectionName]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] p-4 text-center">
-      <div className="w-full max-w-md bg-[#141414] border border-[#262626] rounded-[8px] p-6 sm:p-8 shadow-2xl space-y-6">
-        <div className="w-14 h-14 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.1)]">
-          <Warning className="w-7 h-7" />
+    <div role="alert" className="flex min-h-[50dvh] flex-col items-center justify-center p-4 text-center">
+      <div className="w-full max-w-md space-y-6 rounded-lg border border-line bg-surface p-6 shadow-2xl sm:p-8">
+        <div aria-hidden="true" className="mx-auto flex size-14 items-center justify-center rounded-full border border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+          <Warning className="size-7" />
         </div>
 
         <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[9px] font-bold uppercase tracking-widest">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
             Isolated View Error
           </div>
-          <h2 className="text-base sm:text-lg font-bold text-white uppercase tracking-tight">
+          <h2 className="text-base font-bold uppercase tracking-tight text-ink sm:text-lg">
             {sectionName} Unavailable
           </h2>
-          <p className="text-xs text-[#999] leading-relaxed">
+          <p className="text-xs leading-relaxed text-ink-muted">
             A runtime error occurred in this view. The application shell and your authenticated session remain active.
           </p>
         </div>
 
         {error.message && (
-          <div className="w-full bg-[#0A0A0A] border border-[#262626] rounded-[8px] p-3 text-left">
-            <span className="block text-[8px] uppercase tracking-widest font-black text-[#555] mb-1 font-mono">Diagnostics</span>
-            <code className="text-[10px] text-red-400 font-mono break-all line-clamp-3">
+          <div className="w-full rounded-lg border border-line bg-surface-inset p-3 text-left">
+            <span className="mb-1 block font-mono text-[10px] font-black uppercase tracking-widest text-ink-subtle">Diagnostics</span>
+            <code className="line-clamp-3 break-all font-mono text-[11px] text-red-700 dark:text-red-400">
               {error.message}
             </code>
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
-          <button
-            onClick={() => reset()}
-            className="flex-1 min-h-[44px] py-2 px-4 bg-[#EF2F38] hover:bg-red-600 text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
-          >
-            <ArrowClockwise className="w-4 h-4" /> Retry View
+        <div className="flex flex-col gap-2.5 pt-2 sm:flex-row">
+          <button type="button" onClick={() => reset()} className={cn(buttonClass({ variant: 'primary' }), 'flex-1')}>
+            <ArrowClockwise className="size-4" /> Retry View
           </button>
-
-          <Link
-            href="/dashboard"
-            className="flex-1 min-h-[44px] py-2 px-4 bg-[#1F1F1F] hover:bg-[#2A2A2A] border border-[#333] text-[#E4E4E4] font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-all flex items-center justify-center gap-2"
-          >
-            <House className="w-4 h-4" /> Dashboard
+          <Link href="/dashboard" className={cn(buttonClass(), 'flex-1')}>
+            <House className="size-4" /> Dashboard
           </Link>
         </div>
       </div>

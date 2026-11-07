@@ -54,7 +54,7 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                       placeholder={t('dir_history_search_placeholder')}
                       value={historySearch}
                       onChange={(e) => setHistorySearch(e.target.value)}
-                      className="w-full pl-8 pr-2 h-8 sm:h-9 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs focus:outline-none focus:border-[#EF2F38] placeholder:text-neutral-400 dark:placeholder:text-[#666]"
+                      className="w-full pl-8 pr-2 h-9 pointer-coarse:h-11 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs focus:outline-none focus:border-[#EF2F38] placeholder:text-neutral-400 dark:placeholder:text-[#666]"
                     />
                   </div>
 
@@ -62,7 +62,7 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                     <select
                       value={filterBranchHistory}
                       onChange={(e) => setFilterBranchHistory(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-8 sm:h-9 shrink-0 focus:outline-none font-bold cursor-pointer"
+                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-9 pointer-coarse:h-11 shrink-0 focus:outline-none font-bold cursor-pointer"
                     >
                       <option value="all">{t('dir_all_branches')}</option>
                       {state.branches.map(b => (
@@ -73,7 +73,7 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                     <select
                       value={filterBeltHistory}
                       onChange={(e) => setFilterBeltHistory(e.target.value)}
-                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-8 sm:h-9 shrink-0 focus:outline-none font-bold cursor-pointer"
+                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-9 pointer-coarse:h-11 shrink-0 focus:outline-none font-bold cursor-pointer"
                     >
                       <option value="all">{t('dir_all_ranks')}</option>
                       {BELT_RANK_ORDER.map(b => (
@@ -84,7 +84,7 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                     <select
                       value={filterProgramHistory}
                       onChange={(e) => setFilterProgramHistory(e.target.value)}
-                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-8 sm:h-9 shrink-0 focus:outline-none font-bold cursor-pointer"
+                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-9 pointer-coarse:h-11 shrink-0 focus:outline-none font-bold cursor-pointer"
                     >
                       <option value="all">{t('dir_all_programs')}</option>
                       {Array.from(new Set(state.beltHistories.map(h => h.program || 'Standard Class'))).map(p => (
@@ -95,7 +95,7 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                     <button
                       type="button"
                       onClick={handleExportHistoryCsv}
-                      className="px-2.5 sm:px-3 h-8 sm:h-9 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-[#DDD] hover:text-neutral-900 dark:hover:text-white rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer active:scale-95 touch-manipulation"
+                      className="px-2.5 sm:px-3 h-9 pointer-coarse:h-11 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-[#DDD] hover:text-neutral-900 dark:hover:text-white rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer active:scale-95 touch-manipulation"
                       title="Export History to CSV"
                     >
                       <DownloadSimple className="w-3.5 h-3.5" />
@@ -155,7 +155,7 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                               </button>
                             </td>
                             <td className="px-4 py-2.5">
-                              <span className={cn("px-2 py-0.5 rounded text-[8px] font-bold border tracking-wider uppercase", history.beltLevel.toLowerCase().includes('poom') || history.beltLevel.toLowerCase().includes('dan') || history.beltLevel.toLowerCase() === 'black' ? "bg-neutral-900 text-white border-neutral-700 dark:bg-black dark:text-neutral-100 dark:border-neutral-700" : history.beltLevel === 'Red' ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30" : history.beltLevel === 'Brown' ? "bg-amber-900/10 text-amber-800 dark:text-amber-500 border-amber-800/30" : history.beltLevel === 'Blue' ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30" : history.beltLevel === 'Green' ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : history.beltLevel === 'White' ? "bg-neutral-100 text-neutral-800 dark:bg-white/10 dark:text-neutral-200 border-neutral-300 dark:border-white/20" : "bg-yellow-500/15 text-yellow-800 dark:text-yellow-400 border-yellow-500/40" )}>
+                              <span className={cn("px-2 py-0.5 rounded text-[9px] font-bold border tracking-wider uppercase", history.beltLevel.toLowerCase().includes('poom') || history.beltLevel.toLowerCase().includes('dan') || history.beltLevel.toLowerCase() === 'black' ? "bg-neutral-900 text-white border-neutral-700 dark:bg-black dark:text-neutral-100 dark:border-neutral-700" : history.beltLevel === 'Red' ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30" : history.beltLevel === 'Brown' ? "bg-amber-900/10 text-amber-800 dark:text-amber-500 border-amber-800/30" : history.beltLevel === 'Blue' ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30" : history.beltLevel === 'Green' ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : history.beltLevel === 'White' ? "bg-neutral-100 text-neutral-800 dark:bg-white/10 dark:text-neutral-200 border-neutral-300 dark:border-white/20" : "bg-yellow-500/15 text-yellow-800 dark:text-yellow-400 border-yellow-500/40" )}>
                                 {history.beltLevel}
                               </span>
                             </td>
@@ -259,7 +259,7 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                             {student ? student.englishName : history.studentId}
                             <span className="text-[10px] text-neutral-500 font-mono font-normal ml-1">({history.studentId})</span>
                           </button>
-                          <span className="px-2 py-0.5 rounded text-[8px] font-bold border uppercase tracking-wider bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white">
+                          <span className="px-2 py-0.5 rounded text-[9px] font-bold border uppercase tracking-wider bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white">
                             {history.beltLevel}
                           </span>
                         </div>

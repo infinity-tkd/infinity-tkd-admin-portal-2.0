@@ -41,7 +41,7 @@ export function BirthdayWishActionModal({ student, onClose, onMarkSent }: { stud
           {/* Header */}
           <div className="flex justify-between items-start border-b border-neutral-200 dark:border-[#262626] pb-3">
             <div>
-              <span className="text-[8px] font-bold uppercase tracking-widest text-[#EF2F38] font-mono">{t('dash_birthday_wizard')}</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-[#EF2F38] font-mono">{t('dash_birthday_wizard')}</span>
               <h3 className="text-sm font-bold text-neutral-800 dark:text-white mt-1">{t('dash_send_birthday_greeting')}</h3>
             </div>
             <button
@@ -100,13 +100,13 @@ export function BirthdayWishActionModal({ student, onClose, onMarkSent }: { stud
           <div className="flex gap-2.5 sm:gap-3">
             <button
               onClick={handleCopy}
-              className="flex-1 h-9 sm:h-10 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-white rounded-[6px] sm:rounded-[8px] text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all active:scale-95 touch-manipulation cursor-pointer flex items-center justify-center"
+              className="flex-1 h-10 pointer-coarse:h-11 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-white rounded-[6px] sm:rounded-[8px] text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all active:scale-95 touch-manipulation cursor-pointer flex items-center justify-center"
             >
               {copied ? t('dash_copied_msg') : t('dash_copy_clipboard')}
             </button>
             <button
               onClick={onMarkSent}
-              className="flex-1 h-9 sm:h-10 bg-[#EF2F38] hover:bg-[#D0252D] text-white rounded-[6px] sm:rounded-[8px] text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all shadow-md shadow-[#EF2F38]/20 active:scale-95 touch-manipulation cursor-pointer flex items-center justify-center"
+              className="flex-1 h-10 pointer-coarse:h-11 bg-[#EF2F38] hover:bg-[#D0252D] text-white rounded-[6px] sm:rounded-[8px] text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all shadow-md shadow-[#EF2F38]/20 active:scale-95 touch-manipulation cursor-pointer flex items-center justify-center"
             >
               {t('dash_mark_sent')}
             </button>

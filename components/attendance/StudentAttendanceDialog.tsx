@@ -214,7 +214,7 @@ export function StudentAttendanceDialog({ studentAttendanceRecords, state, t, st
                          return (
                            <div
                              key={i}
-                             className="w-6 h-6 rounded-[4px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center text-[8px] font-mono text-neutral-400 dark:text-[#444] select-none"
+                             className="w-6 h-6 rounded-[4px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center text-[9px] font-mono text-neutral-400 dark:text-[#444] select-none"
                              title={t('att_no_training_record')}
                            >
                              -

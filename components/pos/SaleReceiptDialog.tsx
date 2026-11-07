@@ -64,14 +64,14 @@ return <>
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="flex-1 py-2 min-h-[42px] bg-slate-900 hover:bg-slate-800 text-white text-white-on-red text-[10px] font-bold rounded-[8px] flex items-center justify-center gap-1 cursor-pointer shadow-sm transition-colors active:scale-95 touch-manipulation"
+                  className="flex-1 py-2 min-h-[42px] bg-slate-900 hover:bg-slate-800 text-white text-white-on-red text-[10px] font-bold rounded-[8px] flex items-center justify-center gap-1 cursor-pointer shadow-sm transition-colors active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                 >
                   <Printer size={14} /> PRINT RECEIPT
                 </button>
                 <button
                   type="button"
                   onClick={() => setCompletedTx()}
-                  className="px-4 py-2 min-h-[42px] bg-neutral-200 hover:bg-neutral-300 text-neutral-900 text-[10px] font-bold rounded-[8px] cursor-pointer active:scale-95 touch-manipulation"
+                  className="px-4 py-2 min-h-[42px] bg-neutral-200 hover:bg-neutral-300 text-neutral-900 text-[10px] font-bold rounded-[8px] cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                 >
                   CLOSE
                 </button>

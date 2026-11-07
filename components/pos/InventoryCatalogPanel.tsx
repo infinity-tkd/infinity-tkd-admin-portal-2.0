@@ -109,7 +109,7 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
                       type="button"
                       onClick={() => setInventoryStockFilter(f)}
                       className={cn(
-                        "min-w-0 flex-1 sm:flex-initial px-1.5 sm:px-2.5 py-1 min-h-[38px] text-[10px] font-mono rounded-[6px] transition cursor-pointer flex items-center justify-center gap-1 sm:gap-1.5 active:scale-95 touch-manipulation",
+                        "min-w-0 flex-1 sm:flex-initial px-1.5 sm:px-2.5 py-1 min-h-[38px] text-[10px] font-mono rounded-[6px] transition cursor-pointer flex items-center justify-center gap-1 sm:gap-1.5 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                         inventoryStockFilter === f
                           ? "bg-white text-neutral-900 shadow-sm font-bold border border-neutral-200/80 dark:bg-[#222] dark:text-white dark:border-neutral-700"
                           : "text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
@@ -469,7 +469,7 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
                       <button
                         type="button"
                         onClick={() => openEditProductModal(prod)}
-                        className="flex-1 py-2 min-h-[38px] bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-[#1a1a1a] dark:text-neutral-200 dark:border-[#262626] rounded-[8px] text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation" disabled={!canManageInventory}
+                        className="flex-1 py-2 min-h-[38px] bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-[#1a1a1a] dark:text-neutral-200 dark:border-[#262626] rounded-[8px] text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation pointer-coarse:min-h-11" disabled={!canManageInventory}
                       >
                         <PencilSimple size={13} />
                         <span>Edit</span>
@@ -477,7 +477,7 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
                       <button
                         type="button"
                         onClick={() => { setAdjustingVariant(null); setAdjustingProduct(prod); }}
-                        className="flex-1 py-2 min-h-[38px] bg-[#EF2F38]/10 hover:bg-[#EF2F38] text-[#EF2F38] hover:text-white border border-[#EF2F38]/20 rounded-[8px] text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation" disabled={!canManageInventory}
+                        className="flex-1 py-2 min-h-[38px] bg-[#EF2F38]/10 hover:bg-[#EF2F38] text-[#EF2F38] hover:text-white border border-[#EF2F38]/20 rounded-[8px] text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation pointer-coarse:min-h-11" disabled={!canManageInventory}
                       >
                         <ArrowsClockwise size={13} />
                         <span>Restock</span>
@@ -485,7 +485,7 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
                       <button
                         type="button"
                         onClick={() => handleDeleteProduct(prod.id, prod.name)}
-                        className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-neutral-100 hover:bg-red-600 hover:text-white text-neutral-600 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-red-600 dark:hover:text-white dark:text-[#888] dark:border-[#262626] rounded-[8px] transition cursor-pointer active:scale-90 touch-manipulation"
+                        className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center bg-neutral-100 hover:bg-red-600 hover:text-white text-neutral-600 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-red-600 dark:hover:text-white dark:text-[#888] dark:border-[#262626] rounded-[8px] transition cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                         title="Archive product" disabled={!canManageInventory}
                       >
                         <Trash size={14} />

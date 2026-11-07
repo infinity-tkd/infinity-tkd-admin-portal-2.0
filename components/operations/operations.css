@@ -1,12 +1,14 @@
-.operations-panel :is(input:not([type="checkbox"]),select,textarea) { width:100%;min-width:0;min-height:44px;border:1px solid var(--operation-border,#d4d4d4);border-radius:8px;padding:10px;background:transparent;font:inherit; }
+/* Operations forms share the portal theme tokens defined in app/globals.css. */
+.operations-panel :is(input:not([type="checkbox"]),select,textarea) { width:100%;min-width:0;min-height:44px;border:1px solid var(--ui-line-strong);border-radius:8px;padding:10px;background:var(--ui-surface-muted);color:var(--ui-ink);font:inherit; }
 .operations-panel textarea { min-height:80px; }
-.operations-panel :is(button,input,select,textarea,summary,a):focus-visible { outline:2px solid #dc2626;outline-offset:3px; }
-.operations-panel input[type="checkbox"] { width:18px;height:18px;accent-color:#dc2626; }
-.operation-control,.operation-primary { min-height:44px;border:1px solid #d4d4d4;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600; }
-.operation-primary { background:#dc2626;color:white;border-color:#dc2626; }
+.operations-panel :is(button,input,select,textarea,summary,a):focus-visible { outline:2px solid var(--ui-brand);outline-offset:3px; }
+.operations-panel input[type="checkbox"] { width:18px;height:18px;accent-color:var(--ui-brand); }
+.operation-control,.operation-primary { min-height:44px;border:1px solid var(--ui-line-strong);border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;background:var(--ui-control);color:var(--ui-ink);cursor:pointer;transition:background-color var(--motion-fast) var(--motion-ease),border-color var(--motion-fast) var(--motion-ease); }
+.operation-control:hover { background:var(--ui-control-hover); }
+.operation-control[aria-pressed="true"] { background:var(--ui-surface);border-color:var(--ui-brand);color:var(--ui-brand);box-shadow:inset 0 -2px var(--ui-brand); }
+.operation-primary { background:var(--ui-brand);color:#fff;border-color:var(--ui-brand); }
+.operation-primary:hover { background:var(--ui-brand-strong); }
 .operations-panel :disabled { opacity:.55;cursor:wait; }
-.dark .operations-panel { --operation-border:#404040; }
-.dark .operation-control { border-color:#404040; }
 .operations-panel details>summary { min-height:44px;cursor:pointer;padding:12px 0;font-size:13px;font-weight:600; }
 @media(prefers-reduced-motion:no-preference) { .operations-panel { animation:operation-appear .16s ease-out; } .operations-panel button { transition:background-color .12s ease,color .12s ease; } }
 @keyframes operation-appear { from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)} }

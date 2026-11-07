@@ -38,10 +38,14 @@ import { usePortalScroll } from '@/hooks/use-portal-scroll';
 import { panelTransition } from '@/lib/motion';
 import { PORTAL_COMPACT_MEDIA } from '@/lib/navigation';
 import { useNetworkStatus } from '@/components/providers/NetworkStatusProvider';
+import { BrandSplash } from '@/components/ui/States';
+import { buttonClass } from '@/components/ui/styles';
 
 interface PortalLayoutProps {
   children: React.ReactNode;
 }
+
+const QUICK_TAB_PRIORITY = ['dashboard', 'attendance', 'directory', 'schedule', 'pos', 'operations', 'staff', 'calendar', 'financials', 'lms', 'beltTests', 'library', 'partners', 'settings'];
 
 export function PortalLayout({ children }: PortalLayoutProps) {
   const { state, logout, can } = useAppStore();
@@ -134,38 +138,12 @@ export function PortalLayout({ children }: PortalLayoutProps) {
   }, [sidebarOpen, state.isLoading, state.currentUser?.id, revealNavigation]);
 
   // Secure Auth Guard: if user is not logged in and not loading, block access and render Login
-  if (state.isLoading) {
-    return (
-      <div className="min-h-dvh flex flex-col items-center justify-center bg-white text-neutral-900 dark:bg-[#0A0A0A] dark:text-[#E4E4E4] font-sans selection:bg-red-500/30 relative overflow-hidden">
-        {/* Background radial glow */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(239,47,56,0.06)_0%,transparent_70%)] pointer-events-none" />
-
-        <div className="flex flex-col items-center space-y-6 relative z-10">
-          <div className="w-14 h-14 relative flex items-center justify-center">
-            <NextImage unoptimized width={56} height={56} src="/icons/logo.svg"
-              alt="Infinity Logo"
-              className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(239,47,56,0.35)] animate-pulse" />
-          </div>
-
-          <div className="flex flex-col items-center space-y-1 text-center">
-            <h1 className="text-[10px] font-black tracking-[0.25em] text-white uppercase leading-none">INFINITY TKD</h1>
-            <p className="text-[8px] text-[#EF2F38] tracking-[0.18em] uppercase font-mono animate-pulse mt-1">Synchronizing Database...</p>
-          </div>
-
-          {/* Premium Linear Shimmer Loading Tracker */}
-          <div className="w-32 bg-[#141414] h-[2px] rounded-full overflow-hidden border border-[#262626] relative">
-            <div className="bg-[#EF2F38] h-full rounded-full w-1/2 absolute left-0 top-0 animate-shimmer" />
-          </div>
-        </div>
-
-      </div>
-    );
-  }
+  if (state.isLoading) return <BrandSplash message="Synchronizing database…" />;
 
   if (!state.currentUser) {
     // Mount the sign-in form only after redirecting. Otherwise typed credentials
     // can be lost when the temporary form on /dashboard is replaced by /.
-    return <main aria-busy="true" className="flex min-h-dvh items-center justify-center bg-white text-sm text-neutral-600 dark:bg-neutral-950 dark:text-neutral-300">Returning to sign-in…</main>;
+    return <main aria-busy="true" className="flex min-h-dvh items-center justify-center bg-page text-sm text-ink-muted">Returning to sign-in…</main>;
   }
 
   const tabs = [
@@ -240,6 +218,10 @@ export function PortalLayout({ children }: PortalLayoutProps) {
   // Calculate current page title
   const activeTab = pathname === '/profile' ? { label: 'My account' } : tabs.find(tItem => pathname === tItem.href || pathname.startsWith(tItem.href + '/')) || (pathname.startsWith('/pro-shop') ? tabs.find(t => t.id === 'pos') : undefined) || tabs[0];
   const permittedHome = visibleTabs.find(tab => tab.id === 'dashboard') || visibleTabs[0];
+  const isTabActive = (href: string) => pathname === href || pathname.startsWith(href + '/') || (href === '/pos' && pathname.startsWith('/pro-shop'));
+  // Phone tab bar: four daily destinations plus More (iOS tab bar convention).
+  const quickTabs = [...visibleTabs].sort((a, b) => QUICK_TAB_PRIORITY.indexOf(a.id) - QUICK_TAB_PRIORITY.indexOf(b.id)).slice(0, 4);
+  const moreActive = !quickTabs.some(tab => isTabActive(tab.href));
 
   const handleLogout = async () => {
     await logout();
@@ -269,18 +251,18 @@ export function PortalLayout({ children }: PortalLayoutProps) {
 
         <nav aria-label="Portal navigation" className="flex-1 p-4 space-y-1 overflow-y-auto">
           {visibleTabs.map(tItem => {
-            const isActive = pathname === tItem.href || pathname.startsWith(tItem.href + '/');
+            const isActive = isTabActive(tItem.href);
             return (
               <Link key={tItem.id} href={tItem.href} aria-current={isActive ? 'page' : undefined} onClick={() => setSidebarOpen(false)}
                 className={cn(
-                  "w-full min-h-11 flex items-center gap-3 px-3 py-2 rounded-[8px] text-sm font-medium transition-colors",
+                  "relative w-full min-h-11 flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-neutral-100 dark:bg-[#1A1A1A] text-neutral-900 dark:text-white font-bold"
-                    : "text-neutral-600 dark:text-[#999] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] hover:text-neutral-900 dark:hover:text-white"
+                    ? "bg-control text-ink font-bold before:absolute before:inset-y-2.5 before:left-0 before:w-0.5 before:rounded-full before:bg-brand"
+                    : "text-ink-muted hover:bg-control hover:text-ink"
                 )}
               >
-                <tItem.icon className="w-5 h-5 opacity-70"/>
-                {tItem.label}
+                <tItem.icon className={cn("w-5 h-5 shrink-0", isActive ? "text-brand" : "opacity-70")} weight={isActive ? 'bold' : 'regular'} aria-hidden="true" />
+                <span className="truncate">{tItem.label}</span>
               </Link>
             );
           })}
@@ -323,46 +305,35 @@ export function PortalLayout({ children }: PortalLayoutProps) {
               <List className="w-6 h-6"/>
             </button>
             <div className="flex items-center gap-2.5 min-w-0">
-              <NextImage unoptimized width={24} height={24} src="/icons/logo.svg"
-                alt="Infinity Logo"
-                className={cn(layoutStyles.compactOnly, "w-6 h-6 object-contain filter drop-shadow-[0_1px_4px_rgba(239,47,56,0.3)]")} />
-              <h2 className="truncate text-xs sm:text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-[#E4E4E4] font-sans">
+              {/* The phone header keeps its width for the page title. */}
+              <span className="hidden shrink-0 sm:block">
+                <NextImage unoptimized width={24} height={24} src="/icons/logo.svg"
+                  alt=""
+                  className={cn(layoutStyles.compactOnly, "w-6 h-6 object-contain drop-shadow-[0_1px_4px_rgba(239,47,56,0.3)]")} />
+              </span>
+              <h2 className="truncate text-xs sm:text-sm font-bold uppercase tracking-widest text-ink font-sans">
                 {activeTab ? activeTab.label : t('nav_dashboard')}
               </h2>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <NotificationCenter key={state.currentUser.id} />
             <InstallPrompt />
-            {isOnline ? (
-              <button
-                type="button"
-                onClick={() => setShowDiagnostics(true)}
-                title="PWA & Offline Diagnostics"
-                aria-label="Open PWA and offline diagnostics"
-                className="flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 dark:border-green-500/20 px-2.5 py-1 rounded-[8px] text-emerald-700 dark:text-green-400 cursor-pointer transition-colors active:scale-95"
-              >
-                <span className="relative flex h-1.5 w-1.5">
-                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-600 dark:bg-green-500"></span>
-                </span>
-                <span className="text-[9px] uppercase font-bold tracking-widest hidden sm:inline">Sync: Cloud Online</span>
-                <span className="text-[9px] uppercase font-bold tracking-widest sm:hidden">Online</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setShowDiagnostics(true)}
-                title="PWA & Offline Diagnostics"
-                aria-label="Open PWA and offline diagnostics"
-                className="flex items-center gap-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-[8px] text-amber-800 dark:text-amber-400 cursor-pointer transition-colors active:scale-95"
-              >
-                <span className="relative flex h-1.5 w-1.5">
-                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-600 dark:bg-amber-500"></span>
-                </span>
-                <span className="text-[9px] uppercase font-bold tracking-widest hidden sm:inline">Sync: Offline Cache</span>
-                <span className="text-[9px] uppercase font-bold tracking-widest sm:hidden">Offline</span>
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => setShowDiagnostics(true)}
+              title="PWA & Offline Diagnostics"
+              aria-label={isOnline ? 'Open PWA and offline diagnostics (online)' : 'Open PWA and offline diagnostics (offline)'}
+              className={cn(
+                "flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg border px-2.5 cursor-pointer transition-colors sm:min-h-0 sm:min-w-0 sm:py-1",
+                isOnline
+                  ? "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-700 dark:text-emerald-400"
+                  : "bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/30 text-amber-800 dark:text-amber-400"
+              )}
+            >
+              <span aria-hidden="true" className={cn("inline-flex rounded-full size-2 sm:size-1.5", isOnline ? "bg-emerald-600 dark:bg-emerald-500" : "bg-amber-600 dark:bg-amber-500")} />
+              <span className="hidden sm:inline text-[10px] uppercase font-bold tracking-widest">{isOnline ? 'Sync: Cloud Online' : 'Sync: Offline Cache'}</span>
+            </button>
           </div>
 
           {/* Subtle Hairline Scroll Progress Indicator */}
@@ -384,26 +355,22 @@ export function PortalLayout({ children }: PortalLayoutProps) {
         >
           <PageTransition identity={pathname} className="w-full max-w-[1600px] mx-auto min-h-full">
             <DataLoadNotice />
-            {state.currentUser?.mustChangePassword ? (<><div role="alert" className="mb-4 rounded-lg border border-amber-500 p-4">Change your temporary password to activate portal access.</div><AccountSecurityPanel /></>) : isAuthorized ? (
+            {state.currentUser?.mustChangePassword ? (<><div role="alert" className="mb-4 rounded-lg border border-amber-500/40 bg-amber-50 p-4 text-sm font-medium text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">Change your temporary password to activate portal access.</div><AccountSecurityPanel /></>) : isAuthorized ? (
               children
             ) : (
-              <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 relative">
-                {/* Radial glow */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(239,47,56,0.03)_0%,transparent_70%)] pointer-events-none" />
-                <div className="relative z-10 flex flex-col items-center max-w-md bg-white dark:bg-[#0f0f0f] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-6 sm:p-8 shadow-2xl">
-                  <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 text-[#EF2F38] rounded-full flex items-center justify-center mb-6">
+              <div className="flex flex-col items-center justify-center min-h-[60dvh] text-center px-4 relative">
+                <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(239,47,56,0.03)_0%,transparent_70%)] pointer-events-none" />
+                <div className="relative z-10 flex flex-col items-center max-w-md bg-surface border border-line rounded-lg p-6 sm:p-8 shadow-2xl">
+                  <div aria-hidden="true" className="w-16 h-16 bg-brand/10 border border-brand/20 text-brand rounded-full flex items-center justify-center mb-6">
                     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0-6V9m0-6H6.22C4.52 3 3.12 4.3 3.02 6.02L2.52 14.7c-.1 1.7 1.25 3.3 2.98 3.3H18.5c1.73 0 3.08-1.6 2.98-3.3l-.5-8.68c-.1-1.72-1.5-3.02-3.2-3.02H12z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-black tracking-widest text-neutral-900 dark:text-white uppercase mb-2">Access Restricted</h3>
-                  <p className="text-xs text-neutral-600 dark:text-[#999] leading-relaxed mb-6 font-mono">
+                  <h1 className="text-lg font-black tracking-widest text-ink uppercase mb-2">Access Restricted</h1>
+                  <p className="text-xs text-ink-muted leading-relaxed mb-6">
                     Your account system role does not have permission to view this section. Please contact an administrator if you believe this is an error.
                   </p>
-                  <Link
-                    href={permittedHome?.href || '/profile'}
-                    className="px-6 py-3 bg-[#EF2F38] hover:bg-red-600 text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors shadow-lg shadow-red-950/40 min-h-[44px] flex items-center justify-center active:scale-95 touch-manipulation"
-                  >
+                  <Link href={permittedHome?.href || '/profile'} className={buttonClass({ variant: 'primary' })}>
                     {permittedHome ? `Go to ${permittedHome.label}` : 'Open my account'}
                   </Link>
                 </div>
@@ -416,34 +383,35 @@ export function PortalLayout({ children }: PortalLayoutProps) {
         <nav aria-label="Quick navigation" data-portal-bottom-nav data-portal-navigation data-visible={isNavVisible} inert={!isNavVisible && isCompactNavigation} onFocusCapture={revealNavigation} className={cn(layoutStyles.bottomNav,
           "bg-white/95 dark:bg-[#0F0F0F]/95 backdrop-blur-md border-t border-neutral-200 dark:border-[#262626] shadow-[0_-4px_16px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.25)] pl-[max(0.5rem,env(safe-area-inset-left,0px))] pr-[max(0.5rem,env(safe-area-inset-right,0px))] items-center justify-around"
         )}>
-          {visibleTabs.slice(0, 5).map(tItem => {
-            const isActive = pathname === tItem.href || pathname.startsWith(tItem.href + '/');
+          {quickTabs.map(tItem => {
+            const isActive = isTabActive(tItem.href);
             return (
               <Link
                 key={tItem.id}
                 href={tItem.href}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  "relative flex-1 min-w-0 max-w-24 flex flex-col items-center justify-center py-1 px-1 rounded-[8px] text-[10px] font-bold tracking-tight transition-colors min-h-[48px] touch-manipulation",
-                  isActive
-                    ? "text-[#EF2F38] font-black"
-                    : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white"
+                  "relative flex-1 min-w-0 max-w-28 flex flex-col items-center justify-center gap-0.5 py-1 px-1 rounded-lg text-[10px] font-bold tracking-tight transition-colors min-h-12 touch-manipulation",
+                  isActive ? "text-brand" : "text-ink-subtle hover:text-ink"
                 )}
               >
-                {isActive && (
-                  <span className="absolute -top-1.5 w-6 h-0.5 bg-[#EF2F38] rounded-full" />
-                )}
-                <tItem.icon className={cn("w-5 h-5 mb-0.5", isActive ? "text-[#EF2F38]" : "opacity-70")} />
+                {isActive && <span aria-hidden="true" className="absolute -top-1.5 w-6 h-0.5 bg-brand rounded-full" />}
+                <tItem.icon className={cn("w-5 h-5", !isActive && "opacity-80")} weight={isActive ? 'fill' : 'regular'} aria-hidden="true" />
                 <span className="truncate max-w-full">{tItem.label}</span>
               </Link>
             );
           })}
           <button
+            type="button"
             onClick={() => setSidebarOpen(true)}
-            className="flex-1 min-w-0 max-w-24 flex flex-col items-center justify-center py-1 px-1 rounded-[8px] text-[10px] font-bold text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white transition-colors min-h-[48px] touch-manipulation cursor-pointer"
+            className={cn(
+              "relative flex-1 min-w-0 max-w-28 flex flex-col items-center justify-center gap-0.5 py-1 px-1 rounded-lg text-[10px] font-bold transition-colors min-h-12 touch-manipulation cursor-pointer",
+              moreActive ? "text-brand" : "text-ink-subtle hover:text-ink"
+            )}
             aria-label="Open More Navigation Menu"
           >
-            <List className="w-5 h-5 mb-0.5 opacity-70" />
+            {moreActive && <span aria-hidden="true" className="absolute -top-1.5 w-6 h-0.5 bg-brand rounded-full" />}
+            <List className={cn("w-5 h-5", !moreActive && "opacity-80")} weight={moreActive ? 'bold' : 'regular'} aria-hidden="true" />
             <span>More</span>
           </button>
         </nav>
@@ -487,21 +455,19 @@ export function PortalLayout({ children }: PortalLayoutProps) {
               "fixed right-4 sm:right-6 max-w-[calc(100vw-2rem)] pointer-events-none px-4 py-3 rounded-[8px] shadow-2xl border flex items-center gap-3 backdrop-blur-md",
               layoutStyles.floatingNotice,
               showStatusToast === 'online'
-                ? "bg-green-950/80 border-green-500/30 text-green-300"
-                : "bg-amber-950/80 border-amber-500/30 text-amber-300"
+                ? "bg-emerald-50/95 border-emerald-500/30 text-emerald-900 dark:bg-emerald-950/90 dark:text-emerald-200"
+                : "bg-amber-50/95 border-amber-500/30 text-amber-900 dark:bg-amber-950/90 dark:text-amber-200"
             )}
           >
-            <span className="relative flex h-2 w-2">
-              <span className={cn(
-                "relative inline-flex rounded-full h-2 w-2",
-                showStatusToast === 'online' ? "bg-green-500" : "bg-amber-500"
-              )}></span>
-            </span>
+            <span aria-hidden="true" className={cn(
+              "inline-flex shrink-0 rounded-full size-2",
+              showStatusToast === 'online' ? "bg-emerald-500" : "bg-amber-500"
+            )} />
             <div className="flex flex-col">
               <span className="text-xs font-bold leading-tight">
                 {showStatusToast === 'online' ? 'Connection restored' : 'Connection offline'}
               </span>
-              <span className="text-[10px] text-neutral-400 mt-0.5 font-mono">
+              <span className="text-[10px] opacity-80 mt-0.5">
                 {showStatusToast === 'online'
                   ? 'Connection restored. Check any interrupted save before retrying.'
                   : 'Reconnect before saving. Check uncertain saves before retrying.'}
