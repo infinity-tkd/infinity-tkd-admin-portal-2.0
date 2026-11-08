@@ -6,6 +6,7 @@ import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass'
 import { Printer } from '@phosphor-icons/react/dist/csr/Printer';
 import { X } from '@phosphor-icons/react/dist/csr/X';
 import type { PosSaleTransaction } from '@/lib/pos-types';
+import { isRefundableSale } from '@/lib/pos-reporting';
 
 
 interface SalesHistoryPanelProps {
@@ -196,9 +197,11 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
                               <Printer size={13} />
                             </button>
                             <button
+                              type="button"
                               onClick={() => handleVoidSale(tx.txId)}
-                              title="Record verified refund"
-                              className="p-1.5 bg-neutral-100 hover:bg-red-600 hover:text-white text-neutral-600 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-red-600 dark:hover:text-white dark:text-neutral-400 dark:border-[#262626] rounded-[6px] transition cursor-pointer" disabled={!canCancelOrder}
+                              title={isRefundableSale(tx) ? 'Record verified refund' : 'Only paid sales can be refunded'}
+                              aria-label={`Record refund for ${tx.txId}`}
+                              className="p-1.5 bg-neutral-100 hover:bg-red-600 hover:text-white text-neutral-600 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-red-600 dark:hover:text-white dark:text-neutral-400 dark:border-[#262626] rounded-[6px] transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-neutral-100 disabled:hover:text-neutral-600" disabled={!canCancelOrder || !isRefundableSale(tx)}
                             >
                               <Trash size={13} />
                             </button>
@@ -268,10 +271,11 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
                     <button
                       type="button"
                       onClick={() => handleVoidSale(tx.txId)}
-                      className="px-3 py-2 min-h-[38px] bg-neutral-100 hover:bg-red-600 hover:text-white text-rose-700 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-red-600 dark:hover:text-white dark:text-rose-400 dark:border-[#262626] rounded-[8px] text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation pointer-coarse:min-h-11" disabled={!canCancelOrder}
+                      aria-label={`Record refund for ${tx.txId}`}
+                      className="px-3 py-2 min-h-[38px] bg-neutral-100 hover:bg-red-600 hover:text-white text-rose-700 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-red-600 dark:hover:text-white dark:text-rose-400 dark:border-[#262626] rounded-[8px] text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation pointer-coarse:min-h-11 disabled:cursor-not-allowed disabled:opacity-40" disabled={!canCancelOrder || !isRefundableSale(tx)}
                     >
                       <Trash size={13} />
-                      <span>Void</span>
+                      <span>Refund</span>
                     </button>
                   </div>
                 </div>

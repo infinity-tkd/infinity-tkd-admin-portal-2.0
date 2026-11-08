@@ -4,7 +4,7 @@ import { copyText } from '@/lib/clipboard';
 import dynamic from 'next/dynamic';
 
 import { dialogMotion } from '@/lib/motion';
-import { academyDate } from '@/lib/dates';
+import { academyDate, isCalendarDate } from '@/lib/dates';
 
 import React, { useState } from 'react';
 import { useAppStore, BeltHistory, Student, getMembershipBillingStatus } from '@/lib/store';
@@ -61,6 +61,28 @@ const BulkImportStudentModal = dynamic(() => import('./BulkImportStudentModal').
 
 const PromotionReadinessPanel = dynamic(() => import('@/components/students/PromotionReadinessPanel').then(module => module.PromotionReadinessPanel), { ssr: false, loading: () => <p role="status" className="p-4 text-sm text-neutral-500">Loading…</p> });
 const PromotionHistoryPanel = dynamic(() => import('@/components/students/PromotionHistoryPanel').then(module => module.PromotionHistoryPanel), { ssr: false, loading: () => <p role="status" className="p-4 text-sm text-neutral-500">Loading…</p> });
+
+// Every rank in the belts table, in belt_order, so sorting never drops a rank to the bottom.
+const BELT_SORT_ORDER = ['White', 'Yellow', 'Green', 'Blue', 'Brown', 'Red', '1st Poom/Dan', '2nd Poom/Dan', '3rd Poom/Dan', '4th Poom/Dan', '5th Dan', '6th Dan'];
+
+/** Whole years of age on an academy calendar date, read from a YYYY-MM-DD birth date (no device time zone). */
+function ageOnDate(dob: string | undefined, today: string): number | null {
+  const birth = dob?.slice(0, 10) ?? '';
+  if (!isCalendarDate(birth)) return null;
+  const [birthYear, birthMonth, birthDay] = birth.split('-').map(Number);
+  const [year, month, day] = today.split('-').map(Number);
+  return year - birthYear - (month < birthMonth || (month === birthMonth && day < birthDay) ? 1 : 0);
+}
+
+/** The age division shown on each row; the division filter uses the same answer. */
+function ageDivision(age: number | null): string {
+  if (age === null) return 'N/A';
+  if (age < 6) return 'Under 6';
+  if (age <= 11) return 'Kid';
+  if (age <= 14) return 'Cadet';
+  if (age <= 17) return 'Junior';
+  return 'Senior';
+}
 
 export function DirectoryView() {
   const { state, updateStudent, reconcileAllStudentBelts, addBeltHistory, updateBeltHistory, deleteBeltHistory, upsertPhysicalEvaluation, showNotification, showConfirm, can } = useAppStore();
@@ -319,6 +341,7 @@ export function DirectoryView() {
     setPromotionForm(prev => ({ ...prev, certificateUrl: '' }));
   };
 
+  const today = academyDate();
   const filteredStudents = state.students.filter(s => {
     const matchesSearch = s.englishName.toLowerCase().includes(search.toLowerCase()) ||
                           s.id.toLowerCase().includes(search.toLowerCase()) ||
@@ -334,17 +357,7 @@ export function DirectoryView() {
       matchesClass = state.classEnrollments.some(e => e.studentId === s.id && e.classId === filterClass);
     }
 
-    let matchesDivision = true;
-    if (filterDivision !== 'all') {
-      const birthYear = new Date(s.dob).getFullYear();
-      const currentYear = new Date().getFullYear();
-      const age = currentYear - birthYear;
-
-      if (filterDivision === 'Kid') matchesDivision = age >= 6 && age <= 11;
-      else if (filterDivision === 'Cadet') matchesDivision = age >= 12 && age <= 14;
-      else if (filterDivision === 'Junior') matchesDivision = age >= 15 && age <= 17;
-      else if (filterDivision === 'Senior') matchesDivision = age >= 18;
-    }
+    const matchesDivision = filterDivision === 'all' || ageDivision(ageOnDate(s.dob, today)) === filterDivision;
 
     return matchesSearch && matchesBranch && matchesBelt && matchesGender && matchesScholarship && matchesDivision && matchesClass && matchesStatus;
   });
@@ -359,19 +372,6 @@ export function DirectoryView() {
   };
 
   const sortedStudents = [...filteredStudents].sort((a, b) => {
-    const BELT_RANK_ORDER = [
-      'White',
-      'Yellow',
-      'Green',
-      'Blue',
-      'Brown',
-      'Red',
-      '1st Poom/Dan',
-      '2nd Poom/Dan',
-      '3rd Poom/Dan',
-      '4th Poom/Dan'
-    ];
-
     let comparison = 0;
 
     if (sortBy === 'id') {
@@ -390,8 +390,8 @@ export function DirectoryView() {
       const dateB = new Date(b.registrationDate || 0).getTime();
       comparison = dateA - dateB;
     } else if (sortBy === 'belt') {
-      const idxA = BELT_RANK_ORDER.indexOf(a.currentBelt);
-      const idxB = BELT_RANK_ORDER.indexOf(b.currentBelt);
+      const idxA = BELT_SORT_ORDER.indexOf(a.currentBelt);
+      const idxB = BELT_SORT_ORDER.indexOf(b.currentBelt);
       comparison = idxA - idxB;
     }
 
@@ -417,24 +417,8 @@ export function DirectoryView() {
     setTimeout(() => setCopiedContact(null), 1800);
   };
 
-  const getStudentAge = (dob?: string) => {
-    if (!dob) return null;
-    const today = new Date();
-    const birth = new Date(dob);
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-    return age;
-  };
-
-  const getStudentDivisionLabel = (age: number | null) => {
-    if (age === null) return 'N/A';
-    if (age < 6) return 'Under 6';
-    if (age <= 11) return 'Kid';
-    if (age <= 14) return 'Cadet';
-    if (age <= 17) return 'Junior';
-    return 'Senior';
-  };
+  const getStudentAge = (dob?: string) => ageOnDate(dob, today);
+  const getStudentDivisionLabel = ageDivision;
 
   const handleExportCsv = () => {
     if (sortedStudents.length === 0) {
@@ -802,12 +786,13 @@ export function DirectoryView() {
                 <button
                   key={pill.id}
                   type="button"
+                  aria-pressed={filterStatus === pill.id}
                   onClick={() => {
                     setFilterStatus(pill.id);
                     setCurrentPage(1);
                   }}
                   className={cn(
-                    "px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-[6px] sm:rounded-[8px] text-[9.5px] sm:text-[10px] font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 border cursor-pointer select-none shrink-0 active:scale-95 touch-manipulation",
+                    "min-h-8 pointer-coarse:min-h-9 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-[6px] sm:rounded-[8px] text-[9.5px] sm:text-[10px] font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 border cursor-pointer select-none shrink-0 active:scale-95 touch-manipulation",
                     filterStatus === pill.id
                       ? pill.color
                       : "border-neutral-200 dark:border-transparent text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A]"
@@ -1190,8 +1175,9 @@ export function DirectoryView() {
                                     pauseEndDate: student.pauseEndDate || ''
                                   });
                                 }}
+                                aria-label={`${student.studentStatus || 'Active'}: change status`}
                                 className={cn(
-                                  "px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border cursor-pointer hover:scale-105 transition-all flex items-center gap-1",
+                                  "min-h-6 pointer-coarse:min-h-8 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border cursor-pointer hover:scale-105 transition-all flex items-center gap-1",
                                   student.studentStatus === 'Active' ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" :
                                   student.studentStatus === 'Paused' ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/40" :
                                   student.studentStatus === 'Inactive' ? "bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-700" :
@@ -1260,8 +1246,9 @@ export function DirectoryView() {
                                 pauseEndDate: student.pauseEndDate || ''
                               });
                             }}
+                            aria-label={`${student.studentStatus || 'Active'}: change status`}
                             className={cn(
-                              "px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border cursor-pointer flex items-center gap-1 active:scale-95",
+                              "min-h-6 pointer-coarse:min-h-8 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border cursor-pointer flex items-center gap-1 active:scale-95",
                               student.studentStatus === 'Active' ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" :
                               student.studentStatus === 'Paused' ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/40" :
                               student.studentStatus === 'Inactive' ? "bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-700" :
@@ -1366,7 +1353,7 @@ export function DirectoryView() {
                           setPageSize(Number(e.target.value));
                           setCurrentPage(1);
                         }}
-                        className="bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded px-2 py-1 text-xs font-mono focus:outline-none cursor-pointer"
+                        className="min-h-8 pointer-coarse:min-h-9 bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded px-2 py-1 text-xs font-mono focus:outline-none cursor-pointer"
                       >
                         <option value={15}>15</option>
                         <option value={25}>25</option>

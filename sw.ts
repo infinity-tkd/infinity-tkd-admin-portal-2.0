@@ -22,9 +22,10 @@ const serwist = new Serwist({
   clientsClaim: true,
   navigationPreload: true,
   fallbacks: {
+    // A static page precached at install (next.config.ts), so it renders without the app, a session or data.
     entries: [
       {
-        url: '/offline',
+        url: '/offline.html',
         matcher({ request }) {
           return request.destination === 'document';
         },
@@ -126,7 +127,13 @@ serwist.addEventListeners();
 });
 (self as any).addEventListener('notificationclick', (event: any) => {
   event.notification.close();
-  const target = new URL('/profile?notifications=open', (self as any).location.origin);
+  // Open the path the push handler stored, only ever on this origin.
+  const origin = (self as any).location.origin;
+  let target = new URL('/profile?notifications=open', origin);
+  try {
+    const stored = event.notification.data?.url;
+    if (typeof stored === 'string' && new URL(stored, origin).origin === origin) target = new URL(stored, origin);
+  } catch { /* Keep the notifications panel. */ }
   event.waitUntil((async () => {
     const windows = await (self as any).clients.matchAll({type:'window',includeUncontrolled:true});
     const existing = windows.find((client: any) => new URL(client.url).origin === target.origin);

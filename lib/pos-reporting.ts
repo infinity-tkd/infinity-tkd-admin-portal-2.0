@@ -1,4 +1,8 @@
 /** Pending, voided and refunded orders are records, but not collected revenue. */
+/** Mirrors portal_refund_order: paid (or refund-pending) orders, including paid orders cancelled later. Unknown legacy states are left to the server. */
+export function isRefundableSale(order: { paymentStatus?: string }): boolean {
+  return order.paymentStatus === undefined || order.paymentStatus === 'PAID' || order.paymentStatus === 'REFUND_PENDING';
+}
 export function isCollectedSale(order: { paymentStatus?: string; orderStatus?: string }): boolean {
   return order.paymentStatus === 'PAID' && order.orderStatus !== 'CANCELLED';
 }

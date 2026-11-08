@@ -9,12 +9,11 @@
   "scope": "/",
   "display": "standalone",
   "display_override": [
-    "window-controls-overlay",
     "standalone",
     "minimal-ui"
   ],
-  "background_color": "#0A0A0A",
-  "theme_color": "#0A0A0A",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF",
   "orientation": "any",
   "prefer_related_applications": false,
   "launch_handler": {
@@ -55,17 +54,17 @@
   "screenshots": [
     {
       "src": "/screenshots/dashboard-desktop.png",
-      "sizes": "1280x800",
+      "sizes": "1440x900",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Infinity TKD Executive Command Center"
+      "label": "Academy dashboard on a desktop"
     },
     {
       "src": "/screenshots/portal-mobile.png",
-      "sizes": "750x1334",
+      "sizes": "780x1688",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Infinity TKD Student & Attendance Roster"
+      "label": "Student roster on a phone"
     }
   ],
   "shortcuts": [

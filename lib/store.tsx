@@ -1362,6 +1362,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } else {
       document.documentElement.classList.remove('dark');
     }
+    // Browser bars and installed-app title bars follow the portal theme, not the device theme.
+    document.querySelectorAll('meta[name="theme-color"]').forEach(meta => meta.setAttribute('content', state.theme === 'dark' ? '#0a0a0a' : '#ffffff'));
   }, [state.theme]);
 
   useEffect(() => {

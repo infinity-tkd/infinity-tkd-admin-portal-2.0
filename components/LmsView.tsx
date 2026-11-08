@@ -172,7 +172,7 @@ export function LmsView() {
         actions={(can('action:curriculum_edit') || isElevated) ? <>
           {can('action:curriculum_edit') && <button type="button" onClick={() => setShowPublicationPanel(true)} className={buttonClass()}>Student library</button>}
           {isElevated && can('page:library') && (
-            <Link href="/library" className={buttonClass()}>
+            <Link href="/library" className={cn(buttonClass(), 'max-w-full whitespace-normal text-center')}>
               <BookOpen className="h-4 w-4 text-brand" weight="bold" />
               <span>{can('action:curriculum_edit') ? t('lms_manage_in_library') : t('nav_library')}</span>
             </Link>
@@ -254,7 +254,7 @@ export function LmsView() {
 
               {/* Student Progress Badge or Selector */}
               {isElevated ? (
-                <div className="flex items-center gap-2.5 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 min-h-[42px] shadow-sm">
+                <div className="flex min-w-0 max-w-full items-center gap-2.5 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 min-h-[42px] shadow-sm">
                   <span className="text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 shrink-0 font-mono">
                     Track Student:
                   </span>
@@ -262,7 +262,7 @@ export function LmsView() {
                     aria-label="Track student"
                     value={selectedStudentId}
                     onChange={(e) => setSelectedStudentId(e.target.value)}
-                    className="bg-transparent text-xs font-bold text-neutral-800 dark:text-neutral-200 focus:outline-none cursor-pointer max-w-[220px] truncate"
+                    className="min-h-10 min-w-0 flex-1 bg-transparent text-xs font-bold text-neutral-800 dark:text-neutral-200 focus:outline-none cursor-pointer max-w-[220px] truncate"
                   >
                     <option value="all" className="dark:bg-[#1C1C1C]">Overview (No Student)</option>
                     {sortedStudents.map(s => (

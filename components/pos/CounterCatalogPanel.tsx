@@ -98,7 +98,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                       value={sortOption}
                       onChange={(e) => setSortOption(e.target.value as any)}
                       aria-label="Sort product catalog"
-                      className="bg-transparent text-neutral-800 dark:text-[#ccc] text-[11px] font-mono focus:outline-none cursor-pointer py-1"
+                      className="min-h-8 pointer-coarse:min-h-9 bg-transparent text-neutral-800 dark:text-[#ccc] text-[11px] font-mono focus:outline-none cursor-pointer py-1"
                     >
                       <option value="default">Default</option>
                       <option value="name-asc">Name: A to Z</option>
