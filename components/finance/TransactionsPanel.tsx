@@ -490,7 +490,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                     setTxnPerPage(Number(e.target.value));
                     setTxnPage(1);
                   }}
-                  className="bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded px-1.5 py-0.5 text-neutral-900 dark:text-white font-mono cursor-pointer"
+                  className="min-h-8 pointer-coarse:min-h-9 bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded px-1.5 py-0.5 text-neutral-900 dark:text-white font-mono cursor-pointer"
                 >
                   <option value={15}>15</option>
                   <option value={20}>20</option>

@@ -10,7 +10,8 @@ const base=process.argv[2]||'http://127.0.0.1:3000';
 const routeFilter=(process.argv[3]||'').split(',').filter(route=>route&&route!=='all');
 const screenshotDir=process.argv[4]||'';
 const routes=['/dashboard','/operations','/students','/members','/attendance','/financials','/pos','/lms','/belt-tests','/library','/schedule','/calendar','/partners','/settings','/profile'].filter(route=>!routeFilter.length||routeFilter.includes(route));
-const viewports=[[375,812],[390,844],[768,1024],[834,1194],[1024,768],[1280,800],[1440,900]];
+// RESPONSIVE_VIEWPORTS overrides the sizes, e.g. "280x653,320x568,844x390,2560x1440".
+const viewports=process.env.RESPONSIVE_VIEWPORTS?process.env.RESPONSIVE_VIEWPORTS.split(',').map(size=>size.trim().split('x').map(Number)):[[375,812],[390,844],[768,1024],[834,1194],[1024,768],[1280,800],[1440,900]];
 const actor='9c000000-0000-4000-8000-000000000001';
 const profile={id:actor,username:'responsive_fixture',email:'responsive@example.test',display_name:'Responsive fixture administrator with a long display name',role:'Root',is_active:true,must_change_password:false};
 const user={id:actor,aud:'authenticated',role:'authenticated',email:profile.email,app_metadata:{provider:'email'},user_metadata:{}};
@@ -115,7 +116,9 @@ try{
   if(!sheet.panel||Math.abs(sheet.left)>1||Math.abs(sheet.width-sheet.viewport)>1||Math.abs(sheet.bottom-sheet.height)>2||!sheet.focused)findings.push({route,sheet:name,...sheet});
   if(screenshotDir)await page.screenshot({path:path.join(screenshotDir,route.slice(1)+'-sheet-390.png')});
   await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});
-  if(!await button.first().evaluate(element=>element===document.activeElement))findings.push({route,sheet:name,focusReturned:false});
+  // Focus returns after the exit transition, so allow a moment instead of racing it.
+  const focusReturned=await page.waitForFunction(element=>element===document.activeElement,await button.first().elementHandle(),{timeout:1500}).then(()=>true,()=>false);
+  if(!focusReturned)findings.push({route,sheet:name,focusReturned:false});
  }
  console.log(JSON.stringify({findings,errors},null,1));
  if(screenshotDir)fs.writeFileSync(path.join(screenshotDir,'report.json'),JSON.stringify({findings,errors},null,1));

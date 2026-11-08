@@ -3,8 +3,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowClockwise } from '@phosphor-icons/react/dist/csr/ArrowClockwise';
 import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { useAppStore } from '@/lib/store';
 
 export function PwaUpdater() {
+  const { showConfirm } = useAppStore();
   const applyRequested = useRef(false);
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
@@ -51,13 +53,14 @@ export function PwaUpdater() {
   }, []);
 
   const handleApplyUpdate = () => {
-    if (!window.confirm('Save your work before applying the update. Reload now?')) return;
-    applyRequested.current = true;
-    if (waitingWorker) {
-      waitingWorker.postMessage({ type: 'SKIP_WAITING' });
-    } else {
-      window.location.reload();
-    }
+    showConfirm('The portal reloads to finish the update. Save any open form first. Reload now?', () => {
+      applyRequested.current = true;
+      if (waitingWorker) {
+        waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+      } else {
+        window.location.reload();
+      }
+    }, 'Apply update');
   };
 
   if (!updateAvailable) {

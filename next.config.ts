@@ -117,7 +117,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  webpack: (config, { isServer, dev }) => {
+  webpack: (config, { isServer, dev, buildId }) => {
     // Generate a release-matched service worker for every production build.
     if (!isServer && !dev) {
       try {
@@ -126,6 +126,8 @@ const nextConfig: NextConfig = {
             swSrc: path.resolve(__dirname, 'sw.ts'),
             swDest: path.resolve(__dirname, 'public/sw.js'),
             disablePrecacheManifest: dev,
+            // The worker's offline fallback is served from this precache; webpack never emits it.
+            additionalPrecacheEntries: [{ url: '/offline.html', revision: buildId }],
             exclude: [
               /\.map$/,
               /^manifest.*\.js$/,

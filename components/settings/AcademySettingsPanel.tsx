@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Building } from '@phosphor-icons/react/dist/csr/Building';
 import { CurrencyDollar } from '@phosphor-icons/react/dist/csr/CurrencyDollar';
 import { GraduationCap } from '@phosphor-icons/react/dist/csr/GraduationCap';
@@ -53,7 +54,8 @@ function asDraft(profile: AcademyProfile): Draft {
 }
 
 export function AcademySettingsPanel({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void }) {
-  const { state, can, updateAcademyProfile } = useAppStore();
+  const { state, can, updateAcademyProfile, showConfirm } = useAppStore();
+  const router = useRouter();
   const [draft, setDraft] = useState(() => asDraft(state.academyProfile));
   const draftRef = useRef(draft);
   draftRef.current = draft;
@@ -94,14 +96,15 @@ export function AcademySettingsPanel({ onDirtyChange }: { onDirtyChange: (dirty:
       const anchor = event.target instanceof Element ? event.target.closest('a') : null;
       if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) return;
       const destination = new URL(anchor.href, window.location.href);
-      if (destination.origin === window.location.origin && destination.pathname !== window.location.pathname && !window.confirm('You have unsaved academy changes. Leave Settings and discard them?')) {
-        event.preventDefault(); event.stopPropagation();
-      }
+      if (destination.origin !== window.location.origin || destination.pathname === window.location.pathname) return;
+      // Hold the navigation until the in-app confirmation answers.
+      event.preventDefault(); event.stopPropagation();
+      showConfirm('You have unsaved academy changes. Leave Settings and discard them?', () => router.push(destination.pathname + destination.search + destination.hash), 'Unsaved changes');
     };
     window.addEventListener('beforeunload', warn);
     document.addEventListener('click', warnOnNavigation, true);
     return () => { window.removeEventListener('beforeunload', warn); document.removeEventListener('click', warnOnNavigation, true); };
-  }, [dirty]);
+  }, [dirty, router, showConfirm]);
 
   const visibleGroups = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -116,9 +119,10 @@ export function AcademySettingsPanel({ onDirtyChange }: { onDirtyChange: (dirty:
     setSaveError(''); setSaved(false);
   };
   const discard = () => {
-    if (!window.confirm('Discard your unsaved academy changes and load the latest saved settings?')) return;
-    baseline.current = asDraft(state.academyProfile); timestamp.current = state.academyProfile.updatedAt;
-    setDraft(baseline.current); setErrors({}); setConflicts([]); setSaveError(''); setSaved(false);
+    showConfirm('Discard your unsaved academy changes and load the latest saved settings?', () => {
+      baseline.current = asDraft(state.academyProfile); timestamp.current = state.academyProfile.updatedAt;
+      setDraft(baseline.current); setErrors({}); setConflicts([]); setSaveError(''); setSaved(false);
+    }, 'Discard changes');
   };
   const save = async (event: React.FormEvent) => {
     event.preventDefault();

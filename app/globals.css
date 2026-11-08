@@ -119,6 +119,19 @@
       font-size: 16px;
     }
   }
+  /* Home-screen app on iPhone: the black-translucent status bar always draws white
+     text, so keep a dark backdrop behind it in the light theme too. */
+  @media (display-mode: standalone) {
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0 0 auto;
+      height: env(safe-area-inset-top, 0px);
+      background: #0a0a0a;
+      z-index: 2147483647;
+      pointer-events: none;
+    }
+  }
 }
 
 /* ==========================================================

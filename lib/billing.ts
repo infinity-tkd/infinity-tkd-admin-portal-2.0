@@ -7,9 +7,40 @@ export interface BillingScheduleChange { id: string; day: number; effectiveMonth
 export interface BillingInvoiceSummary { cycleMonth:string; amount:number; balance:number; waiver?:number }
 export interface BillingPauseSummary { startDate:string; resumeDate:string; voidedAt?:string|null }
 export interface BillingStudent { id:string; registrationDate:string; scholarshipId:number; membershipStartDate?:string; billingSchedule?: BillingScheduleChange[]; billingInvoices?:BillingInvoiceSummary[]; membershipPauses?:BillingPauseSummary[] }
-export function billingBaseDate(student: Pick<BillingStudent,'id'|'registrationDate'|'membershipStartDate'>, enrollments:{studentId:string;enrollmentDate?:string}[]) {
+// Per-list lookups. App state replaces these lists instead of editing them, so an index cached
+// against the list object stays valid; it turns roster-wide billing from N×M scans into N lookups.
+type EnrollmentRow = {studentId:string;enrollmentDate?:string};
+type PaymentRow = {studentId:string;year:number;month:string;status:string};
+const enrollmentStarts=new WeakMap<readonly EnrollmentRow[],Map<string,string>>();
+const settledCycles=new WeakMap<readonly PaymentRow[],Map<string,Set<string>>>();
+function firstEnrollmentDate(studentId:string,enrollments:readonly EnrollmentRow[]):string|undefined {
+ let index=enrollmentStarts.get(enrollments);
+ if(!index){
+  index=new Map();
+  for(const row of enrollments){
+   const date=row.enrollmentDate?.slice(0,10);
+   if(!date||!isCalendarDate(date))continue;
+   const known=index.get(row.studentId);
+   if(!known||date<known)index.set(row.studentId,date);
+  }
+  enrollmentStarts.set(enrollments,index);
+ }
+ return index.get(studentId);
+}
+function settledPaymentCycles(studentId:string,payments:readonly PaymentRow[]):Set<string> {
+ let index=settledCycles.get(payments);
+ if(!index){
+  index=new Map();
+  for(const row of payments)if(row.status==='Paid'||row.status==='Waived'){
+   const cycles=index.get(row.studentId)??new Set<string>();cycles.add(`${row.year}-${row.month}`);index.set(row.studentId,cycles);
+  }
+  settledCycles.set(payments,index);
+ }
+ return index.get(studentId)??new Set();
+}
+export function billingBaseDate(student: Pick<BillingStudent,'id'|'registrationDate'|'membershipStartDate'>, enrollments:EnrollmentRow[]) {
  if(student.membershipStartDate && isCalendarDate(student.membershipStartDate))return student.membershipStartDate;
- return enrollments.filter(e=>e.studentId===student.id).map(e=>e.enrollmentDate?.slice(0,10)).filter((d):d is string=>!!d&&isCalendarDate(d)).sort()[0] || student.registrationDate?.slice(0,10);
+ return firstEnrollmentDate(student.id,enrollments) || student.registrationDate?.slice(0,10);
 }
 export function billingDueDate(student: BillingStudent, enrollments:{studentId:string;enrollmentDate?:string}[], month: string) {
  const base=billingBaseDate(student,enrollments);
@@ -45,7 +76,7 @@ export function membershipBilling(
  const names=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
  if(today<base)return {status:'Current',nextRenewalDate:base,daysRemaining:daysBetween(today,base),amountOwed:amount};
  // Keep unpaid earlier cycles visible even when a later month was paid.
- const settled=new Set(payments.filter(p=>p.studentId===student.id&&['Paid','Waived'].includes(p.status)).map(p=>`${p.year}-${p.month}`));
+ const settled=settledPaymentCycles(student.id,payments);
  const [baseYear,baseMonth]=base.split('-').map(Number);
  if(amount>0||student.billingInvoices?.some(invoice=>invoice.balance>0)) for(let index=baseYear*12+baseMonth-1;index<=Number(cycle.slice(0,4))*12+Number(cycle.slice(5,7))-1;index++) {
    const due=billingDueDate(student,enrollments,calendarDate(Math.floor(index/12),index%12,1).slice(0,7));

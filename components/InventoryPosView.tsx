@@ -3,6 +3,7 @@ import { productVariantPayloads } from '@/lib/pos-product';
 import { inventoryAdjustmentQuantity, stockAlertThreshold, inventoryRetailValue, sellableProductStock, inventoryStockStatus } from '@/lib/pos-catalog';
 import { newProductForm, type ProductFormData } from './pos/ProductCatalogFields';
 import { OrderDecisionDialog } from './pos/OrderDecisionDialog';
+import { RefundSaleDialog, type RefundDecision } from './pos/RefundSaleDialog';
 import type { OrderAdvanceStatus, OrderDecisionKind } from './pos/StudentOrderCard';
 import type { OrderQueueFilter } from './pos/StudentOrdersPanel';
 import dynamic from 'next/dynamic';
@@ -152,6 +153,9 @@ export function InventoryPosView() {
 
   // Modals
   const [completedTx, setCompletedTx] = useState<PosSaleTransaction | null>(null);
+  const [refundSale, setRefundSale] = useState<PosSaleTransaction | null>(null);
+  const [refundBusy, setRefundBusy] = useState(false);
+  const [refundError, setRefundError] = useState('');
   const [isKhqrModalOpen, setIsKhqrModalOpen] = useState(false);
   const [packingSlipOrder, setPackingSlipOrder] = useState<StudentOrderRecord | null>(null);
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
@@ -1451,20 +1455,25 @@ export function InventoryPosView() {
 
   const handleVoidSale = async (txId:string) => {
     if(!can('action:pos_cancel_order'))return;
-    const reference=window.prompt('First complete the actual cash/bank refund. Enter its verified reference to record it:');
-    if(!reference?.trim())return;
-    const reason=window.prompt('Reason for the reviewed return/refund:');
-    if(!reason?.trim())return;
-    const restock=window.confirm('Have the physical items been returned and checked as sellable? Choose OK to restock them, Cancel to leave inventory unchanged.');
+    const sale=salesHistory.find(row=>row.txId===txId);
+    if(!sale){showNotification('Sale not found. Refresh the sales history.','error');return;}
+    setRefundError('');setRefundSale(sale);
+  };
+  const submitRefund = async ({reference,reason,restock}:RefundDecision) => {
+    if(!refundSale||refundBusy)return;
+    const txId=refundSale.txId;
+    setRefundBusy(true);setRefundError('');
     try{
       const { data:{session} }=await supabase.auth.getSession();if(!session)throw new Error('Please sign in again.');
       const found=await fetch('/api/admin/pos/orders?search='+encodeURIComponent(txId),{headers:{Authorization:'Bearer '+session.access_token}});
       const list=await found.json();const order=list.data?.find((o:any)=>o.order_number===txId || o.id===txId);if(!order)throw new Error('Order not found. Refresh the sales history.');
-      const response=await fetch('/api/admin/pos/orders/refund',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({orderId:order.id,reference:reference.trim(),reason:reason.trim(),restock})});
+      const response=await fetch('/api/admin/pos/orders/refund',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({orderId:order.id,reference,reason,restock})});
       const result=await response.json();if(!response.ok)throw new Error(result.error?.message || 'Refund was not recorded.');
+      setRefundSale(null);
       await Promise.all([fetchCatalog(),fetchStudentOrders(),fetchSalesHistory()]);
       showNotification('Verified refund recorded. The order remains in the audit history.','success');
-    }catch(e){showNotification(e instanceof Error ? e.message : 'Refund was not recorded.','error');}
+    }catch(e){setRefundError(e instanceof Error ? e.message : 'Refund was not recorded.');}
+    finally{setRefundBusy(false);}
   };
 
   // CSV Export: Inventory
@@ -1758,6 +1767,7 @@ export function InventoryPosView() {
       {/* ========================================================================= */}
       {/* MODAL 1: INTERACTIVE ABA KHQR CUSTOMER DISPLAY MODAL                       */}
       {/* ========================================================================= */}
+      {refundSale && <RefundSaleDialog key={refundSale.txId} sale={refundSale} busy={refundBusy} error={refundError} onClose={() => { if (!refundBusy) setRefundSale(null); }} onSubmit={submitRefund} />}
       {orderDecision && <OrderDecisionDialog key={orderDecision.order.id + orderDecision.kind} order={orderDecision.order} kind={orderDecision.kind} error={orderActionError} busy={busyOrderIds.has(orderDecision.order.id)} onClose={() => { if (!busyOrderIds.has(orderDecision.order.id)) setOrderDecision(null); }} onSubmit={submitOrderDecision} />}
       {isKhqrModalOpen && <ManualBankPaymentDialog total={grandTotal} customer={selectedStudent?.englishName??'Walk-in customer'} busy={isCheckoutPending||isCatalogLoading||Boolean(dataErrors.catalog)} onClose={()=>setIsKhqrModalOpen(false)} onConfirm={executeCompleteSale}/>}
       {/* ========================================================================= */}

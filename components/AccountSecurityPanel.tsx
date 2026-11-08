@@ -36,7 +36,7 @@ interface ActiveSessionItem {
  * update account credentials, and execute "Logout All Devices".
  */
 export function AccountSecurityPanel() {
-  const { state, updateUser, showNotification } = useAppStore();
+  const { state, updateUser, showNotification, showConfirm } = useAppStore();
   const fingerprint = generateSessionFingerprint();
 
   // Password Update State
@@ -59,9 +59,9 @@ export function AccountSecurityPanel() {
 
   ]);
 
-  const handleLogoutAllDevices = async () => {
+  const handleLogoutAllDevices = () => {
     if (isRevoking) return;
-    if (confirm('Are you sure you want to log out from ALL other devices? Other sessions will be signed out; already issued access tokens remain valid until expiry.')) {
+    showConfirm('Sign out of every other device? This device stays signed in. Access already granted to the others ends when it expires.', async () => {
       setIsRevoking(true);
       try {
       const { error } = await supabase.auth.signOut({ scope: 'others' });
@@ -71,7 +71,7 @@ export function AccountSecurityPanel() {
       playChime('bell');
       } catch { showNotification('Could not revoke other sessions. Please retry.', 'error'); }
       finally { setIsRevoking(false); }
-    }
+    }, 'Sign out other devices');
   };
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
@@ -158,7 +158,7 @@ export function AccountSecurityPanel() {
                     setNewPassword(generated);
                     setConfirmPassword(generated);
                   }}
-                  className="text-[10px] text-[#EF2F38] hover:underline cursor-pointer flex items-center gap-1 font-bold"
+                  className="min-h-8 pointer-coarse:min-h-9 px-1 text-[10px] text-[#EF2F38] hover:underline cursor-pointer flex items-center gap-1 font-bold"
                 >
                   <Sparkle className="w-3 h-3" />
                   <span>Generate Strong</span>
@@ -178,7 +178,7 @@ export function AccountSecurityPanel() {
                   type="button"
                   aria-label={showNewPassword ? "Hide new password" : "Show new password"}
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 dark:hover:text-white p-1 cursor-pointer"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 flex size-9 items-center justify-center rounded-md text-neutral-400 hover:text-neutral-700 dark:hover:text-white cursor-pointer"
                 >
                   {showNewPassword ? <EyeClosed className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -209,7 +209,7 @@ export function AccountSecurityPanel() {
                   type="button"
                   aria-label={showConfirmPassword ? "Hide confirmation password" : "Show confirmation password"}
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 dark:hover:text-white p-1 cursor-pointer"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 flex size-9 items-center justify-center rounded-md text-neutral-400 hover:text-neutral-700 dark:hover:text-white cursor-pointer"
                 >
                   {showConfirmPassword ? <EyeClosed className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>

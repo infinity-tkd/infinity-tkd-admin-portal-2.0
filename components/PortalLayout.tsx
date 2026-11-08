@@ -332,7 +332,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
               )}
             >
               <span aria-hidden="true" className={cn("inline-flex rounded-full size-2 sm:size-1.5", isOnline ? "bg-emerald-600 dark:bg-emerald-500" : "bg-amber-600 dark:bg-amber-500")} />
-              <span className="hidden sm:inline text-[10px] uppercase font-bold tracking-widest">{isOnline ? 'Sync: Cloud Online' : 'Sync: Offline Cache'}</span>
+              <span className="hidden sm:inline text-[10px] uppercase font-bold tracking-widest">{isOnline ? 'Sync: Cloud Online' : 'Offline: not saving'}</span>
             </button>
           </div>
 

@@ -475,8 +475,10 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                     <button
                       type="button"
                       onClick={() => setLedgerViewMode('matrix')}
+                      aria-pressed={ledgerViewMode === 'matrix'}
+                      aria-label="Matrix view"
                       className={cn(
-                        "px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1 cursor-pointer",
+                        "min-h-8 min-w-8 pointer-coarse:min-h-9 pointer-coarse:min-w-9 justify-center px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1 cursor-pointer",
                         ledgerViewMode === 'matrix'
                           ? "bg-white dark:bg-[#202020] text-neutral-900 dark:text-white shadow-xs font-black"
                           : "text-neutral-500 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
@@ -489,8 +491,10 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                     <button
                       type="button"
                       onClick={() => setLedgerViewMode('cards')}
+                      aria-pressed={ledgerViewMode === 'cards'}
+                      aria-label="Cards view"
                       className={cn(
-                        "px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1 cursor-pointer",
+                        "min-h-8 min-w-8 pointer-coarse:min-h-9 pointer-coarse:min-w-9 justify-center px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1 cursor-pointer",
                         ledgerViewMode === 'cards'
                           ? "bg-white dark:bg-[#202020] text-neutral-900 dark:text-white shadow-xs font-black"
                           : "text-neutral-500 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
@@ -908,7 +912,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                         setLedgerPerPage(Number(e.target.value));
                         setLedgerPage(1);
                       }}
-                      className="bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded px-1.5 py-0.5 text-neutral-900 dark:text-white font-mono cursor-pointer"
+                      className="min-h-8 pointer-coarse:min-h-9 bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded px-1.5 py-0.5 text-neutral-900 dark:text-white font-mono cursor-pointer"
                     >
                       <option value={15}>15</option>
                       <option value={25}>25</option>

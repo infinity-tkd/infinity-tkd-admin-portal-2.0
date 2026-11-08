@@ -77,7 +77,7 @@ const isMonthBeforeEnrollment = (monthStr: string, year: number, enrollmentDateS
 };
 
 export function DashboardView() {
-  const { state, can, updateStudent, payInvoice, showNotification } = useAppStore();
+  const { state, can, updateStudent, payInvoice, showNotification, showConfirm } = useAppStore();
   const attendanceActions=useAttendanceActions();
   const t = useT();
   const canViewFinancials = can('page:financials');
@@ -753,13 +753,18 @@ export function DashboardView() {
     return currentYear - birthYear;
   };
 
-  const handleApproveStudent = async (studentId: string) => {
-    try {
-      await updateStudent(studentId, { studentStatus: 'Active' });
-      showNotification('Student registration approved and set to Active.', 'success');
-    } catch (e) {
-      console.error(e);
-    }
+  // Inactive means a student left or was deactivated (new students start Active), so this is a
+  // reactivation that restarts monthly billing, not a sign-up approval: confirm it first.
+  const handleApproveStudent = (studentId: string) => {
+    const name = state.students.find(student => student.id === studentId)?.englishName ?? 'this student';
+    showConfirm(`Reactivate ${name}? They return to class rosters and monthly tuition billing starts again from their next billing date.`, async () => {
+      try {
+        await updateStudent(studentId, { studentStatus: 'Active' });
+        showNotification(`${name} is Active again.`, 'success');
+      } catch (e) {
+        console.error(e);
+      }
+    }, 'Reactivate student');
   };
 
 
@@ -854,7 +859,7 @@ export function DashboardView() {
               label={t('dash_roster_strength')}
               value={<>{activeCount} <span className="text-xs font-medium text-ink-subtle">/ {totalStudents}</span></>}
               icon={<Users weight="bold" />}
-              hint={<span className="flex flex-wrap justify-between gap-1 font-mono"><span className="font-bold text-emerald-700 dark:text-emerald-400">● {activeCount} {t('act_active')}</span><span>{inactiveCount} pending</span></span>}
+              hint={<span className="flex flex-wrap justify-between gap-1 font-mono"><span className="font-bold text-emerald-700 dark:text-emerald-400">● {activeCount} {t('act_active')}</span><span>{inactiveCount} not active</span></span>}
             />
             {!canViewFinancials ? (
               <KpiCard
@@ -1118,9 +1123,11 @@ export function DashboardView() {
                     {(['all', 'Unmarked', 'Present', 'Late', 'Absent'] as const).map(tab => (
                       <button
                         key={tab}
+                        type="button"
+                        aria-pressed={rosterStatusFilter === tab}
                         onClick={() => setRosterStatusFilter(tab)}
                         className={cn(
-                          "px-2 py-1 rounded-[6px] text-[9px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer",
+                          "min-h-8 pointer-coarse:min-h-9 px-2 py-1 rounded-[6px] text-[9px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer",
                           rosterStatusFilter === tab
                             ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 shadow-sm"
                             : "bg-white dark:bg-[#1A1A1A] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-neutral-200 dark:border-[#2D2D2D]"

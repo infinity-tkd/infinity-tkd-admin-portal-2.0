@@ -358,7 +358,8 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
               <button
                 type="button"
                 onClick={() => setIsNotesExpanded(!isNotesExpanded)}
-                className="text-[10px] font-mono text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white flex items-center gap-1 cursor-pointer transition-colors py-1 touch-manipulation"
+                aria-expanded={isNotesExpanded}
+                className="min-h-8 pointer-coarse:min-h-9 text-[10px] font-mono text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white flex items-center gap-1 cursor-pointer transition-colors py-1 touch-manipulation"
               >
                 <ChatCenteredText size={12} weight={orderNotes ? "fill" : "regular"} className={orderNotes ? "text-[#EF2F38]" : ""} />
                 <span>Order Notes {orderNotes ? `("${orderNotes.slice(0, 15)}...")` : ''}</span>
@@ -390,8 +391,10 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                       min="0"
                       max="100"
                       value={discountPercent}
+                      inputMode="numeric"
+                      aria-label="Discount percent"
                       onChange={e => setDiscountPercent(Math.max(0, Math.min(100, parseInt(e.target.value) || 0)))}
-                      className="w-12 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[6px] px-1.5 py-0.5 text-center text-[10px] font-bold text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                      className="min-h-8 pointer-coarse:min-h-9 w-14 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[6px] px-1.5 py-0.5 text-center text-[10px] font-bold text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
                     />
                     <span>%</span>
                   </div>

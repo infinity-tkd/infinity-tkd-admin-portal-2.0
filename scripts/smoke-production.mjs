@@ -7,13 +7,16 @@ for(let attempt=0;attempt<20;attempt++){
  await new Promise(resolve=>setTimeout(resolve,500));
 }
 let checked=0;
-for(const path of ['/','/profile','/dashboard','/students','/attendance','/schedule','/financials','/pos','/pro-shop','/lms','/library','/members','/partners','/settings','/operations','/offline']){
+for(const path of ['/','/profile','/dashboard','/students','/attendance','/schedule','/financials','/pos','/pro-shop','/lms','/library','/members','/partners','/settings','/operations','/offline.html']){
  const response=await request(path);assert.equal(response.status,200,path);
  const csp=response.headers.get('content-security-policy') || '';
  const scriptPolicy=csp.split(';').find(d=>d.trim().startsWith('script-src')) || '';
  assert.ok(scriptPolicy.includes("'strict-dynamic'"));assert.ok(!scriptPolicy.includes('unsafe-inline'));assert.ok(!scriptPolicy.includes('unsafe-eval'));
  const nonce=scriptPolicy.match(/'nonce-([^']+)'/)?.[1];assert.ok(nonce);
- const html=await response.text();assert.ok(html.includes(`nonce="${nonce}"`),path+' nonce');
+ const html=await response.text();
+ // The service worker's offline page is static on purpose: no scripts at all, so nothing needs a nonce.
+ if(path==='/offline.html')assert.ok(html.includes("You're offline")&&!/<script\b/i.test(html),path+' is the static offline page');
+ else assert.ok(html.includes(`nonce="${nonce}"`),path+' nonce');
  assert.equal(response.headers.get('x-content-type-options'),'nosniff');checked++;
 }
 for(const path of ['/api/admin/pos/orders','/api/admin/pos/products','/api/admin/workout-templates','/api/admin/households','/api/admin/export','/api/admin/permissions','/api/admin/classes','/api/admin/partners','/api/admin/staff-dan','/api/admin/user-permissions','/api/shop/order','/api/notifications','/api/attendance/makeup','/api/operations']){
