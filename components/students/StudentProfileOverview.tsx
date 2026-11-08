@@ -32,9 +32,11 @@ import { FileText } from '@phosphor-icons/react/dist/csr/FileText';
 import { cn, formatBeltLocalized } from '@/lib/utils';
 
 import { supabase } from '@/lib/supabase';
+import { studentPasswordResetUrl } from '@/lib/student-portal-url';
 import { useT } from '@/hooks/useTranslation';
 import type { Student } from '@/lib/store';
 
+const studentResetUrl = studentPasswordResetUrl();
 
 interface StudentProfileOverviewProps {
   canDeleteStudent: boolean;
@@ -766,18 +768,20 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                     <Lock className="w-3.5 h-3.5" />
                                     <span>Set / Change Password</span>
                                   </button>
-                                  {student.email && (
+                                  {/* The reset email goes to the sign-in address and opens the student portal's reset page; hidden until that portal's address is configured. */}
+                                  {studentAccount.email && studentResetUrl && (
                                     <button
                                       type="button"
                                       onClick={() => {
-                                        showConfirm(t('panel_send_reset').replace('{name}', student.englishName).replace('{email}', student.email || ''), async () => {
-                                          const { error } = await supabase.auth.resetPasswordForEmail(student.email!, {
-                                            redirectTo: `${window.location.origin}/reset-password`
+                                        const accountEmail = studentAccount.email;
+                                        showConfirm(t('panel_send_reset').replace('{name}', student.englishName).replace('{email}', accountEmail), async () => {
+                                          const { error } = await supabase.auth.resetPasswordForEmail(accountEmail, {
+                                            redirectTo: studentResetUrl
                                           });
                                           if (error) {
                                             showNotification(t('panel_reset_failed').replace('{error}', error.message), 'error');
                                           } else {
-                                            showNotification(t('panel_reset_success').replace('{email}', student.email || ''), 'success');
+                                            showNotification(t('panel_reset_success').replace('{email}', accountEmail), 'success');
                                           }
                                         });
                                       }}
