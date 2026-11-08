@@ -5,7 +5,8 @@ import { academyProfileChanges } from '@/lib/academy-profile';
 import { createStudentPayload, updateStudentPayload } from './student-payload';
 import { readApiResponse, unwrapApiError } from './api-response';
 import { normalizeTelegramUsername } from './contacts';
-import { clearAttendanceMark, clearAttendanceBatch, saveAttendanceBatch, attendanceRemovalIds, type AttendanceDraft } from './attendance-write';
+import { clearAttendanceMark, clearAttendanceBatch, saveAttendanceBatch, attendanceRemovalIds, attendanceBatchPayload, isUnconfirmedAttendanceError, type AttendanceDraft } from './attendance-write';
+import { attendanceMarkKey, flagQueuedAttendance, loadQueuedAttendance, overlayQueuedAttendance, queueAttendanceMarks, queuedAttendanceFor, queuedMarkKey, removeQueuedAttendance, retryQueuedAttendance } from './attendance-queue';
 import { unmarkedSessionRoster, type SavedSessionRoster } from './attendance-roster';
 import { detachPushDevice } from './push-client';
 import { needsAdministratorMfa } from './auth-assurance';
@@ -14,10 +15,10 @@ import { portalDatasets, portalLoadPlan, portalDeniedDatasets, portalStudentSele
 import { validateWorkoutTemplate } from './workout-structure';
 export { unwrapApiError } from './api-response';
 
-import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useRef } from 'react';
 import { fetchAllRows, fetchApiRows } from './data-access';
 import { dataLoadIssue, preserveUnavailableData, restrictPortalData, type DataLoadIssue } from './data-load-status';
-import { membershipBilling } from './billing';
+import { membershipBilling, type MembershipBillingSummary } from './billing';
 import { invoiceKey, indexPaymentReceipts } from './payment-receipts';
 import { academyDate } from './dates';
 import { partnerField } from './partners';
@@ -221,6 +222,8 @@ export interface Attendance {
   studentId: string;
   date: string; // YYYY-MM-DD
   status: 'Present' | 'Absent' | 'Late';
+  /** Marked while offline and kept on this device until it is sent (negative id). */
+  pending?: boolean;
 }
 
 export interface Payment {
@@ -476,7 +479,7 @@ export const DEFAULT_SAMPLE_PARTNERS: Partner[] = [];
 
 // --- Context ---
 
-interface AppState {
+export interface AppState {
   dataLoadErrors?: string[];
   dataLoadIssues?: DataLoadIssue[];
   isRefreshingData?: boolean;
@@ -533,6 +536,11 @@ interface AppContextType {
   fetchPartners: () => Promise<Partner[]>;
   markAttendance: (studentId: string, date: string, status: 'Present' | 'Absent' | 'Late', classId?: number) => Promise<void>;
   markAttendanceMany: (rows: AttendanceDraft[]) => Promise<void>;
+  /** Attendance marked offline waits on this device; these send, retry or discard it. */
+  attendanceSyncing: boolean;
+  syncPendingAttendance: () => Promise<void>;
+  discardQueuedAttendance: (keys: string[]) => Promise<void>;
+  retryRejectedAttendance: (keys: string[]) => Promise<void>;
   deleteAttendanceRecords: (date: string, studentIds: string[], classId?: number) => Promise<void>;
   deleteAttendanceRecord: (id: number, studentId: string) => Promise<void>;
   payInvoice: (studentId: string, year: number, month: string, amount: number, method?: string) => Promise<void>;
@@ -1132,6 +1140,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         role: r.role as 'Primary' | 'Secondary'
       }));
 
+      // Marks taken offline on this device stay visible until they are sent.
+      await loadQueuedAttendance();
+      const queuedAttendance = queuedAttendanceFor(userId);
+
       if (!isCurrentSession()) return;
       // Commit only while the authenticated session that started this load still owns it.
 
@@ -1157,7 +1169,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         })),
         classEnrollments: (enrollmentsData || []).map((e: any) => ({ id: e.id, studentId: e.student_id, classId: e.class_id, enrollmentDate: e.enrollment_date })),
         scholarships: (scholarshipsData || []).map((sc: any) => ({ id: sc.id, typeName: sc.type_name, discountPercentage: sc.discount_percentage })),
-        attendanceRecords: (attendanceData || []).map((a: any) => ({ id: a.id, studentId: a.student_id, date: a.date, status: a.status, classId:a.class_id ?? undefined })),
+        attendanceRecords: overlayQueuedAttendance((attendanceData || []).map((a: any) => ({ id: a.id, studentId: a.student_id, date: a.date, status: a.status, classId:a.class_id ?? undefined })), queuedAttendance),
         payments: (paymentsData || []).map((p: any) => {
           const receipt = receiptsByInvoice.get(invoiceKey(p.student_id, p.year, p.for_month));
           return { id: p.id, studentId: p.student_id, year: p.year, month: p.for_month, status: p.status, amountUsd: p.amount_usd, paymentDate: p.payment_date, receiptNumber: receipt?.receipt_number, paymentMethod: receipt?.payment_method,invoiceProjection:typeof p.notes==='string'&&p.notes.startsWith('INV-'),verifiedCollection:typeof p.notes==='string'&&p.notes.startsWith('INV-')&&Number(p.amount_usd)>0 };
@@ -1475,28 +1487,110 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return task;
   };
 
+  // Saved rows replace any offline stand-in for the same student, date and class.
+  const applySavedAttendance = useCallback((actorId: string, records: Attendance[]) => {
+    const keys=new Set(records.map(attendanceMarkKey));
+    setState(prev=>prev.currentUser?.id!==actorId?prev:({...prev,attendanceRecords:[...prev.attendanceRecords.filter(record=>!keys.has(attendanceMarkKey(record))),...records]}));
+  }, []);
+
+  // Offline attendance: marks wait on this device and are sent while their author is signed in.
+  const attendanceSyncRunning = useRef(false);
+  const [attendanceSyncing, setAttendanceSyncing] = useState(false);
+  const syncPendingAttendance = useCallback(async (actorId: string | undefined) => {
+    if (!actorId || attendanceSyncRunning.current || (typeof navigator !== 'undefined' && navigator.onLine === false)) return;
+    const waiting = queuedAttendanceFor(actorId).filter(mark => !mark.failedReason);
+    if (!waiting.length) return;
+    attendanceSyncRunning.current = true; setAttendanceSyncing(true);
+    try {
+      for (let start = 0; start < waiting.length; start += 500) {
+        const batch = waiting.slice(start, start + 500);
+        try {
+          applySavedAttendance(actorId, await saveAttendanceBatch(supabase, batch, actorId));
+          await removeQueuedAttendance(batch.map(mark => mark.key));
+        } catch (error) {
+          if (isUnconfirmedAttendanceError(error)) return; // Still no connection: the next 'online' event retries.
+          // One rejected mark rolls back its whole batch, so send the marks singly to keep the good ones.
+          for (const mark of batch) {
+            try {
+              applySavedAttendance(actorId, await saveAttendanceBatch(supabase, [mark], actorId));
+              await removeQueuedAttendance([mark.key]);
+            } catch (single) {
+              if (isUnconfirmedAttendanceError(single)) return;
+              await flagQueuedAttendance([mark.key], single instanceof Error ? single.message : 'The mark was rejected.');
+            }
+          }
+        }
+      }
+    } finally { attendanceSyncRunning.current = false; setAttendanceSyncing(false); }
+  }, [applySavedAttendance]);
+
+  const syncUserId = state.currentUser?.id;
+  useEffect(() => {
+    if (!syncUserId) return;
+    const sync = () => { void syncPendingAttendance(syncUserId); };
+    void loadQueuedAttendance().then(sync);
+    window.addEventListener('online', sync);
+    return () => window.removeEventListener('online', sync);
+  }, [syncUserId, syncPendingAttendance]);
+
+  const keepAttendanceOnDevice = async (actorId: string, rows: AttendanceDraft[]) => {
+    const marks = await queueAttendanceMarks(actorId, rows);
+    setState(prev=>prev.currentUser?.id!==actorId?prev:({...prev,attendanceRecords:overlayQueuedAttendance(prev.attendanceRecords,marks)}));
+  };
+
   const markAttendanceMany = async (rows: AttendanceDraft[]) => {
     if(!can('action:attendance_mark')) throw new Error('You do not have permission to mark attendance.');
     const actorId=state.currentUser?.id??'';
-    const records=await saveAttendanceBatch(supabase,rows,actorId);
-    const keys=new Set(records.map(record=>`${record.studentId}/${record.date}/${record.classId??'daily'}`));
-    setState(prev=>prev.currentUser?.id!==actorId?prev:({...prev,attendanceRecords:[...prev.attendanceRecords.filter(record=>!keys.has(`${record.studentId}/${record.date}/${record.classId??'daily'}`)),...records]}));
+    attendanceBatchPayload(rows,actorId); // Invalid marks are rejected now and never kept for later.
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) { await keepAttendanceOnDevice(actorId, rows); return; }
+    let records: Attendance[];
+    try { records=await saveAttendanceBatch(supabase,rows,actorId); }
+    catch (error) {
+      // No answer from the database (dropped connection or timeout): repeating the same upsert later is safe.
+      if (isUnconfirmedAttendanceError(error)) { await keepAttendanceOnDevice(actorId, rows); return; }
+      throw error;
+    }
+    applySavedAttendance(actorId, records);
+    void syncPendingAttendance(actorId);
   };
   const markAttendance = async (studentId:string,date:string,status:'Present'|'Absent'|'Late',classId?:number) => markAttendanceMany([{studentId,date,status,classId}]);
+
+  const discardQueuedAttendance = async (keys: string[]) => {
+    await removeQueuedAttendance(keys);
+    await refreshData();
+  };
+  const retryRejectedAttendance = async (keys: string[]) => {
+    await retryQueuedAttendance(keys);
+    await syncPendingAttendance(state.currentUser?.id);
+  };
 
   const deleteAttendanceRecords = async (date:string,studentIds:string[],classId?:number) => {
     if(!can('action:attendance_delete'))throw new Error('Permission denied.');
     const actorId=state.currentUser?.id;
     const ids=attendanceRemovalIds(state.attendanceRecords,date,studentIds,classId);
     if(!ids.length)throw new Error('No attendance records were selected. Reload the roster.');
-    const removed=new Set(await clearAttendanceBatch(supabase,ids));
+    // Marks still waiting on this device are discarded here; saved marks are deleted on the server.
+    const waiting=new Set(ids.filter(id=>id<0));
+    if(waiting.size){
+      await removeQueuedAttendance(state.attendanceRecords.filter(record=>waiting.has(record.id)).map(record=>queuedMarkKey(actorId??'',record)));
+      setState(prev=>prev.currentUser?.id!==actorId?prev:({...prev,attendanceRecords:prev.attendanceRecords.filter(record=>!waiting.has(record.id))}));
+    }
+    const saved=ids.filter(id=>id>0);
+    if(!saved.length)return;
+    const removed=new Set(await clearAttendanceBatch(supabase,saved));
     setState(prev=>prev.currentUser?.id!==actorId?prev:({...prev,attendanceRecords:prev.attendanceRecords.filter(record=>!removed.has(record.id))}));
-    if(removed.size!==new Set(ids).size)throw new Error(`Cleared ${removed.size} of ${new Set(ids).size} selected marks. Some records changed or access was denied. Reload the roster to review the remaining marks.`);
+    if(removed.size!==new Set(saved).size)throw new Error(`Cleared ${removed.size} of ${new Set(saved).size} selected marks. Some records changed or access was denied. Reload the roster to review the remaining marks.`);
   };
 
   const deleteAttendanceRecord = async (id: number, studentId: string) => {
     if (!can('action:attendance_delete')) throw new Error('You do not have permission to clear attendance.');
     const actorId=state.currentUser?.id;
+    if (id < 0) {
+      const record = state.attendanceRecords.find(row => row.id === id);
+      if (record) await removeQueuedAttendance([queuedMarkKey(actorId ?? '', record)]);
+      setState(prev => prev.currentUser?.id!==actorId?prev:({...prev, attendanceRecords:prev.attendanceRecords.filter(row => row.id !== id)}));
+      return;
+    }
     await clearAttendanceMark(supabase, id, studentId);
     setState(prev => prev.currentUser?.id!==actorId?prev:({...prev, attendanceRecords:prev.attendanceRecords.filter(record => record.id !== id)}));
   };
@@ -2936,6 +3030,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         markAttendance,
         markAttendanceMany,
+        attendanceSyncing,
+        syncPendingAttendance: () => syncPendingAttendance(state.currentUser?.id),
+        discardQueuedAttendance,
+        retryRejectedAttendance,
         payInvoice,
         prepayInvoiceBulk,
         addStudent,
@@ -2997,12 +3095,7 @@ export function useAppStore() {
   return context;
 }
 
-export interface MembershipBillingStatus {
-  status: 'Current' | 'Due Soon' | 'Overdue';
-  nextRenewalDate: string;
-  daysRemaining: number;
-  amountOwed: number;
-}
+export type MembershipBillingStatus = MembershipBillingSummary;
 
 export function getMembershipBillingStatus(student:Student,payments:Payment[],scholarships:Scholarship[],classEnrollments:ClassEnrollment[],config:AcademyProfile=DEFAULT_ACADEMY_PROFILE):MembershipBillingStatus {
   return membershipBilling(student,payments,scholarships,classEnrollments,config);

@@ -16,6 +16,7 @@ import { Portal } from '@/components/Portal';
 import { CAMBODIA_LOCATIONS } from './DataLists';
 import { SafeImage } from '@/components/SafeImage';
 import { useT } from '@/hooks/useTranslation';
+import { useBeltOrder } from '@/hooks/use-belt-order';
 
 const CLASS_STYLES: Record<string, { bg: string; text: string; border: string; accent: string }> = {
   'Private Class': {
@@ -46,6 +47,7 @@ const CLASS_STYLES: Record<string, { bg: string; text: string; border: string; a
 
 export function AddStudentModal({ onClose }: { onClose: () => void }) {
   const { addStudent, state } = useAppStore();
+  const beltOrder = useBeltOrder();
   const t = useT();
   const [form, setForm] = useState({
     englishName: '', khmerName: '', gender: 'Male', dob: '',
@@ -456,16 +458,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                         <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_belt')}</label>
                         <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                            value={form.currentBelt} onChange={e => setForm({...form, currentBelt: e.target.value})}>
-                           <option value="White">White</option>
-                           <option value="Yellow">Yellow</option>
-                           <option value="Green">Green</option>
-                           <option value="Blue">Blue</option>
-                           <option value="Brown">Brown</option>
-                           <option value="Red">Red</option>
-                           <option value="1st Poom/Dan">1st Poom/Dan</option>
-                           <option value="2nd Poom/Dan">2nd Poom/Dan</option>
-                           <option value="3rd Poom/Dan">3rd Poom/Dan</option>
-                           <option value="4th Poom/Dan">4th Poom/Dan</option>
+                           {beltOrder.map(belt => <option key={belt} value={belt}>{belt}</option>)}
                         </select>
                       </div>
                    </div>

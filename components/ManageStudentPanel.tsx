@@ -8,6 +8,7 @@ import { StudentTrainingAssignments } from './students/StudentTrainingAssignment
 
 
 import { academyDate } from '@/lib/dates';
+import { membershipDueText } from '@/lib/billing';
 
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -52,6 +53,7 @@ import { Portal } from '@/components/Portal';
 import { SafeImage } from '@/components/SafeImage';
 
 import { useT } from '@/hooks/useTranslation';
+import { useBeltOrder } from '@/hooks/use-belt-order';
 import dynamic from 'next/dynamic';
 
 
@@ -73,6 +75,7 @@ const StudentBulkAchievementDialog = dynamic(() => import('@/components/students
 export function ManageStudentPanel({ studentId, onClose }: { studentId: string, onClose: () => void }) {
   const { state, updateStudent, deleteStudent, addBeltHistory, addBeltHistories, updateBeltHistory, deleteBeltHistory, saveAchievements, deleteAchievement, addUser, updateUser, showNotification, showConfirm, enrollStudent, unenrollStudent, addBodyComposition, payInvoice, can } = useAppStore();
   const t = useT();
+  const beltOrder = useBeltOrder();
   const student = state.students.find(s => s.id === studentId);
   const [isEditing, setIsEditing] = useState(false);
   const studentEnrollments = state.classEnrollments.filter(e => e.studentId === studentId);
@@ -976,14 +979,13 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                 <Warning className="w-4 h-4 shrink-0 animate-pulse" />
                 <div>
                   <span className="font-bold uppercase tracking-wider block text-[10px]">
-                    {billing.status === 'Overdue'
-                      ? 'Membership Overdue'
+                    {billing.status === 'Overdue' ? 'Membership Overdue'
+                      : billing.status === 'Within grace' ? 'Membership Due · Grace Period'
+                      : billing.status === 'Due today' ? 'Membership Due Today'
                       : 'Membership Renewal Due'}
                   </span>
                   <span className="text-[9px] font-mono text-neutral-500 dark:text-neutral-400">
-                    {billing.status === 'Overdue'
-                      ? `Due was on ${billing.nextRenewalDate} (${Math.abs(billing.daysRemaining)}d overdue)`
-                      : `Due on ${billing.nextRenewalDate} (${billing.daysRemaining}d remaining)`}
+                    {`Due on ${billing.nextRenewalDate} (${membershipDueText(billing)})`}
                   </span>
                 </div>
               </div>
@@ -1187,16 +1189,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                                  return updated;
                                });
                             }}>
-                            <option value="White">{formatBeltLocalized('White', undefined, t)}</option>
-                            <option value="Yellow">{formatBeltLocalized('Yellow', undefined, t)}</option>
-                            <option value="Green">{formatBeltLocalized('Green', undefined, t)}</option>
-                            <option value="Blue">{formatBeltLocalized('Blue', undefined, t)}</option>
-                            <option value="Brown">{formatBeltLocalized('Brown', undefined, t)}</option>
-                            <option value="Red">{formatBeltLocalized('Red', undefined, t)}</option>
-                            <option value="1st Poom/Dan">{formatBeltLocalized('1st Poom/Dan', undefined, t)}</option>
-                            <option value="2nd Poom/Dan">{formatBeltLocalized('2nd Poom/Dan', undefined, t)}</option>
-                            <option value="3rd Poom/Dan">{formatBeltLocalized('3rd Poom/Dan', undefined, t)}</option>
-                            <option value="4th Poom/Dan">{formatBeltLocalized('4th Poom/Dan', undefined, t)}</option>
+                            {beltOrder.map(belt => <option key={belt} value={belt}>{formatBeltLocalized(belt, undefined, t)}</option>)}
                         </select>
                       </div>
                       <div>

@@ -1,189 +1,71 @@
 'use client';
 
 /**
- * Infinity Network Status & Offline Mutation Queue Provider
- * Monitors connectivity, queues offline mutations in IndexedDB, and auto-syncs on reconnect.
+ * Infinity network status. Monitors connectivity and reports attendance that was marked offline
+ * and is waiting on this device (lib/attendance-queue.ts); the store sends it on reconnect.
  */
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { openDB, IDBPDatabase } from 'idb';
+import React, { createContext, useContext, useEffect, useState, useSyncExternalStore } from 'react';
 import { WifiOff, RefreshCw, CheckCircle2 } from 'lucide-react';
-
-export interface QueuedMutation {
-  id: string;
-  url: string;
-  method: string;
-  headers?: Record<string, string>;
-  body?: string;
-  timestamp: number;
-  retryCount: number;
-}
+import { useAppStore } from '@/lib/store';
+import { queuedAttendanceSnapshot, subscribeQueuedAttendance, type QueuedAttendanceMark } from '@/lib/attendance-queue';
 
 interface NetworkStatusContextType {
   isOnline: boolean;
   isSyncing: boolean;
+  /** Attendance marks waiting on this device for the signed-in account. */
   queuedCount: number;
-  queueMutation: (mutation: Omit<QueuedMutation, 'id' | 'timestamp' | 'retryCount'>) => Promise<string>;
-  flushQueue: () => Promise<{ synced: number; failed: number }>;
+  flushQueue: () => Promise<void>;
 }
 
 const NetworkStatusContext = createContext<NetworkStatusContextType>({
   isOnline: true,
   isSyncing: false,
   queuedCount: 0,
-  queueMutation: async () => '',
-  flushQueue: async () => ({ synced: 0, failed: 0 }),
+  flushQueue: async () => {},
 });
 
 export const useNetworkStatus = () => useContext(NetworkStatusContext);
 
-const DB_NAME = 'infinity_offline_store';
-const DB_VERSION = 1;
-const STORE_NAME = 'mutations';
-
-async function getDb(): Promise<IDBPDatabase> {
-  return openDB(DB_NAME, DB_VERSION, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-      }
-    },
-  });
-}
+const NO_MARKS: readonly QueuedAttendanceMark[] = Object.freeze([]);
 
 export function NetworkStatusProvider({ children, showConnectionBanners = true }: { children: React.ReactNode; showConnectionBanners?: boolean }) {
+  const { state, attendanceSyncing, syncPendingAttendance } = useAppStore();
   const [isOnline, setIsOnline] = useState<boolean>(true);
-  const [isSyncing, setIsSyncing] = useState<boolean>(false);
-  const [queuedCount, setQueuedCount] = useState<number>(0);
   const [showReconnectedBanner, setShowReconnectedBanner] = useState<boolean>(false);
-
-  // Refresh queued mutations count from IndexedDB
-  const refreshQueueCount = useCallback(async () => {
-    try {
-      const db = await getDb();
-      const count = await db.count(STORE_NAME);
-      setQueuedCount(count);
-    } catch {
-      // IndexedDB might not be available in SSR or private mode
-    }
-  }, []);
-
-  // Queue a mutation in IndexedDB
-  const queueMutation = useCallback(
-    async (mutation: Omit<QueuedMutation, 'id' | 'timestamp' | 'retryCount'>): Promise<string> => {
-      try {
-        const db = await getDb();
-        const id = `mut_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-        const record: QueuedMutation = {
-          ...mutation,
-          id,
-          timestamp: Date.now(),
-          retryCount: 0,
-        };
-        await db.put(STORE_NAME, record);
-        await refreshQueueCount();
-        return id;
-      } catch (err) {
-        console.error('[OFFLINE_QUEUE_ERROR] Failed to queue mutation:', err);
-        throw err;
-      }
-    },
-    [refreshQueueCount]
-  );
-
-  // Flush and replay all queued mutations
-  const flushQueue = useCallback(async (): Promise<{ synced: number; failed: number }> => {
-    let synced = 0;
-    let failed = 0;
-
-    try {
-      const db = await getDb();
-      const allMutations: QueuedMutation[] = await db.getAll(STORE_NAME);
-
-      if (allMutations.length === 0) {
-        setQueuedCount(0);
-        return { synced: 0, failed: 0 };
-      }
-
-      setIsSyncing(true);
-
-      // Sort by timestamp ascending to replay in chronological order
-      allMutations.sort((a, b) => a.timestamp - b.timestamp);
-
-      for (const item of allMutations) {
-        try {
-          const res = await fetch(item.url, {
-            method: item.method,
-            headers: item.headers,
-            body: item.body,
-          });
-
-          if (res.ok) {
-            await db.delete(STORE_NAME, item.id);
-            synced++;
-          } else if (res.status >= 400 && res.status < 500) {
-            // Client error - record cannot be retried automatically without mutation
-            await db.delete(STORE_NAME, item.id);
-            failed++;
-          } else {
-            // Server error - increment retryCount
-            item.retryCount += 1;
-            await db.put(STORE_NAME, item);
-            failed++;
-          }
-        } catch {
-          // Network still down or interrupted
-          item.retryCount += 1;
-          await db.put(STORE_NAME, item);
-          failed++;
-          break; // Stop replaying if network dropped again
-        }
-      }
-
-      await refreshQueueCount();
-    } catch (err) {
-      console.error('[OFFLINE_SYNC_ERROR] Error replaying mutations:', err);
-    } finally {
-      setIsSyncing(false);
-    }
-
-    return { synced, failed };
-  }, [refreshQueueCount]);
+  const queued = useSyncExternalStore(subscribeQueuedAttendance, queuedAttendanceSnapshot, () => NO_MARKS);
+  const userId = state.currentUser?.id;
+  const queuedCount = queued.filter(mark => mark.userId === userId && !mark.failedReason).length;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     setIsOnline(navigator.onLine);
-    refreshQueueCount();
-
+    let reconnectedTimer: ReturnType<typeof setTimeout> | undefined;
     const handleOnline = () => {
       setIsOnline(true);
       setShowReconnectedBanner(true);
-      setTimeout(() => setShowReconnectedBanner(false), 4000);
-      flushQueue();
+      clearTimeout(reconnectedTimer);
+      reconnectedTimer = setTimeout(() => setShowReconnectedBanner(false), 4000);
     };
-
-    const handleOffline = () => {
-      setIsOnline(false);
-    };
+    const handleOffline = () => setIsOnline(false);
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-
     return () => {
+      clearTimeout(reconnectedTimer);
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [flushQueue, refreshQueueCount]);
+  }, []);
 
   return (
     <NetworkStatusContext.Provider
       value={{
         isOnline,
-        isSyncing,
+        isSyncing: attendanceSyncing,
         queuedCount,
-        queueMutation,
-        flushQueue,
+        flushQueue: syncPendingAttendance,
       }}
     >
       {/* Offline Status Warning Bar */}
@@ -197,32 +79,32 @@ export function NetworkStatusProvider({ children, showConnectionBanners = true }
           <div className="flex items-center gap-2">
             <WifiOff className="w-4 h-4 flex-shrink-0 text-amber-200" />
             <span>
-              <strong>Offline:</strong> Reconnect before saving. Review interrupted saves before retrying.
+              <strong>Offline:</strong> attendance you mark is kept on this device and sent when you reconnect. Other changes need a connection.
             </span>
           </div>
           {queuedCount > 0 && (
-            <span className="bg-amber-800/80 px-2 py-0.5 rounded-full text-xs font-semibold ml-2">
-              {queuedCount} pending {queuedCount === 1 ? 'change' : 'changes'}
+            <span className="bg-amber-800/80 px-2 py-0.5 rounded-full text-xs font-semibold ml-2 shrink-0">
+              {queuedCount} {queuedCount === 1 ? 'mark' : 'marks'} waiting
             </span>
           )}
         </aside>
       )}
 
       {/* Syncing Activity Bar */}
-      {isOnline && isSyncing && (
+      {isOnline && attendanceSyncing && (
         <aside
           role="status"
           aria-live="polite"
           aria-atomic="true"
           className="portal-global-toast fixed right-4 z-[35] max-w-[calc(100vw-2rem)] pointer-events-none portal-notice-enter bg-blue-600/90 text-white px-4 py-1.5 text-xs font-medium flex items-center justify-center gap-2 rounded-lg shadow-sm"
         >
-          <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-200" />
-          <span>Synchronizing offline changes to cloud database...</span>
+          <RefreshCw className="w-3.5 h-3.5 motion-safe:animate-spin text-blue-200" />
+          <span>Sending attendance marked while offline…</span>
         </aside>
       )}
 
       {/* Back Online Reconnection Banner */}
-      {showConnectionBanners && isOnline && showReconnectedBanner && !isSyncing && (
+      {showConnectionBanners && isOnline && showReconnectedBanner && !attendanceSyncing && (
         <aside
           role="status"
           aria-live="polite"

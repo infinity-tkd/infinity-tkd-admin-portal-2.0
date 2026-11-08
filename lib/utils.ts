@@ -3,6 +3,7 @@ import { lessonYouTubeId, resolveLessonMedia } from './lesson-media';
 import { isPrivateLibraryDraft } from './library-publication';
 import { physicalGradeScore } from './physical-grades';
 import { academyDate, daysBetween, isCalendarDate } from './dates';
+import { rowsForStudent } from './attendance-index';
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -133,6 +134,8 @@ export function formatBeltLocalized(beltName: string, dob?: string, t?: (key: an
   if (lower.includes('2nd')) return t('belt_2nd_poom_dan');
   if (lower.includes('3rd')) return t('belt_3rd_poom_dan');
   if (lower.includes('4th')) return t('belt_4th_poom_dan');
+  if (lower.includes('5th')) return t('belt_5th_dan');
+  if (lower.includes('6th')) return t('belt_6th_dan');
   return formatted;
 }
 
@@ -259,7 +262,8 @@ export function calculatePromotionReadiness(
   physicalEvaluations: any[],
   beltTechniques: any[]
 ): PromotionReadinessReport {
-  const studentHistories = beltHistories.filter(h => h.studentId === student.id);
+  // Per-student lookups (lib/attendance-index.ts) keep roster-wide readiness linear in the data size.
+  const studentHistories = rowsForStudent(beltHistories, student.id);
 
   let latestPromotion = null;
   if (studentHistories.length > 0) {
@@ -277,8 +281,7 @@ export function calculatePromotionReadiness(
   const rawStartDate = String(latestPromotion ? latestPromotion.promotionDate : (student.registrationDate || today)).slice(0, 10);
   const startDate = isCalendarDate(rawStartDate) ? rawStartDate : today;
 
-  const attendanceSince = attendanceRecords.filter(a =>
-    a.studentId === student.id &&
+  const attendanceSince = rowsForStudent(attendanceRecords, student.id).filter(a =>
     a.date >= startDate &&
     (a.status === 'Present' || a.status === 'Late')
   ).length;
@@ -286,9 +289,9 @@ export function calculatePromotionReadiness(
   const daysElapsed = Math.max(0, daysBetween(startDate, today));
 
   const currentBeltVideos = curriculumVideos.filter(v => isSyllabusLessonFor(v, student.currentBelt));
-  const currentBeltVideoIds = currentBeltVideos.map(v => v.id);
-  const completedVideosCount = videoProgress.filter(
-    p => p.studentId === student.id && p.status === 'Completed' && currentBeltVideoIds.includes(p.videoId)
+  const currentBeltVideoIds = new Set(currentBeltVideos.map(v => v.id));
+  const completedVideosCount = rowsForStudent(videoProgress, student.id).filter(
+    p => p.status === 'Completed' && currentBeltVideoIds.has(p.videoId)
   ).length;
   const totalAvailable = currentBeltVideos.length;
   const syllabusCompletedPct = totalAvailable > 0 ? Math.round((completedVideosCount / totalAvailable) * 100) : 100;
@@ -307,7 +310,7 @@ export function calculatePromotionReadiness(
   let totalScore = 0;
 
   targetSkills.forEach(skillName => {
-    const dbMatch = physicalEvaluations.find(e => e.studentId === student.id && e.skillName === skillName);
+    const dbMatch = rowsForStudent(physicalEvaluations, student.id).find(e => e.skillName === skillName);
     const score = physicalGradeScore(dbMatch?.grade);
     if (score !== null) {
       gradedCount++;
@@ -406,8 +409,8 @@ export function calculateChurnRisk(
   classSessions: any[],
   currentLocalTime: Date
 ): ChurnRiskReport {
-  const studentRecords = attendanceRecords
-    .filter(r => r.studentId === student.id && (r.status === 'Present' || r.status === 'Late'))
+  const studentRecords = rowsForStudent(attendanceRecords, student.id)
+    .filter(r => r.status === 'Present' || r.status === 'Late')
     .sort((a, b) => b.date.localeCompare(a.date));
 
   let daysSinceLastClass = 999;

@@ -1,3 +1,5 @@
+import { DEFAULT_BELT_ORDER } from './belts';
+
 // Standard categories based on WT and Fitness systems
 export const TKD_CATEGORIES = [
   'Forms (Poomsae)',
@@ -28,7 +30,8 @@ export const ROUTINE_TYPES = [
   'Hiphop Dance Workout',
   'Taekwondo Aerobic'
 ] as const;
-export const BELTS = ['All', 'White', 'Yellow', 'Green', 'Blue', 'Brown', 'Red', '1st Poom/Dan', '2nd Poom/Dan', '3rd Poom/Dan'] as const;
+/** 'All' plus every rank from the shared belt order (lib/belts.ts), so library filters match the students' belts. */
+export const BELTS: readonly string[] = Object.freeze(['All', ...DEFAULT_BELT_ORDER]);
 
 export const getBeltTranslationKey = (belt: string): any => {
   const b = belt.trim().toLowerCase();
@@ -41,6 +44,9 @@ export const getBeltTranslationKey = (belt: string): any => {
   if (b.includes('1st')) return 'belt_1st_poom_dan';
   if (b.includes('2nd')) return 'belt_2nd_poom_dan';
   if (b.includes('3rd')) return 'belt_3rd_poom_dan';
+  if (b.includes('4th')) return 'belt_4th_poom_dan';
+  if (b.includes('5th')) return 'belt_5th_dan';
+  if (b.includes('6th')) return 'belt_6th_dan';
   return 'belt_all';
 };
 

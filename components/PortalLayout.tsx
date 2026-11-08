@@ -34,6 +34,7 @@ import { PwaDiagnosticsModal } from '@/components/pwa/PwaDiagnosticsModal';
 import layoutStyles from './PortalLayout.module.css';
 import { PageTransition } from './PageTransition';
 import { DataLoadNotice } from './DataLoadNotice';
+import { PendingAttendanceBanner } from './attendance/PendingAttendanceBanner';
 import { usePortalScroll } from '@/hooks/use-portal-scroll';
 import { panelTransition } from '@/lib/motion';
 import { PORTAL_COMPACT_MEDIA } from '@/lib/navigation';
@@ -332,7 +333,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
               )}
             >
               <span aria-hidden="true" className={cn("inline-flex rounded-full size-2 sm:size-1.5", isOnline ? "bg-emerald-600 dark:bg-emerald-500" : "bg-amber-600 dark:bg-amber-500")} />
-              <span className="hidden sm:inline text-[10px] uppercase font-bold tracking-widest">{isOnline ? 'Sync: Cloud Online' : 'Offline: not saving'}</span>
+              <span className="hidden sm:inline text-[10px] uppercase font-bold tracking-widest">{isOnline ? 'Sync: Cloud Online' : 'Offline'}</span>
             </button>
           </div>
 
@@ -355,6 +356,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
         >
           <PageTransition identity={pathname} className="w-full max-w-[1600px] mx-auto min-h-full">
             <DataLoadNotice />
+            <PendingAttendanceBanner />
             {state.currentUser?.mustChangePassword ? (<><div role="alert" className="mb-4 rounded-lg border border-amber-500/40 bg-amber-50 p-4 text-sm font-medium text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">Change your temporary password to activate portal access.</div><AccountSecurityPanel /></>) : isAuthorized ? (
               children
             ) : (

@@ -23,12 +23,24 @@ export function attendanceBatchPayload(rows: AttendanceDraft[], actor: string, t
   });
 }
 
+/**
+ * The request never got any answer (offline, dropped connection, timeout), so it is kept on the
+ * device and the same upsert is repeated later. When the server answers with an error — including
+ * a database outage — staff see it instead.
+ */
+export class AttendanceUnconfirmedError extends Error { readonly unconfirmed = true; }
+export const isUnconfirmedAttendanceError = (error: unknown): error is AttendanceUnconfirmedError => error instanceof AttendanceUnconfirmedError;
+
 /** One statement: any rejected mark rolls back the entire roster change. */
 export async function saveAttendanceBatch(client: Pick<SupabaseClient,'from'>, rows: AttendanceDraft[], actor: string, ignoreDuplicates = false) {
   const payload=attendanceBatchPayload(rows,actor);
-  const {data,error}=await client.from('attendance').upsert(payload,{onConflict:'student_id,date,class_id',ignoreDuplicates}).select().abortSignal(AbortSignal.timeout(15000));
+  let response;
+  try { response=await client.from('attendance').upsert(payload,{onConflict:'student_id,date,class_id',ignoreDuplicates}).select().abortSignal(AbortSignal.timeout(15000)); }
+  catch { throw new AttendanceUnconfirmedError('The attendance save could not be confirmed. It may have completed; reload the roster before retrying.'); }
+  const {data,error}=response;
   if (error) {
-    if (!error.code || error.code.startsWith('08')) throw new Error('The attendance save could not be confirmed. It may have completed; reload the roster before retrying.');
+    if (!error.code) throw new AttendanceUnconfirmedError('The attendance save could not be confirmed. It may have completed; reload the roster before retrying.');
+    if (error.code.startsWith('08')) throw new Error('The attendance save could not be confirmed. It may have completed; reload the roster before retrying.');
     throw new Error('Attendance was rejected and this batch was not saved. Check session dates, cancellations, membership pauses and roster access before retrying.');
   }
   if (!Array.isArray(data) || (!ignoreDuplicates && data.length!==rows.length)) throw new Error('The attendance result could not be verified. Reload the roster before retrying.');

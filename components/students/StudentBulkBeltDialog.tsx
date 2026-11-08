@@ -7,6 +7,7 @@ import { Certificate } from '@phosphor-icons/react/dist/csr/Certificate';
 import { formatBeltLocalized } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
 import { useT } from '@/hooks/useTranslation';
+import { useBeltOrder } from '@/hooks/use-belt-order';
 import type { BulkBeltRow } from '@/components/students/student-editor-types';
 
 
@@ -23,6 +24,7 @@ interface StudentBulkBeltDialogProps {
 
 export function StudentBulkBeltDialog({ t, setShowBulkBeltModal, bulkBelts, handleUpdateBulkBeltCell, handleRemoveBulkBeltRow, handleAddBulkBeltRow, isSavingBulkBelt, handleSaveBulkBelts }: StudentBulkBeltDialogProps) {
   const dialog = useRef<HTMLDivElement>(null);
+  const beltOrder = useBeltOrder();
   useModalFocus(dialog, () => { if (!isSavingBulkBelt) setShowBulkBeltModal(false); });
   return <>{(
             <Portal>
@@ -61,16 +63,7 @@ export function StudentBulkBeltDialog({ t, setShowBulkBeltModal, bulkBelts, hand
                                    value={row.beltLevel}
                                    onChange={e => handleUpdateBulkBeltCell(index, 'beltLevel', e.target.value)}
                                  >
-                                   <option value="White">{formatBeltLocalized('White', undefined, t)}</option>
-                                   <option value="Yellow">{formatBeltLocalized('Yellow', undefined, t)}</option>
-                                   <option value="Green">{formatBeltLocalized('Green', undefined, t)}</option>
-                                   <option value="Blue">{formatBeltLocalized('Blue', undefined, t)}</option>
-                                   <option value="Brown">{formatBeltLocalized('Brown', undefined, t)}</option>
-                                   <option value="Red">{formatBeltLocalized('Red', undefined, t)}</option>
-                                   <option value="1st Poom/Dan">{formatBeltLocalized('1st Poom/Dan', undefined, t)}</option>
-                                   <option value="2nd Poom/Dan">{formatBeltLocalized('2nd Poom/Dan', undefined, t)}</option>
-                                   <option value="3rd Poom/Dan">{formatBeltLocalized('3rd Poom/Dan', undefined, t)}</option>
-                                   <option value="4th Poom/Dan">{formatBeltLocalized('4th Poom/Dan', undefined, t)}</option>
+                                   {beltOrder.map(belt => <option key={belt} value={belt}>{formatBeltLocalized(belt, undefined, t)}</option>)}
                                  </select>
                                </td>
                                <td className="p-2">
@@ -159,16 +152,7 @@ export function StudentBulkBeltDialog({ t, setShowBulkBeltModal, bulkBelts, hand
                                  value={row.beltLevel}
                                  onChange={e => handleUpdateBulkBeltCell(index, 'beltLevel', e.target.value)}
                                >
-                                 <option value="White">{formatBeltLocalized('White', undefined, t)}</option>
-                                 <option value="Yellow">{formatBeltLocalized('Yellow', undefined, t)}</option>
-                                 <option value="Green">{formatBeltLocalized('Green', undefined, t)}</option>
-                                 <option value="Blue">{formatBeltLocalized('Blue', undefined, t)}</option>
-                                 <option value="Brown">{formatBeltLocalized('Brown', undefined, t)}</option>
-                                 <option value="Red">{formatBeltLocalized('Red', undefined, t)}</option>
-                                 <option value="1st Poom/Dan">{formatBeltLocalized('1st Poom/Dan', undefined, t)}</option>
-                                 <option value="2nd Poom/Dan">{formatBeltLocalized('2nd Poom/Dan', undefined, t)}</option>
-                                 <option value="3rd Poom/Dan">{formatBeltLocalized('3rd Poom/Dan', undefined, t)}</option>
-                                 <option value="4th Poom/Dan">{formatBeltLocalized('4th Poom/Dan', undefined, t)}</option>
+                                 {beltOrder.map(belt => <option key={belt} value={belt}>{formatBeltLocalized(belt, undefined, t)}</option>)}
                                </select>
                              </div>
 

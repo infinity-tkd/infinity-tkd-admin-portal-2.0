@@ -244,16 +244,18 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
             {/* Offline Mutation Queue */}
             <div className="p-3 rounded-[8px] bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#2D2D2D] space-y-1">
               <span className="text-[10px] font-mono uppercase font-bold text-neutral-400 block">
-                Offline IndexedDB Queue
+                Attendance waiting on this device
               </span>
               <div className="flex items-center justify-between">
-                <span className="font-bold text-sm font-mono">{queuedCount} changes</span>
+                <span className="font-bold text-sm font-mono">{queuedCount} {queuedCount === 1 ? 'mark' : 'marks'}</span>
                 {queuedCount > 0 && (
                   <button
-                    onClick={() => flushQueue()}
-                    className="text-[10px] font-mono font-bold text-[#EF2F38] hover:underline cursor-pointer"
+                    type="button"
+                    onClick={() => { void flushQueue(); }}
+                    disabled={!isOnline}
+                    className="min-h-8 px-1 text-[10px] font-mono font-bold text-[#EF2F38] hover:underline cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Sync Now
+                    Send now
                   </button>
                 )}
               </div>

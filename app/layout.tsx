@@ -6,19 +6,25 @@ import { RootWrapper } from '@/components/RootWrapper';
 import { PwaUpdater } from '@/components/pwa/PwaUpdater';
 import { headers } from 'next/headers';
 
+// Variable fonts: one file per family covers every weight (was 12 separate weight files).
 const montserrat = Montserrat({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
   variable: '--font-sans',
   display: 'swap',
 });
 
+// Khmer glyphs download only when Khmer text is shown, instead of on every page load.
 const kantumruy = Kantumruy_Pro({
   subsets: ['khmer'],
-  weight: ['300', '400', '500', '600', '700'],
   variable: '--font-khmer',
   display: 'swap',
+  preload: false,
 });
+
+// Start the database connection (DNS + TLS) while the page scripts load.
+const supabaseOrigin = (() => {
+  try { return process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin : null; } catch { return null; }
+})();
 
 export const viewport: Viewport = {
   themeColor: [
@@ -64,6 +70,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={`${montserrat.variable} ${kantumruy.variable}`} suppressHydrationWarning>
       <head>
+        {supabaseOrigin && <link rel="preconnect" href={supabaseOrigin} crossOrigin="anonymous" />}
         <script
           nonce={nonce}
           // Browsers hide nonce content attributes while retaining script.nonce.

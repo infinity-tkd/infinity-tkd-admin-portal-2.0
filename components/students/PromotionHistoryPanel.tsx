@@ -23,7 +23,7 @@ interface PromotionHistoryPanelProps {
   state: ReturnType<typeof useAppStore>['state'];
   filterBeltHistory: string;
   setFilterBeltHistory: React.Dispatch<React.SetStateAction<string>>;
-  BELT_RANK_ORDER: string[];
+  BELT_RANK_ORDER: readonly string[];
   filterProgramHistory: string;
   setFilterProgramHistory: React.Dispatch<React.SetStateAction<string>>;
   handleExportHistoryCsv: () => void;
