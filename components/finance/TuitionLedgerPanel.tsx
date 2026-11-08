@@ -1,5 +1,8 @@
 'use client';
-import {billingDueDay} from '@/lib/billing';
+import {billingDueDay, membershipDueText} from '@/lib/billing';
+
+// Most urgent first: past the grace period, then within grace, due today, due soon.
+const BILLING_URGENCY: Record<string, number> = { Overdue: 0, 'Within grace': 1, 'Due today': 2, 'Due Soon': 3 };
 import {tuitionMonth} from '@/lib/tuition-payments';
 import { TUITION_MONTHS as monthsListGlobal, isMonthBeforeEnrollment } from '@/lib/tuition-payments';
 import { ContactActions } from '@/components/ContactActions';
@@ -276,17 +279,13 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                     const billing = getMembershipBillingStatus(student, state.payments, state.scholarships, state.classEnrollments, state.academyProfile);
                     return { student, billing };
                   })
-                  .filter(item => item.billing.status === 'Overdue' || item.billing.status === 'Due Soon')
+                  .filter(item => item.billing.status !== 'Current')
                   .filter(item => {
                     if (!alertSearch) return true;
                     const q = alertSearch.toLowerCase();
                     return item.student.englishName.toLowerCase().includes(q) || item.student.id.toLowerCase().includes(q);
                   })
-                  .sort((a, b) => {
-                    if (a.billing.status === 'Overdue' && b.billing.status !== 'Overdue') return -1;
-                    if (a.billing.status !== 'Overdue' && b.billing.status === 'Overdue') return 1;
-                    return a.billing.daysRemaining - b.billing.daysRemaining;
-                  });
+                  .sort((a, b) => (BILLING_URGENCY[a.billing.status] ?? 9) - (BILLING_URGENCY[b.billing.status] ?? 9) || a.billing.daysRemaining - b.billing.daysRemaining);
 
                 return (
                   <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 shadow-sm space-y-3">
@@ -368,9 +367,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                 <div className="flex justify-between items-end border-t border-neutral-200 dark:border-[#262626] pt-2 mt-0.5">
                                   <div className="text-[9px] text-neutral-600 dark:text-neutral-400 leading-tight">
                                     <span className="block text-neutral-400 dark:text-[#666] font-mono uppercase tracking-wider text-[9px]">Target</span>
-                                    {billing.status === 'Overdue'
-                                      ? `${Math.abs(billing.daysRemaining)}d overdue`
-                                      : `Due in ${billing.daysRemaining}d`}
+                                    {membershipDueText(billing)}
                                   </div>
 
                                   {!isReadOnlyLedger ? (

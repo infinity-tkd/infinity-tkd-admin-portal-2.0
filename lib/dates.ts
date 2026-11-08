@@ -10,6 +10,10 @@ export function academyDate(value: Date = new Date()): string {
   const get = (type: string) => parts.find(p => p.type === type)!.value;
   return `${get('year')}-${get('month')}-${get('day')}`;
 }
+export const MONTH_NAMES: readonly string[] = Object.freeze([
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+]);
 const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 /** Days in a month (1-12) of the proleptic Gregorian calendar, as JavaScript dates use. */
 function daysInMonth(year: number, month: number): number {

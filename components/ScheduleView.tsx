@@ -1,6 +1,8 @@
 'use client';
 import { ModalA11y } from '@/components/ui/ModalA11y';
 import {useAttendanceActions} from '@/hooks/use-attendance-actions';
+import { useBeltOrder } from '@/hooks/use-belt-order';
+import { rowsForStudent } from '@/lib/attendance-index';
 
 import { dialogMotion } from '@/lib/motion';
 import { academyDate } from '@/lib/dates';
@@ -1194,6 +1196,7 @@ export function ScheduleView() {
 // Enrollment Sub-component with Multi-Select Batch Actions & Rich Analytics
 function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, initialTab: 'unenrolled' | 'enrolled', onClose: () => void }) {
   const attendanceActions=useAttendanceActions();
+  const BELTS = useBeltOrder();
   const { state, enrollStudent, unenrollStudent, batchEnrollStudents, showConfirm, showNotification } = useAppStore();
   const t = useT();
 
@@ -1208,7 +1211,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
   const [turnoutSort, setTurnoutSort] = useState<'default' | 'turnout-asc' | 'turnout-desc'>('default');
 
   const getStudentAttendanceStats = React.useCallback((studentId: string) => {
-    const studentRecords = state.attendanceRecords.filter(r => r.studentId === studentId && r.classId === classId);
+    const studentRecords = rowsForStudent(state.attendanceRecords, studentId).filter(r => r.classId === classId);
     const total = studentRecords.length;
     if (total === 0) return null;
     const attended = studentRecords.filter(r => r.status === 'Present' || r.status === 'Late').length;
@@ -1358,7 +1361,6 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
   };
 
   const capacityPct = classObj && classObj.capacity > 0 ? Math.min(100, Math.round((enrolledCount / classObj.capacity) * 100)) : 0;
-  const BELTS = ['White', 'Yellow', 'Green', 'Blue', 'Brown', 'Red', '1st Poom/Dan', '2nd Poom/Dan', '3rd Poom/Dan'];
 
   return (
     <div className="fixed inset-0 bg-neutral-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200 overflow-y-auto">

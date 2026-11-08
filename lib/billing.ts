@@ -61,11 +61,22 @@ export function tuitionAmount(scholarship:Scholarship|undefined,config:TuitionSe
   const discount=early ? 0 : Math.max(0,Math.min(100,scholarship?.discountPercentage || 0));
   return discountedUsd(base,discount);
 }
+/** Same wording as invoice timing (lib/invoice-status.ts): a cycle is "Overdue" only after the late-payment grace. */
+export type MembershipBillingStatus='Current'|'Due Soon'|'Due today'|'Within grace'|'Overdue';
+export interface MembershipBillingSummary {status:MembershipBillingStatus;nextRenewalDate:string;daysRemaining:number;amountOwed:number}
+/** Short timing text for a billing summary, e.g. "Due in 3d", "Due today", "2d late, within grace", "9d overdue". */
+export function membershipDueText(billing:Pick<MembershipBillingSummary,'status'|'daysRemaining'>):string {
+ const late=Math.max(0,-billing.daysRemaining);
+ if(billing.status==='Overdue')return `${late}d overdue`;
+ if(billing.status==='Within grace')return `${late}d late, within grace`;
+ if(billing.status==='Due today')return 'Due today';
+ return `Due in ${billing.daysRemaining}d`;
+}
 export function membershipBilling(
  student:BillingStudent,
  payments:{studentId:string;year:number;month:string;status:string}[],
  scholarships:Scholarship[],enrollments:{studentId:string;enrollmentDate?:string}[],config:TuitionSettings={},now=new Date()
-):{status:'Current'|'Due Soon'|'Overdue';nextRenewalDate:string;daysRemaining:number;amountOwed:number} {
+):MembershipBillingSummary {
  const base=billingBaseDate(student,enrollments);
  const amount=tuitionAmount(scholarships.find(s=>s.id===student.scholarshipId),config);
  if(!base || !isCalendarDate(base))return {status:'Overdue',nextRenewalDate:'-',daysRemaining:0,amountOwed:amount};
@@ -86,7 +97,10 @@ export function membershipBilling(
    const cycleEnd=billingDueDate(student,enrollments,calendarDate(Math.floor((index+1)/12),(index+1)%12,1).slice(0,7));
    const paused=student.membershipPauses?.some(pause=>!pause.voidedAt&&pause.startDate<=due&&pause.resumeDate>=cycleEnd);
    if(invoice?.balance===0||(!invoice&&paused))continue;
-   if(!settled.has(`${Math.floor(index/12)}-${names[index%12]}`))return {status:'Overdue',nextRenewalDate:due,daysRemaining:0-daysBetween(due,today),amountOwed:invoice?.balance??amount};
+   if(!settled.has(`${Math.floor(index/12)}-${names[index%12]}`)){
+    const late=daysBetween(due,today),grace=Math.max(0,config.latePaymentGraceDays??0);
+    return {status:late<=0?'Due today':late<=grace?'Within grace':'Overdue',nextRenewalDate:due,daysRemaining:0-late,amountOwed:invoice?.balance??amount};
+   }
  }
  const remaining=daysBetween(today,next);
  return {status:remaining<=(config.renewalReminderDays??5)?'Due Soon':'Current',nextRenewalDate:next,daysRemaining:remaining,amountOwed:amount};

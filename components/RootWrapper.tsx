@@ -1,8 +1,17 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
-import { PortalLayout } from '@/components/PortalLayout';
+import { BrandSplash } from '@/components/ui/States';
+
+// The portal frame (navigation, notifications, install and diagnostics panels) is not needed to
+// sign in, so it loads in its own chunk the first time a portal page opens. Client-only like the
+// page views: server-rendered dynamic chunks are emitted without the CSP nonce and get blocked.
+const PortalLayout = dynamic(() => import('@/components/PortalLayout').then(module => module.PortalLayout), {
+  ssr: false,
+  loading: () => <BrandSplash message="Opening the portal…" />,
+});
 import { DataLists } from '@/components/DataLists';
 import { SystemNotificationModal } from '@/components/SystemNotificationModal';
 import { SystemConfirmModal } from '@/components/SystemConfirmModal';
