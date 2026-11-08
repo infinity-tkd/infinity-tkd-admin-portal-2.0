@@ -234,7 +234,8 @@ try {
   await reduced.page.getByRole('button', {name:'Edit',exact:true}).first().click();
   const reducedEditor=reduced.page.getByRole('dialog', {name:'Account editor',exact:true});
   await reducedEditor.waitFor();
-  const settings = await reducedEditor.evaluate(element => ({ duration:getComputedStyle(element).transitionDuration, transform:getComputedStyle(element).transform }));
+  // Skipped animations land on the next animation frame; measure after it rather than racing it.
+  const settings = await reducedEditor.evaluate(element => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve({ duration:getComputedStyle(element).transitionDuration, transform:getComputedStyle(element).transform })))));
   assert.equal(settings.duration,'0s');
   assert.equal(settings.transform,'none');
   await reduced.page.keyboard.press('Escape');

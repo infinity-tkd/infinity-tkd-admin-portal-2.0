@@ -5,6 +5,9 @@ import type { NextRequest } from 'next/server';
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const MAX_MIDDLEWARE_RATE_LIMIT_STORE = 5000;
 
+// Every request from one address together (the student portal's server forwards all students).
+const MAX_REQUESTS_PER_ADDRESS = 1200;
+
 function pruneExpiredMiddlewareLimits() {
   const now = Date.now();
   for (const [key, record] of rateLimitMap.entries()) {
@@ -12,6 +15,33 @@ function pruneExpiredMiddlewareLimits() {
       rateLimitMap.delete(key);
     }
   }
+}
+
+/**
+ * A short, non-secret bucket label for the caller's session. The student portal calls
+ * /api/portal/* from its own server, so all students share one address; keying the
+ * per-route limit by session stops one busy minute for the academy from blocking everyone.
+ */
+function sessionBucket(authorization: string | null): string {
+  if (!authorization) return 'anon';
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < authorization.length; index++) {
+    hash ^= authorization.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+/** Count one request against a window; returns the seconds to wait when the limit is reached. */
+function takeRateSlot(key: string, maxRequests: number, now: number, limitWindow = 60000): number | null {
+  const currentRecord = rateLimitMap.get(key);
+  if (!currentRecord || now > currentRecord.resetTime) {
+    rateLimitMap.set(key, { count: 1, resetTime: now + limitWindow });
+    return null;
+  }
+  if (currentRecord.count >= maxRequests) return Math.ceil((currentRecord.resetTime - now) / 1000);
+  currentRecord.count += 1;
+  return null;
 }
 
 export function middleware(request: NextRequest) {
@@ -92,34 +122,26 @@ export function middleware(request: NextRequest) {
       '127.0.0.1';
 
     const isAuthRoute = request.nextUrl.pathname.startsWith('/api/auth/');
-    const maxRequests = isAuthRoute ? 15 : 60; // 15 req/min for auth routes, 60 for general API
-    const limitWindow = 60000; // 1 minute window
+    const maxRequests = isAuthRoute ? 15 : 60; // 15 req/min per address for sign-in, 60 per route and session otherwise
 
     if (rateLimitMap.size > MAX_MIDDLEWARE_RATE_LIMIT_STORE) {
       pruneExpiredMiddlewareLimits();
     }
 
-    const key = `${ip}:${isAuthRoute ? 'auth' : request.nextUrl.pathname}`;
     const now = Date.now();
-    const currentRecord = rateLimitMap.get(key);
-
-    if (!currentRecord || now > currentRecord.resetTime) {
-      rateLimitMap.set(key, { count: 1, resetTime: now + limitWindow });
-    } else {
-      if (currentRecord.count >= maxRequests) {
-        return new NextResponse(
-          JSON.stringify({ error: 'Too Many Requests. Rate limit exceeded.' }),
-          {
-            status: 429,
-            headers: {
-              'Content-Type': 'application/json',
-              'Retry-After': String(Math.ceil((currentRecord.resetTime - now) / 1000)),
-            },
-          }
-        );
-      }
-      currentRecord.count += 1;
-      rateLimitMap.set(key, currentRecord);
+    const key = isAuthRoute ? `${ip}:auth` : `${ip}:${request.nextUrl.pathname}:${sessionBucket(request.headers.get('authorization'))}`;
+    const retryAfter = takeRateSlot(`${ip}:all`, MAX_REQUESTS_PER_ADDRESS, now) ?? takeRateSlot(key, maxRequests, now);
+    if (retryAfter !== null) {
+      return new NextResponse(
+        JSON.stringify({ error: 'Too Many Requests. Rate limit exceeded.' }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': String(retryAfter),
+          },
+        }
+      );
     }
 
     // C. Validate Content-Type for state-mutating requests with payload
