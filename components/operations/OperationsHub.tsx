@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-const StudentPortalAdminPanel=dynamic(()=>import('@/components/student-portal-admin/StudentPortalAdminPanel').then(module=>module.StudentPortalAdminPanel),{loading:()=> <p role="status" className="text-sm text-neutral-500">Loading student portal preparation…</p>});
+const StudentPortalAdminPanel=dynamic(()=>import('@/components/student-portal-admin/StudentPortalAdminPanel').then(module=>module.StudentPortalAdminPanel),{ssr:false,loading:()=> <p role="status" className="text-sm text-neutral-500">Loading student portal preparation…</p>});
 import { useSearchParams } from 'next/navigation';
 import { useAppStore } from '@/lib/store';
 import { TodayPanel } from './TodayPanel';
