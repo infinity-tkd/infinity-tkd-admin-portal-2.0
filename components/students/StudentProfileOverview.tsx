@@ -30,6 +30,7 @@ import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
 import { ArrowSquareOut } from '@phosphor-icons/react/dist/csr/ArrowSquareOut';
 import { FileText } from '@phosphor-icons/react/dist/csr/FileText';
 import { cn, formatBeltLocalized } from '@/lib/utils';
+import { RankingOptOutToggle } from './RankingOptOutToggle';
 
 import { supabase } from '@/lib/supabase';
 import { studentPasswordResetUrl } from '@/lib/student-portal-url';
@@ -830,6 +831,8 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                       }
                     })()}
                   </div>
+
+                  <RankingOptOutToggle student={student} />
 
                   {/* Card 6: Administrative Notes */}
                   <div className="bg-neutral-50/50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] p-4 md:p-5 rounded-[8px] space-y-3">

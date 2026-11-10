@@ -37,6 +37,8 @@ function requestPermission(req: Request): PermissionKey | undefined {
   const read = req.method === 'GET';
   if (path === '/api/admin/branches/hours') return read ? 'page:settings' : 'action:staff_manage';
   if (path === '/api/belt-tests') return 'action:evaluations_grade';
+  if (path === '/api/admin/students/ranking-opt-out') return 'action:student_edit';
+  if (path === '/api/admin/library-assets/layout') return read ? 'page:library' : 'action:curriculum_edit';
   if (path.includes('/admin/staff-dan')) return read ? 'page:staff' : 'action:staff_manage';
   const actions: Record<string, PermissionKey> = {
     'create-student': 'action:student_create', 'update-student': 'action:student_edit',

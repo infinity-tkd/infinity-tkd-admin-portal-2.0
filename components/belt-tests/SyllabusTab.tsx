@@ -11,7 +11,7 @@ interface DraftItem { key: string; title: string; libraryAssetId: number | null;
 interface DraftSection { key: string; kind: SectionKind; title: string; weight: number; minimum: number | null; items: DraftItem[] }
 interface Draft {
   id?: string; revision?: number; targetBeltId: number; track: 'color' | 'kukkiwon'; title: string;
-  passMark: number; distinctionMark: number; sectionMinimum: number; criticalMinimum: number; retestDays: number;
+  passMark: number; distinctionMark: number; sectionMinimum: number; criticalMinimum: number; retestDays: number; feeUsd: number;
   eligibility: { minimumDays: number; minimumClasses: number; minimumSkillAverage: number; requireLessons: boolean }; notes: string; sections: DraftSection[];
 }
 const key = () => crypto.randomUUID();
@@ -23,7 +23,7 @@ function draftFrom(belt: BeltRow, source?: SyllabusDetail): Draft {
     const s = source.syllabus;
     return { targetBeltId: belt.id, track, title: s.title, passMark: s.pass_mark ?? defaults?.passMark ?? 70, distinctionMark: s.distinction_mark ?? DEFAULT_SCORING_RULES.distinctionMark,
       sectionMinimum: s.section_minimum ?? DEFAULT_SCORING_RULES.sectionMinimum, criticalMinimum: s.critical_minimum ?? DEFAULT_SCORING_RULES.criticalMinimum, retestDays: s.retest_days ?? DEFAULT_SCORING_RULES.retestDays,
-      eligibility: { ...s.eligibility }, notes: s.notes,
+      feeUsd: Number(s.fee_usd ?? 0), eligibility: { ...s.eligibility }, notes: s.notes,
       sections: source.sections.map(section => ({ key: key(), kind: section.kind, title: section.title, weight: section.weight ?? 0, minimum: section.minimum,
         items: source.items.filter(item => item.section_id === section.id).map(item => ({ key: key(), title: item.title, libraryAssetId: item.library_asset_id, weight: item.weight, critical: item.critical, guide: item.guide })) })) };
   }
@@ -32,7 +32,7 @@ function draftFrom(belt: BeltRow, source?: SyllabusDetail): Draft {
     ? SECTION_KINDS.slice(0, 4).map((section, index) => ({ key: key(), kind: section.kind, title: section.label, weight: weights[index], minimum: null, items: [] }))
     : [{ kind: 'poomsae' as const, title: 'Poomsae' }, { kind: 'skill' as const, title: 'Kyorugi (Sparring)' }, { kind: 'custom' as const, title: 'Kyukpa (Breaking)' }].map(section => ({ key: key(), ...section, weight: 0, minimum: null, items: [] }));
   return { targetBeltId: belt.id, track, title: track === 'color' ? `${belt.belt_name} belt test` : `Kukkiwon ${belt.belt_name} test`, passMark: defaults?.passMark ?? 70,
-    distinctionMark: DEFAULT_SCORING_RULES.distinctionMark, sectionMinimum: DEFAULT_SCORING_RULES.sectionMinimum, criticalMinimum: DEFAULT_SCORING_RULES.criticalMinimum, retestDays: DEFAULT_SCORING_RULES.retestDays,
+    distinctionMark: DEFAULT_SCORING_RULES.distinctionMark, sectionMinimum: DEFAULT_SCORING_RULES.sectionMinimum, criticalMinimum: DEFAULT_SCORING_RULES.criticalMinimum, retestDays: DEFAULT_SCORING_RULES.retestDays, feeUsd: 0,
     eligibility: { minimumDays: defaults?.minimumDays ?? 90, minimumClasses: defaults?.minimumClasses ?? 24, minimumSkillAverage: defaults?.minimumSkillAverage ?? 0, requireLessons: false }, notes: '', sections };
 }
 
@@ -48,6 +48,7 @@ function draftIssues(draft: Draft): string[] {
     if (Math.abs(total - 100) > 1e-9) issues.push(`Section weights add up to ${total}; they must add up to 100.`);
     if (draft.distinctionMark < draft.passMark) issues.push('The distinction mark must be at or above the pass mark.');
   }
+  if (!(draft.feeUsd >= 0 && draft.feeUsd <= 10000) || Math.abs(draft.feeUsd * 100 - Math.round(draft.feeUsd * 100)) > 1e-6) issues.push('Enter a test fee from 0 to 10000 USD (cents at most).');
   return issues;
 }
 
@@ -56,7 +57,7 @@ function payload(draft: Draft) {
   return {
     action: 'syllabus_save' as const, ...(draft.id ? { id: draft.id, revision: draft.revision } : {}), targetBeltId: draft.targetBeltId, title: draft.title.trim(),
     ...(color ? { passMark: draft.passMark, distinctionMark: draft.distinctionMark, sectionMinimum: draft.sectionMinimum, criticalMinimum: draft.criticalMinimum, retestDays: draft.retestDays } : {}),
-    eligibility: draft.eligibility, notes: draft.notes,
+    feeUsd: draft.feeUsd, eligibility: draft.eligibility, notes: draft.notes,
     sections: draft.sections.map(section => ({ kind: section.kind, title: section.title.trim(), ...(color ? { weight: Number(section.weight), minimum: section.minimum } : {}),
       items: section.items.map(item => ({ title: item.title.trim(), libraryAssetId: item.libraryAssetId, ...(color ? { weight: Number(item.weight), critical: item.critical } : {}), guide: item.guide })) })),
   };
@@ -117,6 +118,7 @@ function SyllabusReadOnly({ detail, canManage, actions }: { detail: SyllabusDeta
       <div className="flex gap-2"><Badge tone={s.status === 'published' ? 'green' : 'neutral'}>{s.status === 'published' ? 'Published' : s.status === 'retired' ? 'Retired' : 'Draft'}</Badge>
         {canManage && s.status === 'published' && <button type="button" className={secondaryButton} disabled={actions.busy} onClick={() => void actions.run({ action: 'syllabus_retire', id: s.id }, 'Syllabus retired.')}>Retire</button>}</div></div>
     {color && <p className="text-xs text-neutral-600 dark:text-neutral-400">Pass {s.pass_mark}% · Distinction {s.distinction_mark}% · Each section ≥ {s.section_minimum}% · Critical items ≥ {s.critical_minimum}/10 · Retest within {s.retest_days} days</p>}
+    <p className="text-xs text-neutral-600 dark:text-neutral-400">Test fee: {s.fee_usd > 0 ? '$' + s.fee_usd.toFixed(2) + ' (tracked by the office; never blocks testing)' : 'none'}</p>
     <p className="text-xs text-neutral-600 dark:text-neutral-400">Eligibility: {s.eligibility.minimumDays} days at current belt · {s.eligibility.minimumClasses} classes · skill average ≥ {s.eligibility.minimumSkillAverage}{s.eligibility.requireLessons ? ' · linked library lessons completed' : ''}</p>
     {detail.sections.map(section => <section key={section.id} className="space-y-1">
       <h4 className="text-xs font-bold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">{section.title}{color ? ` · ${section.weight}%` : ''}{color && section.minimum != null ? ` · minimum ${section.minimum}%` : ''}</h4>
@@ -148,6 +150,9 @@ function SyllabusEditor({ belt, row, initial, actions, onSaved, onClose }: { bel
     <datalist id={libraryListId}>{library.map(entry => <option key={entry.id} value={entry.title} />)}</datalist>
     <div className="grid gap-3 sm:grid-cols-2">
       <Labeled label="Syllabus title" wide><input className={inputClass} value={draft.title} maxLength={160} onChange={event => setDraft({ ...draft, title: event.target.value })} /></Labeled>
+      <Labeled label="Test fee (USD, 0 = no fee)" hint="Copied onto each registration so the office can mark it paid or waived. It never blocks testing or promotion.">
+        <input className={inputClass} type="number" inputMode="decimal" min={0} max={10000} step={0.01} value={draft.feeUsd} onChange={event => setDraft({ ...draft, feeUsd: event.target.value === '' ? 0 : Number(event.target.value) })} />
+      </Labeled>
       {color && <>
         <Labeled label="Pass mark (%)"><input className={inputClass} type="number" min={0} max={100} step={0.5} value={draft.passMark} onChange={event => setDraft({ ...draft, passMark: Number(event.target.value) })} /></Labeled>
         <Labeled label="Distinction mark (%)"><input className={inputClass} type="number" min={0} max={100} step={0.5} value={draft.distinctionMark} onChange={event => setDraft({ ...draft, distinctionMark: Number(event.target.value) })} /></Labeled>

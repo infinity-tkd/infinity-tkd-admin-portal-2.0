@@ -30,6 +30,31 @@ export const SECTION_KINDS: readonly { kind: SectionKind; label: string }[] = [
 
 /** Half-up rounding to 2 dp without binary-float drift (matches PostgreSQL numeric round for positive values). */
 export const round2 = (value: number) => Math.round(Number((value * 100).toFixed(6))) / 100;
+/** Half-up rounding to 1 dp, as above. */
+export const round1 = (value: number) => Math.round(Number((value * 10).toFixed(6))) / 10;
+
+export interface ExaminerScore { item_id: string; score: number; scored_by: string }
+/**
+ * Panel score of each item for one candidate (mirrors public.portal_belt_test_item_scores):
+ * the average of the examiners' scores, rounded to one decimal. With a panel only its
+ * examiners count, and an item counts once every one of them has scored it; without a
+ * panel every score counts. Items not yet complete are left out.
+ */
+export function panelItemScores(rows: readonly ExaminerScore[], panel: readonly string[] = []): Record<string, number> {
+  const members = new Set(panel), byItem = new Map<string, number[]>();
+  for (const row of rows) {
+    if (members.size && !members.has(row.scored_by)) continue;
+    const values = byItem.get(row.item_id) ?? [];
+    values.push(Number(row.score));
+    byItem.set(row.item_id, values);
+  }
+  const scores: Record<string, number> = {};
+  for (const [item, values] of byItem) {
+    if (members.size && values.length < members.size) continue;
+    scores[item] = round1(values.reduce((sum, value) => sum + value, 0) / values.length);
+  }
+  return scores;
+}
 
 export function sectionGrade(percent: number): SectionGrade {
   return percent >= 90 ? 'A' : percent >= 80 ? 'B' : percent >= 70 ? 'C' : percent >= 60 ? 'D' : 'F';

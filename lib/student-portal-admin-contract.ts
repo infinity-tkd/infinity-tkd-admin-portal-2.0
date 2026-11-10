@@ -63,6 +63,9 @@ export function readinessReviewIssues(draft: ReadinessDraft): string[] {
   return issues;
 }
 
-export function rankingReviewIssues(draft: RankingDraft): string[] {
-  return [...(!draft.entries.length ? ['Add the reviewed athletes before requesting publication approval.'] : []), ...(draft.entries.some(entry => !entry.consent_reference) ? ['Every athlete needs a genuine consent/evidence reference before publication.'] : [])];
+/** `optedOut`: students hidden from rankings (students.ranking_opt_out), who must not be published. */
+export function rankingReviewIssues(draft: RankingDraft, optedOut: ReadonlySet<string> = new Set()): string[] {
+  const hidden = draft.entries.filter(entry => optedOut.has(entry.student_id));
+  return [...(!draft.entries.length ? ['Add the reviewed athletes before requesting publication approval.'] : []), ...(draft.entries.some(entry => !entry.consent_reference) ? ['Every athlete needs a genuine consent/evidence reference before publication.'] : []),
+    ...(hidden.length ? [`${hidden.map(entry => entry.display_name).join(', ')} opted out of rankings; remove ${hidden.length === 1 ? 'this athlete' : 'these athletes'} before publishing.`] : [])];
 }
