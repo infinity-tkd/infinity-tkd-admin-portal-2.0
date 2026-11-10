@@ -33,7 +33,8 @@ export function LessonOrderDialog({ onClose }: { onClose: () => void }) {
   }, []);
   useEffect(() => { void load(); }, [load]);
 
-  const belts = useMemo(() => [...new Set((rows ?? []).map(row => row.targetLevel).filter(Boolean))].sort((a, b) => beltRank(a) - beltRank(b) || a.localeCompare(b)), [rows]);
+  // Lessons with no belt yet have no belt order to set.
+  const belts = useMemo(() => [...new Set((rows ?? []).map(row => row.targetLevel).filter(level => level && level !== 'Unassigned'))].sort((a, b) => beltRank(a) - beltRank(b) || a.localeCompare(b)), [rows]);
   useEffect(() => { if (!belt && belts.length) setBelt(belts[0]); }, [belt, belts]);
   // Reset the working order whenever the belt or the saved data changes.
   useEffect(() => {

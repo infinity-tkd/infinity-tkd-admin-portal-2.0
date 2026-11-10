@@ -56,6 +56,7 @@ import { LessonMediaPlayer } from './library/LessonMediaPlayer';
 import { Portal } from '@/components/Portal';
 import { useT } from '@/hooks/useTranslation';
 import dynamic from 'next/dynamic';
+import { CategoryIcon, useLibraryCategories } from '@/components/library/library-categories';
 
 
 
@@ -72,6 +73,8 @@ const LibraryAssetCreateDialog = dynamic(() => import('@/components/library/Libr
 const LibraryAssetDetailDialog = dynamic(() => import('@/components/library/LibraryAssetDetailDialog').then(module => module.LibraryAssetDetailDialog), { ssr: false, loading: () => <p role="status" className="p-4 text-sm text-neutral-500">Loading…</p> });
 const LibraryPublicationPanel = dynamic(() => import('@/components/library/LibraryPublicationPanel').then(module => module.LibraryPublicationPanel), { ssr: false });
 const LessonOrderDialog = dynamic(() => import('@/components/library/LessonOrderDialog').then(module => module.LessonOrderDialog), { ssr: false });
+const LibraryCategoryManager = dynamic(() => import('@/components/library/LibraryCategoryManager').then(module => module.LibraryCategoryManager), { ssr: false });
+const LessonContentEditor = dynamic(() => import('@/components/library/LessonContentEditor').then(module => module.LessonContentEditor), { ssr: false });
 
 export function LibraryView() {
   const { state, can, addCurriculumVideo, updateCurriculumVideo, deleteCurriculumVideo, addWorkoutTemplate, updateWorkoutTemplate, deleteWorkoutTemplate, showConfirm, showNotification } = useAppStore();
@@ -84,6 +87,12 @@ export function LibraryView() {
   const [activeTab, setActiveTab] = useState<'tkd' | 'fitness' | 'dance' | 'routines'>('tkd');
   const [showPublicationPanel, setShowPublicationPanel] = useState(false);
   const [showLessonOrder, setShowLessonOrder] = useState(false);
+  const [showCategories, setShowCategories] = useState(false);
+  const [contentAssetId, setContentAssetId] = useState<number | null>(null);
+  // Library categories staff manage in Library → Categories (filter, card label).
+  const libraryCategories = useLibraryCategories(activeTab !== 'routines');
+  const [selectedLibraryCategory, setSelectedLibraryCategory] = useState<string>('All');
+  const categoryById = useMemo(() => new Map((libraryCategories.categories ?? []).map(category => [category.id, category])), [libraryCategories.categories]);
   const [isSaving, setIsSaving] = useState(false);
   const saveLock = useRef(false);
   const guardedSave = async (event: React.FormEvent, save: (event: React.FormEvent) => Promise<void>) => {
@@ -101,7 +110,7 @@ export function LibraryView() {
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('All');
   const [selectedRoutineType, setSelectedRoutineType] = useState<string>('All');
   const managedWorkouts = useManagedWorkouts(isElevated && activeTab === 'routines', searchQuery);
-  useEffect(() => { setVisibleAssetCount(24); }, [activeTab, searchQuery, selectedBelt, selectedSubCategory]);
+  useEffect(() => { setVisibleAssetCount(24); }, [activeTab, searchQuery, selectedBelt, selectedSubCategory, selectedLibraryCategory]);
 
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
@@ -329,6 +338,8 @@ export function LibraryView() {
 
     // Belt / Level match (TKD only)
     if (activeTab === 'tkd' && selectedBelt !== 'All' && video.minBeltLevel !== selectedBelt) return false;
+    // Library category (Library → Categories); "none" finds lessons not filed yet.
+    if (selectedLibraryCategory !== 'All' && (selectedLibraryCategory === 'none' ? !!video.categoryId : video.categoryId !== selectedLibraryCategory)) return false;
 
     // Subcategory match
     if (selectedSubCategory !== 'All') {
@@ -673,6 +684,7 @@ export function LibraryView() {
         actions={(isElevated || activeTab !== 'routines') ? <>
           {isElevated && <button type="button" onClick={() => setShowPublicationPanel(true)} className={buttonClass()}>Student library</button>}
           {isElevated && <button type="button" onClick={() => setShowLessonOrder(true)} className={buttonClass()}>Lesson order</button>}
+          {isElevated && <button type="button" onClick={() => setShowCategories(true)} className={buttonClass()}>Categories</button>}
           {isElevated && activeTab !== 'routines' && (
             <button type="button" onClick={() => {
               setNewAsset(prev => ({
@@ -815,6 +827,17 @@ export function LibraryView() {
                >
                  <option value="All" className="text-black dark:text-white dark:bg-neutral-900">{t('lib_all_belts')}</option>
                  {BELTS.slice(1).map(b => <option key={b} value={b} className="text-black dark:text-white dark:bg-neutral-900">{t(getBeltTranslationKey(b))}</option>)}
+                 <option value="Unassigned" className="text-black dark:text-white dark:bg-neutral-900">No belt yet</option>
+               </select>
+             )}
+
+             {(libraryCategories.categories?.length ?? 0) > 0 && (
+               <select aria-label="Library category" value={selectedLibraryCategory} onChange={(e) => setSelectedLibraryCategory(e.target.value)}
+                 className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 text-xs rounded-[8px] px-3.5 h-11 min-h-[44px] focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 font-semibold cursor-pointer shadow-sm"
+               >
+                 <option value="All" className="text-black dark:text-white dark:bg-neutral-900">All library categories</option>
+                 {libraryCategories.categories!.map(category => <option key={category.id} value={category.id} className="text-black dark:text-white dark:bg-neutral-900">{category.title}</option>)}
+                 <option value="none" className="text-black dark:text-white dark:bg-neutral-900">No category yet</option>
                </select>
              )}
 
@@ -976,7 +999,7 @@ export function LibraryView() {
                   {/* Belt label badge (TKD only) */}
                   {activeTab === 'tkd' && (
                     <span className="absolute top-3 right-3 px-2 py-0.5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-[6px] text-[9px] font-bold uppercase tracking-wider text-[#EF2F38]">
-                      {video.minBeltLevel}
+                      {video.minBeltLevel === 'Unassigned' ? 'No belt yet' : video.minBeltLevel}
                     </span>
                   )}
 
@@ -999,10 +1022,19 @@ export function LibraryView() {
                     <h3 className="text-sm font-bold text-neutral-900 dark:text-white group-hover:text-[#EF2F38] dark:group-hover:text-[#EF2F38] transition-colors leading-tight">
                       <button type="button" onClick={(e) => { e.stopPropagation(); setSelectedDetailAsset(video); }} className="text-left rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EF2F38]">{video.title}</button>
                     </h3>
+                    {(() => {
+                      const category = video.categoryId ? categoryById.get(video.categoryId) : undefined;
+                      if (!category && !video.koreanName && video.contentKind !== 'article') return null;
+                      return <p className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] font-semibold text-neutral-500 dark:text-neutral-400">
+                        {category && <span className="inline-flex items-center gap-1" style={{ color: category.accentColor }}><CategoryIcon name={category.icon} className="size-3" />{category.title}</span>}
+                        {video.contentKind === 'article' && <span className="rounded-[4px] border border-neutral-300 px-1 uppercase tracking-wider dark:border-neutral-700">Article</span>}
+                        {video.koreanName && <span lang="ko">{video.koreanName}</span>}
+                      </p>;
+                    })()}
                     {(testUsage.byAsset.get(video.id) ?? []).length > 0 && <ul aria-label="Used in belt tests" className="mt-1.5 flex flex-wrap gap-1">{[...new Map((testUsage.byAsset.get(video.id) ?? []).map(use => [use.syllabusId, use])).values()].map(use => <li key={use.syllabusId}
                       className={cn('rounded-[4px] border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider', use.status === 'published' ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' : 'border-neutral-300 bg-neutral-100 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300')}
                       title={`: ${use.item}`}>{use.status === 'published' ? '' : 'Draft '}{use.track === 'kukkiwon' ? 'Kukkiwon ' : ''}{use.targetBelt} test</li>)}</ul>}
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed mt-2 line-clamp-3">{details.text || 'No description provided.'}</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed mt-2 line-clamp-3">{details.text || video.summary || 'No description provided.'}</p>
 
                     {/* Focus Zones tags preview */}
                     {details.focusZones && details.focusZones.length > 0 && (
@@ -1112,6 +1144,8 @@ export function LibraryView() {
       </AnimatePresence>
 
       {showLessonOrder && <LessonOrderDialog onClose={() => setShowLessonOrder(false)} />}
+      {showCategories && <LibraryCategoryManager onClose={() => setShowCategories(false)} onChanged={() => void libraryCategories.reload()} />}
+      {contentAssetId !== null && <LessonContentEditor assetId={contentAssetId} onClose={() => setContentAssetId(null)} />}
       {showPublicationPanel && <LibraryPublicationPanel onClose={() => setShowPublicationPanel(false)} onOpenMaterial={id => { const material = state.curriculumVideos.find(row => row.id === id); if (material) { setShowPublicationPanel(false); setSelectedDetailAsset(material); } else showNotification('Refresh the library before reviewing this lesson.', 'warning'); }} />}
       {/* --- ADD ASSET MODAL DIALOG --- */}
       <AnimatePresence>
@@ -1138,7 +1172,7 @@ export function LibraryView() {
       </AnimatePresence>
       {/* --- EXERCISE DETAIL & EDIT MODAL DIALOG --- */}
       <AnimatePresence>
-        {selectedDetailAsset && <LibraryAssetDetailDialog isSaving={isSaving} editAsset={editAsset} handleSaveEditAsset={event => guardedSave(event, handleSaveEditAsset)} t={t} setEditAsset={setEditAsset} activeTab={(editAsset?.kind || activeTab) as typeof activeTab} editMuscleDropdownRef={editMuscleDropdownRef} editMuscleSearch={editMuscleSearch} setEditMuscleSearch={setEditMuscleSearch} setShowEditMuscleDropdown={setShowEditMuscleDropdown} setEditActiveMuscleIdx={setEditActiveMuscleIdx} showEditMuscleDropdown={showEditMuscleDropdown} state={state} editActiveMuscleIdx={editActiveMuscleIdx} editSelectedMuscles={editSelectedMuscles} setEditSelectedMuscles={setEditSelectedMuscles} editInstructionSteps={editInstructionSteps} setDraggedIndex={setDraggedIndex} draggedIndex={draggedIndex} setEditInstructionSteps={setEditInstructionSteps} editFitnessSolutionsDropdownRef={editFitnessSolutionsDropdownRef} editFitnessSearch={editFitnessSearch} setEditFitnessSearch={setEditFitnessSearch} setShowEditFitnessDropdown={setShowEditFitnessDropdown} showEditFitnessDropdown={showEditFitnessDropdown} editSelectedFitnessSolutions={editSelectedFitnessSolutions} setEditSelectedFitnessSolutions={setEditSelectedFitnessSolutions} editPrerequisiteSteps={editPrerequisiteSteps} setEditPrerequisiteSteps={setEditPrerequisiteSteps} editPrincipleSteps={editPrincipleSteps} setEditPrincipleSteps={setEditPrincipleSteps} editDrillingSteps={editDrillingSteps} setEditDrillingSteps={setEditDrillingSteps} editMistakeSteps={editMistakeSteps} setEditMistakeSteps={setEditMistakeSteps} editPerformanceSteps={editPerformanceSteps} setEditPerformanceSteps={setEditPerformanceSteps} editTerminologyList={editTerminologyList} setEditTerminologyList={setEditTerminologyList} editStudyGuideList={editStudyGuideList} setEditStudyGuideList={setEditStudyGuideList} selectedDetailAsset={selectedDetailAsset} setSelectedDetailAsset={setSelectedDetailAsset} setSelected3DAsset={setSelected3DAsset} setShow3DStudio={setShow3DStudio} anatomicalGender={anatomicalGender} show3DStudio={show3DStudio} expandedStudyGuides={expandedStudyGuides} toggleStudyGuide={toggleStudyGuide} isElevated={isElevated} confirmDeleteVideo={confirmDeleteVideo} handleStartEdit={handleStartEdit} />}
+        {selectedDetailAsset && <LibraryAssetDetailDialog isSaving={isSaving} editAsset={editAsset} handleSaveEditAsset={event => guardedSave(event, handleSaveEditAsset)} t={t} setEditAsset={setEditAsset} activeTab={(editAsset?.kind || activeTab) as typeof activeTab} editMuscleDropdownRef={editMuscleDropdownRef} editMuscleSearch={editMuscleSearch} setEditMuscleSearch={setEditMuscleSearch} setShowEditMuscleDropdown={setShowEditMuscleDropdown} setEditActiveMuscleIdx={setEditActiveMuscleIdx} showEditMuscleDropdown={showEditMuscleDropdown} state={state} editActiveMuscleIdx={editActiveMuscleIdx} editSelectedMuscles={editSelectedMuscles} setEditSelectedMuscles={setEditSelectedMuscles} editInstructionSteps={editInstructionSteps} setDraggedIndex={setDraggedIndex} draggedIndex={draggedIndex} setEditInstructionSteps={setEditInstructionSteps} editFitnessSolutionsDropdownRef={editFitnessSolutionsDropdownRef} editFitnessSearch={editFitnessSearch} setEditFitnessSearch={setEditFitnessSearch} setShowEditFitnessDropdown={setShowEditFitnessDropdown} showEditFitnessDropdown={showEditFitnessDropdown} editSelectedFitnessSolutions={editSelectedFitnessSolutions} setEditSelectedFitnessSolutions={setEditSelectedFitnessSolutions} editPrerequisiteSteps={editPrerequisiteSteps} setEditPrerequisiteSteps={setEditPrerequisiteSteps} editPrincipleSteps={editPrincipleSteps} setEditPrincipleSteps={setEditPrincipleSteps} editDrillingSteps={editDrillingSteps} setEditDrillingSteps={setEditDrillingSteps} editMistakeSteps={editMistakeSteps} setEditMistakeSteps={setEditMistakeSteps} editPerformanceSteps={editPerformanceSteps} setEditPerformanceSteps={setEditPerformanceSteps} editTerminologyList={editTerminologyList} setEditTerminologyList={setEditTerminologyList} editStudyGuideList={editStudyGuideList} setEditStudyGuideList={setEditStudyGuideList} selectedDetailAsset={selectedDetailAsset} setSelectedDetailAsset={setSelectedDetailAsset} setSelected3DAsset={setSelected3DAsset} setShow3DStudio={setShow3DStudio} anatomicalGender={anatomicalGender} show3DStudio={show3DStudio} expandedStudyGuides={expandedStudyGuides} toggleStudyGuide={toggleStudyGuide} isElevated={isElevated} confirmDeleteVideo={confirmDeleteVideo} handleStartEdit={handleStartEdit} onEditContent={id => setContentAssetId(id)} />}
       </AnimatePresence>
 
 
