@@ -2,6 +2,8 @@
 
 From the admin portal team, 2026-11-07. Paste-ready brief for the student portal developers.
 
+> **Update 2026-11-10:** students can now request a place (coach approves), test fees are shown, and examiner panels exist on the admin side. The new optional fields and functions are in `docs/STUDENT_PORTAL_EXTRAS_HANDOFF_2026-11-10.md`; where this page says students do not self-register, that brief replaces it.
+
 ## What the academy now runs
 
 - **Color belts** (White → Yellow → Green → Blue → Brown → Red) are tested and **scored by the academy**. Each belt has a published syllabus with four sections (Physical Test, Taekwondo Skill Test, Poomsae Test, Acrobatic & Tricking Test), weighted to 100%. Coaches score every item 0–10; the result is Distinction, Pass, Retest or Not yet.
@@ -114,7 +116,7 @@ Students never receive item-level scores, examiner names, private notes, overrid
 
 ## Status values you may see
 
-`registration` / Kukkiwon `status`: `registered`, `scoring`, `finalized`, `promoted` (color); `nominated`, `submitted`, `passed`, `failed`, `certified`, `promoted` (Kukkiwon). Withdrawn candidates are omitted.
+`registration` / Kukkiwon `status`: `registered`, `scoring`, `finalized`, `promoted` (color); `nominated`, `submitted`, `passed`, `failed`, `certified`, `promoted` (Kukkiwon). Withdrawn candidates are omitted. Since 2026-11-10 `registration` can also be `requested` or `declined` (never in the Kukkiwon list).
 
 ## Belt names
 

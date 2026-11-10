@@ -4,12 +4,16 @@ import type { beltTestViewSchema } from './belt-test-contract';
 import { libraryUsageRows, studentTestRows } from './belt-test-links';
 
 type View = z.infer<typeof beltTestViewSchema>;
+/** Who is reading: head coaches and admins (managers) see every examiner's scores; other examiners see their own. */
+export interface BeltTestViewer { userId: string; manages: boolean }
+export const BELT_TEST_MANAGER_ROLES = ['Root', 'Super Root', 'Admin', 'Head Coach'] as const;
 const numeric = (value: unknown) => value == null ? null : Number(value);
 const asRows = <T>(result: { data: T[] | null; error: unknown }) => { if (result.error) throw result.error; return result.data ?? []; };
+const EVENT_COLUMNS = 'id,title,kind,exam_date,start_time,location,branch_id,target_belt_id,syllabus_id,published_at,cancelled_at,results_published_at,capacity,accepts_requests';
 
 /** Numeric columns arrive from PostgREST as strings; normalise once here. */
 function syllabusRow(row: Record<string, any>) {
-  return { ...row, pass_mark: numeric(row.pass_mark), distinction_mark: numeric(row.distinction_mark), section_minimum: numeric(row.section_minimum), critical_minimum: numeric(row.critical_minimum) };
+  return { ...row, pass_mark: numeric(row.pass_mark), distinction_mark: numeric(row.distinction_mark), section_minimum: numeric(row.section_minimum), critical_minimum: numeric(row.critical_minimum), fee_usd: Number(row.fee_usd ?? 0) };
 }
 async function syllabusDetail(client: SupabaseClient, id: string) {
   const syllabus = await client.from('belt_test_syllabi').select('*').eq('id', id).maybeSingle();
@@ -24,12 +28,12 @@ async function syllabusDetail(client: SupabaseClient, id: string) {
   };
 }
 
-export async function readBeltTests(client: SupabaseClient, view: View) {
+export async function readBeltTests(client: SupabaseClient, view: View, viewer?: BeltTestViewer) {
   if (view.view === 'overview') {
     const [belts, syllabi, events, candidates] = await Promise.all([
       client.from('belts').select('id,belt_name,belt_order,belt_type').order('belt_order'),
       client.from('belt_test_syllabi').select('*').order('target_belt_id').order('version', { ascending: false }).limit(200),
-      client.from('grading_events').select('id,title,kind,exam_date,start_time,location,branch_id,target_belt_id,syllabus_id,published_at,cancelled_at,results_published_at').not('syllabus_id', 'is', null).order('exam_date', { ascending: false }).limit(100),
+      client.from('grading_events').select(EVENT_COLUMNS).not('syllabus_id', 'is', null).order('exam_date', { ascending: false }).limit(100),
       client.from('grading_candidates').select('event_id,status,grading_events!inner(syllabus_id)').not('grading_events.syllabus_id', 'is', null).limit(5000),
     ]);
     const counts = new Map<string, Record<string, number>>();
@@ -69,20 +73,29 @@ export async function readBeltTests(client: SupabaseClient, view: View) {
     }
     return { entries };
   }
-  const event = await client.from('grading_events').select('id,title,kind,exam_date,start_time,location,branch_id,target_belt_id,syllabus_id,published_at,cancelled_at,results_published_at').eq('id', view.id).not('syllabus_id', 'is', null).maybeSingle();
+  const event = await client.from('grading_events').select(EVENT_COLUMNS).eq('id', view.id).not('syllabus_id', 'is', null).maybeSingle<Record<string, any>>();
   if (event.error) throw event.error;
   if (!event.data) throw Object.assign(new Error('The test day was not found.'), { code: 'P0002' });
   const detail = await syllabusDetail(client, event.data.syllabus_id);
   const belt = await client.from('belts').select('belt_name').eq('id', event.data.target_belt_id).maybeSingle();
   if (belt.error) throw belt.error;
-  const candidates = asRows(await client.from('grading_candidates').select('*,student:students(english_name,khmer_name,current_belt)').eq('event_id', view.id).order('registered_at'));
-  const scores = candidates.length ? asRows(await client.from('grading_item_scores').select('*').in('candidate_id', candidates.map(row => row.id))) : [];
-  const examinerIds = [...new Set(scores.map(row => row.scored_by))];
+  const [candidateResult, panelResult] = await Promise.all([
+    client.from('grading_candidates').select('*,student:students(english_name,khmer_name,current_belt)').eq('event_id', view.id).order('registered_at', { nullsFirst: false }).order('requested_at'),
+    client.from('grading_event_examiners').select('profile_id,added_at').eq('event_id', view.id).order('added_at'),
+  ]);
+  const candidates = asRows(candidateResult), panel = asRows(panelResult).map(row => row.profile_id as string);
+  // Without a known viewer (internal callers) nothing is hidden; examiners only ever see their own rows.
+  const manages = viewer ? viewer.manages : true;
+  let scoreQuery = client.from('grading_item_scores').select('*').in('candidate_id', candidates.map(row => row.id));
+  if (!manages && viewer) scoreQuery = scoreQuery.eq('scored_by', viewer.userId);
+  const scores = candidates.length ? asRows(await scoreQuery) : [];
+  const examinerIds = [...new Set([...panel, ...scores.map(row => row.scored_by)])];
   const examiners = examinerIds.length ? asRows(await client.from('profiles').select('id,display_name').in('id', examinerIds)) : [];
   return {
     ...detail, event: event.data, targetBelt: belt.data?.belt_name ?? '',
-    candidates: candidates.map(row => ({ ...row, overall_percent: numeric(row.overall_percent), score: numeric(row.score) })),
+    candidates: candidates.map(row => ({ ...row, overall_percent: numeric(row.overall_percent), score: numeric(row.score), fee_usd: numeric(row.fee_usd), fee_status: row.fee_status ?? 'none' })),
     scores: scores.map(row => ({ ...row, score: Number(row.score) })),
     examiners: Object.fromEntries(examiners.map(row => [row.id, row.display_name])),
+    panel, viewer: { userId: viewer?.userId ?? '', manages },
   };
 }

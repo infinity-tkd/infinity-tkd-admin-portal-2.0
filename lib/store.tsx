@@ -4,6 +4,7 @@ import { isCoachScore } from './physical-grades';
 import { academyProfileChanges } from '@/lib/academy-profile';
 import { createStudentPayload, updateStudentPayload } from './student-payload';
 import { readApiResponse, unwrapApiError } from './api-response';
+import { portalRequest } from './portal-api';
 import { normalizeTelegramUsername } from './contacts';
 import { clearAttendanceMark, clearAttendanceBatch, saveAttendanceBatch, attendanceRemovalIds, attendanceBatchPayload, isUnconfirmedAttendanceError, type AttendanceDraft } from './attendance-write';
 import { attendanceMarkKey, flagQueuedAttendance, loadQueuedAttendance, overlayQueuedAttendance, queueAttendanceMarks, queuedAttendanceFor, queuedMarkKey, removeQueuedAttendance, retryQueuedAttendance } from './attendance-queue';
@@ -175,6 +176,8 @@ export interface Student {
   statusReason?: string;
   statusChangedAt?: string;
   pauseEndDate?: string;
+  /** Hidden from the student portal's public leaderboards (staff or the student can switch it). */
+  rankingOptOut?: boolean;
   email?: string;
   phone?: string;
   telegramUsername?: string;
@@ -547,6 +550,7 @@ interface AppContextType {
   prepayInvoiceBulk: (studentId: string, prepayments: { year: number; month: string; amount: number }[]) => Promise<void>;
   addStudent: (student: Omit<Student, 'id' | 'registrationDate'>) => Promise<{ success: boolean; error?: string }>;
   updateStudent: (id: string, data: Partial<Student>) => Promise<void>;
+  setStudentRankingOptOut: (id: string, optOut: boolean) => Promise<boolean>;
   deleteStudent: (id: string) => Promise<void>;
   addBeltHistory: (history: Omit<BeltHistory, 'id'>) => Promise<void>;
   addBeltHistories: (histories: Omit<BeltHistory, 'id'>[]) => Promise<void>;
@@ -1041,6 +1045,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           statusReason: s.status_reason,
           statusChangedAt: s.status_changed_at,
           pauseEndDate: s.pause_end_date,
+          rankingOptOut: s.ranking_opt_out === true,
           email: s.email,
           phone: s.phone,
           telegramUsername: s.telegram_username || '',
@@ -1675,6 +1680,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (e: any) {
       const normalized = reportError(e, 'Failed to Register Student');
       return { success: false, error: normalized.message };
+    }
+  };
+
+  /** Leaderboard privacy is its own audited write (not part of the profile form). */
+  const setStudentRankingOptOut = async (id: string, optOut: boolean) => {
+    if (!can('action:student_edit')) { showNotification('You do not have permission to edit student records.', 'warning'); return false; }
+    try {
+      await portalRequest('/api/admin/students/ranking-opt-out', { studentId: id, optOut });
+      setState(s => ({ ...s, students: s.students.map(student => student.id === id ? { ...student, rankingOptOut: optOut } : student) }));
+      showNotification(optOut ? 'Hidden from student rankings.' : 'Shown in student rankings again.', 'success');
+      return true;
+    } catch (error) {
+      showNotification(error instanceof Error ? error.message : 'The ranking setting could not be saved.', 'error');
+      return false;
     }
   };
 
@@ -3038,6 +3057,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         prepayInvoiceBulk,
         addStudent,
         updateStudent,
+      setStudentRankingOptOut,
         deleteStudent,
         addBeltHistory,
         addBeltHistories,

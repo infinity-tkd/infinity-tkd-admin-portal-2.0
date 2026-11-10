@@ -31,7 +31,13 @@ export const beltTestsV1 = z.object({
   }).nullable(),
   upcoming: z.array(z.object({
     eventId: z.string().uuid(), title: z.string(), kind: z.enum(['color', 'kukkiwon']), date: z.string(), startTime: z.string().nullable(),
-    location: z.string().nullable(), branchName: z.string().nullable(), targetBelt: z.string(), registration: z.string().nullable(),
+    location: z.string().nullable(), branchName: z.string().nullable(), targetBelt: z.string(),
+    /** registered | scoring | finalized | promoted | nominated | … plus 'requested' (awaiting the coach) and 'declined'. */
+    registration: z.string().nullable(),
+    // Added 2026-11-10 (optional, so older readers keep parsing):
+    requestsOpen: z.boolean().optional(), requestDeadline: z.string().nullable().optional(), placesLeft: z.number().nullable().optional(),
+    canRequest: z.boolean().optional(), feeUsd: z.number().nullable().optional(), feeStatus: z.enum(['unpaid', 'paid', 'waived']).nullable().optional(),
+    declineReason: z.string().nullable().optional(),
   })),
   results: z.array(z.object({
     eventId: z.string().uuid(), title: z.string(), date: z.string(), targetBelt: z.string(), overallPercent: z.number().nullable(),

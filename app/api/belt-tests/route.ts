@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verifyCaller, validateRequestBody } from '@/lib/backend-security';
 import { beltTestRequestSchema, beltTestViewSchema } from '@/lib/belt-test-contract';
-import { readBeltTests } from '@/lib/belt-tests-read';
+import { BELT_TEST_MANAGER_ROLES, readBeltTests } from '@/lib/belt-tests-read';
 import { operationsError } from '@/lib/operations-errors';
 
 export const dynamic = 'force-dynamic';
@@ -27,7 +27,8 @@ export async function GET(req: Request) {
     if (!view.success || [...params.keys()].some(key => params.getAll(key).length !== 1)) {
       return NextResponse.json({ success: false, error: { message: 'Choose a belt test view.' } }, { status: 422, headers });
     }
-    const data = await readBeltTests(adminSupabase, view.data);
+    const manages = (BELT_TEST_MANAGER_ROLES as readonly string[]).includes(context.role);
+    const data = await readBeltTests(adminSupabase, view.data, { userId: context.userId, manages });
     return NextResponse.json({ success: true, data }, { headers });
   } catch (error) { return beltTestError(error); }
 }

@@ -71,6 +71,7 @@ const WorkoutRoutineEditor = dynamic(() => import('@/components/library/WorkoutR
 const LibraryAssetCreateDialog = dynamic(() => import('@/components/library/LibraryAssetCreateDialog').then(module => module.LibraryAssetCreateDialog), { ssr: false, loading: () => <p role="status" className="p-4 text-sm text-neutral-500">Loading…</p> });
 const LibraryAssetDetailDialog = dynamic(() => import('@/components/library/LibraryAssetDetailDialog').then(module => module.LibraryAssetDetailDialog), { ssr: false, loading: () => <p role="status" className="p-4 text-sm text-neutral-500">Loading…</p> });
 const LibraryPublicationPanel = dynamic(() => import('@/components/library/LibraryPublicationPanel').then(module => module.LibraryPublicationPanel), { ssr: false });
+const LessonOrderDialog = dynamic(() => import('@/components/library/LessonOrderDialog').then(module => module.LessonOrderDialog), { ssr: false });
 
 export function LibraryView() {
   const { state, can, addCurriculumVideo, updateCurriculumVideo, deleteCurriculumVideo, addWorkoutTemplate, updateWorkoutTemplate, deleteWorkoutTemplate, showConfirm, showNotification } = useAppStore();
@@ -82,6 +83,7 @@ export function LibraryView() {
   // Tabs: Taekwondo Technical vs Workout & Fitness vs Dance vs Routines
   const [activeTab, setActiveTab] = useState<'tkd' | 'fitness' | 'dance' | 'routines'>('tkd');
   const [showPublicationPanel, setShowPublicationPanel] = useState(false);
+  const [showLessonOrder, setShowLessonOrder] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const saveLock = useRef(false);
   const guardedSave = async (event: React.FormEvent, save: (event: React.FormEvent) => Promise<void>) => {
@@ -670,6 +672,7 @@ export function LibraryView() {
         description={t('lib_subtitle')}
         actions={(isElevated || activeTab !== 'routines') ? <>
           {isElevated && <button type="button" onClick={() => setShowPublicationPanel(true)} className={buttonClass()}>Student library</button>}
+          {isElevated && <button type="button" onClick={() => setShowLessonOrder(true)} className={buttonClass()}>Lesson order</button>}
           {isElevated && activeTab !== 'routines' && (
             <button type="button" onClick={() => {
               setNewAsset(prev => ({
@@ -1108,6 +1111,7 @@ export function LibraryView() {
         )}
       </AnimatePresence>
 
+      {showLessonOrder && <LessonOrderDialog onClose={() => setShowLessonOrder(false)} />}
       {showPublicationPanel && <LibraryPublicationPanel onClose={() => setShowPublicationPanel(false)} onOpenMaterial={id => { const material = state.curriculumVideos.find(row => row.id === id); if (material) { setShowPublicationPanel(false); setSelectedDetailAsset(material); } else showNotification('Refresh the library before reviewing this lesson.', 'warning'); }} />}
       {/* --- ADD ASSET MODAL DIALOG --- */}
       <AnimatePresence>

@@ -8,7 +8,9 @@ import { loadTs } from './load-ts.mjs';
 const { computeBeltTestResult } = loadTs('lib/belt-test-scoring.ts');
 const { beltTestsV1 } = loadTs('lib/belt-tests-student-contract.ts');
 const headCoach = '91000000-0000-4000-8000-000000000003';
-const migrations = ['20261101161201_role_permission_boundaries', '20261107090148_student_portal_data_requests', '20261107095953_belt_test_system'];
+// Includes the later extras migration, so the original flows are checked against what production runs.
+const migrations = ['20261101161201_role_permission_boundaries', '20261107090148_student_portal_data_requests', '20261107095953_belt_test_system',
+  '20261109063848_belt_test_foreign_key_indexes', '20261110062131_ranking_lesson_layout_belt_test_extras'];
 const mutate = async (db, action, data, actor = headCoach, key = randomUUID()) => (await db.query('SELECT portal_belt_tests_mutate($1,$2,$3,$4) AS result', [actor, action, data, key])).rows[0].result;
 const one = async (db, sql, params = []) => (await db.query(sql, params)).rows[0];
 

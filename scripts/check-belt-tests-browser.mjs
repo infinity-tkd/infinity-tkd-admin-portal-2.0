@@ -16,7 +16,7 @@ const u = n => `72000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
 
 const belts = ['White', 'Yellow', 'Green', 'Blue', 'Brown', 'Red', '1st Poom/Dan', '2nd Poom/Dan'].map((belt_name, index) => ({ id: index + 1, belt_name, belt_order: index + 1, belt_type: index < 6 ? 'color' : 'black' }));
 const colorSyllabus = { id: u(1), target_belt_id: 2, track: 'color', version: 1, title: 'Yellow belt test', status: 'published', revision: 1, pass_mark: 70, distinction_mark: 90, section_minimum: 60, critical_minimum: 5, retest_days: 30,
-  eligibility: { minimumDays: 60, minimumClasses: 16, minimumSkillAverage: 2, requireLessons: false }, notes: '', published_at: '2026-11-01T00:00:00Z', updated_at: '2026-11-01T00:00:00Z' };
+  eligibility: { minimumDays: 60, minimumClasses: 16, minimumSkillAverage: 2, requireLessons: false }, notes: '', published_at: '2026-11-01T00:00:00Z', updated_at: '2026-11-01T00:00:00Z', fee_usd: 25 };
 const blackSyllabus = { ...colorSyllabus, id: u(2), target_belt_id: 7, track: 'kukkiwon', title: 'Kukkiwon 1st Poom/Dan test', pass_mark: null, distinction_mark: null, section_minimum: null, critical_minimum: null, retest_days: null };
 const sections = [
   { id: u(11), syllabus_id: u(1), kind: 'physical', title: 'Physical Test', weight: 25, minimum: null, position: 0 },
@@ -34,12 +34,16 @@ const items = [
 ];
 const blackSections = [{ id: u(31), syllabus_id: u(2), kind: 'poomsae', title: 'Poomsae', weight: null, minimum: null, position: 0 }];
 const blackItems = [{ id: u(41), section_id: u(31), title: 'Koryo', library_asset_id: null, weight: 1, critical: false, guide: '', position: 0 }];
-const colorEvent = { id: u(51), title: 'Yellow belt test day', kind: 'color', exam_date: today, start_time: '09:00:00', location: 'Main hall', branch_id: null, target_belt_id: 2, syllabus_id: u(1), published_at: '2026-11-02T00:00:00Z', cancelled_at: null, results_published_at: null };
+const colorEvent = { id: u(51), title: 'Yellow belt test day', kind: 'color', exam_date: today, start_time: '09:00:00', location: 'Main hall', branch_id: null, target_belt_id: 2, syllabus_id: u(1), published_at: '2026-11-02T00:00:00Z', cancelled_at: null, results_published_at: null, capacity: 10, accepts_requests: true };
 const blackEvent = { ...colorEvent, id: u(52), title: 'Kukkiwon 1st Poom/Dan test', kind: 'kukkiwon', target_belt_id: 7, syllabus_id: u(2), location: 'CTF headquarters' };
 const candidate = { id: u(61), event_id: u(51), student_id: 'STU-M-001', status: 'registered', revision: 1, result: 'pending', overall_percent: null, section_results: null, retest_sections: [], retest_count: 0, public_feedback: '', registration_override_reason: null,
   eligibility_snapshot: null, withdrawn_reason: null, poom_or_dan: null, legal_name_en: null, legal_name_kh: null, dob: null, gender: null, previous_certificate_no: null, ctf_submitted_on: null, ctf_reference: null, external_result: null, certificate_no: null, certificate_date: null,
+  requested_at: null, registered_at: '2026-11-03T00:00:00Z', decided_at: null, decline_reason: null,
+  fee_usd: 25, fee_status: 'unpaid', fee_method: null, fee_reference: null, fee_paid_on: null, fee_waiver_reason: null, fee_recorded_at: null,
   student: { english_name: 'Fixture Athlete', khmer_name: 'Fixture', current_belt: 'White' } };
-const nominee = { ...candidate, id: u(62), event_id: u(52), student_id: 'STU-F-002', status: 'nominated', result: null, poom_or_dan: 'Poom', legal_name_en: '=CMD|Injected', legal_name_kh: 'Fixture', dob: '2014-03-01', gender: 'Female', student: { english_name: 'Fixture Junior', khmer_name: 'Fixture', current_belt: 'Red' } };
+const nominee = { ...candidate, id: u(62), event_id: u(52), student_id: 'STU-F-002', status: 'nominated', result: null, poom_or_dan: 'Poom', legal_name_en: '=CMD|Injected', legal_name_kh: 'Fixture', dob: '2014-03-01', gender: 'Female', fee_usd: null, fee_status: 'none', student: { english_name: 'Fixture Junior', khmer_name: 'Fixture', current_belt: 'Red' } };
+// A request made in the student portal, waiting for the head coach.
+const requested = { ...candidate, id: u(63), student_id: 'STU-F-004', status: 'requested', requested_at: '2026-11-04T00:00:00Z', registered_at: null, fee_usd: null, fee_status: 'none', student: { english_name: 'Fixture Requester', khmer_name: 'Fixture', current_belt: 'White' } };
 const scores = [];
 const posts = []; const errors = [];
 const eligibility = { students: [{ studentId: 'STU-M-003', englishName: 'Eligible Fixture', khmerName: 'Fixture', currentBelt: 'White', homeBranchId: 1,
@@ -55,7 +59,7 @@ try {
       if (url.pathname === '/api/auth/login') return json({ success: true, data: { access_token: token, refresh_token: 'test-refresh' } });
       if (url.pathname === '/api/belt-tests' && route.request().method() === 'GET') {
         const view = url.searchParams.get('view');
-        if (view === 'overview') return json({ success: true, data: { belts, syllabi: [colorSyllabus, blackSyllabus], events: [{ ...colorEvent, counts: { [candidate.status]: 1 } }, { ...blackEvent, counts: { nominated: 1 } }] } });
+        if (view === 'overview') return json({ success: true, data: { belts, syllabi: [colorSyllabus, blackSyllabus], events: [{ ...colorEvent, counts: { [candidate.status]: 1, [requested.status]: 1 } }, { ...blackEvent, counts: { nominated: 1 } }] } });
         if (view === 'syllabus') return json({ success: true, data: url.searchParams.get('id') === u(1) ? { syllabus: colorSyllabus, sections, items } : { syllabus: blackSyllabus, sections: blackSections, items: blackItems } });
         if (view === 'eligibility') return json({ success: true, data: eligibility });
         if (view === 'eligibility_all') return json({ success: true, data: { entries: {} } });
@@ -64,8 +68,8 @@ try {
         if (view === 'event') {
           const color = url.searchParams.get('id') === u(51);
           return json({ success: true, data: color
-            ? { syllabus: colorSyllabus, sections, items, event: colorEvent, targetBelt: 'Yellow', candidates: [candidate], scores, examiners: { [id]: 'Fixture Head Coach' } }
-            : { syllabus: blackSyllabus, sections: blackSections, items: blackItems, event: blackEvent, targetBelt: '1st Poom/Dan', candidates: [nominee], scores: [], examiners: {} } });
+            ? { syllabus: colorSyllabus, sections, items, event: colorEvent, targetBelt: 'Yellow', candidates: [candidate, requested], scores, examiners: { [id]: 'Fixture Head Coach' }, panel: [], viewer: { userId: id, manages: true } }
+            : { syllabus: blackSyllabus, sections: blackSections, items: blackItems, event: blackEvent, targetBelt: '1st Poom/Dan', candidates: [nominee], scores: [], examiners: {}, panel: [], viewer: { userId: id, manages: true } } });
         }
       }
       if (url.pathname === '/api/belt-tests' && route.request().method() === 'POST') {
@@ -77,7 +81,18 @@ try {
           return json({ success: true, data: { id: crypto.randomUUID(), revision: 1 } });
         }
         if (body.action === 'finalize') { Object.assign(candidate, { status: 'finalized', result: 'pass', overall_percent: 75.58, revision: candidate.revision + 1 }); return json({ success: true, data: { id: candidate.id, result: 'pass' } }); }
+        // The requester is no longer eligible: approval needs an override reason.
+        if (body.action === 'approve_request' && !body.overrideReason) return json({ success: false, error: { code: '22023', message: 'The student is no longer eligible. Record an override reason to approve anyway' } }, 422);
+        if (body.action === 'approve_request') { Object.assign(requested, { status: 'registered', registered_at: new Date().toISOString(), fee_usd: 25, fee_status: 'unpaid', revision: requested.revision + 1 }); return json({ success: true, data: { id: requested.id, status: 'registered' } }); }
+        if (body.action === 'fee_update') { Object.assign(candidate, { fee_status: body.status, fee_method: body.method ?? null, fee_paid_on: body.paidOn ?? null, revision: candidate.revision + 1 }); return json({ success: true, data: { id: candidate.id, feeStatus: body.status } }); }
         return json({ success: true, data: { id: body.id ?? body.candidateId ?? body.eventId ?? u(99) } });
+      }
+      if (url.pathname === '/api/admin/library-assets/layout') {
+        if (route.request().method() === 'POST') { posts.push({ action: 'layout', ...route.request().postDataJSON() }); return json({ success: true, data: { updated: 2 } }); }
+        return json({ success: true, data: { lessons: [
+          { assetId: 7, title: 'Taegeuk Il Jang', targetLevel: 'Yellow', libraryType: 'Taekwondo', isPublished: true, sortOrder: null, durationSeconds: null },
+          { assetId: 8, title: 'Arae Makki', targetLevel: 'Yellow', libraryType: 'Taekwondo', isPublished: false, sortOrder: null, durationSeconds: null },
+        ] } });
       }
       if (url.pathname.startsWith('/api/')) return json({ success: true, data: [] });
       return route.continue();
@@ -109,9 +124,32 @@ try {
   await page.getByText('Yellow belt test day', { exact: true }).waitFor();
   assert.ok(await page.getByText('Kukkiwon via CTF', { exact: true }).count() >= 1);
 
-  // Score sheet: live preview uses the shared scoring formula.
+  assert.ok(await page.getByText('1 request', { exact: true }).count() >= 1, 'pending student requests are flagged on the test day list');
+
+  // Student requests: the head coach approves one from the student portal.
   await page.getByText('Yellow belt test day', { exact: true }).click();
+  const requests = page.getByRole('region', { name: 'Student requests' });
+  await requests.getByText('Fixture Requester', { exact: false }).waitFor({ timeout: 15000 });
+  await requests.getByRole('button', { name: 'Approve', exact: true }).click();
+  const waitForPost = async (test, label) => { const until = Date.now() + 15000; while (!posts.some(test)) { if (Date.now() > until) throw new Error(`Timed out waiting for ${label}`); await new Promise(resolve => setTimeout(resolve, 100)); } };
+  const waitForAction = action => waitForPost(row => row.action === action, action);
+  // Rejected as no longer eligible: the panel asks for an override reason, then approves.
+  const override = requests.getByLabel('Reason to approve although no longer eligible');
+  await override.waitFor({ timeout: 15000 });
+  await override.fill('Assessed ready in class this week');
+  await requests.getByRole('button', { name: 'Approve', exact: true }).click();
+  await waitForPost(row => row.action === 'approve_request' && row.overrideReason === 'Assessed ready in class this week', 'approval with an override reason');
+  assert.ok(posts.some(row => row.action === 'approve_request' && row.id === u(63)), 'approval names the request');
+  await page.getByText('No panel: any coach with grading permission can score', { exact: false }).waitFor();
+
+  // Score sheet: live preview uses the shared scoring formula.
   await page.getByRole('button', { name: /Fixture Athlete/ }).click();
+  // Test fee: tracked only; recording a payment does not block scoring.
+  await page.getByText('Fee unpaid · $25', { exact: true }).waitFor({ timeout: 15000 });
+  await page.getByRole('button', { name: 'Update fee', exact: true }).click();
+  await page.getByRole('button', { name: 'Save fee', exact: true }).click();
+  await waitForAction('fee_update');
+  assert.ok(posts.some(row => row.action === 'fee_update' && row.status === 'paid' && row.method === 'Cash' && row.paidOn === today), 'fee recorded as paid in cash today');
   const values = { 'Push-ups': '8', 'Flexibility': '7', 'Ap Chagi': '8', 'Arae Makki': '7', 'Taegeuk Il Jang': '8', 'Cartwheel': '6' };
   const waitForPosts = async (action, count) => { const until = Date.now() + 15000; while (posts.filter(row => row.action === action).length < count) { if (Date.now() > until) throw new Error(`Timed out waiting for ${count} ${action} request(s)`); await new Promise(resolve => setTimeout(resolve, 100)); } };
   let saved = 0;
@@ -163,6 +201,18 @@ try {
   await page.getByText(/part of the published Yellow belt test syllabus/).first().waitFor();
   assert.equal(posts.some(row => row.action === 'DELETE'), false, 'no delete request is sent');
 
+  // Library: lesson order and video length for the student portal.
+  await page.goto(base + '/library', { waitUntil: 'networkidle', timeout: 120000 });
+  await page.getByRole('button', { name: 'Lesson order', exact: true }).click();
+  const lessonOrder = page.getByRole('dialog', { name: 'Lesson order' });
+  await lessonOrder.getByText('Arae Makki', { exact: true }).waitFor({ timeout: 15000 });
+  await lessonOrder.getByRole('button', { name: 'Move Taegeuk Il Jang up' }).click();
+  await lessonOrder.getByLabel('Video length for Taegeuk Il Jang').fill('4:05');
+  await lessonOrder.getByRole('button', { name: 'Save order', exact: true }).click();
+  await waitForAction('layout');
+  assert.deepEqual(posts.find(row => row.action === 'layout').lessons, [{ assetId: 7, sortOrder: 1, durationSeconds: 245 }, { assetId: 8, sortOrder: 2, durationSeconds: null }], 'positions follow the new order; 4:05 is 245 seconds');
+  await lessonOrder.getByRole('button', { name: 'Close', exact: true }).last().click();
+
   // LMS: the White track shows what the Yellow test covers and marks its lessons.
   await page.goto(base + '/lms', { waitUntil: 'networkidle', timeout: 120000 });
   const panel = page.getByRole('region', { name: /Yellow belt test · what is tested/ });
@@ -179,7 +229,7 @@ try {
   assert.ok(overflow <= 1, 'no horizontal scroll at 390px (' + overflow + 'px)');
 
   assert.deepEqual(errors, []);
-  console.log(JSON.stringify({ passed: true, scorePosts: scorePosts.length, finalized: true, csvExport: true, libraryBadge: true, deleteGuard: true, lmsNextTest: true, mobileOverflow: overflow, pageErrors: errors.length, liveWrites: 0 }));
+  console.log(JSON.stringify({ passed: true, requestApproved: true, approvalOverride: true, feeRecorded: true, scorePosts: scorePosts.length, finalized: true, csvExport: true, libraryBadge: true, deleteGuard: true, lessonOrder: true, lmsNextTest: true, mobileOverflow: overflow, pageErrors: errors.length, liveWrites: 0 }));
 } catch (error) {
   try { const pages = browser.contexts().flatMap(context => context.pages()); if (pages[0]) await pages[0].screenshot({ path: 'scratch/belt-tests-failure.png', fullPage: true }); } catch { /* screenshot is best effort */ }
   throw error;

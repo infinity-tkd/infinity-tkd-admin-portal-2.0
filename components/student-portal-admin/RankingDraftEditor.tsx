@@ -1,6 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { academyDate } from '@/lib/dates';
+import { useAppStore } from '@/lib/store';
 import { rankingDraftSchema, rankingReviewIssues, type RankingDraft } from '@/lib/student-portal-admin-contract';
 import { Field } from '@/components/operations/shared';
 import { PreparationDraftForm } from './PreparationDraftForm';
@@ -11,8 +12,10 @@ export function RankingDraftEditor({ initial, title: initialTitle = 'Season rank
   const today = academyDate();
   const [title, setTitle] = useState(initialTitle), [seasonStart, setStart] = useState(initial?.seasonStart ?? today.slice(0, 4) + '-01-01'), [seasonEnd, setEnd] = useState(initial?.seasonEnd ?? today), [notes, setNotes] = useState(initial?.reviewNotes ?? '');
   const [entries, setEntries] = useState<Entry[]>(initial?.entries ?? []), [error, setError] = useState('');
+  const { state } = useAppStore();
+  const optedOut = useMemo(() => new Set(state.students.filter(student => student.rankingOptOut).map(student => student.id)), [state.students]);
   const parsed = rankingDraftSchema.safeParse({ seasonStart, seasonEnd, methodology: 'medal_order', entries, reviewNotes: notes });
-  const issues = parsed.success ? rankingReviewIssues(parsed.data) : ['Complete the athlete fields before saving. Unknown medal counts must remain blank until reviewed.'];
+  const issues = parsed.success ? rankingReviewIssues(parsed.data, optedOut) : ['Complete the athlete fields before saving. Unknown medal counts must remain blank until reviewed.'];
   function change(index: number, patch: Partial<Entry>) { setEntries(current => current.map((entry, at) => at === index ? { ...entry, ...patch } : entry)); }
   return <PreparationDraftForm title="Private season ranking draft" busy={busy} onSubmit={async () => { if (!parsed.success) { setError(parsed.error.issues[0]?.message ?? 'Review the athlete entries.'); return false; } setError(''); return onSave('ranking', title, parsed.data); }}>
     <p className="text-xs text-neutral-500 sm:col-span-2">Prepare only reviewed season counts, the approved display identity and real consent references. Nothing is copied automatically from private student achievements, and this form cannot publish a leaderboard.</p>

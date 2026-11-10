@@ -38,7 +38,14 @@ export const CANDIDATE_STATUS: Record<string, { label: string; tone: 'neutral' |
   promoted: { label: 'Promoted', tone: 'green' }, withdrawn: { label: 'Withdrawn', tone: 'neutral' },
   nominated: { label: 'Nominated', tone: 'neutral' }, submitted: { label: 'Submitted to CTF', tone: 'blue' }, passed: { label: 'Passed at Kukkiwon', tone: 'green' },
   failed: { label: 'Not passed', tone: 'red' }, certified: { label: 'Certificate recorded', tone: 'amber' },
+  requested: { label: 'Requested', tone: 'blue' }, declined: { label: 'Declined', tone: 'neutral' },
 };
+/** Statuses that are not (yet) on the test day: pending or declined requests, and withdrawals. */
+export const OFF_ROSTER = new Set(['requested', 'declined', 'withdrawn']);
+export const FEE_LABEL: Record<string, { label: string; tone: 'neutral' | 'green' | 'amber' | 'blue' }> = {
+  none: { label: 'No fee', tone: 'neutral' }, unpaid: { label: 'Fee unpaid', tone: 'amber' }, paid: { label: 'Fee paid', tone: 'green' }, waived: { label: 'Fee waived', tone: 'blue' },
+};
+export const usd = (value: number | null | undefined) => value == null ? '' : '$' + Number(value).toFixed(2).replace(/\.00$/, '');
 export const RESULT_LABEL: Record<string, { label: string; tone: 'neutral' | 'green' | 'amber' | 'red' | 'blue' }> = {
   pending: { label: 'Pending', tone: 'neutral' }, distinction: { label: 'Distinction', tone: 'green' }, pass: { label: 'Pass', tone: 'green' },
   retest: { label: 'Retest', tone: 'amber' }, fail: { label: 'Not yet', tone: 'red' },

@@ -9,7 +9,13 @@ import { LESSON_TEXT_LIMIT } from './library-student-projection';
  * fields only. Returns null when the stored guidance fails the contract, so
  * the caller can report it instead of sending a lesson the student portal rejects.
  */
-export function studentLesson(row: Record<string, any>) {
+/**
+ * Lesson order and length (curriculum.sort_order / duration_seconds) join learning-v1 only when
+ * LEARNING_V1_LAYOUT_FIELDS=on: the student portal parses lessons with a strict schema, so the
+ * fields stay off until it accepts them (see docs/STUDENT_PORTAL_EXTRAS_HANDOFF_2026-11-10.md).
+ */
+export const learningLayoutFieldsEnabled = () => process.env.LEARNING_V1_LAYOUT_FIELDS === 'on';
+export function studentLesson(row: Record<string, any>, options: { layout?: boolean } = {}) {
   const media = resolveLessonMedia(row.video_url);
   const stored = row.learning_content && typeof row.learning_content === 'object' ? row.learning_content : {};
   const guidance = libraryLearningContentSchema.safeParse(Object.fromEntries(Object.keys(libraryLearningContentSchema.shape).filter(key => Object.hasOwn(stored, key)).map(key => [key, stored[key]])));
@@ -20,6 +26,11 @@ export function studentLesson(row: Record<string, any>) {
     videoUrl: media.kind === 'unavailable' ? null : media.href, media,
     thumbnailUrl: studentImageUrl(row.thumbnail_url),
     type: row.content_type, category: row.content_category || row.category, content: guidance.data,
+    // Position within its belt and video length; null until staff set them in Library → Lesson order.
+    ...(options.layout ? {
+      position: Number.isInteger(row.sort_order) && row.sort_order > 0 ? row.sort_order : null,
+      durationSeconds: Number.isInteger(row.duration_seconds) && row.duration_seconds > 0 ? row.duration_seconds : null,
+    } : {}),
   };
 }
 
