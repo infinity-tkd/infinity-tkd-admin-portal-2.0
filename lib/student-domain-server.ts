@@ -17,7 +17,7 @@ export function domainError(error: unknown) {
   return response;
 }
 /** Student bearer identity and explicit ownership are checked for every resource page. */
-export async function studentDomain(req: Request, contract: 'shop-v1' | 'learning-v1') {
+export async function studentDomain(req: Request, contract: 'shop-v1' | 'learning-v1' | 'library-v2') {
   if (req.headers.get('x-portal-contract') !== contract) domainFailure('Use the supported ' + contract + ' student gateway.', '42501');
   const access = await verifyCaller(req, ['Student']);
   if (access.errorResponse || !access.adminSupabase || !access.context) {

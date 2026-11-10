@@ -393,6 +393,17 @@ export interface CurriculumVideo {
   publishedRevision?: number | null;
   studentCurriculumId?: number | null;
   updatedAt?: string;
+  /** library-v2 details (Library → Content & languages). */
+  categoryId?: string | null;
+  contentKind?: 'lesson' | 'article';
+  koreanName?: string | null;
+  summary?: string | null;
+  sourceKey?: string | null;
+}
+
+/** library-v2 fields of a library_assets row, shared by every place that maps one. */
+export function libraryV2Fields(row: Record<string, any>): Pick<CurriculumVideo, 'categoryId' | 'contentKind' | 'koreanName' | 'summary' | 'sourceKey'> {
+  return { categoryId: row.category_id ?? null, contentKind: row.content_kind === 'article' ? 'article' : 'lesson', koreanName: row.korean_name ?? null, summary: row.summary ?? null, sourceKey: row.source_key ?? null };
 }
 
 export interface StudentVideoProgress {
@@ -551,6 +562,7 @@ interface AppContextType {
   addStudent: (student: Omit<Student, 'id' | 'registrationDate'>) => Promise<{ success: boolean; error?: string }>;
   updateStudent: (id: string, data: Partial<Student>) => Promise<void>;
   setStudentRankingOptOut: (id: string, optOut: boolean) => Promise<boolean>;
+  applyLibraryAssetRow: (row: Record<string, any>) => void;
   deleteStudent: (id: string) => Promise<void>;
   addBeltHistory: (history: Omit<BeltHistory, 'id'>) => Promise<void>;
   addBeltHistories: (histories: Omit<BeltHistory, 'id'>[]) => Promise<void>;
@@ -1099,6 +1111,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           publishedRevision: c.published_revision ?? null,
           studentCurriculumId: c.student_curriculum_id ?? null,
           updatedAt: c.updated_at ?? c.created_at,
+          ...libraryV2Fields(c),
         };
       });
 
@@ -1683,6 +1696,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  /** A lesson row saved elsewhere (content editor): keep its card, revision and details in step. */
+  const applyLibraryAssetRow = (row: Record<string, any>) => {
+    if (!row || !Number.isSafeInteger(row.id)) return;
+    setState(s => ({ ...s, curriculumVideos: s.curriculumVideos.map(video => video.id === row.id ? {
+      ...video, title: row.title ?? video.title, revision: row.revision ?? video.revision, publishedRevision: row.published_revision ?? video.publishedRevision ?? null,
+      studentCurriculumId: row.student_curriculum_id ?? video.studentCurriculumId ?? null, updatedAt: row.updated_at ?? video.updatedAt, ...libraryV2Fields(row),
+    } : video) }));
+  };
+
   /** Leaderboard privacy is its own audited write (not part of the profile form). */
   const setStudentRankingOptOut = async (id: string, optOut: boolean) => {
     if (!can('action:student_edit')) { showNotification('You do not have permission to edit student records.', 'warning'); return false; }
@@ -2176,7 +2198,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const data=result.asset;
     if(!data||!Array.isArray(result.relations))throw new Error('Library save was not confirmed.');
     if(id===null)pendingLibraryKeys.current.delete(signature);
-    const mapped={id:data.id,title:data.title,description:data.description || '',category,minBeltLevel:fitness?'Fitness':data.target_level,videoUrl:data.video_url || '',createdAt:data.created_at,revision:data.revision??1,publishedRevision:data.published_revision??null,studentCurriculumId:data.student_curriculum_id??null,updatedAt:data.updated_at??data.created_at};
+    const mapped={id:data.id,title:data.title,description:data.description || '',category,minBeltLevel:fitness?'Fitness':data.target_level,videoUrl:data.video_url || '',createdAt:data.created_at,revision:data.revision??1,publishedRevision:data.published_revision??null,studentCurriculumId:data.student_curriculum_id??null,updatedAt:data.updated_at??data.created_at,...libraryV2Fields(data)};
     const relations=result.relations.map((r:any)=>({assetId:r.asset_id,muscleId:r.muscle_id,role:r.role}));
     // Replace an edited lesson in place so it keeps its position in the library grid.
     setState(s=>({...s,curriculumVideos:s.curriculumVideos.some(v=>v.id===mapped.id)?s.curriculumVideos.map(v=>v.id===mapped.id?mapped:v):[...s.curriculumVideos,mapped],assetMuscleRelations:[...s.assetMuscleRelations.filter(r=>r.assetId!==mapped.id),...relations]}));
@@ -3057,7 +3079,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         prepayInvoiceBulk,
         addStudent,
         updateStudent,
-      setStudentRankingOptOut,
+        setStudentRankingOptOut,
+        applyLibraryAssetRow,
         deleteStudent,
         addBeltHistory,
         addBeltHistories,

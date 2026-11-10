@@ -12,6 +12,7 @@ import { X } from '@phosphor-icons/react/dist/csr/X';
 import { Barbell } from '@phosphor-icons/react/dist/csr/Barbell';
 import { ListChecks } from '@phosphor-icons/react/dist/csr/ListChecks';
 import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { Article } from '@phosphor-icons/react/dist/csr/Article';
 import { CaretDown } from '@phosphor-icons/react/dist/csr/CaretDown';
 import { CaretUp } from '@phosphor-icons/react/dist/csr/CaretUp';
 import { CaretRight } from '@phosphor-icons/react/dist/csr/CaretRight';
@@ -90,9 +91,11 @@ interface LibraryAssetDetailDialogProps {
   isElevated: boolean;
   confirmDeleteVideo: (videoId: number, videoTitle: string, onCloseDetail?: () => void) => void;
   handleStartEdit: (video: CurriculumVideo) => void;
+  /** Opens Library → Content & languages for this lesson. */
+  onEditContent?: (id: number) => void;
 }
 
-export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAsset, t, setEditAsset, activeTab, editMuscleDropdownRef, editMuscleSearch, setEditMuscleSearch, setShowEditMuscleDropdown, setEditActiveMuscleIdx, showEditMuscleDropdown, state, editActiveMuscleIdx, editSelectedMuscles, setEditSelectedMuscles, editInstructionSteps, setDraggedIndex, draggedIndex, setEditInstructionSteps, editFitnessSolutionsDropdownRef, editFitnessSearch, setEditFitnessSearch, setShowEditFitnessDropdown, showEditFitnessDropdown, editSelectedFitnessSolutions, setEditSelectedFitnessSolutions, editPrerequisiteSteps, setEditPrerequisiteSteps, editPrincipleSteps, setEditPrincipleSteps, editDrillingSteps, setEditDrillingSteps, editMistakeSteps, setEditMistakeSteps, editPerformanceSteps, setEditPerformanceSteps, editTerminologyList, setEditTerminologyList, editStudyGuideList, setEditStudyGuideList, selectedDetailAsset, setSelectedDetailAsset, setSelected3DAsset, setShow3DStudio, anatomicalGender, show3DStudio, expandedStudyGuides, toggleStudyGuide, isElevated, confirmDeleteVideo, handleStartEdit }: LibraryAssetDetailDialogProps) {
+export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAsset, t, setEditAsset, activeTab, editMuscleDropdownRef, editMuscleSearch, setEditMuscleSearch, setShowEditMuscleDropdown, setEditActiveMuscleIdx, showEditMuscleDropdown, state, editActiveMuscleIdx, editSelectedMuscles, setEditSelectedMuscles, editInstructionSteps, setDraggedIndex, draggedIndex, setEditInstructionSteps, editFitnessSolutionsDropdownRef, editFitnessSearch, setEditFitnessSearch, setShowEditFitnessDropdown, showEditFitnessDropdown, editSelectedFitnessSolutions, setEditSelectedFitnessSolutions, editPrerequisiteSteps, setEditPrerequisiteSteps, editPrincipleSteps, setEditPrincipleSteps, editDrillingSteps, setEditDrillingSteps, editMistakeSteps, setEditMistakeSteps, editPerformanceSteps, setEditPerformanceSteps, editTerminologyList, setEditTerminologyList, editStudyGuideList, setEditStudyGuideList, selectedDetailAsset, setSelectedDetailAsset, setSelected3DAsset, setShow3DStudio, anatomicalGender, show3DStudio, expandedStudyGuides, toggleStudyGuide, isElevated, confirmDeleteVideo, handleStartEdit, onEditContent }: LibraryAssetDetailDialogProps) {
   const dialogRef = React.useRef<HTMLDivElement>(null);
   useModalFocus(dialogRef, () => { if (!isSaving) { if (editAsset) setEditAsset(null); else setSelectedDetailAsset(null); } }, !show3DStudio);
   return <>{(
@@ -150,6 +153,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                             <select value={editAsset.minBeltLevel} onChange={(e) => setEditAsset({ ...editAsset, minBeltLevel: e.target.value })}
                               className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#EF2F38] shadow-sm font-semibold text-black dark:text-white"
                             >
+                              {editAsset.minBeltLevel === 'Unassigned' && <option value="Unassigned" className="text-black dark:text-white dark:bg-neutral-900">No belt yet (choose one to publish)</option>}
                               {BELTS.slice(1).map(b => <option key={b} value={b} className="text-black dark:text-white dark:bg-neutral-900">{t(getBeltTranslationKey(b))}</option>)}
                             </select>
                           ) : (
@@ -1247,6 +1251,11 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                         >
                           <Trash className="w-3.5 h-3.5"/> {t('act_delete')}
                         </button>
+                        {onEditContent && <button type="button" onClick={() => onEditContent(selectedDetailAsset.id)}
+                          className="px-4 py-2 bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] text-xs font-bold uppercase hover:bg-neutral-200 dark:hover:bg-[#262626] transition-all flex items-center gap-1 cursor-pointer"
+                        >
+                          <Article className="w-3.5 h-3.5 text-[#EF2F38]"/> Content &amp; languages
+                        </button>}
                         <button onClick={() => handleStartEdit(selectedDetailAsset)}
                           className="px-4 py-2 bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] text-xs font-bold uppercase hover:bg-neutral-200 dark:hover:bg-[#262626] transition-all flex items-center gap-1 cursor-pointer"
                         >
