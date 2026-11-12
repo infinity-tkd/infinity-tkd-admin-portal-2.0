@@ -18,11 +18,18 @@ export const poomsaeWalkthroughSchema = z.object({
   steps: z.array(z.object({ to: point, facing, stance, techniques: z.array(short).default([]) })),
 });
 const fact = z.object({ label: short, value: short });
+// LMS: a clip is start/end seconds in the section's video, or its own https file.
+const clip = z.union([z.object({ start: z.number().min(0), end: z.number().min(0) }), z.object({ src: z.string().url() })]).nullable().catch(null);
+const mistake = z.object({ mistake: short, correction: short.default("") });
 const base = { id: z.string(), title: z.string().default("") };
 export const librarySectionSchema = z.discriminatedUnion("type", [
   z.object({ ...base, type: z.literal("text"), paragraphs: z.array(text) }),
   z.object({ ...base, type: z.literal("list"), style: z.enum(["bullet", "number", "check"]).catch("bullet"), items: z.array(short) }),
   z.object({ ...base, type: z.literal("steps"), items: z.array(z.object({ title: short.default(""), body: text.default(""), details: z.array(short).default([]) })) }),
+  // LMS: one technique, step by step (stance, chamber, pivot ...). Step ids never change once published:
+  // checklist ticks (activity kind step_check) are stored against them.
+  z.object({ ...base, type: z.literal("technique-steps"), video: z.string().default(""), items: z.array(z.object({
+    id: z.string(), title: short, body: text.default(""), clip, mistakes: z.array(mistake).default([]), checklist: z.array(short).default([]) })) }),
   z.object({ ...base, type: z.literal("pairs"), leftLabel: short.default(""), rightLabel: short.default(""), items: z.array(z.object({ term: short, detail: text })) }),
   z.object({ ...base, type: z.literal("glossary"), items: z.array(z.object({ korean: short.default(""), romanized: short.default(""), english: short, category: short.default("") })) }),
   z.object({ ...base, type: z.literal("facts"), items: z.array(fact) }),
@@ -31,7 +38,9 @@ export const librarySectionSchema = z.discriminatedUnion("type", [
   z.object({ ...base, type: z.literal("cards"), items: z.array(z.object({ title: short, subtitle: short.default(""), body: text.default(""), bullets: z.array(short).default([]), facts: z.array(fact).default([]) })) }),
   z.object({ ...base, type: z.literal("links"), items: z.array(z.object({ label: short, url: z.string().url() })) }),
   z.object({ ...base, type: z.literal("callout"), tone: z.enum(["info", "tip", "warning"]).catch("info"), body: text }),
-  z.object({ ...base, type: z.literal("diagram"), kind: z.literal("poomsae-walkthrough"), data: poomsaeWalkthroughSchema }),
+  // movements[n] (optional) adds a clip and mistakes to movement n, i.e. data.steps[n].
+  z.object({ ...base, type: z.literal("diagram"), kind: z.literal("poomsae-walkthrough"), data: poomsaeWalkthroughSchema,
+    video: z.string().optional(), movements: z.array(z.object({ clip, mistakes: z.array(mistake).default([]) })).default([]) }),
 ]);
 export type LibrarySection = z.infer<typeof librarySectionSchema>;
 /** Unknown or malformed sections are dropped instead of failing the whole lesson. */
@@ -54,6 +63,8 @@ export const libraryLessonSummarySchema = z.object({
   targetBelt: short, type: z.enum(["Taekwondo", "Fitness", "Dance"]).catch("Taekwondo"), thumbnailUrl: z.string().max(2000).nullable(),
   media: media.catch({ kind: "unavailable" }), position: z.number().int().nullable(), durationSeconds: z.number().int().nullable(),
   tags: z.array(short).default([]), sectionCount: z.number().int().nonnegative(), translated: z.boolean(),
+  // LMS: the registered poomsae form behind the lesson (forms-v1), or null.
+  formId: z.string().uuid().nullable().catch(null).default(null),
 });
 export const libraryLessonSchema = libraryLessonSummarySchema.extend({
   sections, sources: z.array(z.object({ label: short, url: z.string().url() })).default([]),

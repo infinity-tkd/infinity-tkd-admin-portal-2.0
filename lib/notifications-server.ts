@@ -6,6 +6,7 @@ import { membershipBilling } from './billing';
 import { makeupCandidates } from './makeup';
 import { defaultNoticePreferences, isQuietHour, isStudentQuietTime, validPushEndpoint, type PortalNotice, type NoticePreferences } from './notifications';
 import webpush from 'web-push';
+import { lmsReviewCounts } from './lms-server';
 
 type Draft=Pick<PortalNotice,'source_key'|'category'|'title'|'body'|'href'|'permission_key'>;
 export async function refreshNotices(client:SupabaseClient,context:CallerSecurityContext){
@@ -48,13 +49,18 @@ export async function refreshNotices(client:SupabaseClient,context:CallerSecurit
     if(!await callerHasPermission(client,context,permission))continue;
     drafts.push({source_key:`task:${task.id}:${Math.floor(daysBetween(task.due_date,today)/3)}`,category:'system',title:'Assigned follow-up is due',body:`${task.title} · due ${task.due_date}. Record the outcome when the follow-up is complete.`,href:'/operations?view=today',permission_key:permission});
    }
+   // LMS: student videos, answers and "I'm ready" form checks waiting for a coach.
+   if(await callerHasPermission(client,context,'action:curriculum_edit')){
+    const waiting=await lmsReviewCounts(client),total=waiting.submissions+waiting.forms;
+    if(total>0)drafts.push({source_key:`lms-review:${total}`,category:'system',title:'Student work is waiting for review',body:`${waiting.submissions} submission${waiting.submissions===1?'':'s'} and ${waiting.forms} form check${waiting.forms===1?'':'s'} are in Coaching → Review queue.`,href:'/lms?view=coaching',permission_key:'action:curriculum_edit'});
+   }
   }
   const ownStudents=context.role==='Student'?await ownedStudentIds(client,context.userId):[];
   if(orders||ownStudents.length){let query=client.from('pos_orders').select('id,order_number,order_status,payment_status,student_id').gte('created_at',addCalendarDays(today,-30));if(!orders)query=query.in('student_id',ownStudents);else query=query.eq('order_channel','STUDENT_PORTAL');
    for(const row of await featureRows(query)){if(orders&&row.order_status!=='PENDING_CONFIRMATION')continue;drafts.push({source_key:`orders:${row.id}:${row.order_status}:${row.payment_status}`,category:'orders',title:orders?'New student order':'Your order has an update',body:orders?`Order ${row.order_number} needs confirmation. Check stock and payment before fulfillment.`:`Order ${row.order_number}: ${row.order_status.replaceAll('_',' ').toLowerCase()}. Payment: ${row.payment_status.toLowerCase()}.`,href:orders?'/pos?orders=open':'/profile?orders=open',permission_key:orders?'page:pos':null});}
   }
   if(drafts.length){const saved=await client.from('portal_notifications').upsert(drafts.map(row=>({...row,user_id:context.userId,resolved_at:null})),{onConflict:'user_id,source_key',ignoreDuplicates:false});if(saved.error)throw saved.error;}
-  const old=(await featureRows(client.from('portal_notifications').select('id,source_key,category').eq('user_id',context.userId).is('resolved_at',null))).filter(row=>['attendance','billing','orders'].includes(row.category)||row.source_key.startsWith('task:'));
+  const old=(await featureRows(client.from('portal_notifications').select('id,source_key,category').eq('user_id',context.userId).is('resolved_at',null))).filter(row=>['attendance','billing','orders'].includes(row.category)||row.source_key.startsWith('task:')||row.source_key.startsWith('lms-review:'));
   const active=new Set(drafts.map(row=>row.source_key));const resolved=old.filter(row=>!active.has(row.source_key)).map(row=>row.id);
   if(resolved.length){const result=await client.from('portal_notifications').update({resolved_at:new Date().toISOString()}).eq('user_id',context.userId).in('id',resolved);if(result.error)throw result.error;}
  }catch(error){await client.from('portal_notification_refresh').delete().eq('user_id',context.userId);throw error;}
@@ -63,7 +69,10 @@ export function pushConfiguration(){return {ready:Boolean(process.env.WEB_PUSH_P
 export type StudentPushLanguage='en'|'kh'|'zh';
 // The student portal worker (public/sw.js) drops any push without sourceType plus UUID sourceId/noticeId and renders its
 // own localized lock-screen copy, so student pushes carry references only: no title, body, name or destination URL.
-export function pushPayload(row:Pick<PortalNotice,'id'|'source_type'|'source_id'>,student:boolean,language:StudentPushLanguage='en'){
+const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export function pushPayload(row:Pick<PortalNotice,'id'|'source_type'|'source_id'>&{category?:string;topic?:string|null;subject_ref?:string|null},student:boolean,language:StudentPushLanguage='en'){
+ // LMS notices (sourceType 'lms') name their topic; sourceId is the related record, or the notice itself.
+ if(student&&row.source_type==='lms')return {sourceType:'lms',topic:row.topic||row.category||null,sourceId:row.subject_ref&&UUID.test(row.subject_ref)?row.subject_ref:row.id,noticeId:row.id,language};
  return student?{sourceType:row.source_type,sourceId:row.source_id,noticeId:row.id,language}:{title:'Infinity TKD',body:'You have an academy update. Open the portal to review it.',tag:`infinity:${row.id}`,url:'/profile?notifications=open'};
 }
 // Presentation-only preference: an unreadable or missing row falls back to English rather than blocking delivery.

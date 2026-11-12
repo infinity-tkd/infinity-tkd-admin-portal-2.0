@@ -2,6 +2,7 @@ import { studentDomain, domainError, domainResponse } from '@/lib/student-domain
 import { catalogParams, catalogSearch, studentLessonEligible } from '@/lib/student-catalog-contract';
 import { domainCursor, domainFailure, readDomainCursor } from '@/lib/domain-cursor';
 import { LIBRARY_V2, libraryV2Category, libraryV2QuerySchema, libraryV2Summary } from '@/lib/library-v2-contract';
+import { publishedFormIds } from '@/lib/lms-server';
 
 export const dynamic = 'force-dynamic';
 /** library-v2: one page of published lessons the student's belt can see, plus the active categories. */
@@ -25,7 +26,9 @@ export async function GET(req: Request) {
     if (categories.error) throw categories.error;
     const rows: Record<string, any>[] = Array.isArray(page.data) ? page.data : [];
     const scanned = rows.slice(0, limit);
-    const lessons = scanned.filter(row => studentLessonEligible(String(row.targetBelt ?? ''), access.student!.current_belt, belts.data ?? [])).map(libraryV2Summary);
+    const visible = scanned.filter(row => studentLessonEligible(String(row.targetBelt ?? ''), access.student!.current_belt, belts.data ?? []));
+    const forms = await publishedFormIds(client, visible.map(row => Number(row.id)), signal);
+    const lessons = visible.map(row => libraryV2Summary(row, forms));
     // The scanned id range is consumed even when belt eligibility removes rows.
     return domainResponse(LIBRARY_V2, { subjectStudentId: access.student.id, lang, categories: (categories.data ?? []).map(row => libraryV2Category(row, lang)), lessons,
       nextCursor: rows.length > limit ? domainCursor(scope, String(scanned.at(-1)!.id)) : null });

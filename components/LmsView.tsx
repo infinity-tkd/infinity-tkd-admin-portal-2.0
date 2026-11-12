@@ -28,6 +28,7 @@ import { BookOpen } from '@phosphor-icons/react/dist/csr/BookOpen';
 
 import { GraduationCap } from '@phosphor-icons/react/dist/csr/GraduationCap';
 import { CheckSquare } from '@phosphor-icons/react/dist/csr/CheckSquare';
+import { ChalkboardTeacher } from '@phosphor-icons/react/dist/csr/ChalkboardTeacher';
 import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
 
 import { Stack } from '@phosphor-icons/react/dist/csr/Stack';
@@ -65,6 +66,7 @@ import { mergeBeltEligibility, beltEligibilitySummary } from '@/lib/belt-eligibi
 
 const BELTS: readonly string[] = LIBRARY_BELTS.filter(name => name !== 'All');
 const LibraryPublicationPanel = dynamic(() => import('@/components/library/LibraryPublicationPanel').then(module => module.LibraryPublicationPanel), { ssr: false });
+const CoachingHub = dynamic(() => import('@/components/lms/CoachingHub').then(module => module.CoachingHub), { ssr: false });
 
 export function LmsView() {
   const { state, can, toggleVideoProgress } = useAppStore();
@@ -73,7 +75,9 @@ export function LmsView() {
   const isElevated = can('page:directory') || can('action:evaluations_grade');
   const canGradeProgress = can('action:evaluations_grade');
 
-  const [activeTab, setActiveTab] = useState<'syllabus' | 'analytics'>('syllabus');
+  // ?view=coaching opens the Coaching hub (staff notices link there).
+  const [activeTab, setActiveTab] = useState<'syllabus' | 'analytics' | 'coaching'>(() =>
+    typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('view') === 'coaching' && state.currentUser?.role !== 'Student' ? 'coaching' : 'syllabus');
   const [activePlayVideo, setActivePlayVideo] = useState<CurriculumVideo | null>(null);
   const [playerTab, setPlayerTab] = useState<'overview' | 'guidance' | 'drills' | 'mistakes' | 'study' | 'biomechanics'>('overview');
   const [show3DStudio, setShow3DStudio] = useState(false);
@@ -189,6 +193,7 @@ export function LmsView() {
       <SegmentedTabs label="E-learning views" value={activeTab} onChange={setActiveTab} items={[
         { id: 'syllabus', label: t('lms_tab_syllabus'), icon: <VideoCamera /> },
         { id: 'analytics', label: t('lms_tab_testing'), icon: <CheckSquare />, hidden: role === 'Student' },
+        { id: 'coaching', label: 'Coaching', icon: <ChalkboardTeacher />, hidden: role === 'Student' },
       ]} />
 
       {activeTab === 'syllabus' && (
@@ -482,6 +487,8 @@ export function LmsView() {
       {activeTab === 'analytics' && (
         <LmsAnalyticsTab/>
       )}
+
+      {activeTab === 'coaching' && role !== 'Student' && <CoachingHub />}
 
       {showPublicationPanel && <LibraryPublicationPanel onClose={() => setShowPublicationPanel(false)} onOpenMaterial={id => { const material = state.curriculumVideos.find(row => row.id === id); if (material) { setShowPublicationPanel(false); handlePlayVideo(material); } }} />}
       {/* Theatre Mode Player Overlay */}

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { addCalendarDays, isCalendarDate, academyDate } from './dates';
+import { STUDENT_NOTICE_CATEGORIES } from './lms-contract';
 
 export const eventTypeValues = ['holiday', 'competition', 'workshop', 'maintenance', 'academy', 'class_change'] as const;
 const date = z.string().refine(isCalendarDate, 'Use a valid calendar date.');
@@ -54,7 +55,8 @@ export function occurrence(value: Pick<CalendarDraft, 'startsAt' | 'endsAt' | 's
     : { allDay: true as const, startDate: value.startDate, endDate: addCalendarDays(value.endDate, 1) };
 }
 export const portalPreferenceSchema = z.object({
-  pushEnabled: z.boolean(), mutedCategories: z.array(z.literal('events')).max(1),
+  // 'events' plus the LMS notice categories; muting is per account.
+  pushEnabled: z.boolean(), mutedCategories: z.array(z.enum(STUDENT_NOTICE_CATEGORIES)).max(STUDENT_NOTICE_CATEGORIES.length).refine(list => new Set(list).size === list.length, 'List each category once.'),
   quietStart: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).nullable(), quietEnd: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).nullable(),
 }).strict().refine(value => Boolean(value.quietStart) === Boolean(value.quietEnd) && (!value.quietStart || value.quietStart !== value.quietEnd), 'Choose distinct quiet-hour start/end times, or neither.');
 export const portalNoticeMutation = z.union([

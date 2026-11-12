@@ -45,6 +45,20 @@ const facing = z.enum(['N', 'E', 'S', 'W']);
 const stance = z.object({ type: str(40), lead: z.enum(['left', 'right']).optional() }).passthrough();
 
 /** Poomsae floor diagram (website walkthroughs): one geometry step per movement. */
+/** A technique clip: start and end seconds in the section's video, or its own https file. Times are never translated. */
+export const libraryClipSchema = z.union([
+  z.object({ start: z.number().finite().min(0).max(36000), end: z.number().finite().min(0).max(36000) }).strict().refine(clip => clip.end > clip.start, 'A clip ends after it starts.'),
+  z.object({ src: httpsUrl }).strict(),
+]);
+export type LibraryClip = z.infer<typeof libraryClipSchema>;
+const stepMistake = z.object({ mistake: line, correction: str(2000).default('') }).strict();
+/** One technique step (the Roundhouse Kick example: stance, chamber, pivot ...). Its id never changes once published: checklist ticks are stored against it. */
+export const techniqueStepSchema = z.object({
+  id: z.string().regex(SECTION_ID, 'Step ids use lowercase letters, numbers and dashes.'), title: str(300).min(1, 'Give each step a title.'), body: long.default(''),
+  clip: libraryClipSchema.nullable().default(null), mistakes: list(stepMistake, 30).default([]), checklist: list(str(300).min(1), 20).default([]),
+}).strict();
+export type TechniqueStep = z.infer<typeof techniqueStepSchema>;
+
 export const poomsaeWalkthroughSchema = z.object({
   start: point, startFacing: facing, startStance: stance,
   guides: list(z.object({ from: point, to: point }).strict(), 40).default([]),
@@ -52,10 +66,10 @@ export const poomsaeWalkthroughSchema = z.object({
   steps: list(z.object({ to: point, facing, stance, techniques: list(str(200), 12).default([]) }).passthrough(), 80).min(1),
 }).passthrough();
 
-export const SECTION_TYPES = ['text', 'list', 'steps', 'pairs', 'glossary', 'facts', 'table', 'timeline', 'cards', 'links', 'callout', 'diagram'] as const;
+export const SECTION_TYPES = ['text', 'list', 'steps', 'technique-steps', 'pairs', 'glossary', 'facts', 'table', 'timeline', 'cards', 'links', 'callout', 'diagram'] as const;
 export type LibrarySectionType = typeof SECTION_TYPES[number];
 export const SECTION_TYPE_LABEL: Record<LibrarySectionType, string> = {
-  text: 'Paragraphs', list: 'List', steps: 'Steps', pairs: 'Pairs (term and detail)', glossary: 'Korean terms', facts: 'Facts',
+  text: 'Paragraphs', list: 'List', steps: 'Steps', 'technique-steps': 'Technique steps (clips and checklists)', pairs: 'Pairs (term and detail)', glossary: 'Korean terms', facts: 'Facts',
   table: 'Table', timeline: 'Timeline', cards: 'Cards', links: 'Links', callout: 'Callout', diagram: 'Diagram',
 };
 
@@ -63,6 +77,7 @@ export const librarySectionSchema = z.discriminatedUnion('type', [
   z.object({ ...base, type: z.literal('text'), paragraphs: list(long, 60) }).strict(),
   z.object({ ...base, type: z.literal('list'), style: z.enum(['bullet', 'number', 'check']).default('bullet'), items: list(line, 200) }).strict(),
   z.object({ ...base, type: z.literal('steps'), items: list(z.object({ title: str(300).default(''), body: long.default(''), details: list(line, 50).default([]) }).strict(), 200) }).strict(),
+  z.object({ ...base, type: z.literal('technique-steps'), video: httpsUrl.or(z.literal('')).default(''), items: list(techniqueStepSchema, 40).min(1) }).strict(),
   z.object({ ...base, type: z.literal('pairs'), leftLabel: str(80).default(''), rightLabel: str(80).default(''), items: list(z.object({ term: line, detail: long }).strict(), 200) }).strict(),
   z.object({ ...base, type: z.literal('glossary'), items: list(z.object({ korean: str(200).default(''), romanized: str(200).default(''), english: line, category: str(80).default('') }).strict(), 200) }).strict(),
   z.object({ ...base, type: z.literal('facts'), items: list(fact, 60) }).strict(),
@@ -71,9 +86,20 @@ export const librarySectionSchema = z.discriminatedUnion('type', [
   z.object({ ...base, type: z.literal('cards'), items: list(z.object({ title: str(300), subtitle: str(300).default(''), body: long.default(''), bullets: list(line, 40).default([]), facts: list(fact, 20).default([]) }).strict(), 200) }).strict(),
   z.object({ ...base, type: z.literal('links'), items: list(z.object({ label: str(200), url: httpsUrl }).strict(), 30) }).strict(),
   z.object({ ...base, type: z.literal('callout'), tone: z.enum(['info', 'tip', 'warning']).default('info'), body: long }).strict(),
-  z.object({ ...base, type: z.literal('diagram'), kind: z.literal('poomsae-walkthrough'), data: poomsaeWalkthroughSchema }).strict(),
+  // movements[n] adds a clip and mistakes to movement n (data.steps[n]); data stays geometry only.
+  z.object({ ...base, type: z.literal('diagram'), kind: z.literal('poomsae-walkthrough'), data: poomsaeWalkthroughSchema, video: httpsUrl.or(z.literal('')).optional(),
+    movements: list(z.object({ clip: libraryClipSchema.nullable().default(null), mistakes: list(stepMistake, 20).default([]) }).strict(), 80).optional() }).strict(),
 ]).superRefine((section, context) => {
   if (section.type === 'table' && section.rows.some(row => row.length !== section.columns.length)) context.addIssue({ code: 'custom', message: `Every row in "${section.title || section.id}" needs ${section.columns.length} cells.` });
+  if (section.type === 'technique-steps') {
+    const ids = section.items.map(step => step.id);
+    if (new Set(ids).size !== ids.length) context.addIssue({ code: 'custom', message: `Two steps in "${section.title || section.id}" share an id.` });
+    if (!section.video && section.items.some(step => step.clip && 'start' in step.clip)) context.addIssue({ code: 'custom', message: `Add the lesson video to "${section.title || section.id}" before setting clip times.` });
+  }
+  if (section.type === 'diagram' && section.movements) {
+    if (section.movements.length > section.data.steps.length) context.addIssue({ code: 'custom', message: 'There are more movement notes than movements in the diagram.' });
+    if (!section.video && section.movements.some(movement => movement.clip && 'start' in movement.clip)) context.addIssue({ code: 'custom', message: 'Add the form video before setting movement clip times.' });
+  }
 });
 export type LibrarySection = z.infer<typeof librarySectionSchema>;
 
@@ -143,7 +169,8 @@ export function libraryCategoryFromRow(row: Record<string, any>): LibraryCategor
 }
 
 // Keys whose values are structure, not prose: never translated.
-const FIXED_KEYS = new Set(['id', 'type', 'style', 'tone', 'url', 'kind', 'data']);
+// clip, video, start, end and src were added for technique steps and poomsae movements (the student portal uses the same list).
+export const FIXED_KEYS: ReadonlySet<string> = new Set(['id', 'type', 'style', 'tone', 'url', 'kind', 'data', 'clip', 'video', 'start', 'end', 'src']);
 
 /** English section with any translated text laid over it; blank or missing text keeps the English. */
 export function localizeSection<T>(section: T, translated: unknown): T {
@@ -227,6 +254,7 @@ export function emptySection(type: LibrarySectionType, id: string): LibrarySecti
     case 'text': return { id, type, title: '', paragraphs: [''] };
     case 'list': return { id, type, title: '', style: 'bullet', items: [''] };
     case 'steps': return { id, type, title: '', items: [{ title: '', body: '', details: [] }] };
+    case 'technique-steps': return { id, type, title: 'Step by step', video: '', items: [{ id: 'step-1', title: 'Step 1', body: '', clip: null, mistakes: [], checklist: [] }] };
     case 'pairs': return { id, type, title: '', leftLabel: '', rightLabel: '', items: [{ term: '', detail: '' }] };
     case 'glossary': return { id, type, title: '', items: [{ korean: '', romanized: '', english: '', category: '' }] };
     case 'facts': return { id, type, title: '', items: [{ label: '', value: '' }] };

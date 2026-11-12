@@ -1,0 +1,112 @@
+// lib/lms-contract.ts (student portal). Paste as-is.
+// LMS feeds and writes from the academy database (docs/STUDENT_PORTAL_LMS_HANDOFF.md in the admin portal).
+// Deliberately NOT .strict(): new optional fields must never break a page.
+import { z } from "zod";
+
+const uuid = z.string().uuid();
+const ts = z.string().min(10); // ISO timestamp with offset
+const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+const translations = z.record(z.string(), z.unknown()).catch({}).default({}); // {"km": {...}, "zh": {...}}
+export const COACH_GRADES = ["Needs Work", "Developing", "Proficient", "Outstanding"] as const;
+export const QUIZ_SCOPES = ["form", "lesson", "belt", "terminology"] as const;
+
+/** portal_student_forms(p_student) — forms for the student's belt and below. */
+export const formsV1 = z.object({
+  contractVersion: z.literal("forms-v1"), studentId: z.string(), currentBelt: z.string(),
+  forms: z.array(z.object({
+    id: uuid, lessonId: z.number().int(), name: z.string(), koreanName: z.string().nullable(), series: z.string(),
+    belt: z.string().nullable(), beltOrder: z.number().nullable(), isCurrentBelt: z.boolean(), movementCount: z.number().int(),
+    sortOrder: z.number().int(), translations, quizQuestions: z.number().int(),
+    progress: z.object({
+      status: z.enum(["learning", "practising", "ready_for_review", "mastered"]), practiceCount: z.number().int(), practiceSeconds: z.number().int(),
+      bestQuizPercent: z.number().int().nullable(), lastPractisedAt: ts.nullable(), reviewRequestedAt: ts.nullable(),
+      reviewedAt: ts.nullable(), reviewNote: z.string().nullable(), masteredAt: ts.nullable(),
+    }),
+  })),
+});
+
+/** portal_student_quiz(p_student, p_scope, p_scope_ref) — scored on the device; the score is self-reported. */
+export const quizV1 = z.object({
+  contractVersion: z.literal("quiz-v1"), studentId: z.string(), scope: z.enum(QUIZ_SCOPES), scopeRef: z.string(),
+  questions: z.array(z.object({
+    id: uuid, kind: z.enum(["next_movement", "direction", "stance", "term", "choice"]), prompt: z.string(), choices: z.array(z.string()).min(2),
+    answer: z.union([z.number().int(), z.array(z.number().int())]), // the right index, or the right order
+    explanation: z.string().nullable(), translations,                 // {"km": {"prompt","choices":[...],"explanation"}}
+  })),
+});
+
+/** portal_student_learning(p_student) — goals, the coach's weekly plans, checklist ticks, self-checks, best quiz scores. */
+export const learningStateV1 = z.object({
+  contractVersion: z.literal("learning-state-v1"), studentId: z.string(), weekStart: day,
+  goals: z.array(z.object({ id: uuid, kind: z.string(), target: z.number().int().nullable(), subjectRef: z.string().nullable(), title: z.string().nullable(),
+    setBy: z.enum(["student", "coach"]), startsOn: day, endsOn: day.nullable(), status: z.enum(["active", "done", "dropped"]), createdAt: ts })),
+  plans: z.array(z.object({ id: uuid, weekStart: day, note: z.string().nullable(), publishedAt: ts,
+    items: z.array(z.object({ type: z.enum(["lesson", "form", "quiz", "custom"]).catch("custom"), ref: z.string().optional(), title: z.string().optional(),
+      target: z.string().optional(), day: z.number().int().min(1).max(7).nullable().optional(), note: z.string().optional() })) })),
+  stepChecks: z.array(z.object({ lessonId: z.number().int(), stepId: z.string(), checked: z.array(z.number().int()), updatedAt: ts })),
+  selfAssessments: z.array(z.object({ subjectType: z.enum(["lesson", "step", "form", "movement"]), subjectRef: z.string(), rating: z.number().int(), note: z.string().nullable(), createdAt: ts })),
+  quizBest: z.array(z.object({ scope: z.string(), scopeRef: z.string(), bestPercent: z.number().int(), attempts: z.number().int(), lastAt: ts })),
+});
+
+/** portal_student_tasks(p_student) — Pending tasks: assignments and challenges with the student's progress. */
+export const tasksV1 = z.object({
+  contractVersion: z.literal("tasks-v1"), studentId: z.string(),
+  assignments: z.array(z.object({
+    id: uuid, title: z.string(), instructions: z.string(), kind: z.enum(["practice", "video", "written", "quiz", "form"]),
+    subjectType: z.string().nullable(), subjectRef: z.string().nullable(), target: z.record(z.string(), z.unknown()), dueAt: ts.nullable(),
+    points: z.number().int(), rubric: z.array(z.object({ item: z.string() })), translations,
+    assignmentStatus: z.enum(["published", "closed"]), status: z.enum(["open", "in_progress", "submitted", "reviewed", "done", "excused"]),
+    progress: z.record(z.string(), z.unknown()), assignedAt: ts, doneAt: ts.nullable(),
+    lastSubmission: z.object({ id: uuid, kind: z.string(), status: z.string(), submittedAt: ts.nullable() }).nullable(),
+  })),
+  challenges: z.array(z.object({
+    id: uuid, title: z.string(), description: z.string().nullable(), goalKind: z.enum(["reps", "sessions", "streak_days", "minutes", "quiz_pass", "form_mastered"]),
+    goalTarget: z.number().int(), subjectType: z.string().nullable(), subjectRef: z.string().nullable(), startsOn: day, endsOn: day,
+    points: z.number().int(), badgeCode: z.string().nullable(), translations, status: z.enum(["published", "closed"]),
+    progress: z.number().int(), completedAt: ts.nullable(),
+  })),
+});
+
+/** portal_student_submissions(p_student) — history, with only the reviews coaches made visible. */
+export const submissionsV1 = z.object({
+  contractVersion: z.literal("submissions-v1"), studentId: z.string(),
+  consent: z.object({ consented: z.boolean(), guardianName: z.string(), relationship: z.string(), source: z.string(), consentedAt: ts }).nullable(),
+  submissions: z.array(z.object({
+    id: uuid, assignmentId: uuid.nullable(), assignmentTitle: z.string().nullable(), subjectType: z.string().nullable(), subjectRef: z.string().nullable(),
+    kind: z.enum(["video", "text", "practice"]), textAnswer: z.string().nullable(), hasVideo: z.boolean(), videoSeconds: z.number().int().nullable(),
+    status: z.enum(["submitted", "reviewed", "returned", "withdrawn", "expired"]), createdAt: ts, submittedAt: ts.nullable(), reviewedAt: ts.nullable(),
+    videoDeletesOn: day.nullable(),
+    reviews: z.array(z.object({ id: uuid, decision: z.enum(["accepted", "returned"]), grade: z.enum(COACH_GRADES).nullable(),
+      rubric: z.array(z.object({ item: z.string(), grade: z.enum(COACH_GRADES).nullable().optional(), note: z.string().optional() })),
+      feedback: z.string().nullable(), moments: z.array(z.object({ second: z.number(), note: z.string() })), coach: z.string().nullable(), createdAt: ts })),
+  })),
+});
+
+/** portal_student_achievements(p_student) — catalogue, awards and a personal points total (never ranked). */
+export const achievementsV1 = z.object({
+  contractVersion: z.literal("achievements-v1"), studentId: z.string(),
+  catalogue: z.array(z.object({ code: z.string(), title: z.string(), description: z.string(), icon: z.string(), points: z.number().int(),
+    repeats: z.enum(["once", "monthly", "per_belt"]).catch("once"), ruleKind: z.string(), target: z.number().int().nullable(), translations })),
+  earned: z.array(z.object({ code: z.string(), period: z.string(), earnedAt: ts, seenAt: ts.nullable(), signedOff: z.boolean() })),
+  points: z.object({ total: z.number().int(), recent: z.array(z.object({ delta: z.number().int(), reason: z.string(), ref: z.string(), createdAt: ts })) }),
+});
+
+/** portal_student_inbox(...) rows: the existing notice row plus topic; LMS rows have sourceType "lms". */
+export const NOTICE_SOURCE_TYPES = ["academy_event", "belt_test", "lms"] as const;
+export const LMS_TOPICS = ["class_reminder", "exam_reminder", "assignment_due", "practice_reminder", "streak_reminder", "new_material",
+  "feedback", "missed_class", "achievement", "announcement", "form_review", "submission_review"] as const;
+
+/** student_portal_record_event(p_actor, p_student, p_request, p_kind, p_payload): the seven LMS kinds. */
+export const activityPayloads = {
+  step_check: z.object({ lessonId: z.number().int().positive(), stepId: z.string(), checked: z.array(z.number().int().min(0).max(49)).max(50) }),
+  self_assessment: z.object({ subjectType: z.enum(["lesson", "step", "form", "movement"]), subjectRef: z.string().max(120), rating: z.number().int().min(1).max(4), note: z.string().max(500).optional() }),
+  quiz_attempt: z.object({ scope: z.enum(QUIZ_SCOPES), scopeRef: z.string().max(80), score: z.number().int().min(0), total: z.number().int().min(1).max(200), missed: z.array(uuid).max(200).optional() }),
+  form_practice: z.object({ formId: uuid, mode: z.enum(["guided", "free"]), movements: z.number().int().min(0).optional(), durationSeconds: z.number().int().min(0).max(7200).optional() }),
+  form_ready: z.object({ formId: uuid }),
+  assignment_progress: z.object({ assignmentId: uuid, reps: z.number().int().min(0).max(10000) }),
+  goal: z.union([
+    z.object({ kind: z.enum(["weekly_days", "weekly_minutes", "lesson", "form", "belt_exam", "custom"]), target: z.number().int().min(1).nullable().optional(),
+      subjectRef: z.string().nullable().optional(), title: z.string().max(200).nullable().optional(), endsOn: day.nullable().optional() }),
+    z.object({ goalId: uuid, status: z.enum(["done", "dropped"]) }),
+  ]),
+} as const;

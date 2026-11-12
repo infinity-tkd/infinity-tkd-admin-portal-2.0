@@ -14,9 +14,16 @@ export const beltTestEligibilityRulesSchema = z.object({
   minimumDays: z.number().int().min(0).max(3650), minimumClasses: z.number().int().min(0).max(1000),
   minimumSkillAverage: z.number().min(0).max(4), requireLessons: z.boolean(),
 }).strict();
+/** {"reps": 50, "timesPerWeek": 3}: shown to students as the home-practice target for a syllabus item. */
+export const beltTestPracticeTargetSchema = z.object({
+  reps: z.number().int().min(1).max(100000).optional(), timesPerWeek: z.number().int().min(1).max(14).optional(), minutes: z.number().int().min(1).max(600).optional(),
+}).strict().refine(target => Object.keys(target).length > 0, 'Set reps, times per week or minutes.');
+export type BeltTestPracticeTarget = z.infer<typeof beltTestPracticeTargetSchema>;
 const item = z.object({
   title: z.string().trim().min(1).max(150), libraryAssetId: z.number().int().positive().nullable().optional(),
   weight: z.number().gt(0).max(100).optional(), critical: z.boolean().optional(), guide: z.string().max(500).optional(),
+  // LMS: what to practise at home for this item, and the poomsae form it is (forms-v1).
+  practiceTarget: beltTestPracticeTargetSchema.nullable().optional(), formId: uuid.nullable().optional(),
 }).strict();
 const section = z.object({
   kind: z.enum(['physical', 'skill', 'poomsae', 'acrobatics', 'custom']), title: z.string().trim().min(2).max(120),
@@ -82,7 +89,7 @@ export interface SyllabusRow { id: string; target_belt_id: number; track: 'color
   pass_mark: number | null; distinction_mark: number | null; section_minimum: number | null; critical_minimum: number | null; retest_days: number | null; fee_usd: number;
   eligibility: z.infer<typeof beltTestEligibilityRulesSchema>; notes: string; published_at: string | null; updated_at: string }
 export interface SectionRow { id: string; syllabus_id: string; kind: 'physical' | 'skill' | 'poomsae' | 'acrobatics' | 'custom'; title: string; weight: number | null; minimum: number | null; position: number }
-export interface ItemRow { id: string; section_id: string; title: string; library_asset_id: number | null; weight: number; critical: boolean; guide: string; position: number }
+export interface ItemRow { id: string; section_id: string; title: string; library_asset_id: number | null; weight: number; critical: boolean; guide: string; position: number; practice_target?: BeltTestPracticeTarget | null; form_id?: string | null }
 export interface EventRow { id: string; title: string; kind: 'color' | 'kukkiwon'; exam_date: string; start_time: string | null; location: string | null; branch_id: number | null; target_belt_id: number; syllabus_id: string;
   published_at: string | null; cancelled_at: string | null; results_published_at: string | null; capacity: number | null; accepts_requests: boolean; counts?: Record<string, number> }
 export type FeeStatus = 'none' | 'unpaid' | 'paid' | 'waived';

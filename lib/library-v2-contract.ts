@@ -34,6 +34,8 @@ export const libraryV2LessonSummarySchema = z.object({
   id: z.number().int().positive(), slug: text.nullable(), kind: z.enum(['lesson', 'article']), category: text.nullable(), title: text, koreanName: text.nullable(), romanized: text.nullable(),
   summary: text.nullable(), levelNote: text.nullable(), targetBelt: text, type: z.enum(['Taekwondo', 'Fitness', 'Dance']), thumbnailUrl: text.nullable(), media,
   position: z.number().int().nullable(), durationSeconds: z.number().int().nullable(), tags: z.array(text), sectionCount: z.number().int().nonnegative(), translated: z.boolean(),
+  // LMS: the registered poomsae form behind this lesson (forms-v1), so the card can show form progress.
+  formId: z.string().uuid().nullable(),
 }).strict();
 export const libraryV2LessonSchema = libraryV2LessonSummarySchema.extend({
   sections: z.array(librarySectionSchema), sources: z.array(librarySourceSchema), languages: z.array(z.enum(LIBRARY_LANGS)),
@@ -60,8 +62,10 @@ export function libraryV2Category(row: Record<string, any>, language: LibraryLan
   };
 }
 
-/** One row of portal_student_library_page → a lesson summary. */
-export function libraryV2Summary(row: Record<string, any>): LibraryV2LessonSummary {
+/** One row of portal_student_library_page → a lesson summary. formIds maps lesson id → published form id. */
+export function libraryV2Summary(row: Record<string, any>, formIds?: unknown): LibraryV2LessonSummary {
+  // Also used directly as an Array#map callback, where the second argument is the index.
+  const forms = formIds instanceof Map ? formIds as Map<number, string> : null;
   const p = row.published && typeof row.published === 'object' ? row.published : null;
   const t = p?.translation && typeof p.translation === 'object' ? p.translation : {};
   const legacySummary = typeof row.description === 'string' && row.description.trim() ? row.description.trim().slice(0, 600) : null;
@@ -72,6 +76,7 @@ export function libraryV2Summary(row: Record<string, any>): LibraryV2LessonSumma
     targetBelt: row.targetBelt, type: type(row.type), thumbnailUrl: studentImageUrl(row.thumbnailUrl), media: resolveLessonMedia(row.videoUrl),
     position: positiveInt(row.position), durationSeconds: positiveInt(row.durationSeconds), tags: Array.isArray(p?.tags) ? p.tags.filter((tag: unknown) => typeof tag === 'string') : [],
     sectionCount: Number.isInteger(p?.sectionCount) ? p.sectionCount : 0, translated: Object.keys(t).length > 0,
+    formId: forms?.get(row.id) ?? null,
   };
 }
 
@@ -79,7 +84,7 @@ export function libraryV2Summary(row: Record<string, any>): LibraryV2LessonSumma
  * One published lesson in the student's language. Lessons published before library-v2
  * have no snapshot and are built from their learning-v1 guidance.
  */
-export function libraryV2Lesson(curriculum: Record<string, any>, published: Record<string, any> | null, categorySlug: string | null, language: LibraryLang): LibraryV2Lesson {
+export function libraryV2Lesson(curriculum: Record<string, any>, published: Record<string, any> | null, categorySlug: string | null, language: LibraryLang, formId: string | null = null): LibraryV2Lesson {
   const doc = published?.document && typeof published.document === 'object' ? published.document : null;
   const sectionsParsed = z.array(librarySectionSchema).safeParse(doc?.sections ?? []);
   const sections: LibrarySection[] = doc ? (sectionsParsed.success ? sectionsParsed.data : []) : legacySections(curriculum.learning_content, curriculum.description);
@@ -92,6 +97,6 @@ export function libraryV2Lesson(curriculum: Record<string, any>, published: Reco
     title: localized.title, koreanName: localized.koreanName, romanized: doc?.romanized ?? null, summary: localized.summary, levelNote: localized.levelNote,
     targetBelt: curriculum.target_belt, type: type(curriculum.content_type), thumbnailUrl: studentImageUrl(curriculum.thumbnail_url), media: resolveLessonMedia(curriculum.video_url),
     position: positiveInt(curriculum.sort_order), durationSeconds: positiveInt(curriculum.duration_seconds), tags: Array.isArray(doc?.tags) ? doc.tags.filter((tag: unknown) => typeof tag === 'string') : [],
-    sectionCount: localized.sections.length, translated: localized.translated, sections: localized.sections, sources: sources.success ? sources.data : [], languages,
+    sectionCount: localized.sections.length, translated: localized.translated, formId, sections: localized.sections, sources: sources.success ? sources.data : [], languages,
   };
 }

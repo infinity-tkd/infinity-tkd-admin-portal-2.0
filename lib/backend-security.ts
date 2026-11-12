@@ -40,6 +40,11 @@ function requestPermission(req: Request): PermissionKey | undefined {
   if (path === '/api/admin/students/ranking-opt-out') return 'action:student_edit';
   if (path === '/api/admin/library-assets/layout') return read ? 'page:library' : 'action:curriculum_edit';
   if (path === '/api/admin/library-assets/content' || path === '/api/admin/library-categories') return read ? 'page:library' : 'action:curriculum_edit';
+  // LMS coaching (checked again in SQL): Coaches and above change content and review work.
+  if (path === '/api/admin/lms') return read ? 'page:lms' : 'action:curriculum_edit';
+  if (path === '/api/admin/lms/video') return 'action:curriculum_edit';
+  if (path === '/api/admin/lms/announcements') return read ? 'page:lms' : 'action:announcements_send';
+  if (path === '/api/admin/lms/settings') return read ? 'page:lms' : 'action:staff_manage';
   if (path.includes('/admin/staff-dan')) return read ? 'page:staff' : 'action:staff_manage';
   const actions: Record<string, PermissionKey> = {
     'create-student': 'action:student_create', 'update-student': 'action:student_edit',

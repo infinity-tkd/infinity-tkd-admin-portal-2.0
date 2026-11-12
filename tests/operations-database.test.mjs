@@ -70,7 +70,8 @@ test('operations schema: administrator AAL1 cannot read operational records or e
 
 test('operations schema: automatic return belongs to its approved pause and revoked task permissions are enforced',async()=>{
  const db=await operationsDatabase();try{
- const {today,yesterday,tomorrow}=(await db.query("SELECT current_date::text today,(current_date-1)::text yesterday,(current_date+1)::text tomorrow")).rows[0];
+ // Pauses run on the academy's date (Phnom Penh), which is a day ahead of UTC from 17:00 UTC.
+ const {today,yesterday,tomorrow}=(await db.query("WITH d AS (SELECT (now() AT TIME ZONE 'Asia/Phnom_Penh')::date AS t) SELECT t::text today,(t-1)::text yesterday,(t+1)::text tomorrow FROM d")).rows[0];
  const paused=await mutate(db,'pause',{studentId:'STU-M-001',startDate:yesterday,resumeDate:tomorrow,reason:'Approved recovery period'});
  assert.equal((await db.query("SELECT student_status FROM students WHERE id='STU-M-001'")).rows[0].student_status,'Paused','pause starts immediately without waiting for scheduler');
  await assert.rejects(db.exec("UPDATE students SET student_status='Active' WHERE id='STU-M-001'"),/approved pause/i);
