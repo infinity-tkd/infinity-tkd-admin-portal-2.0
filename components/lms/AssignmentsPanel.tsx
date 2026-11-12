@@ -59,7 +59,7 @@ function AssignmentEditor({ overview, editing, onClose, onSaved }: { overview: O
       <Labeled label="Title"><input className={fieldClass} maxLength={160} value={title} onChange={e => setTitle(e.target.value)} /></Labeled>
       <Labeled label="Instructions"><textarea rows={4} maxLength={4000} className={cn(fieldClass, 'py-2')} value={instructions} onChange={e => setInstructions(e.target.value)} /></Labeled>
       <div className="grid gap-3 sm:grid-cols-3">
-        <Labeled label="Kind"><select className={fieldClass} value={kind} disabled={Boolean(published)} onChange={e => { const k = e.target.value as Assignment['kind']; setKind(k); if (k === 'form') setSubjectType('form'); }}>{ASSIGNMENT_KINDS.map(k => <option key={k} value={k}>{KIND_LABEL[k]}</option>)}</select></Labeled>
+        <Labeled label="Kind"><select className={fieldClass} value={kind} disabled={Boolean(published)} onChange={e => { const k = e.target.value as Assignment['kind']; setKind(k); if (k === 'form' && subjectType !== 'form') { setSubjectType('form'); setSubjectRef(''); } }}>{ASSIGNMENT_KINDS.map(k => <option key={k} value={k}>{KIND_LABEL[k]}</option>)}</select></Labeled>
         <Labeled label="Due (Phnom Penh time)"><input type="datetime-local" className={fieldClass} value={due} onChange={e => setDue(e.target.value)} /></Labeled>
         <Labeled label="Points"><input type="number" min={0} max={1000} className={fieldClass} value={points} onChange={e => setPoints(e.target.value)} /></Labeled>
       </div>
@@ -89,9 +89,10 @@ function AssignmentEditor({ overview, editing, onClose, onSaved }: { overview: O
   </Dialog>;
 }
 
-function StudentStatuses({ assignment, canEdit }: { assignment: Assignment; canEdit: boolean }) {
+function StudentStatuses({ assignment, canEdit, onChanged }: { assignment: Assignment; canEdit: boolean; onChanged: () => void }) {
   const { data, reload } = useLmsView<{ students: { student_id: string; status: string; progress: Record<string, unknown>; done_at: string | null; note: string | null; students?: { english_name: string } | null }[] }>('assignment', `id=${assignment.id}`);
-  const { saving, message, run } = useSaving(() => void reload());
+  // The assignment's counts ("3 open · 1 done") and its review button change too.
+  const { saving, message, run } = useSaving(() => { void reload(); onChanged(); });
   if (!data) return <p className="text-xs text-ink-muted">Loading students…</p>;
   if (!data.students.length) return <p className="text-xs text-ink-muted">{assignment.status === 'draft' ? 'Publish to send it to students.' : 'No students match the targets.'}</p>;
   const set = (studentId: string, status: 'done' | 'excused' | 'open') => run(() => lmsPost({ action: 'assignment.student', id: assignment.id, studentId, status, note: null }), 'Saved.');
@@ -139,7 +140,7 @@ export function AssignmentsPanel({ overview, canEdit, onReview }: { overview: Ov
               <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => { if (window.confirm(`Delete "${a.title}"? This cannot be undone.`)) void act(a, 'assignment.delete', 'Deleted.'); }}>Delete</button>
             </>}
           </div>
-          {expanded === a.id && <div><p className={sectionLabelClass}>Students</p><StudentStatuses assignment={a} canEdit={canEdit} /></div>}
+          {expanded === a.id && <div><p className={sectionLabelClass}>Students</p><StudentStatuses assignment={a} canEdit={canEdit} onChanged={() => void reload()} /></div>}
         </li>;
       })}</ul>}
     {editing && <AssignmentEditor overview={overview} editing={editing === 'new' ? null : editing} onClose={() => setEditing(null)} onSaved={() => void reload()} />}

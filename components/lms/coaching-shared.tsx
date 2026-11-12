@@ -18,24 +18,32 @@ export interface Overview {
   waiting: { submissions: number; forms: number };
 }
 
-/** Loads one Coaching view; reload() refetches after a change. */
+/**
+ * Loads one Coaching view; reload() refetches after a change. A result is only
+ * returned for the query it was loaded for: after switching to another student
+ * or quiz, the previous one's data is never shown (or edited) under the new one.
+ */
 export function useLmsView<T>(view: string, query = '', enabled = true) {
-  const [data, setData] = useState<T | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const key = `${view}?${query}`;
+  const [loaded, setLoaded] = useState<{ key: string; data: T | null; error: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const seq = useRef(0);
   const reload = useCallback(async () => {
     const id = ++seq.current;
-    if (!enabled) { setData(null); setLoading(false); return; }
+    if (!enabled) { setLoaded(null); setLoading(false); return; }
     setLoading(true);
     try {
       const result = await portalRequest<T>(`/api/admin/lms?view=${view}${query ? `&${query}` : ''}`);
-      if (id === seq.current) { setData(result); setError(null); }
-    } catch (e) { if (id === seq.current) setError(e instanceof Error ? e.message : 'Could not load this view.'); }
+      if (id === seq.current) setLoaded({ key, data: result, error: null });
+    } catch (e) {
+      // A failed refresh keeps what is on screen for this query, with the error next to it.
+      if (id === seq.current) setLoaded(previous => ({ key, data: previous?.key === key ? previous.data : null, error: e instanceof Error ? e.message : 'Could not load this view.' }));
+    }
     finally { if (id === seq.current) setLoading(false); }
-  }, [view, query, enabled]);
+  }, [key, view, query, enabled]);
   useEffect(() => { void reload(); }, [reload]);
-  return { data, error, loading, reload };
+  const current = loaded?.key === key ? loaded : null;
+  return { data: current?.data ?? null, error: current?.error ?? null, loading, reload };
 }
 
 /** One write to POST /api/admin/lms (checked again in SQL). */

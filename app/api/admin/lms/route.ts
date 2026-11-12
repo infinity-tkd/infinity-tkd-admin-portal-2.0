@@ -12,6 +12,8 @@ const headers = { 'Cache-Control': 'private, no-store', Vary: 'Authorization, Co
 const fail = (message: string, status = 422) => NextResponse.json({ success: false, error: { message } }, { status, headers });
 // Code deployed before the LMS migrations: say so instead of showing a database error.
 const lmsError = (error: unknown) => lmsErrorResponse(error, operationsError);
+/** Waiting submissions and form checks shown at once; far above what one academy has waiting. */
+const REVIEW_WAITING_LIMIT = 500;
 const VIEWS = ['overview', 'review', 'forms', 'quiz', 'assignments', 'assignment', 'challenges', 'achievements', 'student', 'attention', 'consents'] as const;
 type View = typeof VIEWS[number];
 
@@ -43,15 +45,23 @@ async function read(client: SupabaseClient, view: View, params: URLSearchParams)
         waiting: { submissions: submissions.count ?? 0, forms: ready.count ?? 0 } };
     }
     case 'review': {
-      const [submissions, forms] = await Promise.all([
-        rows(client.from('student_submissions').select('id,student_id,assignment_id,subject_type,subject_ref,kind,text_answer,video_seconds,status,submitted_at,video_path,students(english_name,current_belt),assignments(title,rubric)')
-          .in('status', ['submitted', 'returned', 'reviewed']).order('submitted_at', { ascending: false }).limit(200)),
-        rows(client.from('student_form_progress').select('student_id,form_id,status,practice_count,best_quiz_percent,review_requested_at,reviewed_at,review_note,students(english_name,current_belt),poomsae_forms(name)')
-          .in('status', ['ready_for_review', 'practising', 'mastered']).order('review_requested_at', { ascending: false, nullsFirst: false }).limit(300)),
+      // Everything still waiting, longest-waiting first, is read on its own so that a busy
+      // month of reviewed work can never push it off the list; then the most recent reviewed work.
+      const submission = 'id,student_id,assignment_id,subject_type,subject_ref,kind,text_answer,video_seconds,status,submitted_at,video_path,students(english_name,current_belt),assignments(title,rubric)';
+      const form = 'student_id,form_id,status,practice_count,best_quiz_percent,review_requested_at,reviewed_at,review_note,students(english_name,current_belt),poomsae_forms(name)';
+      const [waiting, done, formsWaiting, formsDone] = await Promise.all([
+        rows(client.from('student_submissions').select(submission).eq('status', 'submitted').order('submitted_at', { ascending: true }).limit(REVIEW_WAITING_LIMIT)),
+        rows(client.from('student_submissions').select(submission).in('status', ['returned', 'reviewed']).order('submitted_at', { ascending: false }).limit(100)),
+        rows(client.from('student_form_progress').select(form).eq('status', 'ready_for_review').order('review_requested_at', { ascending: true }).limit(REVIEW_WAITING_LIMIT)),
+        rows(client.from('student_form_progress').select(form).in('status', ['practising', 'mastered']).order('reviewed_at', { ascending: false, nullsFirst: false }).limit(100)),
       ]);
+      const submissions = [...waiting, ...done];
+      // Ids go in the request URL: ask in batches so a long queue never makes it too long.
       const ids = submissions.map(s => s.id);
-      const reviews = ids.length ? await rows(client.from('submission_reviews').select('id,submission_id,decision,grade,rubric,feedback,moments,visible_to_student,created_at,profiles(display_name)').in('submission_id', ids).order('created_at')) : [];
-      return { submissions: submissions.map(({ video_path, ...s }) => ({ ...s, hasVideo: Boolean(video_path), reviews: reviews.filter(r => r.submission_id === s.id) })), forms };
+      const batches = Array.from({ length: Math.ceil(ids.length / 100) }, (_, at) => ids.slice(at * 100, at * 100 + 100));
+      const reviews = (await Promise.all(batches.map(batch => rows(client.from('submission_reviews').select('id,submission_id,decision,grade,rubric,feedback,moments,visible_to_student,created_at,profiles(display_name)')
+        .in('submission_id', batch).order('created_at'))))).flat();
+      return { submissions: submissions.map(({ video_path, ...s }) => ({ ...s, hasVideo: Boolean(video_path), reviews: reviews.filter(r => r.submission_id === s.id) })), forms: [...formsWaiting, ...formsDone] };
     }
     case 'forms': {
       const [forms, questions] = await Promise.all([

@@ -91,9 +91,11 @@ function FormCheckRow({ item, canReview, onDone }: { item: FormCheck; canReview:
   </li>;
 }
 
-export function ReviewQueue({ canReview, assignment = null, onClearAssignment }: { canReview: boolean; assignment?: { id: string; title: string } | null; onClearAssignment?: () => void }) {
+export function ReviewQueue({ canReview, assignment = null, onClearAssignment, onChanged }: { canReview: boolean; assignment?: { id: string; title: string } | null; onClearAssignment?: () => void; onChanged?: () => void }) {
   const { data, error, loading, reload } = useLmsView<{ submissions: Submission[]; forms: FormCheck[] }>('review');
   const [showDone, setShowDone] = useState(false);
+  // After a review, the queue and the "N waiting" badge on the Review tab both refresh.
+  const done = () => { void reload(); onChanged?.(); };
   if (error) return <ErrorBanner title="Review queue unavailable" action={<button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} onClick={() => void reload()}>Retry</button>}>{error}</ErrorBanner>;
   if (!data) return <EmptyState busy title={loading ? 'Loading…' : 'Nothing yet'} />;
   const submissions = data.submissions.filter(s => (showDone || s.status === 'submitted') && (!assignment || s.assignment_id === assignment.id));
@@ -104,10 +106,10 @@ export function ReviewQueue({ canReview, assignment = null, onClearAssignment }:
       <button type="button" className={cn(buttonClass({ size: 'sm' }), 'pointer-coarse:min-h-11')} onClick={onClearAssignment}>Show everything</button></div>}
     <label className="flex min-h-11 items-center gap-2 text-sm text-ink-muted"><input type="checkbox" className="size-4" checked={showDone} onChange={e => setShowDone(e.target.checked)} /> Show reviewed work too</label>
     <section className="space-y-2"><h2 className={sectionLabelClass}>Videos and answers ({submissions.length})</h2>
-      {submissions.length ? submissions.map(item => <SubmissionReview key={item.id} item={item} canReview={canReview} onDone={() => void reload()} />)
+      {submissions.length ? submissions.map(item => <SubmissionReview key={item.id} item={item} canReview={canReview} onDone={done} />)
         : <EmptyState title="No submissions waiting" description="Video and written work students hand in appears here." />}</section>
     <section className="space-y-2"><h2 className={sectionLabelClass}>Form checks ({forms.length})</h2>
-      {forms.length ? <ul className="space-y-2">{forms.map(item => <FormCheckRow key={`${item.student_id}:${item.form_id}`} item={item} canReview={canReview} onDone={() => void reload()} />)}</ul>
+      {forms.length ? <ul className="space-y-2">{forms.map(item => <FormCheckRow key={`${item.student_id}:${item.form_id}`} item={item} canReview={canReview} onDone={done} />)}</ul>
         : <EmptyState title="No form checks waiting" description={`When a student taps "I'm ready" on a form, it appears here. Only a coach marks a form mastered.`} />}</section>
   </div>;
 }

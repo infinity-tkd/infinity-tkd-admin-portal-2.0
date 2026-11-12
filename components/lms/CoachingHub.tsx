@@ -57,7 +57,7 @@ export function CoachingHub() {
       { id: 'announcements', label: label('Notices', 'Announcements'), ariaLabel: 'Announcements', icon: <Megaphone /> },
       { id: 'attention', label: label('Attention', 'Attention'), ariaLabel: 'Attention', icon: <Warning /> },
     ]} />
-    {tab === 'review' && <ReviewQueue canReview={canEdit} assignment={reviewFor} onClearAssignment={() => setReviewFor(null)} />}
+    {tab === 'review' && <ReviewQueue canReview={canEdit} assignment={reviewFor} onClearAssignment={() => setReviewFor(null)} onChanged={refresh} />}
     {tab === 'assignments' && <AssignmentsPanel overview={overview} canEdit={canEdit} onReview={assignment => { setReviewFor(assignment); setTab('review'); }} />}
     {tab === 'challenges' && <ChallengesPanel overview={overview} canEdit={canEdit} />}
     {tab === 'forms' && <FormsPanel overview={overview} canEdit={canEdit} onChanged={refresh} />}
