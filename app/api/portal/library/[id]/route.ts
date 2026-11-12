@@ -2,6 +2,7 @@ import { studentDomain, domainError, domainResponse } from '@/lib/student-domain
 import { catalogParams, studentLessonEligible } from '@/lib/student-catalog-contract';
 import { domainFailure } from '@/lib/domain-cursor';
 import { LIBRARY_V2, libraryV2DetailQuerySchema, libraryV2Lesson } from '@/lib/library-v2-contract';
+import { publishedFormIds } from '@/lib/lms-server';
 
 export const dynamic = 'force-dynamic';
 /** library-v2: one published lesson with its sections, in the requested language. */
@@ -31,6 +32,7 @@ export async function GET(req: Request, context: { params: Promise<{ id: string 
       if (category.data && !category.data.is_active) domainFailure('This lesson is not available.', 'P0002');
       categorySlug = category.data?.slug ?? null;
     }
-    return domainResponse(LIBRARY_V2, { subjectStudentId: access.student.id, lang, lesson: libraryV2Lesson(lesson.data!, published.data, categorySlug, lang) });
+    const forms = await publishedFormIds(client, [Number(id)], signal);
+    return domainResponse(LIBRARY_V2, { subjectStudentId: access.student.id, lang, lesson: libraryV2Lesson(lesson.data!, published.data, categorySlug, lang, forms.get(Number(id)) ?? null) });
   } catch (error) { return domainError(error); }
 }

@@ -7,7 +7,7 @@ import type { BeltRow, BeltTestOverview, SyllabusDetail, SyllabusRow } from '@/l
 import { useBeltTestActions, useBeltTestView } from './use-belt-tests';
 import { Badge, cardClass, ErrorNote, inputClass, Labeled, primaryButton, secondaryButton } from './ui';
 
-interface DraftItem { key: string; title: string; libraryAssetId: number | null; weight: number; critical: boolean; guide: string }
+interface DraftItem { key: string; title: string; libraryAssetId: number | null; weight: number; critical: boolean; guide: string; reps: string; timesPerWeek: string; formId: string | null }
 interface DraftSection { key: string; kind: SectionKind; title: string; weight: number; minimum: number | null; items: DraftItem[] }
 interface Draft {
   id?: string; revision?: number; targetBeltId: number; track: 'color' | 'kukkiwon'; title: string;
@@ -25,7 +25,8 @@ function draftFrom(belt: BeltRow, source?: SyllabusDetail): Draft {
       sectionMinimum: s.section_minimum ?? DEFAULT_SCORING_RULES.sectionMinimum, criticalMinimum: s.critical_minimum ?? DEFAULT_SCORING_RULES.criticalMinimum, retestDays: s.retest_days ?? DEFAULT_SCORING_RULES.retestDays,
       feeUsd: Number(s.fee_usd ?? 0), eligibility: { ...s.eligibility }, notes: s.notes,
       sections: source.sections.map(section => ({ key: key(), kind: section.kind, title: section.title, weight: section.weight ?? 0, minimum: section.minimum,
-        items: source.items.filter(item => item.section_id === section.id).map(item => ({ key: key(), title: item.title, libraryAssetId: item.library_asset_id, weight: item.weight, critical: item.critical, guide: item.guide })) })) };
+        items: source.items.filter(item => item.section_id === section.id).map(item => ({ key: key(), title: item.title, libraryAssetId: item.library_asset_id, weight: item.weight, critical: item.critical, guide: item.guide,
+          reps: item.practice_target?.reps ? String(item.practice_target.reps) : '', timesPerWeek: item.practice_target?.timesPerWeek ? String(item.practice_target.timesPerWeek) : '', formId: item.form_id ?? null })) })) };
   }
   const weights = defaults?.weights ?? [25, 25, 25, 25];
   const sections: DraftSection[] = track === 'color'
@@ -43,6 +44,8 @@ function draftIssues(draft: Draft): string[] {
   if (draft.sections.some(section => section.title.trim().length < 2)) issues.push('Every section needs a title.');
   if (draft.sections.some(section => !section.items.length)) issues.push('Every section needs at least one item.');
   if (draft.sections.some(section => section.items.some(item => !item.title.trim()))) issues.push('Every item needs a name.');
+  if (draft.sections.some(section => section.items.some(item => (item.reps && !(Number.isInteger(Number(item.reps)) && Number(item.reps) >= 1 && Number(item.reps) <= 100000)) || (item.timesPerWeek && !(Number.isInteger(Number(item.timesPerWeek)) && Number(item.timesPerWeek) >= 1 && Number(item.timesPerWeek) <= 14)))))
+    issues.push('Home practice: reps are 1 to 100000 and times per week 1 to 14.');
   if (draft.track === 'color') {
     const total = draft.sections.reduce((sum, section) => sum + (Number(section.weight) || 0), 0);
     if (Math.abs(total - 100) > 1e-9) issues.push(`Section weights add up to ${total}; they must add up to 100.`);
@@ -52,6 +55,13 @@ function draftIssues(draft: Draft): string[] {
   return issues;
 }
 
+/** Home-practice target and form link, sent only when set. */
+function practiceFields(item: DraftItem) {
+  const reps = Number(item.reps), times = Number(item.timesPerWeek);
+  const target = { ...(Number.isInteger(reps) && reps > 0 ? { reps } : {}), ...(Number.isInteger(times) && times > 0 ? { timesPerWeek: times } : {}) };
+  return { ...(Object.keys(target).length ? { practiceTarget: target } : {}), ...(item.formId ? { formId: item.formId } : {}) };
+}
+
 function payload(draft: Draft) {
   const color = draft.track === 'color';
   return {
@@ -59,7 +69,8 @@ function payload(draft: Draft) {
     ...(color ? { passMark: draft.passMark, distinctionMark: draft.distinctionMark, sectionMinimum: draft.sectionMinimum, criticalMinimum: draft.criticalMinimum, retestDays: draft.retestDays } : {}),
     feeUsd: draft.feeUsd, eligibility: draft.eligibility, notes: draft.notes,
     sections: draft.sections.map(section => ({ kind: section.kind, title: section.title.trim(), ...(color ? { weight: Number(section.weight), minimum: section.minimum } : {}),
-      items: section.items.map(item => ({ title: item.title.trim(), libraryAssetId: item.libraryAssetId, ...(color ? { weight: Number(item.weight), critical: item.critical } : {}), guide: item.guide })) })),
+      items: section.items.map(item => ({ title: item.title.trim(), libraryAssetId: item.libraryAssetId, ...(color ? { weight: Number(item.weight), critical: item.critical } : {}), guide: item.guide,
+        ...practiceFields(item) })) })),
   };
 }
 
@@ -124,7 +135,9 @@ function SyllabusReadOnly({ detail, canManage, actions }: { detail: SyllabusDeta
       <h4 className="text-xs font-bold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">{section.title}{color ? ` · ${section.weight}%` : ''}{color && section.minimum != null ? ` · minimum ${section.minimum}%` : ''}</h4>
       <ul className="space-y-1 text-sm">{detail.items.filter(item => item.section_id === section.id).map(item => <li key={item.id} className="flex flex-wrap items-center gap-2">
         <span>{item.title}</span>{color && item.weight !== 1 && <Badge>×{item.weight}</Badge>}{item.critical && <Badge tone="red">Critical</Badge>}{item.library_asset_id && <Badge tone="blue">Library</Badge>}
-        {item.guide && <span className="text-xs text-neutral-500">— {item.guide}</span>}</li>)}</ul>
+        {item.form_id && <Badge tone="blue">Form</Badge>}
+        {item.practice_target && <Badge>Home: {[item.practice_target.reps ? `${item.practice_target.reps} reps` : '', item.practice_target.timesPerWeek ? `${item.practice_target.timesPerWeek}×/week` : ''].filter(Boolean).join(', ')}</Badge>}
+        {item.guide &&<span className="text-xs text-neutral-500">— {item.guide}</span>}</li>)}</ul>
     </section>)}
     {s.notes && <p className="whitespace-pre-wrap text-xs text-neutral-500">{s.notes}</p>}
   </div>;
@@ -135,6 +148,9 @@ function SyllabusEditor({ belt, row, initial, actions, onSaved, onClose }: { bel
   const [draft, setDraft] = useState<Draft>(initial);
   const libraryListId = useId();
   const library = useMemo(() => state.curriculumVideos.map(video => ({ id: video.id, title: video.title })).sort((a, b) => a.title.localeCompare(b.title)), [state.curriculumVideos]);
+  // Registered poomsae forms (Coaching → Forms); empty until the LMS is set up.
+  const [forms, setForms] = useState<{ id: string; name: string; published: boolean }[]>([]);
+  useEffect(() => { let alive = true; portalRequest<{ forms: { id: string; name: string; published: boolean }[] }>('/api/admin/lms?view=forms').then(result => { if (alive) setForms(Array.isArray(result?.forms) ? result.forms : []); }).catch(() => {}); return () => { alive = false; }; }, []);
   const issues = draftIssues(draft), color = draft.track === 'color';
   const totalWeight = draft.sections.reduce((sum, section) => sum + (Number(section.weight) || 0), 0);
   const setSection = (index: number, change: Partial<DraftSection>) => setDraft(value => ({ ...value, sections: value.sections.map((section, at) => at === index ? { ...section, ...change } : section) }));
@@ -194,8 +210,14 @@ function SyllabusEditor({ belt, row, initial, actions, onSaved, onClose }: { bel
             <button type="button" className={secondaryButton} aria-label={`Remove ${item.title || 'item'}`} onClick={() => setSection(sectionIndex, { items: section.items.filter((_, at) => at !== itemIndex) })}>✕</button>
           </div>
           <div className="sm:col-span-4"><Labeled label="What a full score looks like (optional)"><input className={inputClass} value={item.guide} maxLength={500} onChange={event => setItem(sectionIndex, itemIndex, { guide: event.target.value })} /></Labeled></div>
+          <div className="grid gap-2 sm:col-span-4 sm:grid-cols-[7rem_7rem_1fr]">
+            <Labeled label="Home practice: reps"><input className={inputClass} type="number" min={1} max={100000} placeholder="e.g. 50" value={item.reps} onChange={event => setItem(sectionIndex, itemIndex, { reps: event.target.value })} /></Labeled>
+            <Labeled label="Times per week"><input className={inputClass} type="number" min={1} max={14} placeholder="e.g. 3" value={item.timesPerWeek} onChange={event => setItem(sectionIndex, itemIndex, { timesPerWeek: event.target.value })} /></Labeled>
+            {(section.kind === 'poomsae' || item.formId) && forms.length > 0 ? <Labeled label="Poomsae form (for form progress)"><select className={inputClass} value={item.formId ?? ''} onChange={event => setItem(sectionIndex, itemIndex, { formId: event.target.value || null })}>
+              <option value="">Not a registered form</option>{forms.map(form => <option key={form.id} value={form.id}>{form.name}{form.published ? '' : ' (draft)'}</option>)}</select></Labeled> : <span />}
+          </div>
         </li>)}</ol>
-        <button type="button" className={secondaryButton} onClick={() => setSection(sectionIndex, { items: [...section.items, { key: key(), title: '', libraryAssetId: null, weight: 1, critical: false, guide: '' }] })}>Add item</button>
+        <button type="button" className={secondaryButton} onClick={() => setSection(sectionIndex, { items: [...section.items, { key: key(), title: '', libraryAssetId: null, weight: 1, critical: false, guide: '', reps: '', timesPerWeek: '', formId: null }] })}>Add item</button>
       </section>)}
       <button type="button" className={secondaryButton} disabled={draft.sections.length >= 12} onClick={() => setDraft({ ...draft, sections: [...draft.sections, { key: key(), kind: 'custom', title: 'New section', weight: 0, minimum: null, items: [] }] })}>Add section</button>
     </div>

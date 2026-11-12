@@ -1,0 +1,46 @@
+{
+  "success": true,
+  "data": {
+    "subjectStudentId": "STU-M-000",
+    "contractVersion": "library-v2",
+    "lang": "en",
+    "lesson": {
+      "id": 9001,
+      "slug": "roundhouse-kick-sample",
+      "kind": "lesson",
+      "category": "kicking-fundamentals",
+      "title": "Roundhouse Kick (sample)",
+      "koreanName": "돌려차기",
+      "romanized": "Dollyeo Chagi",
+      "summary": "A made-up sample showing the technique-steps section. Not real academy content.",
+      "levelNote": "White Belt and above",
+      "targetBelt": "White",
+      "type": "Taekwondo",
+      "thumbnailUrl": null,
+      "media": { "kind": "unavailable" },
+      "position": null,
+      "durationSeconds": null,
+      "tags": ["kick"],
+      "sectionCount": 2,
+      "translated": false,
+      "formId": null,
+      "sections": [
+        { "id": "overview", "type": "text", "title": "Overview", "paragraphs": ["A turning kick that strikes with the instep or ball of the foot."] },
+        {
+          "id": "how-to", "type": "technique-steps", "title": "Step by step", "video": "https://www.youtube.com/watch?v=VIDEO_ID",
+          "items": [
+            { "id": "stance", "title": "Fighting stance", "body": "Stand sideways, guard up, weight on the balls of the feet.", "clip": { "start": 0, "end": 4 },
+              "mistakes": [{ "mistake": "Flat-footed", "correction": "Stay on the balls of the feet" }], "checklist": ["Guard up", "Knees soft"] },
+            { "id": "chamber", "title": "Chamber position", "body": "Lift the knee to hip height, toes pulled back.", "clip": { "start": 12.5, "end": 18 },
+              "mistakes": [{ "mistake": "Knee too low", "correction": "Lift the knee to hip height first" }], "checklist": ["Knee at hip height", "Supporting foot flat", "Guard up"] },
+            { "id": "pivot", "title": "Pivot", "body": "Turn the supporting foot so the heel points at the target.", "clip": { "src": "https://www.youtube.com/watch?v=OTHER_ID" },
+              "mistakes": [], "checklist": ["Heel faces the target"] }
+          ]
+        }
+      ],
+      "sources": [],
+      "languages": ["en"]
+    }
+  },
+  "error": null
+}

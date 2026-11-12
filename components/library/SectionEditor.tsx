@@ -6,6 +6,7 @@ import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
 import { Plus } from '@phosphor-icons/react/dist/csr/Plus';
 import { buttonClass, fieldClass, labelClass, sectionLabelClass } from '@/components/ui/styles';
 import { cn } from '@/lib/utils';
+import { TechniqueStepsEditor, DiagramMovementsEditor } from './TechniqueStepsEditor';
 import { emptySection, nextSectionId, SECTION_TYPE_LABEL, SECTION_TYPES, type LibrarySection, type LibrarySectionType } from '@/lib/library-content';
 
 type Row = Record<string, any>;
@@ -90,7 +91,8 @@ function SectionBody({ section, onChange }: { section: LibrarySection; onChange:
       <select aria-label="Callout style" className={fieldClass} value={section.tone} onChange={event => onChange({ ...section, tone: event.target.value as typeof section.tone })}><option value="info">Note</option><option value="tip">Tip</option><option value="warning">Warning</option></select>
       <textarea aria-label="Callout text" rows={3} className={cn(fieldClass, 'py-2')} value={section.body} onChange={event => onChange({ ...section, body: event.target.value })} /></div>;
     case 'table': return <TableEditor section={section} onChange={onChange} />;
-    case 'diagram': return <p className="rounded-lg border border-dashed border-line p-3 text-xs text-ink-muted">Poomsae floor diagram with {section.data.steps.length} movements, imported from the website. Students see it as an animated floor plan; it can be removed but not edited here.</p>;
+    case 'technique-steps': return <TechniqueStepsEditor section={section} onChange={onChange} />;
+    case 'diagram': return <DiagramMovementsEditor section={section} onChange={onChange} />;
     default: return <RowsEditor section={section as LibrarySection & { items: Row[] }} onChange={onChange} />;
   }
 }
