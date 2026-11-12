@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Megaphone } from '@phosphor-icons/react/dist/csr/Megaphone';
 import { PaperPlaneTilt } from '@phosphor-icons/react/dist/csr/PaperPlaneTilt';
 import { buttonClass, cardClass, fieldClass, sectionLabelClass } from '@/components/ui/styles';
-import { EmptyState } from '@/components/ui/States';
+import { EmptyState, ErrorBanner } from '@/components/ui/States';
 import { portalRequest } from '@/lib/portal-api';
 import { announcementInput, type LmsAudience } from '@/lib/lms-contract';
 import { cn } from '@/lib/utils';
@@ -20,9 +20,13 @@ export function AnnouncementsPanel({ overview, canSend }: { overview: Overview; 
   // One request key per draft: a retried send never posts twice.
   const [requestKey, setRequestKey] = useState(() => crypto.randomUUID());
   const [version, setVersion] = useState(0);
+  // A failed load says so, instead of looking like nothing was ever sent.
+  const [loadError, setLoadError] = useState<string | null>(null);
   useEffect(() => {
     let alive = true;
-    portalRequest<{ announcements: Sent[] }>('/api/admin/lms/announcements').then(result => { if (alive) setSent(Array.isArray(result?.announcements) ? result.announcements : []); }).catch(() => { if (alive) setSent([]); });
+    portalRequest<{ announcements: Sent[] }>('/api/admin/lms/announcements')
+      .then(result => { if (alive) { setSent(Array.isArray(result?.announcements) ? result.announcements : []); setLoadError(null); } })
+      .catch(error => { if (alive) setLoadError(error instanceof Error ? error.message : 'Sent announcements could not be loaded.'); });
     return () => { alive = false; };
   }, [version]);
   const { saving, message, setMessage, run } = useSaving(() => setVersion(v => v + 1));
@@ -48,7 +52,8 @@ export function AnnouncementsPanel({ overview, canSend }: { overview: Overview; 
       <StatusLine message={message} />
     </section>}
     <section className="space-y-2"><h2 className={sectionLabelClass}>Sent</h2>
-      {sent === null ? <EmptyState busy title="Loading…" /> : sent.length === 0 ? <EmptyState icon={<Megaphone />} title="No announcements yet" />
+      {loadError && <ErrorBanner title="Sent announcements unavailable" action={<button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} onClick={() => setVersion(v => v + 1)}>Retry</button>}>{loadError}</ErrorBanner>}
+      {sent === null ? (loadError ? null : <EmptyState busy title="Loading…" />) : sent.length === 0 ? <EmptyState icon={<Megaphone />} title="No announcements yet" />
         : <ul className="space-y-2">{sent.map(a => <li key={a.id} className={cn(cardClass, 'p-3')}>
           <p className="text-sm font-bold text-ink">{a.title}</p><p className="whitespace-pre-wrap text-sm text-ink-muted">{a.body}</p>
           <p className="mt-1 text-xs text-ink-subtle">{audienceSummary(overview, a.audience)} · {a.recipients} recipients · {a.profiles?.display_name ?? 'Staff'} · {fmtDate(a.sent_at)}</p></li>)}</ul>}</section>

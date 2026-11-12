@@ -76,14 +76,18 @@ export function AchievementsPanel({ overview, canEdit, onChanged }: { overview: 
   if (error) return <ErrorBanner title="Achievements unavailable">{error}</ErrorBanner>;
   if (!data) return <EmptyState busy title="Loading…" />;
   const title = (c: string) => data.definitions.find(d => d.code === c)?.title ?? c;
+  // The picker only lists active achievements: award the one it shows, even when
+  // the default (Belt Exam Ready) has been switched off or deleted.
+  const awardable = data.definitions.filter(d => d.active);
+  const chosen = awardable.some(d => d.code === code) ? code : awardable[0]?.code ?? '';
   return <div className="space-y-5">
     {canEdit && <section className={cn(cardClass, 'space-y-2 p-3')}>
       <h2 className={sectionLabelClass}>Coach sign-off</h2>
       <div className="grid gap-2 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end">
         <StudentSelect overview={overview} value={student} onChange={setStudent} />
-        <Labeled label="Achievement"><select className={fieldClass} value={code} onChange={e => setCode(e.target.value)}>{data.definitions.filter(d => d.active).map(d => <option key={d.code} value={d.code}>{d.title}</option>)}</select></Labeled>
+        <Labeled label="Achievement"><select className={fieldClass} value={chosen} onChange={e => setCode(e.target.value)}>{awardable.map(d => <option key={d.code} value={d.code}>{d.title}</option>)}</select></Labeled>
         <Labeled label="Note (optional)"><input className={fieldClass} maxLength={500} value={note} onChange={e => setNote(e.target.value)} /></Labeled>
-        <button type="button" className={buttonClass({ variant: 'primary' })} disabled={!student || saving} onClick={() => void run(async () => { await lmsPost({ action: 'achievement.award', studentId: student, code, period: null, note: note.trim() || null }); setNote(''); }, 'Awarded. The student gets a notice.')}>Award</button>
+        <button type="button" className={buttonClass({ variant: 'primary' })} disabled={!student || !chosen || saving} onClick={() => void run(async () => { await lmsPost({ action: 'achievement.award', studentId: student, code: chosen, period: null, note: note.trim() || null }); setNote(''); }, 'Awarded. The student gets a notice.')}>Award</button>
       </div>
       <p className="text-xs text-ink-muted">A per-belt award (Belt Exam Ready) is recorded for the student&apos;s next belt.</p>
     </section>}
