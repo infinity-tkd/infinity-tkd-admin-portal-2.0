@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { randomUUID } from 'node:crypto';
-import { operationsDatabase, root } from './fixtures/operations-db.mjs';
+import { operationsDatabase, root, coach } from './fixtures/operations-db.mjs';
 import { loadTs } from './load-ts.mjs';
 
 const { libraryPublicationProjection } = loadTs('lib/library-publication.ts');
@@ -134,6 +134,62 @@ test('library-v2 feed page: published lessons only, filters, hidden categories, 
     await assert.rejects(page({ lang: 'ko' }), /supported library filters/);
     await db.query("SELECT set_config('request.jwt.role','authenticated',false)");
     await assert.rejects(page(), /Server only/);
+  } finally { await db.close(); }
+});
+
+test('staff lifecycle: a coach manages categories and lessons end to end; the student feed follows each step; assistants cannot edit', async () => {
+  const db = await setup();
+  try {
+    const assistant = '92000000-0000-4000-8000-000000000002';
+    await db.query("INSERT INTO auth.users(id,email) VALUES($1,'assistant@example.test')", [assistant]);
+    await db.query("INSERT INTO profiles(id,username,email,display_name,role) VALUES($1,'assistant','assistant@example.test','Assistant','Assistant Coach')", [assistant]);
+    const asCoach = (sql, params) => one(db, sql, params).then(row => row.r);
+    const save = (actor, action, id, payload) => asCoach('SELECT portal_save_library_asset($1,$2,$3,$4::jsonb,$5) AS r', [actor, action, id, JSON.stringify(payload), action === 'CREATE' ? randomUUID() : null]);
+    const saveContent = (actor, asset, meta, body = content) => asCoach('SELECT portal_save_library_content($1,$2,$3::jsonb) AS r', [actor, asset.id, JSON.stringify({ expectedRevision: asset.revision, metadata: meta, content: body })]);
+    const page = async (lang = 'en') => (await one(db, 'SELECT portal_student_library_page($1,NULL,NULL,NULL,NULL,50) AS r', [lang])).r;
+    const lessonInput = (title, belt) => { const input = { title, description: JSON.stringify({ text: 'Overview', instructions: ['Step one'] }), library_type: 'Taekwondo', tkd_category: 'Poomsae', fitness_category: null, target_level: belt, video_url: '' }; return { ...input, studentProjection: libraryPublicationProjection(input) }; };
+
+    // Categories: the coach creates and renames; the assistant can only read.
+    const forms = await category(db, 'CREATE', { ...categoryInput('forms'), title: 'Forms' }, null, coach);
+    const kicks = await category(db, 'CREATE', { ...categoryInput('kicks'), title: 'Kicks' }, null, coach);
+    await assert.rejects(category(db, 'CREATE', categoryInput('assistant-made'), null, assistant), /Permission denied/);
+
+    // Lesson: created without a belt, given content, then a belt and published.
+    let lesson = (await save(coach, 'CREATE', null, lessonInput('Koryo', 'Unassigned'))).asset;
+    await assert.rejects(saveContent(assistant, lesson, metadata(forms.id)), /Permission denied/);
+    lesson = (await saveContent(coach, lesson, { ...metadata(forms.id), slug: 'koryo' })).asset;
+    await assert.rejects(save(coach, 'UPDATE', lesson.id, { ...lessonInput('Koryo', 'Red'), expectedRevision: lesson.revision - 1 }), /changed/);
+    lesson = (await save(coach, 'UPDATE', lesson.id, { ...lessonInput('Koryo (Black belt form)', 'Red'), expectedRevision: lesson.revision })).asset;
+    const publish = async asset => (await save(coach, 'PUBLISH', asset.id, { expectedRevision: asset.revision, reason: 'Ready for students', studentProjection: lessonInput(asset.title, asset.target_level).studentProjection })).asset;
+    await assert.rejects(save(assistant, 'PUBLISH', lesson.id, { expectedRevision: lesson.revision, reason: 'Ready for students', studentProjection: lessonInput('Koryo', 'Red').studentProjection }), /Permission denied/);
+    lesson = await publish(lesson);
+    let row = (await page()).find(item => item.id === lesson.student_curriculum_id);
+    assert.deepEqual([row.title, row.targetBelt, row.published.category, row.published.slug], ['Koryo (Black belt form)', 'Red', 'forms', 'koryo']);
+    assert.equal((await page('km')).find(item => item.id === row.id).published.translation.title, 'ទាត់មុខ');
+
+    // Draft edits stay private until republished; then students get them.
+    lesson = (await saveContent(coach, lesson, { ...metadata(kicks.id), slug: 'koryo', summary: 'Edited summary' })).asset;
+    row = (await page()).find(item => item.id === lesson.student_curriculum_id);
+    assert.deepEqual([row.published.category, row.published.summary], ['forms', 'The foundational snap kick.'], 'students keep the published version');
+    lesson = await publish(lesson);
+    row = (await page()).find(item => item.id === lesson.student_curriculum_id);
+    assert.deepEqual([row.published.category, row.published.summary], ['kicks', 'Edited summary']);
+
+    // Hiding a category hides its lessons; renaming shows at once.
+    const kicksNow = await one(db, 'SELECT revision FROM library_categories WHERE id=$1', [kicks.id]);
+    await category(db, 'UPDATE', { ...categoryInput('kicks'), title: 'Kicks', isActive: false, expectedRevision: kicksNow.revision }, kicks.id, coach);
+    assert.equal((await page()).some(item => item.id === lesson.student_curriculum_id), false);
+    await category(db, 'UPDATE', { ...categoryInput('kicking'), title: 'Kicking', isActive: true, expectedRevision: kicksNow.revision + 1 }, kicks.id, coach);
+    assert.equal((await page()).find(item => item.id === lesson.student_curriculum_id).published.category, 'kicking', 'a renamed web name applies immediately');
+
+    // Removing: a category in use cannot be deleted; unpublish, delete the lesson, then the category.
+    await assert.rejects(category(db, 'DELETE', { expectedRevision: kicksNow.revision + 2 }, kicks.id, coach), /use this category/);
+    lesson = (await save(coach, 'UNPUBLISH', lesson.id, { expectedRevision: lesson.revision, reason: 'Retiring this lesson' })).asset;
+    assert.equal((await page()).some(item => item.id === lesson.student_curriculum_id), false);
+    await save(coach, 'DELETE', lesson.id, { expectedRevision: lesson.revision });
+    assert.equal((await one(db, 'SELECT count(*)::int n FROM library_published_content')).n, 0);
+    assert.equal((await category(db, 'DELETE', { expectedRevision: kicksNow.revision + 2 }, kicks.id, coach)).deleted, kicks.id);
+    assert.equal((await one(db, "SELECT count(*)::int n FROM audit_logs WHERE action LIKE 'LIBRARY_%' AND performed_by=$1", [coach])).n >= 10, true, 'every change is audited');
   } finally { await db.close(); }
 });
 

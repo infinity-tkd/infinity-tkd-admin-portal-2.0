@@ -18,10 +18,23 @@ export const libraryLearningContentSchema = z.object({
 }).strict();
 export type LibraryLearningContent = z.infer<typeof libraryLearningContentSchema>;
 
+/**
+ * Older lessons stored some guidance as plain text lines (for example a mistake
+ * without a correction). They become the current object shape, so those lessons
+ * can still be published.
+ */
+export function normalizeLegacyGuidance(raw: Record<string, unknown>): Record<string, unknown> {
+  const out = { ...raw };
+  if (Array.isArray(out.mistakes)) out.mistakes = out.mistakes.map(row => typeof row === 'string' ? { mistake: row, correction: '' } : row);
+  if (Array.isArray(out.studyGuide)) out.studyGuide = out.studyGuide.map(row => typeof row === 'string' ? { question: row, answer: '' } : row);
+  if (Array.isArray(out.terminology)) out.terminology = out.terminology.map(row => typeof row === 'string' ? { korean: '', english: row, khmer: '' } : row);
+  return out;
+}
+
 /** Staff metadata is never forwarded wholesale to the student learning API. */
 export function libraryPublicationProjection(asset: { description: string; video_url: string; library_type: string; target_level: string; tkd_category?: string | null; fitness_category?: string | null }) {
   const base = libraryStudentProjection(asset);
-  const raw: Record<string, unknown> = asset.description.trim().startsWith('{') ? JSON.parse(asset.description) : {};
+  const raw: Record<string, unknown> = normalizeLegacyGuidance(asset.description.trim().startsWith('{') ? JSON.parse(asset.description) : {});
   const category = typeof raw.actualCategory === 'string' ? raw.actualCategory.trim() : asset.fitness_category || asset.tkd_category || '';
   const type = asset.library_type === 'Fitness' ? 'Fitness' : asset.target_level === 'Dance' || category.startsWith('Dance:') ? 'Dance' : 'Taekwondo';
   const allowed = Object.fromEntries(Object.keys(libraryLearningContentSchema.shape).filter(key => key !== 'muscleTargets' && raw[key] !== undefined).map(key => [key, raw[key]]));

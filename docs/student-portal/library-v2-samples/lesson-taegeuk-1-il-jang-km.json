@@ -1,0 +1,781 @@
+{
+  "success": true,
+  "data": {
+    "subjectStudentId": "STU-M-000",
+    "lang": "km",
+    "lesson": {
+      "id": 91,
+      "slug": "taegeuk-1-il-jang",
+      "kind": "lesson",
+      "category": "poomsae",
+      "title": "Taegeuk 1 (Il-Jang)",
+      "koreanName": "태극 1장 (Keon / Heaven & Beginning)",
+      "romanized": "Taegeuk Il Jang",
+      "summary": "មេគុនដំបូងបង្អស់ក្នុងកម្មវិធីសិក្សាផ្លូវការរបស់ World Taekwondo ដែលតំណាងឱ្យត្រីក្រាម Keon (មេឃ និងពន្លឺ)—ជាការចាប់ផ្តើមនៃការបង្កើតក្បាច់គុន និងដំណើរឆ្ពោះទៅកាន់ភាពឥតខ្ចោះ។",
+      "levelNote": "White Belt (10th – 9th Geup)",
+      "targetBelt": "All",
+      "type": "Taekwondo",
+      "thumbnailUrl": null,
+      "media": {
+        "kind": "unavailable"
+      },
+      "position": null,
+      "durationSeconds": null,
+      "tags": [
+        "poomsae",
+        "taegeuk"
+      ],
+      "sectionCount": 16,
+      "translated": true,
+      "sections": [
+        {
+          "id": "glance",
+          "title": "At a glance",
+          "type": "facts",
+          "items": [
+            {
+              "label": "កម្រិតខ្សែក្រវាត់",
+              "value": "White Belt (10th – 9th Geup)"
+            },
+            {
+              "label": "កម្រិតបច្ចេកទេស",
+              "value": "Beginner"
+            },
+            {
+              "label": "ចំនួនចលនាសរុប",
+              "value": "18"
+            },
+            {
+              "label": "Performance time",
+              "value": "approx. 30–35 sec"
+            },
+            {
+              "label": "Floor pattern",
+              "value": "王 (King Line)"
+            },
+            {
+              "label": "សញ្ញាសម្គាល់ / ត្រីក្រាម",
+              "value": "☰ (Keon / 건)"
+            },
+            {
+              "label": "អក្សរចិន & ធាតុធម្មជាតិ",
+              "value": "乾 / 天 (The Heavens & Pure Light)"
+            },
+            {
+              "label": "Element",
+              "value": "Pure Yang (Creative Origin & Genesis)"
+            },
+            {
+              "label": "កម្រិតខ្សែក្រវាត់ / អាយុ",
+              "value": "Cadet, Junior & Senior Novice"
+            }
+          ]
+        },
+        {
+          "id": "meaning",
+          "title": "អត្ថន័យទស្សនវិជ្ជា និងគោលគំនិត",
+          "type": "text",
+          "paragraphs": [
+            "តំណាងឱ្យ Keon (មេឃ និងពន្លឺព្រះអាទិត្យ) ជានិមិត្តរូបនៃប្រភពដើមនៃអ្វីៗទាំងអស់ក្នុងចក្រវាល ការបង្កើត និងចំណុចចាប់ផ្តើមដ៏បរិសុទ្ធនៃការហ្វឹកហាត់ក្បាច់គុន។"
+          ]
+        },
+        {
+          "id": "philosophy",
+          "title": "Philosophy",
+          "type": "text",
+          "paragraphs": [
+            "អនុវត្តដោយឥរិយាបថរឹងមាំ ថ្លៃថ្នូរ ចង្វាក់ច្បាស់លាស់ និងការសម្លឹងទៅមុខដោយជំនឿជាក់ ដូចព្រះអាទិត្យពេលព្រឹកដែលកំពុងរះឡើងលើមេឃស្រឡះ។"
+          ]
+        },
+        {
+          "id": "trigram",
+          "title": "Trigram and philosophy",
+          "type": "facts",
+          "items": [
+            {
+              "label": "សញ្ញាសម្គាល់ / ត្រីក្រាម",
+              "value": "☰ · Keon · 건 (乾 / 天)"
+            },
+            {
+              "label": "Element",
+              "value": "Heaven and Light (Genesis & Creative Origin)"
+            },
+            {
+              "label": "Core concept",
+              "value": "Keon is the creative force which inhabits all physical forms. Keon is powerful and aggressive, and it is represented by heaven and light."
+            },
+            {
+              "label": "កម្រិតខ្សែក្រវាត់",
+              "value": "White Belt (10th – 9th Geup)"
+            },
+            {
+              "label": "Dialectic",
+              "value": "Pure creative force; opposite Gon (Earth). In Gon is realized the nature of Keon; and in Keon, the nature of Gon."
+            },
+            {
+              "label": "Direction sequence",
+              "value": "9:00 -> 3:00 -> 12:00 -> 3:00 -> 9:00 -> 12:00 -> 9:00 -> 3:00 -> 6:00"
+            },
+            {
+              "label": "Kihap on step",
+              "value": "16"
+            },
+            {
+              "label": "Target duration",
+              "value": "30–35 sec"
+            }
+          ]
+        },
+        {
+          "id": "directive",
+          "title": "ការណែនាំអនុវត្តតាមទស្សនវិជ្ជា (수련 요결)៖",
+          "type": "text",
+          "paragraphs": [
+            "The actions in Taegeuk 1 are associated with Keon. Direction of movement follows the trigram that represents Keon, embodying the genesis of creation, upright grandeur, and powerful forward conviction."
+          ]
+        },
+        {
+          "id": "introduced",
+          "title": "បច្ចេកទេសគន្លឹះដែលបានណែនាំថ្មី (신규 도입 기술)៖",
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Ready stance (Gibon Joon-bi Seogi)",
+            "Basic walking stance (Ap-seogi, 50/50 balance)",
+            "Forward stance (Ap-kubi, 70/30 weight)",
+            "Two front snap kicks (Ap-chagi)",
+            "Low downward block (Arae-makki)",
+            "High face block (Olgul-makki)"
+          ]
+        },
+        {
+          "id": "floor-plan",
+          "title": "ចលនាបោះជំហានលើខ្សែគន្លង \"王\" (Wang Dynamics)៖",
+          "type": "cards",
+          "items": [
+            {
+              "title": "Line 1 (Top / Heaven / 9:00 ↔ 3:00)",
+              "subtitle": "Heaven & Pure Light",
+              "body": "Advances forward with front kick and reverse punch on both flanks, generating the top solid Yang line (—–).",
+              "bullets": [],
+              "facts": [
+                {
+                  "label": "Steps",
+                  "value": "Steps 11–14"
+                },
+                {
+                  "label": "Line",
+                  "value": "Yang (solid)"
+                }
+              ]
+            },
+            {
+              "title": "Line 2 (Middle / Man / 3:00 ↔ 9:00)",
+              "subtitle": "Man & Harmonious Action",
+              "body": "Low block and direct punch along the center 12:00 axis, followed by advancing inside blocks and reverse punches, forming the middle solid Yang line (—–).",
+              "bullets": [],
+              "facts": [
+                {
+                  "label": "Steps",
+                  "value": "Steps 5–10"
+                },
+                {
+                  "label": "Line",
+                  "value": "Yang (solid)"
+                }
+              ]
+            },
+            {
+              "title": "Line 3 (Bottom / Earth / 9:00 ↔ 3:00)",
+              "subtitle": "Earth & Grounded Beginning",
+              "body": "Low downward blocks advance with reverse middle punches on both sides, creating the foundational bottom solid Yang line (—–).",
+              "bullets": [],
+              "facts": [
+                {
+                  "label": "Steps",
+                  "value": "Steps 1–4"
+                },
+                {
+                  "label": "Line",
+                  "value": "Yang (solid)"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "principles",
+          "title": "គោលការណ៍អនុវត្តទាំង ៨ សសរស្ដម្ភ៖",
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Technique (기술): Downward blocks must snap exactly two fists above the front thigh; punches must target the solar plexus centerline.",
+            "Knowledge (지식): The pattern traces the Chinese character 王 (King), where three advancing steps establish the three solid lines of the Keon trigram.",
+            "Attitude (태도): Perform with upright grandeur and clear cadence, embodying the genesis of creation and the morning sun.",
+            "Eye Focus (시선): Pivot head and eyes toward the imaginary opponent at 9:00, 3:00, 12:00, and 6:00 before initiating footwork.",
+            "Posture & Balance (중심): Maintain 50/50 balance in walking stances (Ap-seogi) with 1 foot-length spacing, transitioning to rooted 70/30 weight in forward stances (Ap-kubi).",
+            "Timing & Rhythm (완급): Complete each technique cleanly with a momentary focal pause before transitioning smoothly without hesitation.",
+            "Power (힘): Stay relaxed during chambering from the opposite shoulder or hip; deliver explosive muscular lock at impact.",
+            "Breathing & Kihop (기합): Inhale during preparation; exhale sharply through the Danjeon on impact, releasing a thunderous Kihap on the final punch."
+          ]
+        },
+        {
+          "id": "major-deductions",
+          "title": "ការកាត់ពិន្ទុធ្ងន់ (-0.3 ពិន្ទុក្នុងមួយកំហុស)៖",
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Loss of balance or staggering upon landing front kicks (-0.3).",
+            "Incorrect movement or missing step (-0.3).",
+            "Omitting the final Kihap or delivering it prematurely (-0.3).",
+            "Facing the wrong clock coordinate (-0.3)."
+          ]
+        },
+        {
+          "id": "minor-deductions",
+          "title": "ការកាត់ពិន្ទុស្រាល (-0.1 ពិន្ទុក្នុងមួយកំហុស)៖",
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Blocking fist dropping below knee level or wrist bent during Arae-makki (-0.1).",
+            "Punching off the solar plexus centerline (-0.1).",
+            "Rear heel lifting off the mat during forward stances (Ap-kubi) (-0.1).",
+            "High block resting against the forehead without 1-fist clearance (-0.1)."
+          ]
+        },
+        {
+          "id": "steps",
+          "title": "លំដាប់ចលនា",
+          "type": "steps",
+          "items": [
+            {
+              "title": "",
+              "body": "[ទិស ៩ ម៉ោង] បង្វិលកែងជើងស្តាំ ងាកឆ្វេង ៩០° ចូលជំហរដើរ Ap-seogi ឆ្វេង។ រារាំងការពារផ្នែកក្រោម Arae-makki ដោយដៃឆ្វេង។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ៩ ម៉ោង] បោះជំហានទៅមុខចូលជំហរដើរ Ap-seogi ស្តាំ។ ដាល់ត្រង់បញ្រ្ចាសជើង Momtong Bandae-jireugi ដោយដៃស្តាំចំកណ្តាលទ្រូង។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ៣ ម៉ោង] បង្វិលតាមទ្រនិចនាឡិកា ១៨០° ចូលជំហរដើរ Ap-seogi ស្តាំ។ រារាំងការពារផ្នែកក្រោម Arae-makki ដោយដៃស្តាំ។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ៣ ម៉ោង] បោះជំហានទៅមុខចូលជំហរដើរ Ap-seogi ឆ្វេង។ ដាល់ត្រង់បញ្រ្ចាសជើង Momtong Bandae-jireugi ដោយដៃឆ្វេង។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ១២ ម៉ោង] ងាកឆ្វេង ៩០° ចូលជំហរវែង Ap-kubi ឆ្វេង (ទម្ងន់ ៧០/៣០)។ រារាំងការពារក្រោម Arae-makki ឆ្វេង រួចដាល់ត្រង់ស្របជើង Momtong Baro-jireugi ស្តាំ។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ៣ ម៉ោង] ជើងឆ្វេងនៅនឹងកន្លែង ទាញជើងស្តាំមកកែងជើងឆ្វេង រួចបង្វែរស្តាំចូលជំហរ Ap-seogi ស្តាំ។ រារាំងការពារទ្រូងពីក្រៅចូលក្នុង Momtong An-makki ឆ្វេង។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ៣ ម៉ោង] បោះជំហានទៅមុខចូលជំហរ Ap-seogi ឆ្វេង។ ដាល់ត្រង់ស្របជើង Momtong Baro-jireugi ស្តាំ។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ៩ ម៉ោង] បង្វិលបាតជើងស្តាំ ងាកច្រាសទ្រនិចនាឡិកា ១៨០° ចូល Ap-seogi ឆ្វេង។ រារាំងការពារទ្រូងពីក្រៅចូលក្នុង Momtong An-makki ស្តាំ។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ៩ ម៉ោង] បោះជំហានទៅមុខចូលជំហរ Ap-seogi ស្តាំ។ ដាល់ត្រង់ស្របជើង Momtong Baro-jireugi ឆ្វេង។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ១២ ម៉ោង] ងាកស្តាំ ៩០° ចូលជំហរវែង Ap-kubi ស្តាំ។ រារាំងការពារក្រោម Arae-makki ស្តាំ រួចដាល់ត្រង់ស្របជើង Momtong Baro-jireugi ឆ្វេង។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ៩ ម៉ោង] ងាកឆ្វេង ៩០° ចូលជំហរដើរ Ap-seogi ឆ្វេង។ រារាំងការពារលើផ្ទៃមុខ Olgul-makki ដោយដៃឆ្វេង (ឃ្លាតពីថ្ងាស ១ ក្តាប់ដៃ)។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ៩ ម៉ោង] ទាត់ត្រង់ Ap-chagi ជើងស្តាំ ទម្លាក់ជើងទៅមុខចូល Ap-seogi ស្តាំ រួចដាល់បញ្រ្ចាស Momtong Bandae-jireugi ស្តាំ។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ៣ ម៉ោង] បង្វិលតាមទ្រនិចនាឡិកា ១៨០° ចូល Ap-seogi ស្តាំ។ រារាំងការពារលើផ្ទៃមុខ Olgul-makki ដោយដៃស្តាំ។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ៣ ម៉ោង] ទាត់ត្រង់ Ap-chagi ជើងឆ្វេង ទម្លាក់ជើងទៅមុខចូល Ap-seogi ឆ្វេង រួចដាល់បញ្រ្ចាស Momtong Bandae-jireugi ឆ្វេង។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ៦ ម៉ោង] បង្វិលជើងស្តាំ ងាក ៩០° មកក្រោយចូលជំហរវែង Ap-kubi ឆ្វេង។ រារាំងការពារក្រោម Arae-makki ឆ្វេង។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "[ទិស ៦ ម៉ោង] បោះជំហានទៅមុខចូលជំហរវែង Ap-kubi ស្តាំ។ ដាល់បញ្រ្ចាស Momtong Bandae-jireugi ស្តាំ ជាមួយការស្រែកបញ្ចេញកម្លាំង Kihap យ៉ាងខ្លាំងក្លា! នៅពេលបញ្ជា Ba-ro ងាកឆ្វេងត្រឡប់មកជំហរត្រៀម Gibon Joon-bi។",
+              "details": []
+            }
+          ]
+        },
+        {
+          "id": "key-details",
+          "title": "គោលការណ៍ជីវមេកានិចសំខាន់ៗ",
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "រក្សាលំនឹង ៥០/៥០ ក្នុងជំហរដើរ (Ap-seogi) ដោយគម្លាតចន្លោះជើងប្រវែង ១ ប្រអប់ជើង និងមុំជើងក្រោយ ៣០°។",
+            "ការរារាំង Arae-makki ត្រូវបញ្ចេញពីស្មាផ្ទុយគ្នាមកឈប់ត្រឹមចម្ងាយ ២ ក្តាប់ដៃលើភ្លៅមុខ។",
+            "កណ្តាប់ដៃដាល់ត្រូវតម្រង់ចំខ្សែបន្ទាត់កណ្តាលដងខ្លួន (Solar Plexus) ជាមួយនឹងការបង្វិលត្រគាក។",
+            "ដកដង្ហើមចេញយ៉ាងរលូនតាមរយៈដង្ហើមពោះ (Danjeon) នៅរាល់ពេលបញ្ចប់ក្បាច់រារាំង ឬដាល់នីមួយៗ។"
+          ]
+        },
+        {
+          "id": "mistakes",
+          "title": "កំហុសទូទៅដែលត្រូវជៀសវាង",
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "ទម្លាក់កណ្តាប់ដៃរារាំងក្រោមជង្គង់ ឬបត់កដៃក្នុងពេល Arae-makki (-០.១ ពិន្ទុ)។",
+            "បោះជំហានវែងពេកក្នុង Ap-kubi បណ្តាលឱ្យកែងជើងក្រោយរបើកផុតពីកម្រាល (-០.១ ពិន្ទុ)។",
+            "ការបង្វិលខ្លួន ១៨០° ប្រញាប់ប្រញាល់ដោយមិនបានបង្វិលលើបាតជើងខាងមុខឱ្យបានច្បាស់លាស់ (-០.១ ពិន្ទុ)។"
+          ]
+        },
+        {
+          "id": "tips",
+          "title": "គន្លឹះគ្រូបង្វឹក & ការផ្លាស់ប្តូរជំហរ",
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "ភាពសាមញ្ញនៃជំហរ៖ មេគុននេះប្រើជំហរដើរ (Ap-seogi) ស្ទើរតែទាំងស្រុង ដោយប្រើជំហរវែង (Ap-kubi) តែនៅលើអ័ក្សកណ្តាលប៉ុណ្ណោះ។",
+            "ការផ្លាស់ប្តូរជំហានទី ៦ ទៅ ៧៖ ទាញជើងស្តាំមកត្រឹមតែពាក់កណ្តាលជំហាន រួចបង្វែរ ៩០° ទៅស្តាំឱ្យបានរហ័ស។",
+            "ការត្រៀមដៃរារាំងក្រោម៖ នៅពេលបញ្ចប់ជំហានទី ១០ កុំទាញដៃដាល់មកចង្កេះ ត្រូវលើកដៃខ្សែក្រវាត់ទៅស្មាផ្ទុយភ្លាមដើម្បីត្រៀមរារាំងក្រោម។",
+            "Step 15 to 16 Pivot: When turning 90° toward the rear line, do not move the right foot—pivot on the ball of your right foot while swinging your left leg around, and chamber your left hand."
+          ]
+        },
+        {
+          "id": "terminology",
+          "title": "សទ្ទានុក្រមបច្ចេកទេសភាសាកូរ៉េផ្លូវការ",
+          "type": "glossary",
+          "items": [
+            {
+              "korean": "앞서기",
+              "romanized": "Ap-seogi",
+              "english": "Walking Stance (50/50 balance, 1 foot-length)",
+              "category": "Stance"
+            },
+            {
+              "korean": "앞굽이",
+              "romanized": "Ap-kubi",
+              "english": "Forward Long Stance (70% front / 30% rear, 4–4.5 foot-lengths)",
+              "category": "Stance"
+            },
+            {
+              "korean": "아래막기",
+              "romanized": "Arae-makki",
+              "english": "Low Downward Block (2 fists above front thigh)",
+              "category": "Block"
+            },
+            {
+              "korean": "몸통반대지르기",
+              "romanized": "Momtong Bandae-jireugi",
+              "english": "Reverse Middle Punch (opposite side of forward leg)",
+              "category": "Strike"
+            },
+            {
+              "korean": "몸통바로지르기",
+              "romanized": "Momtong Baro-jireugi",
+              "english": "Direct / Obverse Middle Punch (same side as forward leg)",
+              "category": "Strike"
+            },
+            {
+              "korean": "몸통안막기",
+              "romanized": "Momtong An-makki",
+              "english": "Inside Middle Block (outside-to-inside chest block)",
+              "category": "Block"
+            },
+            {
+              "korean": "얼굴막기",
+              "romanized": "Olgul-makki",
+              "english": "High Face Block (1 fist distance above forehead)",
+              "category": "Block"
+            },
+            {
+              "korean": "앞차기",
+              "romanized": "Ap-chagi",
+              "english": "Front Snap Kick (striking with ball of foot / Ap-chook)",
+              "category": "Kick"
+            },
+            {
+              "korean": "기합",
+              "romanized": "Kihap",
+              "english": "Martial Spirit Shout / Energy Vocalization",
+              "category": "Breath & Command"
+            },
+            {
+              "korean": "바로",
+              "romanized": "Ba-ro",
+              "english": "Return to Initial Ready Stance (Gibon Joon-bi)",
+              "category": "Breath & Command"
+            },
+            {
+              "korean": "차렷",
+              "romanized": "Charyeut",
+              "english": "Attention Stance",
+              "category": "Command"
+            },
+            {
+              "korean": "경례",
+              "romanized": "Kyeong-rye",
+              "english": "Bow of Mutual Respect",
+              "category": "Command"
+            },
+            {
+              "korean": "준비",
+              "romanized": "Joon-bi",
+              "english": "Ready Stance",
+              "category": "Command"
+            },
+            {
+              "korean": "쉬어",
+              "romanized": "Shi-yo",
+              "english": "At Ease / Rest",
+              "category": "Command"
+            }
+          ]
+        },
+        {
+          "id": "diagram",
+          "title": "Floor diagram",
+          "type": "diagram",
+          "kind": "poomsae-walkthrough",
+          "data": {
+            "start": {
+              "x": 170,
+              "y": 200
+            },
+            "startFacing": "N",
+            "startStance": {
+              "type": "ready"
+            },
+            "guides": [
+              {
+                "from": {
+                  "x": 60,
+                  "y": 200
+                },
+                "to": {
+                  "x": 280,
+                  "y": 200
+                }
+              },
+              {
+                "from": {
+                  "x": 60,
+                  "y": 130
+                },
+                "to": {
+                  "x": 280,
+                  "y": 130
+                }
+              },
+              {
+                "from": {
+                  "x": 60,
+                  "y": 60
+                },
+                "to": {
+                  "x": 280,
+                  "y": 60
+                }
+              },
+              {
+                "from": {
+                  "x": 170,
+                  "y": 200
+                },
+                "to": {
+                  "x": 170,
+                  "y": 60
+                }
+              }
+            ],
+            "verified": false,
+            "steps": [
+              {
+                "to": {
+                  "x": 115,
+                  "y": 200
+                },
+                "facing": "W",
+                "stance": {
+                  "type": "walking",
+                  "lead": "left"
+                },
+                "techniques": [
+                  "Low block · Arae-makki"
+                ]
+              },
+              {
+                "to": {
+                  "x": 60,
+                  "y": 200
+                },
+                "facing": "W",
+                "stance": {
+                  "type": "walking",
+                  "lead": "right"
+                },
+                "techniques": [
+                  "Middle punch · Momtong Bandae-jireugi"
+                ]
+              },
+              {
+                "to": {
+                  "x": 225,
+                  "y": 200
+                },
+                "facing": "E",
+                "stance": {
+                  "type": "walking",
+                  "lead": "right"
+                },
+                "techniques": [
+                  "Low block · Arae-makki"
+                ],
+                "turn": "cw"
+              },
+              {
+                "to": {
+                  "x": 280,
+                  "y": 200
+                },
+                "facing": "E",
+                "stance": {
+                  "type": "walking",
+                  "lead": "left"
+                },
+                "techniques": [
+                  "Middle punch · Momtong Bandae-jireugi"
+                ]
+              },
+              {
+                "to": {
+                  "x": 170,
+                  "y": 130
+                },
+                "facing": "N",
+                "stance": {
+                  "type": "front",
+                  "lead": "left"
+                },
+                "techniques": [
+                  "Low block · Arae-makki",
+                  "Middle punch · Momtong Baro-jireugi"
+                ],
+                "via": [
+                  {
+                    "x": 170,
+                    "y": 200
+                  }
+                ]
+              },
+              {
+                "to": {
+                  "x": 225,
+                  "y": 130
+                },
+                "facing": "E",
+                "stance": {
+                  "type": "walking",
+                  "lead": "right"
+                },
+                "techniques": [
+                  "Inside middle block · Momtong An-makki"
+                ]
+              },
+              {
+                "to": {
+                  "x": 280,
+                  "y": 130
+                },
+                "facing": "E",
+                "stance": {
+                  "type": "walking",
+                  "lead": "left"
+                },
+                "techniques": [
+                  "Middle punch · Momtong Baro-jireugi"
+                ]
+              },
+              {
+                "to": {
+                  "x": 115,
+                  "y": 130
+                },
+                "facing": "W",
+                "stance": {
+                  "type": "walking",
+                  "lead": "left"
+                },
+                "techniques": [
+                  "Inside middle block · Momtong An-makki"
+                ],
+                "turn": "ccw"
+              },
+              {
+                "to": {
+                  "x": 60,
+                  "y": 130
+                },
+                "facing": "W",
+                "stance": {
+                  "type": "walking",
+                  "lead": "right"
+                },
+                "techniques": [
+                  "Middle punch · Momtong Baro-jireugi"
+                ]
+              },
+              {
+                "to": {
+                  "x": 170,
+                  "y": 60
+                },
+                "facing": "N",
+                "stance": {
+                  "type": "front",
+                  "lead": "right"
+                },
+                "techniques": [
+                  "Low block · Arae-makki",
+                  "Middle punch · Momtong Baro-jireugi"
+                ],
+                "via": [
+                  {
+                    "x": 170,
+                    "y": 130
+                  }
+                ]
+              },
+              {
+                "to": {
+                  "x": 115,
+                  "y": 60
+                },
+                "facing": "W",
+                "stance": {
+                  "type": "walking",
+                  "lead": "left"
+                },
+                "techniques": [
+                  "High block · Olgul-makki"
+                ]
+              },
+              {
+                "to": {
+                  "x": 60,
+                  "y": 60
+                },
+                "facing": "W",
+                "stance": {
+                  "type": "walking",
+                  "lead": "right"
+                },
+                "techniques": [
+                  "Front kick · Ap-chagi",
+                  "Middle punch · Momtong Bandae-jireugi"
+                ]
+              },
+              {
+                "to": {
+                  "x": 225,
+                  "y": 60
+                },
+                "facing": "E",
+                "stance": {
+                  "type": "walking",
+                  "lead": "right"
+                },
+                "techniques": [
+                  "High block · Olgul-makki"
+                ],
+                "turn": "cw"
+              },
+              {
+                "to": {
+                  "x": 280,
+                  "y": 60
+                },
+                "facing": "E",
+                "stance": {
+                  "type": "walking",
+                  "lead": "left"
+                },
+                "techniques": [
+                  "Front kick · Ap-chagi",
+                  "Middle punch · Momtong Bandae-jireugi"
+                ]
+              },
+              {
+                "to": {
+                  "x": 170,
+                  "y": 130
+                },
+                "facing": "S",
+                "stance": {
+                  "type": "front",
+                  "lead": "left"
+                },
+                "techniques": [
+                  "Low block · Arae-makki"
+                ],
+                "via": [
+                  {
+                    "x": 170,
+                    "y": 60
+                  }
+                ]
+              },
+              {
+                "to": {
+                  "x": 170,
+                  "y": 200
+                },
+                "facing": "S",
+                "stance": {
+                  "type": "front",
+                  "lead": "right"
+                },
+                "techniques": [
+                  "Middle punch · Momtong Bandae-jireugi"
+                ],
+                "kihap": true
+              }
+            ]
+          }
+        }
+      ],
+      "sources": [],
+      "languages": [
+        "en",
+        "km",
+        "zh"
+      ]
+    },
+    "contractVersion": "library-v2"
+  },
+  "error": null
+}

@@ -18,7 +18,8 @@ const categories = [
   { id: u(2), slug: 'kicking', title: 'Kicking', koreanTitle: null, subtitle: null, description: null, icon: 'Lightning', accentColor: '#FFD505', libraryType: 'Taekwondo', isActive: true, translations: {}, sortOrder: 20, revision: 1, lessonCount: 0 },
 ];
 const assets = [
-  { id: 7, title: 'Taegeuk 1 (Il Jang)', library_type: 'Taekwondo', tkd_category: 'Poomsae', fitness_category: null, target_level: 'Unassigned', video_url: '', description: JSON.stringify({ text: 'The first Taegeuk form.', actualCategory: 'Forms (Poomsae)' }),
+  { id: 7, title: 'Taegeuk 1 (Il Jang)', library_type: 'Taekwondo', tkd_category: 'Poomsae', fitness_category: null, target_level: 'Unassigned', video_url: '',
+    description: JSON.stringify({ text: 'The first Taegeuk form.', actualCategory: 'Forms (Poomsae)', difficulty: 'Beginner', instructions: ['Left walking stance, low block.'], terminology: [{ korean: '아래막기', english: 'Arae-makki · Low block', khmer: '' }] }),
     created_at: '2026-11-10T00:00:00Z', revision: 1, published_revision: null, student_curriculum_id: 7, category_id: u(1), content_kind: 'lesson', korean_name: '태극 1장', summary: 'The first Taegeuk form.', source_key: 'web:taegeuk-1' },
   { id: 8, title: 'Front Kick (Ap Chagi / 앞차기)', library_type: 'Taekwondo', tkd_category: 'Chagi', fitness_category: null, target_level: 'White', video_url: '', description: JSON.stringify({ text: 'The basic snap kick.', actualCategory: 'Kicks (Chagi)' }),
     created_at: '2026-10-01T00:00:00Z', revision: 3, published_revision: 0, student_curriculum_id: 8, category_id: null, content_kind: 'lesson', korean_name: null, summary: null, source_key: null },
@@ -60,6 +61,12 @@ try {
         const asset = assets.find(row => row.id === body.id);
         Object.assign(asset, { revision: asset.revision + 1, summary: body.metadata.summary, category_id: body.metadata.categoryId, korean_name: body.metadata.koreanName, updated_at: new Date().toISOString() });
         return json({ success: true, data: { asset, content: { ...body.content, updatedAt: new Date().toISOString() } } });
+      }
+      if (url.pathname === '/api/admin/library-assets' && method === 'POST') {
+        const body = route.request().postDataJSON(); posts.push({ endpoint: 'assets', ...body });
+        const asset = assets.find(row => row.id === body.id);
+        Object.assign(asset, { title: body.asset.title, description: body.asset.description, target_level: body.asset.target_level, revision: asset.revision + 1, updated_at: new Date().toISOString() });
+        return json({ success: true, data: { asset, relations: [], studentLesson: { id: asset.student_curriculum_id } } });
       }
       if (url.pathname.startsWith('/api/')) return json({ success: true, data: [] });
       return route.continue();
@@ -150,6 +157,17 @@ try {
   await editor.getByRole('button', { name: 'Close', exact: true }).last().click();
   await editor.waitFor({ state: 'detached', timeout: 10000 });
 
+  // Edit details on an imported poomsae lesson keeps its Korean terminology (not only for theory lessons).
+  await page.getByRole('button', { name: 'Edit Details' }).click();
+  await page.getByRole('button', { name: 'Save Changes' }).click();
+  const untilUpdate = Date.now() + 15000; while (!posts.some(row => row.endpoint === 'assets') && Date.now() < untilUpdate) await new Promise(resolve => setTimeout(resolve, 100));
+  const updated = posts.find(row => row.endpoint === 'assets');
+  assert.equal(updated.action, 'UPDATE');
+  assert.equal(updated.expectedRevision, 2, 'the revision from the content save is used');
+  const savedDescription = JSON.parse(updated.asset.description);
+  assert.deepEqual(savedDescription.terminology, [{ korean: '아래막기', english: 'Arae-makki · Low block', khmer: '' }]);
+  assert.equal(updated.asset.target_level, 'Unassigned', 'a lesson without a belt keeps "No belt yet" until staff choose one');
+
   // Phone width: the library page does not scroll sideways.
   await page.keyboard.press('Escape');
   await page.setViewportSize({ width: 390, height: 844 });
@@ -158,7 +176,7 @@ try {
   assert.ok(overflow <= 1, 'no horizontal scroll at 390px (' + overflow + 'px)');
 
   assert.deepEqual(errors, []);
-  console.log(JSON.stringify({ passed: true, categoryCreated: true, categoryReordered: true, contentSaved: true, khmerTranslation: true, filters: true, mobileOverflow: overflow, pageErrors: errors.length, liveWrites: 0 }));
+  console.log(JSON.stringify({ passed: true, categoryCreated: true, categoryReordered: true, contentSaved: true, khmerTranslation: true, filters: true, editDetailsKeepsTerminology: true, mobileOverflow: overflow, pageErrors: errors.length, liveWrites: 0 }));
 } catch (error) {
   try { const pages = browser.contexts().flatMap(context => context.pages()); if (pages[0]) await pages[0].screenshot({ path: 'scratch/library-content-failure.png', fullPage: true }); } catch { /* screenshot is best effort */ }
   throw error;

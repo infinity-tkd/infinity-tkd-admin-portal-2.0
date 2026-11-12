@@ -536,12 +536,10 @@ export function LibraryView() {
         .map(m => ({ mistake: m.mistake.trim(), correction: m.correction.trim() })),
       performance: editPerformanceSteps.filter(s => s.trim()),
       fitnessSolutions: editSelectedFitnessSolutions,
-      terminology: categoryToSave === 'Theory & Terminology'
-        ? editTerminologyList.filter(t => t.korean.trim() || t.english.trim() || t.khmer.trim())
-        : [],
-      studyGuide: categoryToSave === 'Theory & Terminology'
-        ? editStudyGuideList.filter(s => s.question.trim() || s.answer.trim())
-        : []
+      // Kept for every category: lessons such as poomsae and kicks carry Korean terminology too,
+      // and an edit elsewhere in this form must never erase it.
+      terminology: editTerminologyList.filter(t => t.korean.trim() || t.english.trim() || t.khmer.trim()),
+      studyGuide: editStudyGuideList.filter(s => s.question.trim() || s.answer.trim())
     });
 
     try { await updateCurriculumVideo(editAsset.id, {

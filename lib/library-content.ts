@@ -261,7 +261,8 @@ export function legacySections(content: Record<string, any> | null | undefined, 
     const items = strings(c[key]);
     if (items.length) out.push({ id, type: 'list', title, style: 'bullet', items });
   }
-  const mistakes = Array.isArray(c.mistakes) ? c.mistakes.filter((row: any) => row && typeof row.mistake === 'string' && row.mistake.trim()) : [];
+  // Older lessons kept mistakes as plain text lines.
+  const mistakes = Array.isArray(c.mistakes) ? c.mistakes.map((row: any) => typeof row === 'string' ? { mistake: row, correction: '' } : row).filter((row: any) => row && typeof row.mistake === 'string' && row.mistake.trim()) : [];
   if (mistakes.length) out.push({ id: 'mistakes', type: 'pairs', title: 'Common mistakes', leftLabel: 'Mistake', rightLabel: 'Correction', items: mistakes.map((row: any) => ({ term: row.mistake.slice(0, 2000), detail: String(row.correction ?? '').slice(0, 20000) })) });
   const terms = Array.isArray(c.terminology) ? c.terminology.filter((row: any) => row && (row.korean || row.english)) : [];
   if (terms.length) out.push({ id: 'terminology', type: 'glossary', title: 'Terminology', items: terms.map((row: any) => ({ korean: String(row.korean ?? '').slice(0, 200), romanized: '', english: String(row.english ?? '').slice(0, 2000), category: '' })) });

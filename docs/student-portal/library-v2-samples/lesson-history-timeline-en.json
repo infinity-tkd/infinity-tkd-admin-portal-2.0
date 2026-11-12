@@ -1,0 +1,258 @@
+{
+  "success": true,
+  "data": {
+    "subjectStudentId": "STU-M-000",
+    "lang": "en",
+    "lesson": {
+      "id": 151,
+      "slug": "history-timeline",
+      "kind": "article",
+      "category": "history",
+      "title": "History & Timeline",
+      "koreanName": "역사 연대표 (8대 시대)",
+      "romanized": null,
+      "summary": "16 Epochal Milestones & Interactive Chronometer",
+      "levelNote": null,
+      "targetBelt": "All",
+      "type": "Taekwondo",
+      "thumbnailUrl": null,
+      "media": {
+        "kind": "unavailable"
+      },
+      "position": null,
+      "durationSeconds": null,
+      "tags": [
+        "reference",
+        "history"
+      ],
+      "sectionCount": 1,
+      "translated": false,
+      "sections": [
+        {
+          "id": "timeline",
+          "title": "",
+          "type": "timeline",
+          "items": [
+            {
+              "date": "24th c. BCE – 1st c. BCE",
+              "title": "Gojoseon & Ancient Bare-Handed Survival Combat",
+              "subtitle": "고조선 & 고대 생존 무예의 기원",
+              "body": "In ancient times, children and adults were actively encouraged to learn bare-handed martial arts because combat techniques were essential for individual survival, hunting, and tribal community defense.",
+              "details": [
+                "Martial arts served as a primary means of personal social advancement and national tribal survival.",
+                "Ritual martial tournaments were held during agricultural festivals such as Yeonggo and Dongmaeng.",
+                "Laid the cultural bedrock linking physical martial prowess with spiritual character cultivation.",
+                "Key Figures: Ancient Tribal Leaders, Frontier Cadets"
+              ],
+              "tag": "Ancient (24th c. BC–10th c. AD)"
+            },
+            {
+              "date": "37 BCE – 668 CE",
+              "title": "Goguryeo Sun Bae Warriors & Muyongchong Tomb Murals",
+              "subtitle": "고구려 조의선인(선배) & 무용총 수박 벽화",
+              "body": "Goguryeo formed the Sun Bae (\"men of virtue who never recoil from fighting\"), an elite warrior brotherhood tested at the annual Sin Su Do festival in Subak and archery.",
+              "details": [
+                "Murals in the Myung-Chong (Muyongchong) royal tomb depict two martial artists sparring in upright stances.",
+                "Warriors studied classical literature, history, ethics, and martial combat simultaneously.",
+                "Subak served as the primary physical training foundation for northern frontier defense.",
+                "Key Figures: King Dongmyeong (Jumong), Sun Bae Elite Corps"
+              ],
+              "tag": "Ancient (24th c. BC–10th c. AD)"
+            },
+            {
+              "date": "57 BCE – 935 CE",
+              "title": "Silla Hwarangdo & The Sesok-Ogye Five Commandments",
+              "subtitle": "신라 화랑도(花郞徒) & 세속오계(世俗五戒)",
+              "body": "The kingdom of Silla established the Hwarang (Flower Knights), an aristocratic youth order trained in bare-handed Subak, swordcraft, and the Sesok-Ogye ethical commandments.",
+              "details": [
+                "Sesok-Ogye: Loyalty to country, filial obedience, trust with friends, courage in battle, restraint in killing.",
+                "These five secular commandments became the direct moral foundation for the modern 5 Tenets of Taekwondo.",
+                "Hwarang military discipline catalyzed the historic unification of the Three Kingdoms of Korea.",
+                "Key Figures: Monk Won Gwang, General Kim Yu-sin, Hwarang Knights"
+              ],
+              "tag": "Ancient (24th c. BC–10th c. AD)"
+            },
+            {
+              "date": "918 – 1392 CE",
+              "title": "Goryeo Dynasty Subakhui Military Examinations",
+              "subtitle": "고려시대 수박희(手搏戱) 무예 과거 제도",
+              "body": "Historical chronicles of the Medieval Goryeo era specifically record the activities of Subak (Subakhee). The military formalized Subak as official testing for officer promotions.",
+              "details": [
+                "Subak proficiency was mandatory for all royal bodyguard cadets protecting the king.",
+                "King Uijong and King Myeongjong hosted national tournaments in palace courtyards.",
+                "Distinguished martial artists were promoted directly to general and minister officer ranks.",
+                "Widely practiced not only by palace soldiers, but also celebrated as athletic folk games among the public.",
+                "Key Figures: King Uijong, General Yi Ui-min, Military Officers"
+              ],
+              "tag": "Medieval (10th–16th c.)"
+            },
+            {
+              "date": "1790 CE",
+              "title": "Muyedobotongji Martial Arts Compendium by King Jeongjo",
+              "subtitle": "정조 1790년 무예도보통지(武藝圖譜通志) 편찬",
+              "body": "King Jeongjo of the Joseon Dynasty commissioned the Muyedobotongji (Comprehensive Illustrated Manual of Martial Arts). Volume 4 \"Kwonbeop\" (fist method) detailed 38 bare-handed combat postures.",
+              "details": [
+                "Kwonbeop chapter cataloged official linear punches, palm strikes, blocks, and footwork sequences.",
+                "Synthesized native Korean martial methods with Chinese General Qi Jiguang’s military combat texts.",
+                "Proves direct documentary lineage from traditional Korean unarmed combat into modern Taekwondo.",
+                "Key Figures: King Jeongjo, Scholar Lee Duk-moo, Baek Dong-soo"
+              ],
+              "tag": "Modern Pre-War (17th c.–1945)"
+            },
+            {
+              "date": "1910 – 1945",
+              "title": "Japanese Occupation & Underground Taekkyeon Preservation",
+              "subtitle": "일제강점기 전통 무예의 탄압 & 태견의 맥 보존",
+              "body": "During the 35-year Japanese colonial occupation, indigenous Korean martial arts were strictly suppressed. However, Taekkyeon and Subak were preserved underground in rural regions.",
+              "details": [
+                "Grandmaster Song Deok-ki kept traditional Taekkyeon fluid footwork and rhythmic kicking alive in Inwangsan.",
+                "Korean students studying abroad in Japan and Manchuria learned Shotokan Karate and Northern Kung Fu.",
+                "This fusion created the explosive technical foundation for the opening of the Kwans after 1945 liberation.",
+                "Key Figures: Grandmaster Song Deok-ki, Underground Masters"
+              ],
+              "tag": "Modern Pre-War (17th c.–1945)"
+            },
+            {
+              "date": "1944 – 1946",
+              "title": "Post-Liberation Opening of the Five Original Kwans",
+              "subtitle": "광복 직후 5대 기간관(基幹館) 개관",
+              "body": "Immediately following Korea’s liberation, the original Five Kwans (Chung Do Kwan, Song Moo Kwan, Moo Duk Kwan, Jidokwan, Chang Moo Kwan) were established in Seoul, sparking the modern Taekwondo revolution.",
+              "details": [
+                "Chung Do Kwan was established in 1944 by Grandmaster Lee Won-kuk as the first civil martial gym.",
+                "The Kwans began experimenting with bamboo chest protectors for full-contact dynamic sparring.",
+                "Emphasized high jumping kicks and fluid combinations distinct from rigid Japanese karate.",
+                "Key Figures: Lee Won-kuk, Ro Byung-jik, Hwang Kee, Chun Sang-sup, Yoon Byung-in"
+              ],
+              "tag": "Early Kwans (1946–1960)"
+            },
+            {
+              "date": "April 11, 1955",
+              "title": "Official Naming & Adoption of \"Taekwondo\"",
+              "subtitle": "1955년 4월 11일 「태권도(跆拳道)」 명칭 제정",
+              "body": "On April 11, 1955, a formal assembly of military leaders, kwan masters, and prominent scholars officially approved the unified name \"Taekwondo\" (Tae: kick/smash with foot; Kwon: fist/strike; Do: art/way of life).",
+              "details": [
+                "The word \"Tae\" (跆) linked the art directly to ancient Taekkyeon while honoring kicking supremacy.",
+                "President Syngman Rhee bestowed executive calligraphy endorsing unified military and civil training.",
+                "Began the systemic phase-out of foreign terms like Tang Soo Do, Kong Soo Do, and Kwon Bop.",
+                "Key Figures: General Choi Hong-hi, Naming Committee Board"
+              ],
+              "tag": "Early Kwans (1946–1960)"
+            },
+            {
+              "date": "September 16, 1961",
+              "title": "Korea Taekwondo Association (KTA) Unified Foundation",
+              "subtitle": "1961년 대한태수도협회(대한태권도협회) 창립",
+              "body": "To resolve doctrinal divides among competing Kwans, the unified Korea Taekwondo Association (originally Korea Taesoodo Association) was founded on September 16, 1961.",
+              "details": [
+                "Unified Dan rank testing protocols, certified instructor credentials, and tournament regulations.",
+                "Formed a technical committee to draft unified Poomsae patterns and standardize sparring rules.",
+                "Dispatched pioneer demonstration teams across Southeast Asia, Europe, and the Americas.",
+                "Key Figures: General Chae Myung-shin, Uhm Woon-kyu, Lee Jong-woo"
+              ],
+              "tag": "Fruit of Unity (1961–1970)"
+            },
+            {
+              "date": "October 24, 1963",
+              "title": "Adoption as Official National Sports Festival Medal Sport",
+              "subtitle": "1963년 제44회 전국체육대회 공식 경기 종목 채택",
+              "body": "At the 44th Korean National Sports Festival in Jeonju, Taekwondo was adopted as an official medal sport for the very first time, completing its transformation into an institutionalized modern athletic discipline.",
+              "details": [
+                "Standardized the Hogu (chest protector) as mandatory safety gear for all competitive bouts.",
+                "Introduced formalized weight divisions and electronic round management systems.",
+                "Spurred Korean universities to establish academic Taekwondo science degree departments.",
+                "Key Figures: KTA Leadership, Korean Olympic Committee (KOC)"
+              ],
+              "tag": "Fruit of Unity (1961–1970)"
+            },
+            {
+              "date": "March 20, 1971",
+              "title": "Presidential Calligraphy Declares \"Kukki Taekwondo\"",
+              "subtitle": "1971년 3월 20일 대통령 친필 휘호 「국기 태권도」 하사",
+              "body": "On March 20, 1971, President Park Chung-hee personally penned and dedicated the official calligraphy \"Kukki Taekwondo\" (국기 태권도 - National Martial Art Taekwondo), establishing statutory sovereign patronage.",
+              "details": [
+                "Unleashed executive government support to construct a permanent global headquarters in Seoul.",
+                "Mandated Taekwondo across public elementary, middle, and high school physical education.",
+                "Provided sovereign diplomatic backing for international embassy master postings.",
+                "Key Figures: President Park Chung-hee, Dr. Kim Un-yong"
+              ],
+              "tag": "A Leap Forward (1971–1985)"
+            },
+            {
+              "date": "November 30, 1972",
+              "title": "Kukkiwon (World Taekwondo Headquarters) Dedication",
+              "subtitle": "1972년 11월 30일 국기원(세계태권도본부) 개원",
+              "body": "Kukkiwon was dedicated in Yeoksam-dong, Gangnam, Seoul as the central dojang of the world, serving as the sole authority for global Dan rank certifications and martial arts research.",
+              "details": [
+                "Consolidated all private Kwan Dan certificates into one singular Kukkiwon Dan credential.",
+                "Established the World Taekwondo Academy (WTA) to license international master instructors.",
+                "Hosts the annual World Taekwondo Hanmadang, preserving the cultural core beyond Olympic sparring.",
+                "Key Figures: Dr. Kim Un-yong (Founding President)"
+              ],
+              "tag": "A Leap Forward (1971–1985)"
+            },
+            {
+              "date": "May 28, 1973",
+              "title": "World Taekwondo (WT) Founded & 1st World Championships",
+              "subtitle": "1973년 5월 28일 세계태권도연맹(WT) 창립 & 제1회 세계선수권",
+              "body": "During the 1st World Taekwondo Championships at Kukkiwon, delegates from 19 nations founded the World Taekwondo Federation (WTF, now WT) to govern international sport competition.",
+              "details": [
+                "Dr. Kim Un-yong was unanimously elected as the founding president of the federation.",
+                "Affiliated with GAISF (SportAccord) in 1975 to achieve international sporting legitimacy.",
+                "Unanimously recognized by the International Olympic Committee (IOC) at the 83rd session in 1980.",
+                "Key Figures: Dr. Kim Un-yong, Delegates from 19 Nations"
+              ],
+              "tag": "A Leap Forward (1971–1985)"
+            },
+            {
+              "date": "September 4, 1994",
+              "title": "IOC Unanimous Medal Sport Adoption at Paris Session",
+              "subtitle": "1994년 9월 4일 IOC 파리 총회 올림픽 정식 종목 채택",
+              "body": "At the 103rd IOC Session in Paris, France, the International Olympic Committee voted unanimously to include Taekwondo as a full medal sport beginning at the Sydney 2000 Olympic Games.",
+              "details": [
+                "September 4 was permanently designated as official \"World Taekwondo Day\" globally.",
+                "Capped triumphant demonstration debuts at the 1988 Seoul and 1992 Barcelona Olympic Games.",
+                "Became only the second Asian martial art in history to achieve full Olympic medal sport status.",
+                "Key Figures: Juan Antonio Samaranch (IOC President), Dr. Kim Un-yong"
+              ],
+              "tag": "Olympic Entry (1986–1999)"
+            },
+            {
+              "date": "September 2000",
+              "title": "Olympic Medal Debut at Sydney 2000 Olympic Games",
+              "subtitle": "2000년 시드니 올림픽 정식 메달 종목 역사적 데뷔",
+              "body": "Taekwondo made its historic debut as an official Olympic medal sport at the State Sports Centre in Sydney, Australia, featuring 103 competitors from 51 nations across 8 weight categories.",
+              "details": [
+                "Gold medals were distributed across Europe, Asia, Americas, and Australasia, proving global parity.",
+                "Featured full gender equality with equal medal divisions for male and female athletes.",
+                "Introduced millions of global viewers to high-speed dynamic turning kicks.",
+                "Key Figures: Athletes from 51 Nations, WT International Referees"
+              ],
+              "tag": "World Martial Sport (2000–Present)"
+            },
+            {
+              "date": "March 30, 2018",
+              "title": "Statutory Law Designating Taekwondo as National Martial Art of Korea",
+              "subtitle": "2018년 3월 30일 국회 「태권도 국기(國技) 지정법」 법제화 통과",
+              "body": "The National Assembly of the Republic of Korea passed a historic statutory amendment officially enshrining into statutory law: \"The National Martial Art of the Republic of Korea shall be Taekwondo\".",
+              "details": [
+                "Elevated the cultural status from a customary tradition into legally protected sovereign national heritage.",
+                "Confirmed core Olympic status through Paris 2024, LA 2028, and Brisbane 2032.",
+                "Advanced transparent electronic PSS sensor scoring and 4D IVR instant video review.",
+                "Key Figures: National Assembly of Korea, Kukkiwon & WT Leadership"
+              ],
+              "tag": "World Martial Sport (2000–Present)"
+            }
+          ]
+        }
+      ],
+      "sources": [],
+      "languages": [
+        "en",
+        "km",
+        "zh"
+      ]
+    },
+    "contractVersion": "library-v2"
+  },
+  "error": null
+}
