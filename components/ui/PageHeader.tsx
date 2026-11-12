@@ -83,7 +83,7 @@ export function SegmentedTabs<T extends string>({ items, value, onChange, label,
         return (
           <button key={item.id} type="button" aria-pressed={active} aria-label={item.ariaLabel} onClick={() => onChange(item.id)}
             className={cn(
-              'relative inline-flex min-h-11 min-w-0 shrink-0 cursor-pointer select-none items-center justify-center gap-1.5 rounded-md px-3 text-[11px] font-bold uppercase tracking-wider transition-colors touch-manipulation sm:min-h-10 sm:px-4 sm:text-xs [&_svg]:size-3.5 [&_svg]:shrink-0',
+              'relative inline-flex min-h-11 min-w-0 shrink-0 cursor-pointer select-none items-center justify-center gap-1.5 rounded-md px-3 text-[11px] font-bold uppercase tracking-wider transition-colors touch-manipulation sm:min-h-10 sm:pointer-coarse:min-h-11 sm:px-4 sm:text-xs [&_svg]:size-3.5 [&_svg]:shrink-0',
               stacked && 'flex-col gap-1 px-1 py-1.5 text-[10px] tracking-wide sm:flex-row sm:gap-1.5 sm:px-4 sm:py-0 sm:text-xs sm:tracking-wider',
               active ? 'bg-surface text-ink shadow-sm ring-1 ring-line' : 'text-ink-subtle hover:text-ink',
             )}>

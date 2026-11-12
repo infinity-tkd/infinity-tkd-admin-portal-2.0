@@ -1,7 +1,7 @@
 'use client';
 import { cloneElement, isValidElement, useCallback, useEffect, useId, useRef, useState } from 'react';
 import { portalRequest } from '@/lib/portal-api';
-import { fieldClass, labelClass, sectionLabelClass } from '@/components/ui/styles';
+import { buttonClass, fieldClass, labelClass, sectionLabelClass } from '@/components/ui/styles';
 import { cn } from '@/lib/utils';
 import type { LmsAudience, LmsRequest } from '@/lib/lms-contract';
 
@@ -45,12 +45,14 @@ export const lmsPost = <T = unknown,>(body: LmsRequest) => portalRequest<T>('/ap
 export function useSaving(onDone?: () => void) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
-  const run = async <T,>(work: () => Promise<T>, success?: string): Promise<T | null> => {
-    if (saving) return null;
-    setSaving(true); setMessage(null);
-    try { const result = await work(); if (success) setMessage({ tone: 'ok', text: success }); onDone?.(); return result; }
+  // A ref, not state: two quick clicks in the same render must not send the write twice.
+  const busy = useRef(false);
+  const run = async <T,>(work: () => Promise<T>, success?: string, options: { refresh?: boolean } = {}): Promise<T | null> => {
+    if (busy.current) return null;
+    busy.current = true; setSaving(true); setMessage(null);
+    try { const result = await work(); if (success) setMessage({ tone: 'ok', text: success }); if (options.refresh !== false) onDone?.(); return result; }
     catch (e) { setMessage({ tone: 'error', text: e instanceof Error ? e.message : 'This change could not be saved.' }); return null; }
-    finally { setSaving(false); }
+    finally { busy.current = false; setSaving(false); }
   };
   return { saving, message, setMessage, run };
 }
@@ -104,7 +106,7 @@ export function TranslationFields<K extends string>({ fields, value, onChange }:
     onChange(next);
   };
   return <div className="rounded-lg border border-dashed border-line p-2">
-    <button type="button" className="text-xs font-semibold text-ink-muted underline-offset-2 hover:underline" aria-expanded={open} onClick={() => setOpen(o => !o)}>
+    <button type="button" className="inline-flex min-h-9 items-center text-xs font-semibold text-ink-muted underline-offset-2 hover:underline pointer-coarse:min-h-11" aria-expanded={open} onClick={() => setOpen(o => !o)}>
       {open ? 'Hide translations' : `Khmer and Chinese (optional)${value.km || value.zh ? ' · added' : ''}`}</button>
     {open && <div className="mt-2 grid gap-3 sm:grid-cols-2">{(['km', 'zh'] as const).map(lang => <div key={lang} className="space-y-2">
       <p className={sectionLabelClass}>{lang === 'km' ? 'Khmer' : 'Chinese'}</p>
@@ -124,7 +126,7 @@ export function AudiencePicker({ overview, value, onChange }: { overview: Overvi
     onChange(next);
   };
   const [student, setStudent] = useState('');
-  const chip = (active: boolean) => cn('min-h-9 rounded-lg border px-2.5 text-xs font-semibold', active ? 'border-brand bg-brand/10 text-brand' : 'border-line bg-surface-muted text-ink-muted hover:bg-control');
+  const chip = (active: boolean) => cn('min-h-9 pointer-coarse:min-h-11 rounded-lg border px-2.5 text-xs font-semibold', active ? 'border-brand bg-brand/10 text-brand' : 'border-line bg-surface-muted text-ink-muted hover:bg-control');
   return <fieldset className="space-y-2 rounded-lg border border-line p-2">
     <legend className={cn(labelClass, 'px-1')}>Who</legend>
     <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={Boolean(value.all)} onChange={event => onChange(event.target.checked ? { all: true } : {})} /> Every active student</label>
@@ -134,7 +136,7 @@ export function AudiencePicker({ overview, value, onChange }: { overview: Overvi
       <div><p className={labelClass}>Classes</p><div className="flex flex-wrap gap-1.5">{overview.classes.map(c => <button key={c.id} type="button" aria-pressed={value.classes?.includes(String(c.id)) ?? false} className={chip(value.classes?.includes(String(c.id)) ?? false)} onClick={() => toggle('classes', String(c.id))}>{c.class_name}</button>)}</div></div>
       <div className="flex flex-wrap items-end gap-2">
         <StudentSelect overview={overview} value={student} onChange={setStudent} label="Add one student" />
-        <button type="button" className="min-h-11 rounded-lg border border-line bg-control px-3 text-xs font-bold uppercase" disabled={!student} onClick={() => { if (student && !value.students?.includes(student)) toggle('students', student); setStudent(''); }}>Add</button>
+        <button type="button" className={buttonClass()} disabled={!student} onClick={() => { if (student && !value.students?.includes(student)) toggle('students', student); setStudent(''); }}>Add</button>
       </div>
       {!!value.students?.length && <div className="flex flex-wrap gap-1.5">{value.students.map(id => <button key={id} type="button" className={chip(true)} onClick={() => toggle('students', id)} aria-label={`Remove ${overview.students.find(s => s.id === id)?.english_name ?? id}`}>{overview.students.find(s => s.id === id)?.english_name ?? id} ✕</button>)}</div>}
     </>}

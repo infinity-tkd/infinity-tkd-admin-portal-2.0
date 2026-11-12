@@ -41,21 +41,24 @@ function PlanForm({ overview, studentId, week, setWeek, current, canEdit, saver 
   };
   const publish = (action: 'plan.publish' | 'plan.unpublish' | 'plan.delete') => current && run(() => lmsPost({ action, studentId, weekStart: week, expectedRevision: current.revision }), action === 'plan.publish' ? 'Published to the student.' : 'Saved.');
   return <section className={cn(cardClass, 'space-y-2 p-3')}>
-    <div className="flex flex-wrap items-end gap-2"><h3 className={cn(sectionLabelClass, 'flex-1')}>Weekly plan</h3>
-      <Labeled label="Week of (Monday)"><input type="date" className={fieldClass} value={week} onChange={e => setWeek(mondayOf(e.target.value || today()))} /></Labeled>
+    <div className="flex flex-wrap items-center justify-between gap-2"><h3 className={sectionLabelClass}>Weekly plan</h3>
       {current && <Pill tone={current.published_at ? 'good' : 'warn'}>{current.published_at ? 'published' : 'draft'}</Pill>}</div>
+    <Labeled label="Week of (Monday)" className="max-w-xs"><input type="date" className={fieldClass} value={week} onChange={e => setWeek(mondayOf(e.target.value || today()))} /></Labeled>
     {items.length === 0 && <p className="text-xs text-ink-muted">No items this week. A coach&apos;s plan comes first in the student&apos;s daily practice.</p>}
-    <ol className="space-y-1.5">{items.map((item, i) => <li key={i} className="grid gap-1.5 rounded-lg border border-line p-2 sm:grid-cols-[110px_1fr_110px_90px_auto]">
+    <ol className="space-y-1.5">{items.map((item, i) => <li key={i} className="space-y-1.5 rounded-lg border border-line p-2">
+      <div className="flex items-center justify-between gap-2"><span className={sectionLabelClass}>Item {i + 1}</span>
+        {canEdit && <button type="button" aria-label={`Remove item ${i + 1}`} className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'} onClick={() => setItems(items.filter((_, at) => at !== i))}><Trash className="size-4" /></button>}</div>
+      <div className="grid gap-1.5 sm:grid-cols-[120px_minmax(0,1fr)_110px_130px]">
       <select aria-label={`Item ${i + 1} type`} className={fieldClass} value={item.type} disabled={!canEdit} onChange={e => set(i, { type: e.target.value as PlanItem['type'], ref: undefined })}><option value="lesson">Lesson</option><option value="form">Form</option><option value="quiz">Quiz</option><option value="custom">Custom</option></select>
       {item.type === 'lesson' ? <select aria-label={`Item ${i + 1} lesson`} className={fieldClass} disabled={!canEdit} value={item.ref ?? ''} onChange={e => set(i, { ref: e.target.value, title: overview.lessons.find(l => String(l.id) === e.target.value)?.title })}><option value="">Choose…</option>{overview.lessons.map(l => <option key={l.id} value={l.id}>{l.title}</option>)}</select>
         : item.type === 'form' ? <select aria-label={`Item ${i + 1} form`} className={fieldClass} disabled={!canEdit} value={item.ref ?? ''} onChange={e => set(i, { ref: e.target.value, title: overview.forms.find(f => f.id === e.target.value)?.name })}><option value="">Choose…</option>{overview.forms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select>
         : <input aria-label={`Item ${i + 1} title`} className={fieldClass} disabled={!canEdit} maxLength={120} placeholder={item.type === 'quiz' ? 'Quiz, e.g. Terms for Yellow' : 'What to do'} value={item.title ?? ''} onChange={e => set(i, { title: e.target.value })} />}
       <input aria-label={`Item ${i + 1} target`} className={fieldClass} disabled={!canEdit} maxLength={60} placeholder="3 x 10" value={item.target ?? ''} onChange={e => set(i, { target: e.target.value })} />
       <select aria-label={`Item ${i + 1} day`} className={fieldClass} disabled={!canEdit} value={item.day ?? ''} onChange={e => set(i, { day: e.target.value ? Number(e.target.value) : null })}><option value="">Any day</option>{DAYS.slice(1).map((d, n) => <option key={d} value={n + 1}>{d}</option>)}</select>
-      {canEdit && <button type="button" aria-label={`Remove item ${i + 1}`} className={buttonClass({ size: 'icon', variant: 'ghost' })} onClick={() => setItems(items.filter((_, at) => at !== i))}><Trash className="size-4" /></button>}
+      </div>
     </li>)}</ol>
     {canEdit && <>
-      <button type="button" className={buttonClass({ size: 'sm' })} disabled={items.length >= 30} onClick={() => setItems([...items, { type: 'lesson', day: null }])}><Plus className="size-3.5" /> Add item</button>
+      <button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} disabled={items.length >= 30} onClick={() => setItems([...items, { type: 'lesson', day: null }])}><Plus className="size-3.5" /> Add item</button>
       <Labeled label="Note to the student"><textarea rows={2} maxLength={1000} className={cn(fieldClass, 'py-2')} value={note} onChange={e => setNote(e.target.value)} /></Labeled>
       <div className="flex flex-wrap gap-2">
         <button type="button" className={buttonClass()} disabled={saving} onClick={save}>Save</button>
@@ -83,8 +86,8 @@ function Goals({ overview, studentId, goals, canEdit, onSaved }: { overview: Ove
     <h3 className={sectionLabelClass}>Goals</h3>
     {goals.length === 0 ? <p className="text-xs text-ink-muted">No goals yet.</p> : <ul className="space-y-1">{goals.map(g => <li key={g.id} className="flex flex-wrap items-center gap-2 text-sm">
       <span className="min-w-[10rem] flex-1 text-ink">{name(g)}{g.target ? ` · ${g.target}` : ''}</span><Pill>{g.set_by}</Pill><Pill tone={g.status === 'active' ? 'brand' : g.status === 'done' ? 'good' : 'neutral'}>{g.status}</Pill>
-      {canEdit && g.status === 'active' && <><button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' })} disabled={saving} onClick={() => void run(() => lmsPost({ action: 'goal.done', studentId, goalId: g.id }))}>Done</button>
-        <button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' })} disabled={saving} onClick={() => void run(() => lmsPost({ action: 'goal.drop', studentId, goalId: g.id }))}>Drop</button></>}
+      {canEdit && g.status === 'active' && <><button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void run(() => lmsPost({ action: 'goal.done', studentId, goalId: g.id }))}>Done</button>
+        <button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void run(() => lmsPost({ action: 'goal.drop', studentId, goalId: g.id }))}>Drop</button></>}
     </li>)}</ul>}
     {canEdit && <div className="grid gap-2 sm:grid-cols-[160px_1fr_110px_auto] sm:items-end">
       <Labeled label="New goal"><select className={fieldClass} value={kind} onChange={e => { setKind(e.target.value); setRef(''); }}>{Object.entries(GOAL_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Labeled>
@@ -106,7 +109,7 @@ function Consent({ studentId, consent, canEdit, onSaved }: { studentId: string; 
     <h3 className={sectionLabelClass}>Video consent</h3>
     <p className="text-sm text-ink">{active ? `Given by ${consent!.guardian_name} (${consent!.relationship}, ${consent!.source === 'portal' ? 'in the portal' : 'recorded by staff'}) on ${fmtDate(consent!.consented_at)}.` : consent?.revoked_at ? `Withdrawn on ${fmtDate(consent.revoked_at)}.` : 'Not given yet. Families agree in the portal before the first upload.'}</p>
     {canEdit && (active
-      ? <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' })} disabled={saving} onClick={() => { if (window.confirm('Withdraw video consent? New uploads stop; videos already sent stay until their deletion date.')) void run(() => lmsPost({ action: 'consent.record', studentId, consent: { revoke: true } }), 'Consent withdrawn.'); }}>Withdraw consent</button>
+      ? <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => { if (window.confirm('Withdraw video consent? New uploads stop; videos already sent stay until their deletion date.')) void run(() => lmsPost({ action: 'consent.record', studentId, consent: { revoke: true } }), 'Consent withdrawn.'); }}>Withdraw consent</button>
       : <div className="grid gap-2 sm:grid-cols-[1fr_150px_auto] sm:items-end">
         <Labeled label="Guardian's name (consent given on paper)"><input className={fieldClass} maxLength={120} value={name} onChange={e => setName(e.target.value)} /></Labeled>
         <Labeled label="Relationship"><select className={fieldClass} value={relationship} onChange={e => setRelationship(e.target.value as typeof relationship)}><option value="parent">Parent</option><option value="guardian">Guardian</option><option value="self">Adult student</option></select></Labeled>

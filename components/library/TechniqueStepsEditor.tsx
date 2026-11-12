@@ -55,9 +55,9 @@ export function TechniqueStepsEditor({ section, onChange }: { section: Extract<L
       <li key={index} className="space-y-2 rounded-lg border border-line p-2">
         <div className="flex items-center justify-between gap-2"><span className={sectionLabelClass}>Step {index + 1}</span>
           <span className="flex gap-1">
-            <button type="button" aria-label={`Move step ${index + 1} up`} disabled={index === 0} onClick={() => setItems(move(section.items, index, index - 1))} className={buttonClass({ size: 'sm', variant: 'ghost' })}><ArrowUp className="size-3.5" /></button>
-            <button type="button" aria-label={`Move step ${index + 1} down`} disabled={index === section.items.length - 1} onClick={() => setItems(move(section.items, index, index + 1))} className={buttonClass({ size: 'sm', variant: 'ghost' })}><ArrowDown className="size-3.5" /></button>
-            <button type="button" aria-label={`Remove step ${index + 1}`} disabled={section.items.length === 1} onClick={() => setItems(section.items.filter((_, at) => at !== index))} className={buttonClass({ size: 'sm', variant: 'ghost' })}><Trash className="size-3.5" /></button>
+            <button type="button" aria-label={`Move step ${index + 1} up`} disabled={index === 0} onClick={() => setItems(move(section.items, index, index - 1))} className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'}><ArrowUp className="size-3.5" /></button>
+            <button type="button" aria-label={`Move step ${index + 1} down`} disabled={index === section.items.length - 1} onClick={() => setItems(move(section.items, index, index + 1))} className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'}><ArrowDown className="size-3.5" /></button>
+            <button type="button" aria-label={`Remove step ${index + 1}`} disabled={section.items.length === 1} onClick={() => setItems(section.items.filter((_, at) => at !== index))} className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'}><Trash className="size-3.5" /></button>
           </span></div>
         <div className="grid gap-2 sm:grid-cols-[2fr_1fr]">
           <input aria-label={`Step ${index + 1} title`} placeholder="Title, e.g. Chamber position" maxLength={300} className={fieldClass} value={step.title} onChange={event => setItem(index, { title: event.target.value })} />
@@ -70,7 +70,7 @@ export function TechniqueStepsEditor({ section, onChange }: { section: Extract<L
           <ListArea label="Practice checklist, one point per line" value={step.checklist} format={() => step.checklist.join('\n')} parse={text => toLines(text).slice(0, 20)} onChange={checklist => setItem(index, { checklist })} />
         </div>
       </li>))}</ol>
-    <button type="button" className={buttonClass({ size: 'sm' })} disabled={section.items.length >= 40}
+    <button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} disabled={section.items.length >= 40}
       onClick={() => setItems([...section.items, { id: uniqueId(section.items, `step-${section.items.length + 1}`), title: `Step ${section.items.length + 1}`, body: '', clip: null, mistakes: [], checklist: [] }])}><Plus className="size-3.5" /> Add step</button>
   </div>;
 }
@@ -91,7 +91,7 @@ export function DiagramMovementsEditor({ section, onChange }: { section: Extract
     <p className="text-ink-muted">Poomsae floor diagram with {count} movements, imported from the website. Students see it as an animated floor plan. {noted ? `${noted} movement${noted === 1 ? '' : 's'} have a clip or mistakes.` : ''}</p>
     <div><label className={labelClass} htmlFor={`${section.id}-video`}>Form video for movement clips (https://)</label>
       <input id={`${section.id}-video`} className={fieldClass} placeholder="https://www.youtube.com/watch?v=…" value={section.video ?? ''} onChange={event => onChange({ ...section, video: event.target.value.trim() || undefined })} /></div>
-    <button type="button" className={buttonClass({ size: 'sm' })} aria-expanded={open} onClick={() => setOpen(value => !value)}>{open ? 'Hide movement notes' : 'Clips and mistakes per movement'}</button>
+    <button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} aria-expanded={open} onClick={() => setOpen(value => !value)}>{open ? 'Hide movement notes' : 'Clips and mistakes per movement'}</button>
     {open && <ol className="space-y-2">{movements.map((movement, index) => {
       const techniques = (section.data.steps[index] as { techniques?: string[] }).techniques ?? [];
       return <li key={index} className="space-y-2 rounded-lg border border-line p-2">

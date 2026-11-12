@@ -258,6 +258,35 @@ test('announcements route: send, retry with the same key, Assistant Coach refuse
   assert.equal(invalid.status, 422, 'the strict schema stops it first');
 });
 
+test('integrity: lesson and form deletes explain what blocks them; a repeated withdraw is a no-op', async () => {
+  // A lesson a form uses, and a lesson an open assignment uses.
+  await assert.rejects(db.query('DELETE FROM curriculum WHERE id=$1', [lessonB]), /A poomsae form uses this lesson/);
+  await assert.rejects(db.query('DELETE FROM curriculum WHERE id=$1', [lessonA]), /An assignment or challenge uses this lesson/);
+
+  // A free lesson: deleting it through the library removes its quiz and drops goals on it.
+  const lessonD = await publishLesson('Spare Lesson', 'White', (await one(db, "SELECT id FROM library_categories WHERE slug='kicking-fundamentals'")).id);
+  await ok({ action: 'quiz.save', question: { scope: 'lesson', scopeRef: String(lessonD), kind: 'choice', prompt: 'Q', choices: ['A', 'B'], answer: 0, published: true, translations: {} } });
+  const goal = await ok({ action: 'goal.set', studentId: 'STU-M-001', goal: { kind: 'lesson', subjectRef: String(lessonD) } });
+  let asset = await one(db, 'SELECT id,revision FROM library_assets WHERE student_curriculum_id=$1', [lessonD]);
+  asset = (await one(db, 'SELECT portal_save_library_asset($1,$2,$3,$4::jsonb,NULL) AS r', [root, 'UNPUBLISH', asset.id, JSON.stringify({ expectedRevision: asset.revision, reason: 'Removing the lesson' })])).r.asset;
+  await one(db, 'SELECT portal_save_library_asset($1,$2,$3,$4::jsonb,NULL) AS r', [root, 'DELETE', asset.id, JSON.stringify({ expectedRevision: asset.revision })]);
+  assert.equal(await count(db, "quiz_questions WHERE scope='lesson' AND scope_ref=$1", [String(lessonD)]), 0);
+  assert.equal((await one(db, 'SELECT status FROM student_goals WHERE id=$1', [goal.id])).status, 'dropped');
+
+  // A form an open assignment uses cannot be deleted until the assignment is closed.
+  const lessonE = await publishLesson('Spare Form Lesson', 'White', (await one(db, "SELECT id FROM library_categories WHERE slug='kicking-fundamentals'")).id);
+  const form = await ok({ action: 'form.save', form: { curriculumId: lessonE, name: 'Spare form', koreanName: null, series: 'Taegeuk', beltId: null, movementCount: 8, published: true, translations: {} } });
+  let task = await ok({ action: 'assignment.save', assignment: { title: 'Perform it', instructions: 'Film the form.', kind: 'form', subjectType: 'form', subjectRef: form.id, target: {}, dueAt: null, points: 0, rubric: [], targets: [{ type: 'student', ref: 'STU-M-002' }], translations: {} } });
+  task = await ok({ action: 'assignment.publish', id: task.id, expectedRevision: task.revision });
+  await refused({ action: 'form.delete', id: form.id, expectedRevision: form.revision }, 409, /An assignment or challenge uses this form/);
+  await ok({ action: 'assignment.close', id: task.id, expectedRevision: task.revision });
+  assert.equal((await ok({ action: 'form.delete', id: form.id, expectedRevision: form.revision })).deleted, form.id);
+
+  // Withdrawing twice (a double tap) returns the withdrawn submission.
+  const withdrawn = await one(db, "SELECT id FROM student_submissions WHERE status='withdrawn' LIMIT 1");
+  const again = (await one(db, 'SELECT student_portal_withdraw_submission($1,$2,$3) AS r', [student, 'STU-M-001', withdrawn.id])).r;
+  assert.equal(again.submission.status, 'withdrawn');
+});
 test('error messages: plain LMS messages reach staff; raw database errors never do', () => {
   const { lmsErrorResponse } = loadTs('lib/lms-server.ts');
   const fallback = () => new Response('{"fallback":true}', { status: 500 });

@@ -16,6 +16,15 @@ const GOAL_LABEL: Record<Goal, string> = { reps: 'Reps of a technique', sessions
 const SUBJECTS: Record<Goal, ('lesson' | 'form' | 'quiz')[]> = { reps: ['lesson'], sessions: ['lesson'], streak_days: ['lesson'], minutes: [], quiz_pass: ['quiz'], form_mastered: ['form'] };
 const addDays = (date: string, n: number) => { const d = new Date(`${date}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 
+/** The five example challenges from the LMS design, to start from. */
+const EXAMPLES: { key: string; title: string; description: string; goal: Goal; target: number; lesson?: RegExp }[] = [
+  { key: 'kicks', title: 'Practise 50 front kicks', description: 'Log 50 front kicks this week. Chamber high, both legs.', goal: 'reps', target: 50, lesson: /front kick|ap chagi/i },
+  { key: 'poomsae', title: 'Memorise one Poomsae', description: 'Practise a form until your coach marks it mastered.', goal: 'form_mastered', target: 1 },
+  { key: 'stretch', title: '7-day stretching streak', description: 'Stretch every day for 7 days in a row.', goal: 'streak_days', target: 7, lesson: /stretch|flexib/i },
+  { key: 'sessions', title: 'Train 3 times at home', description: 'Log 3 home practice sessions this week.', goal: 'sessions', target: 3 },
+  { key: 'terms', title: 'Pass a terminology quiz', description: 'Score 70% or more on a terminology quiz.', goal: 'quiz_pass', target: 1 },
+];
+
 function ChallengeEditor({ overview, editing, onClose, onSaved }: { overview: Overview; editing: Challenge | null; onClose: () => void; onSaved: () => void }) {
   const [title, setTitle] = useState(editing?.title ?? '');
   const [description, setDescription] = useState(editing?.description ?? '');
@@ -31,6 +40,12 @@ function ChallengeEditor({ overview, editing, onClose, onSaved }: { overview: Ov
   const { saving, message, setMessage, run } = useSaving();
   const locked = Boolean(editing && editing.status !== 'draft');
   const subjectType = SUBJECTS[goal][0] ?? null;
+  const startFrom = (key: string) => {
+    const example = EXAMPLES.find(row => row.key === key);
+    if (!example) return;
+    setTitle(example.title); setDescription(example.description); setGoal(example.goal); setTarget(String(example.target));
+    setSubjectRef(example.lesson ? String(overview.lessons.find(lesson => example.lesson!.test(lesson.title))?.id ?? '') : '');
+  };
   const save = () => {
     const parsed = challengeInput.safeParse({ title, description: description.trim() || null, goalKind: goal, goalTarget: Number(target), subjectType: subjectRef ? subjectType : null, subjectRef: subjectRef || null,
       startsOn, endsOn, audience, points: Number(points) || 0, badgeCode: badge || null, translations });
@@ -40,6 +55,8 @@ function ChallengeEditor({ overview, editing, onClose, onSaved }: { overview: Ov
   return <Dialog onClose={onClose} size="xl" locked={saving}>
     <DialogHeader icon={<Flag weight="bold" />} title={editing ? 'Edit challenge' : 'New challenge'} description="Counted from each student's own practice; never ranked between students" onClose={saving ? undefined : onClose} />
     <DialogBody className="space-y-3">
+      {!editing && <Labeled label="Start from an example (optional)"><select className={fieldClass} defaultValue="" onChange={e => startFrom(e.target.value)}>
+        <option value="">Blank challenge</option>{EXAMPLES.map(example => <option key={example.key} value={example.key}>{example.title}</option>)}</select></Labeled>}
       <Labeled label="Title"><input className={fieldClass} maxLength={160} value={title} onChange={e => setTitle(e.target.value)} placeholder="Practise 50 front kicks" /></Labeled>
       <Labeled label="Description"><textarea rows={2} maxLength={2000} className={cn(fieldClass, 'py-2')} value={description} onChange={e => setDescription(e.target.value)} /></Labeled>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -81,10 +98,10 @@ export function ChallengesPanel({ overview, canEdit }: { overview: Overview; can
           <span className="text-xs text-ink-muted">{GOAL_LABEL[c.goal_kind]}: {c.goal_target} · {c.starts_on} → {c.ends_on} · {c.points} pts · {audienceSummary(overview, c.audience)}</span></div>
         <p className="text-xs text-ink-muted">{c.tally.joined} started · {c.tally.completed} completed</p>
         {canEdit && <div className="flex flex-wrap gap-1.5">
-          <button type="button" className={buttonClass({ size: 'sm' })} onClick={() => setEditing(c)}>Edit</button>
-          {c.status === 'draft' && <button type="button" className={buttonClass({ size: 'sm', variant: 'primary' })} disabled={saving} onClick={() => void act(c, 'challenge.publish', 'Published.')}>Publish</button>}
-          {c.status === 'published' && <button type="button" className={buttonClass({ size: 'sm' })} disabled={saving} onClick={() => void act(c, 'challenge.close', 'Closed.')}>Close</button>}
-          <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' })} disabled={saving} onClick={() => { if (window.confirm(`Delete "${c.title}"? This cannot be undone.`)) void act(c, 'challenge.delete', 'Deleted.'); }}>Delete</button>
+          <button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} onClick={() => setEditing(c)}>Edit</button>
+          {c.status === 'draft' && <button type="button" className={buttonClass({ size: 'sm', variant: 'primary' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void act(c, 'challenge.publish', 'Published.')}>Publish</button>}
+          {c.status === 'published' && <button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void act(c, 'challenge.close', 'Closed.')}>Close</button>}
+          <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => { if (window.confirm(`Delete "${c.title}"? This cannot be undone.`)) void act(c, 'challenge.delete', 'Deleted.'); }}>Delete</button>
         </div>}
       </li>)}</ul>}
     {editing && <ChallengeEditor overview={overview} editing={editing === 'new' ? null : editing} onClose={() => setEditing(null)} onSaved={() => void reload()} />}

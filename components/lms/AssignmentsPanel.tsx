@@ -100,14 +100,14 @@ function StudentStatuses({ assignment, canEdit }: { assignment: Assignment; canE
       <span className="min-w-[10rem] flex-1 font-semibold text-ink">{s.students?.english_name ?? s.student_id}</span><Pill tone={s.status === 'done' ? 'good' : s.status === 'submitted' ? 'warn' : 'neutral'}>{s.status.replace('_', ' ')}</Pill>
       {Object.keys(s.progress).length > 0 && <span className="text-ink-muted">{Object.entries(s.progress).map(([k, v]) => `${k} ${v}`).join(' · ')}</span>}
       {canEdit && <span className="flex gap-1">
-        {s.status !== 'done' && <button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' })} disabled={saving} onClick={() => void set(s.student_id, 'done')}>Done</button>}
-        {s.status !== 'excused' && <button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' })} disabled={saving} onClick={() => void set(s.student_id, 'excused')}>Excuse</button>}
-        {['done', 'excused'].includes(s.status) && <button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' })} disabled={saving} onClick={() => void set(s.student_id, 'open')}>Reopen</button>}
+        {s.status !== 'done' && <button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void set(s.student_id, 'done')}>Done</button>}
+        {s.status !== 'excused' && <button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void set(s.student_id, 'excused')}>Excuse</button>}
+        {['done', 'excused'].includes(s.status) && <button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void set(s.student_id, 'open')}>Reopen</button>}
       </span>}</li>)}</ul>
     <StatusLine message={message} /></div>;
 }
 
-export function AssignmentsPanel({ overview, canEdit }: { overview: Overview; canEdit: boolean }) {
+export function AssignmentsPanel({ overview, canEdit, onReview }: { overview: Overview; canEdit: boolean; onReview?: (assignment: { id: string; title: string }) => void }) {
   const { data, error, reload } = useLmsView<{ assignments: Assignment[] }>('assignments');
   const [editing, setEditing] = useState<Assignment | null | 'new'>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -129,13 +129,14 @@ export function AssignmentsPanel({ overview, canEdit }: { overview: Overview; ca
             <span className="text-xs text-ink-muted">Due {fmtDate(a.due_at)} · {a.points} pts · {target}</span></div>
           {counts && <p className="text-xs text-ink-muted">{counts}</p>}
           <div className="flex flex-wrap gap-1.5">
-            <button type="button" className={buttonClass({ size: 'sm' })} aria-expanded={expanded === a.id} onClick={() => setExpanded(expanded === a.id ? null : a.id)}>Students</button>
+            <button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} aria-expanded={expanded === a.id} onClick={() => setExpanded(expanded === a.id ? null : a.id)}>Students</button>
+            {onReview && (a.statusCounts.submitted ?? 0) > 0 && <button type="button" className={buttonClass({ size: 'sm', variant: 'primary' }) + ' pointer-coarse:min-h-11'} onClick={() => onReview({ id: a.id, title: a.title })}>Review {a.statusCounts.submitted} submitted</button>}
             {canEdit && <>
-              <button type="button" className={buttonClass({ size: 'sm' })} onClick={() => setEditing(a)}>Edit</button>
-              {a.status === 'draft' && <button type="button" className={buttonClass({ size: 'sm', variant: 'primary' })} disabled={saving} onClick={() => void act(a, 'assignment.publish', 'Published to students.')}>Publish</button>}
-              {a.status === 'published' && <button type="button" className={buttonClass({ size: 'sm' })} disabled={saving} onClick={() => void act(a, 'assignment.close', 'Closed.')}>Close</button>}
-              {a.status === 'closed' && <button type="button" className={buttonClass({ size: 'sm' })} disabled={saving} onClick={() => void act(a, 'assignment.reopen', 'Reopened.')}>Reopen</button>}
-              <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' })} disabled={saving} onClick={() => { if (window.confirm(`Delete "${a.title}"? This cannot be undone.`)) void act(a, 'assignment.delete', 'Deleted.'); }}>Delete</button>
+              <button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} onClick={() => setEditing(a)}>Edit</button>
+              {a.status === 'draft' && <button type="button" className={buttonClass({ size: 'sm', variant: 'primary' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void act(a, 'assignment.publish', 'Published to students.')}>Publish</button>}
+              {a.status === 'published' && <button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void act(a, 'assignment.close', 'Closed.')}>Close</button>}
+              {a.status === 'closed' && <button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void act(a, 'assignment.reopen', 'Reopened.')}>Reopen</button>}
+              <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => { if (window.confirm(`Delete "${a.title}"? This cannot be undone.`)) void act(a, 'assignment.delete', 'Deleted.'); }}>Delete</button>
             </>}
           </div>
           {expanded === a.id && <div><p className={sectionLabelClass}>Students</p><StudentStatuses assignment={a} canEdit={canEdit} /></div>}

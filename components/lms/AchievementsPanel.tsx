@@ -93,13 +93,13 @@ export function AchievementsPanel({ overview, canEdit, onChanged }: { overview: 
       <ul className="grid gap-2 sm:grid-cols-2">{data.definitions.map(d => <li key={d.code} className={cn(cardClass, 'space-y-1 p-3')}>
         <div className="flex flex-wrap items-center gap-2"><span className="text-sm font-bold text-ink">{d.title}</span>{!d.active && <Pill tone="warn">off</Pill>}<Pill>{RULE_LABEL[d.rule.kind]}{d.rule.min ? ` ${d.rule.min}` : ''}</Pill><Pill>{REPEATS[d.repeats]}</Pill><Pill tone="brand">{d.points} pts</Pill></div>
         <p className="text-xs text-ink-muted">{d.description}</p>
-        {canEdit && <div className="flex gap-1.5"><button type="button" className={buttonClass({ size: 'sm' })} onClick={() => setEditing(d)}>Edit</button>
-          <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' })} disabled={saving} onClick={() => { if (window.confirm(`Delete "${d.title}"?`)) void run(() => lmsPost({ action: 'achievement.delete', code: d.code, expectedRevision: d.revision }), 'Deleted.'); }}>Delete</button></div>}
+        {canEdit && <div className="flex gap-1.5"><button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} onClick={() => setEditing(d)}>Edit</button>
+          <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => { if (window.confirm(`Delete "${d.title}"?`)) void run(() => lmsPost({ action: 'achievement.delete', code: d.code, expectedRevision: d.revision }), 'Deleted.'); }}>Delete</button></div>}
       </li>)}</ul></section>
     <section className="space-y-2"><h2 className={sectionLabelClass}>Recent awards</h2>
       {data.awards.length === 0 ? <p className="text-xs text-ink-muted">No awards yet.</p> : <ul className="divide-y divide-line rounded-lg border border-line">{data.awards.map(a => <li key={`${a.student_id}:${a.code}:${a.period}`} className="flex flex-wrap items-center gap-2 px-2 py-1.5 text-xs">
         <span className="min-w-[10rem] flex-1 font-semibold text-ink">{a.students?.english_name ?? a.student_id}</span><span>{title(a.code)}{a.period ? ` · ${a.period}` : ''}</span>{a.awarded_by && <Pill>signed off</Pill>}<span className="text-ink-muted">{fmtDate(a.earned_at)}</span>
-        {canEdit && <button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' })} disabled={saving} onClick={() => { if (window.confirm('Remove this award and its points?')) void run(() => lmsPost({ action: 'achievement.revoke', studentId: a.student_id, code: a.code, period: a.period, note: null }), 'Removed.'); }}>Remove</button>}
+        {canEdit && <button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => { if (window.confirm('Remove this award and its points?')) void run(() => lmsPost({ action: 'achievement.revoke', studentId: a.student_id, code: a.code, period: a.period, note: null }), 'Removed.'); }}>Remove</button>}
       </li>)}</ul>}</section>
     {editing && <DefinitionEditor overview={overview} editing={editing === 'new' ? null : editing} onClose={() => setEditing(null)} onSaved={() => { void reload(); onChanged(); }} />}
   </div>;

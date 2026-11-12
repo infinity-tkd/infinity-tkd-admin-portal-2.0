@@ -167,6 +167,7 @@ Ask before the first upload; submissions-v1 tells you whether consent exists.
    marks it `submitted`. Finishing more than 2 hours after starting is refused
    (start again); abandoned uploads are deleted after a day.
 4. **Withdraw** (before review): `student_portal_withdraw_submission(p_actor, p_student, p_submission)`.
+   Withdrawing again (a double tap) returns the withdrawn submission instead of an error.
 5. **Playback**: read `video_path` from `student_submissions` for that id and
    student, then `createSignedUrl(video_path, 600)` (10 minutes).
 

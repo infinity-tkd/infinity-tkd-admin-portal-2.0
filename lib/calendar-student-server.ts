@@ -5,6 +5,7 @@ import { calendarFailure, calendarPeriod, decodeCalendarCursor, encodeCalendarCu
 import { calendarResponse, calendarPrivateResponse } from './calendar-admin-server';
 import { occurrence, type CalendarDraft, type StoredAttachment } from './calendar-contract';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { STUDENT_NOTICE_CATEGORIES } from './lms-contract';
 
 export async function calendarStudent(req: Request) {
   if (req.headers.get('x-portal-contract') !== 'calendar-v1') calendarFailure('A verified calendar-v1 student gateway is required.', '42501');
@@ -62,6 +63,6 @@ export async function studentInbox(req: Request, client: SupabaseClient, userId:
 export async function studentNoticePreference(client: SupabaseClient, userId: string) {
   const result = await client.from('portal_notification_preferences').select('push_enabled,muted_categories,student_quiet_start,student_quiet_end').eq('user_id', userId).maybeSingle();
   if (result.error) throw result.error;
-  return { pushEnabled: result.data?.push_enabled ?? false, mutedCategories: result.data?.muted_categories?.includes('events') ? ['events'] : [],
+  return { pushEnabled: result.data?.push_enabled ?? false, mutedCategories: ((result.data?.muted_categories ?? []) as string[]).filter(category => (STUDENT_NOTICE_CATEGORIES as readonly string[]).includes(category)),
     quietStart: result.data ? result.data.student_quiet_start : '22:00', quietEnd: result.data ? result.data.student_quiet_end : '07:00' };
 }

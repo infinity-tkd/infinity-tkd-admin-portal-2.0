@@ -34,24 +34,31 @@ export function CoachingHub() {
   const canEdit = can('action:curriculum_edit');
   const { data: overview, error, reload } = useLmsView<Overview>('overview');
   const [tab, setTab] = useState<Tab>('review');
-  if (error) return <ErrorBanner title="Coaching is unavailable" action={<button type="button" className={buttonClass({ size: 'sm' })} onClick={() => void reload()}>Retry</button>}>{error}</ErrorBanner>;
+  // "Review submitted" on an assignment opens the queue filtered to it.
+  const [reviewFor, setReviewFor] = useState<{ id: string; title: string } | null>(null);
+  if (error) return <ErrorBanner title="Coaching is unavailable" action={<button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} onClick={() => void reload()}>Retry</button>}>{error}</ErrorBanner>;
   if (!overview) return <EmptyState busy title="Loading coaching…" />;
   const waiting = overview.waiting.submissions + overview.waiting.forms;
   const refresh = () => void reload();
-  return <div className="space-y-4">
+  // Phones: a 4 x 2 grid of icon tabs with short labels (no sideways scrolling);
+  // tablets: one wrapping row; desktop: one row.
+  const label = (short: string, full: string) => <><span className="sm:hidden">{short}</span><span className="hidden sm:inline">{full}</span></>;
+  return <div className="space-y-4" data-coaching-hub>
     {!canEdit && <p className="rounded-lg border border-line bg-surface-muted p-3 text-xs text-ink-muted">View only: coaches and above review work and make changes.</p>}
-    <SegmentedTabs label="Coaching views" value={tab} onChange={setTab} stretch={false} items={[
-      { id: 'review', label: 'Review', icon: <CheckCircle />, badge: waiting ? <span className="ml-1 rounded-full bg-brand px-1.5 text-[10px] text-on-brand">{waiting}</span> : undefined },
-      { id: 'assignments', label: 'Assignments', icon: <ClipboardText /> },
-      { id: 'challenges', label: 'Challenges', icon: <Flag /> },
-      { id: 'forms', label: 'Forms & quizzes', icon: <PersonSimpleTaiChi /> },
-      { id: 'achievements', label: 'Achievements', icon: <Trophy /> },
-      { id: 'students', label: 'Plans & goals', icon: <UserFocus /> },
-      { id: 'announcements', label: 'Announcements', icon: <Megaphone /> },
-      { id: 'attention', label: 'Attention', icon: <Warning /> },
+    <SegmentedTabs label="Coaching views" value={tab} onChange={next => { setTab(next); if (next !== 'review') setReviewFor(null); }} stretch={false} stacked
+      className="max-sm:grid max-sm:grid-cols-4 max-sm:overflow-visible sm:flex-wrap sm:overflow-visible" items={[
+      { id: 'review', label: label('Review', 'Review'), ariaLabel: waiting ? `Review, ${waiting} waiting` : 'Review', icon: <CheckCircle />,
+        badge: waiting ? <span aria-hidden="true" className="rounded-full bg-brand px-1.5 text-[10px] leading-4 text-on-brand max-sm:absolute max-sm:right-1 max-sm:top-1 sm:ml-1">{waiting}</span> : undefined },
+      { id: 'assignments', label: label('Tasks', 'Assignments'), ariaLabel: 'Assignments', icon: <ClipboardText /> },
+      { id: 'challenges', label: label('Challenges', 'Challenges'), ariaLabel: 'Challenges', icon: <Flag /> },
+      { id: 'forms', label: label('Forms', 'Forms & quizzes'), ariaLabel: 'Forms & quizzes', icon: <PersonSimpleTaiChi /> },
+      { id: 'achievements', label: label('Awards', 'Achievements'), ariaLabel: 'Achievements', icon: <Trophy /> },
+      { id: 'students', label: label('Plans', 'Plans & goals'), ariaLabel: 'Plans & goals', icon: <UserFocus /> },
+      { id: 'announcements', label: label('Notices', 'Announcements'), ariaLabel: 'Announcements', icon: <Megaphone /> },
+      { id: 'attention', label: label('Attention', 'Attention'), ariaLabel: 'Attention', icon: <Warning /> },
     ]} />
-    {tab === 'review' && <ReviewQueue canReview={canEdit} />}
-    {tab === 'assignments' && <AssignmentsPanel overview={overview} canEdit={canEdit} />}
+    {tab === 'review' && <ReviewQueue canReview={canEdit} assignment={reviewFor} onClearAssignment={() => setReviewFor(null)} />}
+    {tab === 'assignments' && <AssignmentsPanel overview={overview} canEdit={canEdit} onReview={assignment => { setReviewFor(assignment); setTab('review'); }} />}
     {tab === 'challenges' && <ChallengesPanel overview={overview} canEdit={canEdit} />}
     {tab === 'forms' && <FormsPanel overview={overview} canEdit={canEdit} onChanged={refresh} />}
     {tab === 'achievements' && <AchievementsPanel overview={overview} canEdit={canEdit} onChanged={refresh} />}
