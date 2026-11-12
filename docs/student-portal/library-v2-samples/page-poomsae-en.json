@@ -1,0 +1,354 @@
+{
+  "success": true,
+  "data": {
+    "subjectStudentId": "STU-M-000",
+    "lang": "en",
+    "categories": [
+      {
+        "slug": "poomsae",
+        "title": "Poomsae (Forms)",
+        "koreanTitle": "공인 품새",
+        "subtitle": "Kukkiwon Standard Forms & Trigram Philosophy",
+        "description": "Standardized defensive and offensive movement patterns symbolizing ancient universal elements from Taegeuk 1 to Black Belt Dan forms.",
+        "icon": "BookOpen",
+        "accentColor": "#EF2F38",
+        "type": "Taekwondo"
+      },
+      {
+        "slug": "kicking-fundamentals",
+        "title": "Fundamental Kicking",
+        "koreanTitle": "기본 발차기",
+        "subtitle": "Chambering, Pelvic Drive & Linear Accuracy",
+        "description": "The foundational kinetic engine of Taekwondo: Front Snap Kick, Roundhouse Kick, Side Kick, and Axe Kick.",
+        "icon": "Lightning",
+        "accentColor": "#FFD505",
+        "type": "Taekwondo"
+      },
+      {
+        "slug": "kicking-advanced",
+        "title": "Advanced & Dynamic Kicking",
+        "koreanTitle": "특수 및 회전 발차기",
+        "subtitle": "Spinning Hooks, 540s, Jumping Blitzes & Feints",
+        "description": "High-velocity rotational kicks, blind counters, and Olympic scoring combinations engineered for championship competition.",
+        "icon": "Fire",
+        "accentColor": "#09BB00",
+        "type": "Taekwondo"
+      },
+      {
+        "slug": "hand-techniques",
+        "title": "Hand Techniques",
+        "koreanTitle": "손기술 및 막기",
+        "subtitle": "Surgical Blocks, Knife-Hands, Elbows & Punches",
+        "description": "Traditional blocking planes, knife-hand guarding, ridge-hand strikes, and close-quarter elbow power generation.",
+        "icon": "Hand",
+        "accentColor": "#0042EA",
+        "type": "Taekwondo"
+      },
+      {
+        "slug": "stances",
+        "title": "Stances (Seogi)",
+        "koreanTitle": "서기 (자세)",
+        "subtitle": "Center of Mass, Ground Reaction Force & Mobility",
+        "description": "The bedrock of all martial mechanics: walking stance, forward long stance, back stance, cat stance, and crane stance.",
+        "icon": "Footprints",
+        "accentColor": "#A05B00",
+        "type": "Taekwondo"
+      },
+      {
+        "slug": "hosinsul",
+        "title": "Hosinsul (Practical Self-Defense)",
+        "koreanTitle": "실전 호신술 및 관절기",
+        "subtitle": "Wrist Releases, Joint Locks, Choke Escapes & Weapon Disarms",
+        "description": "Reality-based martial defense utilizing anatomical leverage, joint hyper-extension, close-range redirection, and non-violent de-escalation protocols.",
+        "icon": "Shield",
+        "accentColor": "#09BB00",
+        "type": "Taekwondo"
+      },
+      {
+        "slug": "tricking-acrobatics",
+        "title": "Acrobatics & Tricking",
+        "koreanTitle": "마샬아츠 트릭킹",
+        "subtitle": "Aerial Inversions, Corkscrews, B-Twists & Board Breaks",
+        "description": "High-altitude aesthetic flow combining martial arts kicks with gymnastics momentum, spring-floor tricking, and stage stunts.",
+        "icon": "Sparkle",
+        "accentColor": "#A855F7",
+        "type": "Taekwondo"
+      },
+      {
+        "slug": "history",
+        "title": "History & Heritage",
+        "koreanTitle": "태권도 역사 & 국기원 유산",
+        "subtitle": "Ancient Lineage, 9 Kwans & Global Olympic Era",
+        "description": "The comprehensive timeline of Taekwondo from Goguryeo tomb murals (Subak) to 1972 Kukkiwon founding and Olympic medal status.",
+        "icon": "Scroll",
+        "accentColor": "#EF2F38",
+        "type": "Taekwondo"
+      },
+      {
+        "slug": "competition-rules",
+        "title": "Competition Rules (Kyorugi & Poomsae)",
+        "koreanTitle": "세계연맹 공인 경기 규칙",
+        "subtitle": "World Kyorugi (Best-of-3), Gam-Jeom & Poomsae Scoring Standards",
+        "description": "Official World Taekwondo (WT) competition rulebook: 1-5 point scoring metrics, electronic sensor thresholds, Gam-jeom infractions, IVR video reviews, and Poomsae accuracy deductions.",
+        "icon": "Medal",
+        "accentColor": "#0042EA",
+        "type": "Taekwondo"
+      }
+    ],
+    "lessons": [
+      {
+        "id": 91,
+        "slug": "taegeuk-1-il-jang",
+        "kind": "lesson",
+        "category": "poomsae",
+        "title": "Taegeuk 1 (Il Jang)",
+        "koreanName": "태극 1장 (Keon / Heaven & Beginning)",
+        "romanized": "Taegeuk Il Jang",
+        "summary": "The foundational pattern in the World Taekwondo syllabus, symbolizing Keon (Heaven and Light)—the beginning of martial creation and all universal existence.",
+        "levelNote": "White Belt (10th – 9th Geup)",
+        "targetBelt": "All",
+        "type": "Taekwondo",
+        "thumbnailUrl": null,
+        "media": {
+          "kind": "unavailable"
+        },
+        "position": null,
+        "durationSeconds": null,
+        "tags": [
+          "poomsae",
+          "taegeuk"
+        ],
+        "sectionCount": 16,
+        "translated": false
+      },
+      {
+        "id": 92,
+        "slug": "taegeuk-2-ee-jang",
+        "kind": "lesson",
+        "category": "poomsae",
+        "title": "Taegeuk 2 (Ee Jang)",
+        "koreanName": "태극 2장 (Tae / Lake & Joy)",
+        "romanized": "Taegeuk Ee Jang",
+        "summary": "Symbolizes Tae (Lake)—inner firmness with outward gentleness, joy, and focused composure. The lake is peaceful on the surface but retains massive potential energy beneath.",
+        "levelNote": "Yellow Belt (8th – 7th Geup)",
+        "targetBelt": "All",
+        "type": "Taekwondo",
+        "thumbnailUrl": null,
+        "media": {
+          "kind": "unavailable"
+        },
+        "position": null,
+        "durationSeconds": null,
+        "tags": [
+          "poomsae",
+          "taegeuk"
+        ],
+        "sectionCount": 16,
+        "translated": false
+      },
+      {
+        "id": 93,
+        "slug": "taegeuk-3-sam-jang",
+        "kind": "lesson",
+        "category": "poomsae",
+        "title": "Taegeuk 3 (Sam Jang)",
+        "koreanName": "태극 3장 (Ri / Fire & Clarity)",
+        "romanized": "Taegeuk Sam Jang",
+        "summary": "Symbolizes Ri (Fire and Sun)—radiance, enthusiasm, and dynamic passion. Introduces knifehand strikes (Sonnal Mok-chigi) and rapid sequential combinations.",
+        "levelNote": "Yellow Belt (8th – 7th Geup)",
+        "targetBelt": "All",
+        "type": "Taekwondo",
+        "thumbnailUrl": null,
+        "media": {
+          "kind": "unavailable"
+        },
+        "position": null,
+        "durationSeconds": null,
+        "tags": [
+          "poomsae",
+          "taegeuk"
+        ],
+        "sectionCount": 16,
+        "translated": false
+      },
+      {
+        "id": 94,
+        "slug": "taegeuk-4-sa-jang",
+        "kind": "lesson",
+        "category": "poomsae",
+        "title": "Taegeuk 4 (Sa Jang)",
+        "koreanName": "태극 4장 (Jin / Thunder & Power)",
+        "romanized": "Taegeuk Sa Jang",
+        "summary": "Symbolizes Jin (Thunder)—great power and dignity in the face of danger. Introduces double knifehand blocks (Sonnal Momtong-makki), spearhand thrusts (Pyonsonkkeut Sewo-jireugi), and side kicks (Yop-chagi).",
+        "levelNote": "Green Belt (6th – 5th Geup)",
+        "targetBelt": "All",
+        "type": "Taekwondo",
+        "thumbnailUrl": null,
+        "media": {
+          "kind": "unavailable"
+        },
+        "position": null,
+        "durationSeconds": null,
+        "tags": [
+          "poomsae",
+          "taegeuk"
+        ],
+        "sectionCount": 16,
+        "translated": false
+      },
+      {
+        "id": 95,
+        "slug": "taegeuk-5-oh-jang",
+        "kind": "lesson",
+        "category": "poomsae",
+        "title": "Taegeuk 5 (Oh Jang)",
+        "koreanName": "태극 5장 (Son / Wind & Flexibility)",
+        "romanized": "Taegeuk Oh Jang",
+        "summary": "Symbolizes Son (Wind)—gentle and yielding like a breeze, yet capable of terrifying gale-force destructive power. Introduces hammerfist strikes (Mejumeok), elbow strikes (Palkup Dollyo-chigi), and stomping transitions (Jitchikgi).",
+        "levelNote": "Green Belt (6th – 5th Geup)",
+        "targetBelt": "All",
+        "type": "Taekwondo",
+        "thumbnailUrl": null,
+        "media": {
+          "kind": "unavailable"
+        },
+        "position": null,
+        "durationSeconds": null,
+        "tags": [
+          "poomsae",
+          "taegeuk"
+        ],
+        "sectionCount": 16,
+        "translated": false
+      },
+      {
+        "id": 96,
+        "slug": "taegeuk-6-yuk-jang",
+        "kind": "lesson",
+        "category": "poomsae",
+        "title": "Taegeuk 6 (Yuk Jang)",
+        "koreanName": "태극 6장 (Gam / Water & Fluid Flow)",
+        "romanized": "Taegeuk Yuk Jang",
+        "summary": "Symbolizes Gam (Water)—continuous, fluid, adaptable, and flowing around all obstacles. Introduces roundhouse kicks (Dollyo-chagi), palm middle blocks (Batangson Momtong-makki), and opening knifehand low blocks (Sonnal Arae-makki).",
+        "levelNote": "Blue Belt (4th – 3rd Geup)",
+        "targetBelt": "All",
+        "type": "Taekwondo",
+        "thumbnailUrl": null,
+        "media": {
+          "kind": "unavailable"
+        },
+        "position": null,
+        "durationSeconds": null,
+        "tags": [
+          "poomsae",
+          "taegeuk"
+        ],
+        "sectionCount": 16,
+        "translated": false
+      },
+      {
+        "id": 97,
+        "slug": "taegeuk-7-chil-jang",
+        "kind": "lesson",
+        "category": "poomsae",
+        "title": "Taegeuk 7 (Chil Jang)",
+        "koreanName": "태극 7장 (Gan / Mountain & Stability)",
+        "romanized": "Taegeuk Chil Jang",
+        "summary": "Symbolizes Gan (Mountain)—ponderous grandeur and unshakeable steadfastness. Introduces Tiger stance (Beom-seogi), Crane stance (Hakdari-seogi), Scissors block (Kawi-makki), Knee strike (Mureup-chigi), and Covered fist (Bo-jumeok).",
+        "levelNote": "Blue Belt (4th – 3rd Geup)",
+        "targetBelt": "All",
+        "type": "Taekwondo",
+        "thumbnailUrl": null,
+        "media": {
+          "kind": "unavailable"
+        },
+        "position": null,
+        "durationSeconds": null,
+        "tags": [
+          "poomsae",
+          "taegeuk"
+        ],
+        "sectionCount": 16,
+        "translated": false
+      },
+      {
+        "id": 98,
+        "slug": "taegeuk-8-pal-jang",
+        "kind": "lesson",
+        "category": "poomsae",
+        "title": "Taegeuk 8 (Pal Jang)",
+        "koreanName": "태극 8장 (Gon / Earth & Completion)",
+        "romanized": "Taegeuk Pal Jang",
+        "summary": "The final and most complex Taegeuk pattern before Black Belt, representing Gon (Earth)—receptivity, source of life, and rebirth into the Yudanja Dan mastery ranks. Features jumping double kicks (Dubal-dangsang-chagi), single mountain blocks (Oesanteul-makki), and turning elbow combinations.",
+        "levelNote": "Brown Belt (2nd – 1st Geup)",
+        "targetBelt": "All",
+        "type": "Taekwondo",
+        "thumbnailUrl": null,
+        "media": {
+          "kind": "unavailable"
+        },
+        "position": null,
+        "durationSeconds": null,
+        "tags": [
+          "poomsae",
+          "taegeuk"
+        ],
+        "sectionCount": 16,
+        "translated": false
+      },
+      {
+        "id": 99,
+        "slug": "koryo-dan-poomsae",
+        "kind": "lesson",
+        "category": "poomsae",
+        "title": "Koryo Poomsae",
+        "koreanName": "고려 (Korea / Ancient Warrior Spirit)",
+        "romanized": "Koryo",
+        "summary": "The premier Black Belt form embodying the indomitable spirit and noble courage of the ancient Koryo Dynasty warriors who defended their nation against foreign invasions.",
+        "levelNote": "Red Belt (Dan candidate)",
+        "targetBelt": "All",
+        "type": "Taekwondo",
+        "thumbnailUrl": null,
+        "media": {
+          "kind": "unavailable"
+        },
+        "position": null,
+        "durationSeconds": null,
+        "tags": [
+          "poomsae",
+          "high-dan"
+        ],
+        "sectionCount": 12,
+        "translated": false
+      },
+      {
+        "id": 100,
+        "slug": "keumgang-dan-poomsae",
+        "kind": "lesson",
+        "category": "poomsae",
+        "title": "Keumgang Poomsae",
+        "koreanName": "금강 (Diamond & Mountain)",
+        "romanized": "Keumgang",
+        "summary": "Named after Mount Keumgang and the Buddhist concept of the Diamond (Vajra)—representing impenetrable hardness, spiritual adamantine resolve, and towering majestic beauty.",
+        "levelNote": "Black Belt 1st Dan / 1st Poom",
+        "targetBelt": "All",
+        "type": "Taekwondo",
+        "thumbnailUrl": null,
+        "media": {
+          "kind": "unavailable"
+        },
+        "position": null,
+        "durationSeconds": null,
+        "tags": [
+          "poomsae",
+          "high-dan"
+        ],
+        "sectionCount": 12,
+        "translated": false
+      }
+    ],
+    "nextCursor": "opaque-cursor",
+    "contractVersion": "library-v2"
+  },
+  "error": null
+}

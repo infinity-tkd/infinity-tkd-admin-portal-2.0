@@ -1,0 +1,70 @@
+// lib/library-v2-contract.ts (student portal). Paste as-is.
+// library-v2 responses from the admin portal (docs/STUDENT_PORTAL_LIBRARY_V2_HANDOFF.md).
+// Deliberately NOT .strict(): new optional fields must never break the library page.
+import { z } from "zod";
+
+const text = z.string().max(20000);
+const short = z.string().max(2000);
+export const LIBRARY_V2 = "library-v2" as const;
+export type LibraryLang = "en" | "km" | "zh";
+
+const point = z.object({ x: z.number(), y: z.number() });
+const facing = z.enum(["N", "E", "S", "W"]);
+const stance = z.object({ type: z.string(), lead: z.enum(["left", "right"]).optional() });
+export const poomsaeWalkthroughSchema = z.object({
+  start: point, startFacing: facing, startStance: stance,
+  guides: z.array(z.object({ from: point, to: point })).default([]),
+  verified: z.boolean().default(false),
+  steps: z.array(z.object({ to: point, facing, stance, techniques: z.array(short).default([]) })),
+});
+const fact = z.object({ label: short, value: short });
+const base = { id: z.string(), title: z.string().default("") };
+export const librarySectionSchema = z.discriminatedUnion("type", [
+  z.object({ ...base, type: z.literal("text"), paragraphs: z.array(text) }),
+  z.object({ ...base, type: z.literal("list"), style: z.enum(["bullet", "number", "check"]).catch("bullet"), items: z.array(short) }),
+  z.object({ ...base, type: z.literal("steps"), items: z.array(z.object({ title: short.default(""), body: text.default(""), details: z.array(short).default([]) })) }),
+  z.object({ ...base, type: z.literal("pairs"), leftLabel: short.default(""), rightLabel: short.default(""), items: z.array(z.object({ term: short, detail: text })) }),
+  z.object({ ...base, type: z.literal("glossary"), items: z.array(z.object({ korean: short.default(""), romanized: short.default(""), english: short, category: short.default("") })) }),
+  z.object({ ...base, type: z.literal("facts"), items: z.array(fact) }),
+  z.object({ ...base, type: z.literal("table"), columns: z.array(short), rows: z.array(z.array(short)), caption: short.default("") }),
+  z.object({ ...base, type: z.literal("timeline"), items: z.array(z.object({ date: short.default(""), title: short, subtitle: short.default(""), body: text.default(""), details: z.array(short).default([]), tag: short.default("") })) }),
+  z.object({ ...base, type: z.literal("cards"), items: z.array(z.object({ title: short, subtitle: short.default(""), body: text.default(""), bullets: z.array(short).default([]), facts: z.array(fact).default([]) })) }),
+  z.object({ ...base, type: z.literal("links"), items: z.array(z.object({ label: short, url: z.string().url() })) }),
+  z.object({ ...base, type: z.literal("callout"), tone: z.enum(["info", "tip", "warning"]).catch("info"), body: text }),
+  z.object({ ...base, type: z.literal("diagram"), kind: z.literal("poomsae-walkthrough"), data: poomsaeWalkthroughSchema }),
+]);
+export type LibrarySection = z.infer<typeof librarySectionSchema>;
+/** Unknown or malformed sections are dropped instead of failing the whole lesson. */
+const sections = z.array(z.unknown()).transform((rows) =>
+  rows.flatMap((row) => { const parsed = librarySectionSchema.safeParse(row); return parsed.success ? [parsed.data] : []; }));
+
+const media = z.union([
+  z.object({ kind: z.literal("iframe"), provider: z.enum(["youtube", "google-drive", "vimeo"]), src: z.string().url(), href: z.string().url() }),
+  z.object({ kind: z.literal("video"), src: z.string().url(), href: z.string().url(), mimeType: z.enum(["video/mp4", "video/webm", "video/ogg"]) }),
+  z.object({ kind: z.literal("external"), href: z.string().url() }),
+  z.object({ kind: z.literal("unavailable") }),
+]);
+export const libraryCategorySchema = z.object({
+  slug: short, title: short, koreanTitle: short.nullable(), subtitle: short.nullable(), description: text.nullable(),
+  icon: short, accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).catch("#EF2F38"), type: z.enum(["Taekwondo", "Fitness", "Dance"]).catch("Taekwondo"),
+});
+export const libraryLessonSummarySchema = z.object({
+  id: z.number().int().positive(), slug: short.nullable(), kind: z.enum(["lesson", "article"]).catch("lesson"), category: short.nullable(),
+  title: short, koreanName: short.nullable(), romanized: short.nullable(), summary: text.nullable(), levelNote: short.nullable(),
+  targetBelt: short, type: z.enum(["Taekwondo", "Fitness", "Dance"]).catch("Taekwondo"), thumbnailUrl: z.string().max(2000).nullable(),
+  media: media.catch({ kind: "unavailable" }), position: z.number().int().nullable(), durationSeconds: z.number().int().nullable(),
+  tags: z.array(short).default([]), sectionCount: z.number().int().nonnegative(), translated: z.boolean(),
+});
+export const libraryLessonSchema = libraryLessonSummarySchema.extend({
+  sections, sources: z.array(z.object({ label: short, url: z.string().url() })).default([]),
+  languages: z.array(z.string()).default(["en"]),
+});
+/** The gateway strips subjectStudentId and contractVersion before these parse. */
+export const libraryPageSchema = z.object({
+  lang: z.enum(["en", "km", "zh"]), categories: z.array(libraryCategorySchema),
+  lessons: z.array(libraryLessonSummarySchema).max(50), nextCursor: z.string().min(1).max(4000).nullable(),
+});
+export const libraryLessonResponseSchema = z.object({ lang: z.enum(["en", "km", "zh"]), lesson: libraryLessonSchema });
+export type LibraryCategory = z.infer<typeof libraryCategorySchema>;
+export type LibraryLessonSummary = z.infer<typeof libraryLessonSummarySchema>;
+export type LibraryLesson = z.infer<typeof libraryLessonSchema>;

@@ -10,7 +10,9 @@ import { studentImageUrl } from './student-catalog-contract';
  * Both need the X-Portal-Contract: library-v2 header and a signed-in student.
  */
 export const LIBRARY_V2 = 'library-v2';
-const lang = z.enum(LIBRARY_LANGS).default('en');
+// The student portal's own locale codes (kh, zh-CN) are accepted as well.
+const LANG_ALIASES: Record<string, string> = { kh: 'km', 'zh-CN': 'zh', 'zh-cn': 'zh' };
+const lang = z.preprocess(value => typeof value === 'string' ? LANG_ALIASES[value] ?? value : value, z.enum(LIBRARY_LANGS).default('en'));
 export const libraryV2QuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(25), cursor: z.string().max(4000).optional(), q: z.string().trim().max(100).default(''),
   category: z.string().trim().max(60).regex(SLUG).optional(), kind: z.enum(['lesson', 'article']).optional(), lang,

@@ -1,0 +1,428 @@
+{
+  "success": true,
+  "data": {
+    "subjectStudentId": "STU-M-000",
+    "lang": "en",
+    "lesson": {
+      "id": 9,
+      "slug": "front-kick-ap-chagi",
+      "kind": "lesson",
+      "category": "kicking-fundamentals",
+      "title": "Front Kick (Ap Chagi / 앞차기)",
+      "koreanName": "앞차기",
+      "romanized": "Ap Chagi",
+      "summary": "The Front Kick (Ap Chagi) is the most fundamental linear kick in Taekwondo. It demonstrates control, precision, and the ability to generate power through proper body alignment and timing. In traditional Taekwondo, it is used for attacking the midsection or head; in Freestyle and Tricking, it serves as a base for aerial combinations and dynamic kick variations.",
+      "levelNote": "White Belt and Above",
+      "targetBelt": "White",
+      "type": "Taekwondo",
+      "thumbnailUrl": null,
+      "media": {
+        "kind": "unavailable"
+      },
+      "position": null,
+      "durationSeconds": null,
+      "tags": [
+        "kicking-fundamentals",
+        "linear"
+      ],
+      "sectionCount": 14,
+      "translated": false,
+      "sections": [
+        {
+          "id": "glance",
+          "title": "At a glance",
+          "type": "facts",
+          "items": [
+            {
+              "label": "Belt level",
+              "value": "White Belt and Above"
+            },
+            {
+              "label": "Difficulty",
+              "value": "Beginner"
+            },
+            {
+              "label": "Striking surface",
+              "value": "Ball of the foot (Ap-chook) with toes curled back tightly / Instep (Baldeung)"
+            },
+            {
+              "label": "Target area",
+              "value": "Solar Plexus, Ribcage, Chin, Groin"
+            },
+            {
+              "label": "Trajectory",
+              "value": "linear"
+            }
+          ]
+        },
+        {
+          "id": "meaning",
+          "title": "Meaning",
+          "type": "text",
+          "paragraphs": [
+            "Maintain upright alignment throughout the motion."
+          ]
+        },
+        {
+          "id": "balance",
+          "title": "Balance and posture",
+          "type": "text",
+          "paragraphs": [
+            "Maintain upright vertical alignment throughout the entire chamber, extension, and recoil phases."
+          ]
+        },
+        {
+          "id": "core-principles",
+          "title": "Core principles",
+          "type": "pairs",
+          "leftLabel": "",
+          "rightLabel": "",
+          "items": [
+            {
+              "term": "Balance and Posture",
+              "detail": "Maintain upright alignment throughout the motion; avoid tilting or collapsing the torso."
+            },
+            {
+              "term": "Chamber Control",
+              "detail": "The lifting and folding of the knee determine accuracy, elevation, and penetrating power."
+            },
+            {
+              "term": "Extension and Recoil",
+              "detail": "Quick snapping action to deliver maximum impact and return to chamber/stance efficiently."
+            },
+            {
+              "term": "Hip Engagement",
+              "detail": "Proper forward pelvic thrust enhances power generation and kinetic transfer into the target."
+            },
+            {
+              "term": "Timing and Target Focus",
+              "detail": "Deliver the kick at the exact moment of full extension for maximum explosive effect."
+            }
+          ]
+        },
+        {
+          "id": "prerequisites",
+          "title": "Skill prerequisites",
+          "type": "cards",
+          "items": [
+            {
+              "title": "Physical",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "Adequate flexibility in hamstrings and hip flexors.",
+                "Core and lower body strength for unilateral stability.",
+                "Basic single-leg balance and motor coordination."
+              ],
+              "facts": []
+            },
+            {
+              "title": "Technical",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "Mastery of basic stance (Ap Seogi or Fighting Stance).",
+                "Proper knee lift and tight chamber control.",
+                "Basic understanding of striking surfaces (ball of foot Ap-chook or instep Baldeung)."
+              ],
+              "facts": []
+            },
+            {
+              "title": "Mental",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "Concentration on body alignment and micro-timing.",
+                "Confidence in executing controlled, explosive leg extensions.",
+                "Acute spatial awareness of distance and target precision."
+              ],
+              "facts": []
+            }
+          ]
+        },
+        {
+          "id": "steps",
+          "title": "Steps",
+          "type": "steps",
+          "items": [
+            {
+              "title": "",
+              "body": "From fighting stance, lift your rear knee to chest height with toes pulled back tightly.",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "Maintain an upright spine and slightly bent supporting leg for solid base balance.",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "Explosively snap the lower leg forward, driving the ball of the foot (Ap-chook) through the target.",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "Thrust the pelvis slightly forward at the moment of impact with an explosive Kihap.",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "Immediately recoil the heel back to the chambered position before landing in a balanced stance.",
+              "details": []
+            }
+          ]
+        },
+        {
+          "id": "training",
+          "title": "Step-by-step training process",
+          "type": "steps",
+          "items": [
+            {
+              "title": "Preparation and Warm-up",
+              "body": "",
+              "details": [
+                "Perform dynamic leg stretches (front leg raises, knee lifts, and hip circles).",
+                "Execute light shadow kicks to activate neuro-muscular memory.",
+                "Focus on dynamic mobility in the ankles, hips, and lower back."
+              ]
+            },
+            {
+              "title": "Chamber and Balance Drill",
+              "body": "",
+              "details": [
+                "From fighting stance, lift your knee to chest height with toes pulled back.",
+                "Hold the chamber for 2–3 seconds to build balance and muscle endurance.",
+                "Ensure your supporting leg is stable, grounded, and slightly bent at the knee."
+              ]
+            },
+            {
+              "title": "Extension and Recoil Practice",
+              "body": "",
+              "details": [
+                "From chamber position, extend the leg sharply forward, striking with the ball of the foot.",
+                "Immediately recoil (snap back) to the chamber before lowering the leg.",
+                "Focus on speed, control, and maintaining upper body stability without flailing arms."
+              ]
+            },
+            {
+              "title": "Power Integration",
+              "body": "",
+              "details": [
+                "Engage hips during the kick: slight forward thrust of the pelvis for penetrating power.",
+                "Breathe out sharply with explosive diaphragmatic \"Kihap\" during extension.",
+                "Train both the snap version (Ap Chagi) and the thrust version (Ap Cha Olligi / Mil-chagi)."
+              ]
+            },
+            {
+              "title": "Application and Combination",
+              "body": "",
+              "details": [
+                "Front Kick -> Roundhouse Kick (Ap Chagi -> Dollyo Chagi) continuous combination.",
+                "Double Front Kick (Front leg setup -> Rear leg power strike).",
+                "Jumping Front Kick (Twieo Ap Chagi) for freestyle and tricking aerial adaptation.",
+                "Integrate the kick into fluid sparring counter-attacks and poomsae forms."
+              ]
+            }
+          ]
+        },
+        {
+          "id": "key-details",
+          "title": "Key details",
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Toes must be pulled back sharply toward your shin to expose the Ap-chook bone.",
+            "Push the hips forward slightly at the moment of extension to maximize penetration.",
+            "Supporting foot pivots slightly (15°–30°) for knee safety and fluid weight transfer."
+          ]
+        },
+        {
+          "id": "mistakes",
+          "title": "Common mistakes and corrections",
+          "type": "pairs",
+          "leftLabel": "Mistake",
+          "rightLabel": "Correction",
+          "items": [
+            {
+              "term": "Dropping the knee too early during or after extension.",
+              "detail": "Keep the knee high until after the recoil is 100% complete before lowering."
+            },
+            {
+              "term": "Leaning back excessively with the torso to compensate for tight hamstrings.",
+              "detail": "Maintain a straight vertical spine; brace the abdominal core throughout."
+            },
+            {
+              "term": "Striking with the toes instead of the ball of the foot (Ap-chook).",
+              "detail": "Curl the toes back sharply toward the shin and plantarflex the ankle joint."
+            },
+            {
+              "term": "Weak or non-existent recoil, letting the leg drop straight to the ground.",
+              "detail": "Practice snapping the heel back to the glute immediately upon contact like a rubber band."
+            },
+            {
+              "term": "No hip engagement, kicking solely with isolated quad muscle.",
+              "detail": "Drive a subtle pelvic thrust forward at terminal extension for added reach and power."
+            }
+          ]
+        },
+        {
+          "id": "mistakes-quick",
+          "title": "Common mistakes",
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Dropping the knee too early before the recoil is finished.",
+            "Leaning the torso backward, sacrificing forward penetration and balance.",
+            "Striking with the flat toes rather than the ball of the foot."
+          ]
+        },
+        {
+          "id": "drills",
+          "title": "Drilling methods",
+          "type": "cards",
+          "items": [
+            {
+              "title": "Isolation and chamber drills",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "Chamber hold for 5–10 seconds each side to build isometric hip flexor control.",
+                "Practice slow-motion kicks focusing on deliberate muscle memory and postural alignment.",
+                "Wall-assisted chamber and extension repetitions (3 sets of 12 reps per leg)."
+              ],
+              "facts": []
+            },
+            {
+              "title": "Speed and timing drills",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "Use a target pad or focus mitt: aim for instantaneous extension and lightning recoil.",
+                "Perform 10–20 fast repetitions with consistent rhythm against visual cues.",
+                "Reaction drills: strike the paddle instantly on auditory clap or coach command."
+              ],
+              "facts": []
+            },
+            {
+              "title": "Power and heavy bag drills",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "Heavy bag front kicks for full hip engagement, kinetic penetration, and follow-through.",
+                "Measure impact consistency (use markers or electronic force-sensing targets).",
+                "Resistance band anchored kicks to build terminal extension velocity."
+              ],
+              "facts": []
+            },
+            {
+              "title": "Freestyle and tricking adaptations",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "Use the front kick as a foundational setup for Flash Kick, Pop 360, or Tornado variations.",
+                "Combine with jumping transitions for maximum vertical height, hangtime, and stylistic flair.",
+                "Practice Cheat Setup into high front kick extensions in mid-air."
+              ],
+              "facts": []
+            },
+            {
+              "title": "Spotting and safety",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "Always warm up hamstrings and Achilles tendons thoroughly before high-volume repetitions.",
+                "Use gymnastic mats or puzzle mats for jumping and aerial variations.",
+                "Ensure the supporting foot pivots slightly (15°–30°) to protect the base knee joint."
+              ],
+              "facts": []
+            }
+          ]
+        },
+        {
+          "id": "application",
+          "title": "Performance and application",
+          "type": "pairs",
+          "leftLabel": "",
+          "rightLabel": "",
+          "items": [
+            {
+              "term": "Competition",
+              "detail": "In Sparring (Kyorugi), serves as a lightning-fast stop-kick to intercept incoming rushes, or a surprise face kick underneath the guard. In Poomsae (e.g. Taegeuk 1, 3, 6, 8, Koryo), demonstrates supreme single-leg balance, aesthetic trajectory, and crisp recoil."
+            },
+            {
+              "term": "Poomsae",
+              "detail": "Featured extensively in Taegeuk Il-Jang, Sam-Jang, Yuk-Jang, Pal-Jang, and Black Belt forms Koryo and Keumgang."
+            },
+            {
+              "term": "Freestyle and tricking",
+              "detail": "Acts as the primary takeoff platform for aerial setups, transitioning into Flash Kick, Webster, Pop 360, and 540 Kick variations."
+            },
+            {
+              "term": "Demonstration",
+              "detail": ""
+            }
+          ]
+        },
+        {
+          "id": "combos",
+          "title": "Signature combinations",
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Rear Leg Ap Chagi -> Step Down -> Lead Leg Dollyo Chagi (Head)",
+            "Lead Leg Fake Ap Chagi -> Rear Leg Jumping Ap Chagi (Twieo Ap Chagi)",
+            "Ap Chagi (Body) -> Backfist (Deungjumeok) -> Reverse Punch (Baro Jireugi)"
+          ]
+        },
+        {
+          "id": "recovery",
+          "title": "Recovery and conditioning",
+          "type": "cards",
+          "items": [
+            {
+              "title": "Flexibility",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "Post-training hamstring and hip flexor static stretches (hold 30–45s).",
+                "PNF stretching with a partner or strap to progressively expand terminal hamstring range.",
+                "Seated pike stretch and standing single-leg elevated barre stretches."
+              ],
+              "facts": []
+            },
+            {
+              "title": "Strengthening",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "Knee raise holds (10–15 seconds each side against gravity).",
+                "Resistance band front kicks against ankle resistance.",
+                "Weighted leg lifts, hanging leg raises, and core planks for pelvic stability."
+              ],
+              "facts": []
+            },
+            {
+              "title": "Mobility",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "Foam roll quads, hip flexors, hamstrings, and glutes regularly to prevent tightness.",
+                "Integrate balance stability work (BOSU ball single-leg holds and dynamic clock reaches).",
+                "Ankle dorsiflexion mobility drills to optimize Ap-chook striking angle."
+              ],
+              "facts": []
+            }
+          ]
+        }
+      ],
+      "sources": [],
+      "languages": [
+        "en",
+        "km",
+        "zh"
+      ]
+    },
+    "contractVersion": "library-v2"
+  },
+  "error": null
+}

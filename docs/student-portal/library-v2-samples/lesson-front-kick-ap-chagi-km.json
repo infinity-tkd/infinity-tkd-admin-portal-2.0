@@ -1,0 +1,428 @@
+{
+  "success": true,
+  "data": {
+    "subjectStudentId": "STU-M-000",
+    "lang": "km",
+    "lesson": {
+      "id": 9,
+      "slug": "front-kick-ap-chagi",
+      "kind": "lesson",
+      "category": "kicking-fundamentals",
+      "title": "ក្បាច់ទាត់ត្រង់ទៅមុខ (Front Kick / Ap Chagi)",
+      "koreanName": "앞차기",
+      "romanized": "Ap Chagi",
+      "summary": "ក្បាច់ទាត់ត្រង់ (Ap Chagi) គឺជាក្បាច់ទាត់បន្ទាត់ត្រង់ជាមូលដ្ឋានគ្រឹះបំផុតក្នុងតេក្វាន់ដូ។ វាបង្ហាញពីការគ្រប់គ្រង ភាពជាក់លាក់ និងសមត្ថភាពក្នុងការបង្កើតកម្លាំងតាមរយៈការតម្រង់រាងកាយ និងពេលវេលាដ៏ត្រឹមត្រូវ។ ក្នុងតេក្វាន់ដូបុរាណ វាប្រើសម្រាប់វាយប្រហារលើពោះ និងក្បាល ហើយក្នុង Freestyle/Tricking វាជាគ្រឹះសម្រាប់ការរួមបញ្ចូលគ្នានៃការទាត់កណ្តាលអាកាស។",
+      "levelNote": "ខ្សែក្រវាត់ស និងឡើងលើ",
+      "targetBelt": "White",
+      "type": "Taekwondo",
+      "thumbnailUrl": null,
+      "media": {
+        "kind": "unavailable"
+      },
+      "position": null,
+      "durationSeconds": null,
+      "tags": [
+        "kicking-fundamentals",
+        "linear"
+      ],
+      "sectionCount": 14,
+      "translated": true,
+      "sections": [
+        {
+          "id": "glance",
+          "title": "At a glance",
+          "type": "facts",
+          "items": [
+            {
+              "label": "កម្រិតខ្សែក្រវាត់",
+              "value": "ខ្សែក្រវាត់ស និងឡើងលើ"
+            },
+            {
+              "label": "កម្រិតបច្ចេកទេស",
+              "value": "មូលដ្ឋាន"
+            },
+            {
+              "label": "ផ្ទៃប៉ះទង្គិច / អាវុធជើង",
+              "value": "បាតជើងខាងមុខ (Ap-chook) ដោយកាច់ម្រាមជើងឡើងលើ"
+            },
+            {
+              "label": "តំបន់គោលដៅសំខាន់",
+              "value": "ពោះ, ចង្កា, ដើមទ្រូង, ឆ្អឹងជំនី"
+            },
+            {
+              "label": "Trajectory",
+              "value": "linear"
+            }
+          ]
+        },
+        {
+          "id": "meaning",
+          "title": "អត្ថន័យទស្សនវិជ្ជា និងគោលគំនិត",
+          "type": "text",
+          "paragraphs": [
+            "រក្សាការតម្រង់ជួររាងកាយឱ្យត្រង់ពេញមួយចលនា។"
+          ]
+        },
+        {
+          "id": "balance",
+          "title": "លំនឹង និងឥរិយាបថរាងកាយ",
+          "type": "text",
+          "paragraphs": [
+            "រក្សាឥរិយាបថដងខ្លួនឱ្យត្រង់ និងរឹងមាំពេញមួយចលនា។"
+          ]
+        },
+        {
+          "id": "core-principles",
+          "title": "គោលការណ៍ស្នូលនៃក្បាច់ទាត់",
+          "type": "pairs",
+          "leftLabel": "",
+          "rightLabel": "",
+          "items": [
+            {
+              "term": "លំនឹង និងឥរិយាបថ (Balance & Posture)",
+              "detail": "រក្សាការតម្រង់ជួររាងកាយឱ្យត្រង់ពេញមួយចលនាទាត់។"
+            },
+            {
+              "term": "ការគ្រប់គ្រងការបត់ជង្គង់ (Chamber Control)",
+              "detail": "ការលើក និងបត់ជង្គង់ជាអ្នកកំណត់ភាពជាក់លាក់ និងអានុភាពនៃការទាត់។"
+            },
+            {
+              "term": "ការទាត់លាត និងកន្ត្រាក់ត្រឡប់ (Extension & Recoil)",
+              "detail": "សកម្មភាពទាត់ខ្ទាតចេញយ៉ាងលឿន និងកន្ត្រាក់ត្រឡប់មកវិញភ្លាមៗដើម្បីរក្សាជំហរ។"
+            },
+            {
+              "term": "ការប្រើប្រាស់ត្រគាក (Hip Engagement)",
+              "detail": "ការរុញត្រគាកទៅមុខឱ្យបានត្រឹមត្រូវជួយបង្កើនកម្លាំងវាយប្រហារយ៉ាងខ្លាំង។"
+            },
+            {
+              "term": "ពេលវេលា និងការផ្តោតគោលដៅ (Timing & Target Focus)",
+              "detail": "បញ្ចេញការទាត់ឱ្យចំពេលដែលជើងលាតអស់ពេញលេញដើម្បីប្រសិទ្ធភាពអតិបរមា។"
+            }
+          ]
+        },
+        {
+          "id": "prerequisites",
+          "title": "តម្រូវការជាមុននៃជំនាញ",
+          "type": "cards",
+          "items": [
+            {
+              "title": "តម្រូវការរាងកាយ",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "ភាពបត់បែនគ្រប់គ្រាន់នៃសរសៃពួរខាងក្រោយភ្លៅ (Hamstrings) និងសន្លាក់ត្រគាក។",
+                "កម្លាំងស្នូលពោះ និងជើងខាងក្រោមសម្រាប់លំនឹងរឹងមាំ។",
+                "លំនឹងឈរជើងម្ខាង និងការសម្របសម្រួលចលនារាងកាយ។"
+              ],
+              "facts": []
+            },
+            {
+              "title": "តម្រូវការបច្ចេកទេស",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "ការយល់ដឹងពីការកាច់ម្រាមជើងឡើងលើដើម្បីទាត់ដោយប្រើបាតជើងខាងមុខ (Ap-chook)។",
+                "ការគ្រប់គ្រងជំហរប្រយុទ្ធជាមូលដ្ឋាន។",
+                "Basic understanding of striking surfaces (ball of foot Ap-chook or instep Baldeung)."
+              ],
+              "facts": []
+            },
+            {
+              "title": "តម្រូវការស្មារតី",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "ការផ្តោតអារម្មណ៍ទៅលើភាពជាក់លាក់ជាជាងកម្លាំងនៅក្នុងដំណាក់កាលដំបូង។",
+                "ភាពអត់ធ្មត់ក្នុងការកសាងការចងចាំសាច់ដុំ (Muscle Memory) តាមរយៈការអនុវត្តយឺតៗ។",
+                "Acute spatial awareness of distance and target precision."
+              ],
+              "facts": []
+            }
+          ]
+        },
+        {
+          "id": "steps",
+          "title": "ជំហាន",
+          "type": "steps",
+          "items": [
+            {
+              "title": "",
+              "body": "ការកម្តៅសាច់ដុំ និងភាពបត់បែន (Warm-Up & Mobility): ការលាតសន្ធឹងសរសៃពួរខាងក្រោយ និងសន្លាក់ត្រគាក។ ការលើកជង្គង់ខ្ពស់ និងការទាត់ជើងត្រង់ថ្នមៗដើម្បីរៀបចំសន្លាក់។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "ការលើកបត់ជង្គង់ (Chamber Phase): លើកជង្គង់ឡើងត្រង់សំដៅទៅទ្រូង ដោយភ្លៅស្របនឹងកម្រាល។ កាច់កជើង និងម្រាមជើងឡើងលើឱ្យស្រួច (បង្កើតជា Ap-chook)។ រក្សាជើងទ្រទ្រង់ឱ្យរឹងមាំ និងកោងបន្តិចដើម្បីរក្សាលំនឹង។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "ការទាត់លាតសន្ធឹង (Extension Phase): ខ្ទាតជើងក្រោមចេញទៅមុខត្រង់សំដៅគោលដៅ។ រុញត្រគាកទៅមុខបន្តិចដើម្បីបង្កើតកម្លាំងទម្លុះ។ ប៉ះទង្គិចចំគោលដៅដោយប្រើបាតជើងខាងមុខ (Ap-chook)។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "ការកន្ត្រាក់ត្រឡប់មកវិញ (Recoil Phase): កន្ត្រាក់ជើងត្រឡប់មកទីតាំងបត់ជង្គង់ភ្លាមៗបន្ទាប់ពីប៉ះពាល់។ រក្សាការគ្រប់គ្រងលំនឹងរាងកាយ មិនត្រូវឱ្យធ្លាក់ជើងដោយទទេៗឡើយ។",
+              "details": []
+            },
+            {
+              "title": "",
+              "body": "ការទម្លាក់ជើង និងជំហរ (Return to Stance): ទម្លាក់ជើងចុះមកកាន់ជំហរប្រយុទ្ធដើម ឬឈានទៅមុខតាមការគ្រោងទុក។ រក្សាដៃការពារមុខ (Guard) ជាប់ជានិច្ចពេញមួយចលនា។",
+              "details": []
+            }
+          ]
+        },
+        {
+          "id": "training",
+          "title": "ដំណើរការហ្វឹកហាត់ ៥ ជំហានតាមលំដាប់",
+          "type": "steps",
+          "items": [
+            {
+              "title": "ការកម្តៅសាច់ដុំ និងភាពបត់បែន (Warm-Up & Mobility)",
+              "body": "",
+              "details": [
+                "ការលាតសន្ធឹងសរសៃពួរខាងក្រោយ និងសន្លាក់ត្រគាក។",
+                "ការលើកជង្គង់ខ្ពស់ និងការទាត់ជើងត្រង់ថ្នមៗដើម្បីរៀបចំសន្លាក់។",
+                "Focus on dynamic mobility in the ankles, hips, and lower back."
+              ]
+            },
+            {
+              "title": "ការលើកបត់ជង្គង់ (Chamber Phase)",
+              "body": "",
+              "details": [
+                "លើកជង្គង់ឡើងត្រង់សំដៅទៅទ្រូង ដោយភ្លៅស្របនឹងកម្រាល។",
+                "កាច់កជើង និងម្រាមជើងឡើងលើឱ្យស្រួច (បង្កើតជា Ap-chook)។",
+                "រក្សាជើងទ្រទ្រង់ឱ្យរឹងមាំ និងកោងបន្តិចដើម្បីរក្សាលំនឹង។"
+              ]
+            },
+            {
+              "title": "ការទាត់លាតសន្ធឹង (Extension Phase)",
+              "body": "",
+              "details": [
+                "ខ្ទាតជើងក្រោមចេញទៅមុខត្រង់សំដៅគោលដៅ។",
+                "រុញត្រគាកទៅមុខបន្តិចដើម្បីបង្កើតកម្លាំងទម្លុះ។",
+                "ប៉ះទង្គិចចំគោលដៅដោយប្រើបាតជើងខាងមុខ (Ap-chook)។"
+              ]
+            },
+            {
+              "title": "ការកន្ត្រាក់ត្រឡប់មកវិញ (Recoil Phase)",
+              "body": "",
+              "details": [
+                "កន្ត្រាក់ជើងត្រឡប់មកទីតាំងបត់ជង្គង់ភ្លាមៗបន្ទាប់ពីប៉ះពាល់។",
+                "រក្សាការគ្រប់គ្រងលំនឹងរាងកាយ មិនត្រូវឱ្យធ្លាក់ជើងដោយទទេៗឡើយ។",
+                "Train both the snap version (Ap Chagi) and the thrust version (Ap Cha Olligi / Mil-chagi)."
+              ]
+            },
+            {
+              "title": "ការទម្លាក់ជើង និងជំហរ (Return to Stance)",
+              "body": "",
+              "details": [
+                "ទម្លាក់ជើងចុះមកកាន់ជំហរប្រយុទ្ធដើម ឬឈានទៅមុខតាមការគ្រោងទុក។",
+                "រក្សាដៃការពារមុខ (Guard) ជាប់ជានិច្ចពេញមួយចលនា។",
+                "Jumping Front Kick (Twieo Ap Chagi) for freestyle and tricking aerial adaptation.",
+                "Integrate the kick into fluid sparring counter-attacks and poomsae forms."
+              ]
+            }
+          ]
+        },
+        {
+          "id": "key-details",
+          "title": "គោលការណ៍ជីវមេកានិចសំខាន់ៗ",
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "លំនឹង និងឥរិយាបថ (Balance & Posture): រក្សាការតម្រង់ជួររាងកាយឱ្យត្រង់ពេញមួយចលនាទាត់។",
+            "ការគ្រប់គ្រងការបត់ជង្គង់ (Chamber Control): ការលើក និងបត់ជង្គង់ជាអ្នកកំណត់ភាពជាក់លាក់ និងអានុភាពនៃការទាត់។",
+            "ការទាត់លាត និងកន្ត្រាក់ត្រឡប់ (Extension & Recoil): សកម្មភាពទាត់ខ្ទាតចេញយ៉ាងលឿន និងកន្ត្រាក់ត្រឡប់មកវិញភ្លាមៗដើម្បីរក្សាជំហរ។"
+          ]
+        },
+        {
+          "id": "mistakes",
+          "title": "កំហុសទូទៅ និងវិធីកែតម្រូវច្បាស់លាស់",
+          "type": "pairs",
+          "leftLabel": "កំហុសដែលឧស្សាហ៍កើតមាន",
+          "rightLabel": "ការកែតម្រូវត្រឹមត្រូវ",
+          "items": [
+            {
+              "term": "ទាត់ដោយប្រើម្រាមជើងជំនួសឱ្យបាតជើងមុខ (Ap-chook)។",
+              "detail": "កាច់កជើង និងម្រាមជើងឡើងលើឱ្យតឹងណែនមុនពេលបញ្ចេញជើង។"
+            },
+            {
+              "term": "ការទម្លាក់ជង្គង់ចុះលឿនពេកពេលទាត់ចេញ។",
+              "detail": "រក្សាជង្គង់ឱ្យនៅកម្ពស់ដដែលពេញមួយពេលទាត់ និងកន្ត្រាក់ជើង។"
+            },
+            {
+              "term": "ផ្អៀងខ្លួនទៅក្រោយខ្លាំងពេកដើម្បីយកកម្ពស់។",
+              "detail": "ពង្រឹងសាច់ដុំពោះ និងរក្សាដងខ្លួនឱ្យនៅត្រង់។"
+            },
+            {
+              "term": "ខកខានមិនបានកន្ត្រាក់ជើងត្រឡប់មកវិញ (ធ្លាក់ជើងចោល)។",
+              "detail": "ផ្តោតលើការទាញកែងជើងមកគូទវិញឱ្យលឿនដូចពេលទាត់ចេញ។"
+            },
+            {
+              "term": "ខ្វះការរុញត្រគាក (ប្រើតែកម្លាំងជង្គង់)។",
+              "detail": "រុញត្រគាកទៅមុខបន្តិចនៅពេលប៉ះចំគោលដៅ។"
+            }
+          ]
+        },
+        {
+          "id": "mistakes-quick",
+          "title": "កំហុសទូទៅដែលត្រូវជៀសវាង",
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "ទាត់ដោយប្រើម្រាមជើងជំនួសឱ្យបាតជើងមុខ (Ap-chook)។ → កាច់កជើង និងម្រាមជើងឡើងលើឱ្យតឹងណែនមុនពេលបញ្ចេញជើង។",
+            "ការទម្លាក់ជង្គង់ចុះលឿនពេកពេលទាត់ចេញ។ → រក្សាជង្គង់ឱ្យនៅកម្ពស់ដដែលពេញមួយពេលទាត់ និងកន្ត្រាក់ជើង។",
+            "ផ្អៀងខ្លួនទៅក្រោយខ្លាំងពេកដើម្បីយកកម្ពស់។ → ពង្រឹងសាច់ដុំពោះ និងរក្សាដងខ្លួនឱ្យនៅត្រង់។"
+          ]
+        },
+        {
+          "id": "drills",
+          "title": "វិធីសាស្ត្រហ្វឹកហាត់ប្រកបដោយប្រសិទ្ធភាព",
+          "type": "cards",
+          "items": [
+            {
+              "title": "លំហាត់បំបែកចលនា & បត់ជង្គង់",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "ការទាត់ដោយតោងជញ្ជាំង៖ អនុវត្តការលើកជង្គង់ លាតជើង និងកន្ត្រាក់យឺតៗដោយដៃម្ខាងតោងជញ្ជាំង។",
+                "Practice slow-motion kicks focusing on deliberate muscle memory and postural alignment.",
+                "Wall-assisted chamber and extension repetitions (3 sets of 12 reps per leg)."
+              ],
+              "facts": []
+            },
+            {
+              "title": "លំហាត់ល្បឿន & ពេលវេលា",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "ការទាត់ប៉ាវក្តារហ្វឹកហាត់ (Paddle Drills)៖ ផ្តោតលើសូរផ្ទុះឮខ្លាំង និងល្បឿនកន្ត្រាក់ត្រឡប់មកវិញ។",
+                "Perform 10–20 fast repetitions with consistent rhythm against visual cues.",
+                "Reaction drills: strike the paddle instantly on auditory clap or coach command."
+              ],
+              "facts": []
+            },
+            {
+              "title": "លំហាត់កម្លាំង & ការទាត់បាវខ្សាច់",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "ការទាត់បាវខ្សាច់ធ្ងន់៖ អនុវត្តការរុញត្រគាកដើម្បីបង្កើតកម្លាំងទម្លុះជ្រៅ។",
+                "Measure impact consistency (use markers or electronic force-sensing targets).",
+                "Resistance band anchored kicks to build terminal extension velocity."
+              ],
+              "facts": []
+            },
+            {
+              "title": "ការបំប្លែងទៅជា Freestyle / Tricking",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "Front Kick ហោះហើរ (Flying Front Kick / Twieo Ap Chagi) និង Flash Kick។",
+                "Combine with jumping transitions for maximum vertical height, hangtime, and stylistic flair.",
+                "Practice Cheat Setup into high front kick extensions in mid-air."
+              ],
+              "facts": []
+            },
+            {
+              "title": "សុវត្ថិភាព & ការការពាររបួស",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "កុំទាត់ពន្លាតជង្គង់ខ្លាំងហួសហេតុពេក (Hyperextension) ដែលនាំឱ្យរបួសសរសៃជង្គង់។",
+                "Use gymnastic mats or puzzle mats for jumping and aerial variations.",
+                "Ensure the supporting foot pivots slightly (15°–30°) to protect the base knee joint."
+              ],
+              "facts": []
+            }
+          ]
+        },
+        {
+          "id": "application",
+          "title": "ការអនុវត្តជាក់ស្តែង ការប្រកួត & ក្បាច់ផ្សំ",
+          "type": "pairs",
+          "leftLabel": "",
+          "rightLabel": "",
+          "items": [
+            {
+              "term": "ការប្រើប្រាស់ក្នុងការប្រកួត & មេគុន",
+              "detail": "ប្រើជាក្បាច់វាយស្ទាក់ (Stop Kick) ឬវាយប្រហារលឿនទៅលើពោះ និងចង្ការបស់គូប្រកួតដែលកំពុងស្ទុះចូល។"
+            },
+            {
+              "term": "Poomsae",
+              "detail": "ទាមទារលំនឹងដាច់ខាត ការលើកបត់ជង្គង់ច្បាស់លាស់ និងការកន្ត្រាក់ជើងស្អាតឥតខ្ចោះ (Taegeuk 1, 3, 6, 8, Koryo)។"
+            },
+            {
+              "term": "ការរួមបញ្ចូលក្នុង Freestyle & Tricking",
+              "detail": "ជាគ្រឹះនៃការលោតទាត់កណ្តាលអាកាស Twieo Ap Chagi និងក្បាច់ Flash Kick / X-Out។"
+            },
+            {
+              "term": "Demonstration",
+              "detail": ""
+            }
+          ]
+        },
+        {
+          "id": "combos",
+          "title": "បន្សំក្បាច់ទាត់តបត",
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Ap Chagi (ជើងមុខ) -> Dollyo Chagi (ជើងក្រោយ)",
+            "Ap Chagi -> Yop Chagi គ្រប់គ្រងចម្ងាយ",
+            "Ap Chagi (Body) -> Backfist (Deungjumeok) -> Reverse Punch (Baro Jireugi)"
+          ]
+        },
+        {
+          "id": "recovery",
+          "title": "ការស្តារកម្លាំង ភាពបត់បែន & ការថែទាំ",
+          "type": "cards",
+          "items": [
+            {
+              "title": "ការរក្សាភាពបត់បែនសរសៃពួរ",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "ពន្លាតសរសៃពួរជើង (Hamstrings) និងសាច់ដុំគូទ។",
+                "PNF stretching with a partner or strap to progressively expand terminal hamstring range.",
+                "Seated pike stretch and standing single-leg elevated barre stretches."
+              ],
+              "facts": []
+            },
+            {
+              "title": "លំហាត់ពង្រឹងកម្លាំងសាច់ដុំ",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "ការលើកជង្គង់ពង្រឹងសាច់ដុំពោះ និង Hip Flexors។",
+                "Resistance band front kicks against ankle resistance.",
+                "Weighted leg lifts, hanging leg raises, and core planks for pelvic stability."
+              ],
+              "facts": []
+            },
+            {
+              "title": "ការចល័តសន្លាក់ & ការម៉ាស្សា",
+              "subtitle": "",
+              "body": "",
+              "bullets": [
+                "ការបង្វិលសន្លាក់ត្រគាក និងម៉ាស្សាបាតជើង។",
+                "Integrate balance stability work (BOSU ball single-leg holds and dynamic clock reaches).",
+                "Ankle dorsiflexion mobility drills to optimize Ap-chook striking angle."
+              ],
+              "facts": []
+            }
+          ]
+        }
+      ],
+      "sources": [],
+      "languages": [
+        "en",
+        "km",
+        "zh"
+      ]
+    },
+    "contractVersion": "library-v2"
+  },
+  "error": null
+}
