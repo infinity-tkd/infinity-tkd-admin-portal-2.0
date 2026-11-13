@@ -374,7 +374,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                     type="button"
                     onClick={() => handleCopy(staff.username, 'Username')}
                     title="Click to copy username"
-                    className="inline-flex items-center gap-1 text-xs text-neutral-500 dark:text-[#999] font-mono hover:text-[#EF2F38] transition-colors cursor-pointer group"
+                    className="inline-flex items-center gap-1 text-xs text-neutral-500 dark:text-[#999] font-mono hover:text-brand-ink transition-colors cursor-pointer group"
                   >
                     <span>@{staff.username}</span>
                     {copiedField === 'Username' ? (
@@ -410,9 +410,9 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   type="button"
                   title="Direct Password Reset"
                   onClick={() => setShowPasswordModal(true)}
-                  className="p-2 text-neutral-500 hover:text-[#EF2F38] dark:text-[#888] dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626] rounded-[8px] transition-colors cursor-pointer"
+                  className="p-2 text-neutral-500 hover:text-brand-ink dark:text-[#888] dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626] rounded-[8px] transition-colors cursor-pointer"
                 >
-                  <Key className="w-4 h-4 text-[#EF2F38]" />
+                  <Key className="w-4 h-4 text-brand-ink" />
                 </button>
               )}
               <button
@@ -442,7 +442,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                 <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-200 font-mono flex items-center gap-2">
-                      <ShieldCheck className="w-4 h-4 text-[#EF2F38]" weight="bold" />
+                      <ShieldCheck className="w-4 h-4 text-brand-ink" weight="bold" />
                       <span>{t('stf_edit_credentials') || 'Account Credentials & Role'}</span>
                     </h3>
                     <button
@@ -451,7 +451,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         setNewStaffPassword('');
                         setShowPasswordModal(true);
                       }}
-                      className="px-2.5 py-1 bg-[#EF2F38]/10 hover:bg-[#EF2F38]/20 border border-[#EF2F38]/30 text-[#EF2F38] text-[10px] font-bold uppercase tracking-widest rounded-[8px] transition-all flex items-center gap-1.5 cursor-pointer font-mono"
+                      className="px-2.5 py-1 bg-brand/10 hover:bg-brand/20 border border-brand/30 text-brand-ink text-[10px] font-bold uppercase tracking-widest rounded-[8px] transition-all flex items-center gap-1.5 cursor-pointer font-mono"
                     >
                       <Lock className="w-3.5 h-3.5" />
                       <span>Reset Password</span>
@@ -465,7 +465,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         type="text"
                         value={editForm.displayName}
                         onChange={e => setEditForm({ ...editForm, displayName: e.target.value })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-medium"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium"
                       />
                     </div>
                     <div>
@@ -474,7 +474,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         type="email"
                         value={editForm.email}
                         onChange={e => setEditForm({ ...editForm, email: e.target.value })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono"
                       />
                     </div>
                   </div>
@@ -485,7 +485,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       <select
                         value={editForm.role}
                         onChange={e => setEditForm({ ...editForm, role: e.target.value as Role })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer font-mono font-bold"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand cursor-pointer font-mono font-bold"
                       >
                         <option value="Admin">Admin</option>
                         <option value="Head Coach">Head Coach</option>
@@ -502,7 +502,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                           id="isActiveToggle"
                           checked={editForm.isActive}
                           onChange={e => setEditForm({ ...editForm, isActive: e.target.checked })}
-                          className="w-4 h-4 rounded text-[#EF2F38] focus:ring-[#EF2F38] cursor-pointer accent-[#EF2F38]"
+                          className="w-4 h-4 rounded text-brand-ink focus:ring-brand cursor-pointer accent-brand"
                         />
                         <label htmlFor="isActiveToggle" className="text-xs text-neutral-800 dark:text-neutral-200 cursor-pointer font-medium">
                           {editForm.isActive ? 'Active (Login Enabled)' : 'Locked (Access Suspended)'}
@@ -518,7 +518,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         type="text"
                         value={editForm.profilePicturePath}
                         onChange={e => setEditForm({ ...editForm, profilePicturePath: e.target.value })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] flex-1 font-mono text-xs"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand flex-1 font-mono text-xs"
                         placeholder="Google Drive link or direct image URL"
                       />
                       {editForm.profilePicturePath && (
@@ -547,7 +547,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         type="text"
                         value={editForm.khmerName}
                         onChange={e => setEditForm({ ...editForm, khmerName: e.target.value })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                       />
                     </div>
                     <div>
@@ -556,7 +556,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         type="text"
                         value={editForm.englishName}
                         onChange={e => setEditForm({ ...editForm, englishName: e.target.value })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                       />
                     </div>
                     <div>
@@ -564,7 +564,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       <select
                         value={editForm.gender}
                         onChange={e => setEditForm({ ...editForm, gender: e.target.value as 'Male' | 'Female' })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                       >
                         <option value="Male">{t('stu_male')}</option>
                         <option value="Female">{t('stu_female')}</option>
@@ -576,7 +576,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         type="text"
                         value={editForm.nationality}
                         onChange={e => setEditForm({ ...editForm, nationality: e.target.value })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                         placeholder="Cambodian"
                       />
                     </div>
@@ -586,7 +586,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         type="date"
                         value={editForm.dob}
                         onChange={e => setEditForm({ ...editForm, dob: e.target.value })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] [color-scheme:light] dark:[color-scheme:dark]"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand [color-scheme:light] dark:[color-scheme:dark]"
                       />
                     </div>
                     <div>
@@ -595,7 +595,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         type="tel"
                         value={editForm.phone}
                         onChange={e => setEditForm({ ...editForm, phone: e.target.value })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono"
                         placeholder="012 345 678"
                       />
                     </div>
@@ -607,7 +607,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                 <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 space-y-4 shadow-sm">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-200 dark:border-[#262626] pb-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-[8px] bg-red-500/10 text-[#EF2F38] flex items-center justify-center shrink-0">
+                      <div className="w-8 h-8 rounded-[8px] bg-red-500/10 text-brand-ink flex items-center justify-center shrink-0">
                         <Medal className="w-5 h-5" weight="bold" />
                       </div>
                       <div>
@@ -659,7 +659,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       <select
                         value={editForm.currentDan ?? ''}
                         onChange={e => setEditForm({ ...editForm, currentDan: e.target.value ? Number(e.target.value) : '' })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand cursor-pointer"
                       >
                         <option value="">No Kukkiwon Dan (Unranked)</option>
                         {Object.values(KUKKIWON_DAN_RULES).map(rule => (
@@ -679,7 +679,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                           type="text"
                           value={editForm.kukkiwonId}
                           onChange={e => setEditForm({ ...editForm, kukkiwonId: e.target.value })}
-                          className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono"
+                          className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono"
                           placeholder="e.g. 05123456"
                         />
                         {editForm.kukkiwonId && (
@@ -703,7 +703,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         type="date"
                         value={editForm.danIssueDate}
                         onChange={e => setEditForm({ ...editForm, danIssueDate: e.target.value })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] [color-scheme:light] dark:[color-scheme:dark] font-mono"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand [color-scheme:light] dark:[color-scheme:dark] font-mono"
                       />
                     </div>
 
@@ -716,7 +716,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                           type="text"
                           value={editForm.danCertificateUrl}
                           onChange={e => setEditForm({ ...editForm, danCertificateUrl: e.target.value })}
-                          className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono text-xs"
+                          className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono text-xs"
                           placeholder="https://..."
                         />
                         {editForm.danCertificateUrl && (
@@ -739,7 +739,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                     <div className="bg-white dark:bg-[#191919] border border-neutral-200 dark:border-[#2C2C2C] rounded-[8px] p-3.5 space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
                         <span className="font-bold text-neutral-900 dark:text-white flex items-center gap-1.5 font-mono">
-                          <CalendarCheck className="w-4 h-4 text-[#EF2F38]" />
+                          <CalendarCheck className="w-4 h-4 text-brand-ink" />
                           <span>Promotion Pathway: {eligibility.currentDanLabel} → {eligibility.nextDanLabel || 'Max Rank'}</span>
                         </span>
                         <span className="text-[11px] font-mono text-neutral-500 dark:text-[#999]">
@@ -815,7 +815,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       <button
                         type="button"
                         onClick={handleOpenAddDan}
-                        className="px-2.5 py-1 bg-[#EF2F38] hover:bg-[#D0252D] text-white text-[10px] font-bold uppercase tracking-wider rounded-[6px] transition-colors flex items-center gap-1 cursor-pointer font-mono shadow-sm shadow-[#EF2F38]/20"
+                        className="px-2.5 py-1 bg-brand hover:bg-brand-strong text-white text-[10px] font-bold uppercase tracking-wider rounded-[6px] transition-colors flex items-center gap-1 cursor-pointer font-mono shadow-sm shadow-brand/20"
                       >
                         <Plus className="w-3 h-3" weight="bold" />
                         <span>Record Promotion</span>
@@ -907,7 +907,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('panel_street_address')}</label>
                       <input
                         type="text"
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                         value={editForm.address?.line1 || ''}
                         onChange={e => setEditForm({...editForm, address: { ...editForm.address, line1: e.target.value }})}
                         placeholder="House / Street address..."
@@ -917,7 +917,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('panel_apt_suite')}</label>
                       <input
                         type="text"
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                         value={editForm.address?.line2 || ''}
                         onChange={e => setEditForm({...editForm, address: { ...editForm.address, line2: e.target.value }})}
                         placeholder="Apartment, building, suite..."
@@ -931,7 +931,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                           <div className="flex gap-2">
                             <input
                               type="text"
-                              className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                              className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                               value={editForm.address.stateProvince === 'Other Custom' ? '' : editForm.address.stateProvince}
                               onChange={e => setEditForm({...editForm, address: { ...editForm.address, stateProvince: e.target.value }})}
                               placeholder="Custom Province"
@@ -946,7 +946,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                           </div>
                         ) : (
                           <select
-                            className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                            className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand cursor-pointer"
                             value={editForm.address?.stateProvince || ''}
                             onChange={e => {
                               const newProv = e.target.value;
@@ -973,7 +973,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                           <div className="flex gap-2">
                             <input
                               type="text"
-                              className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                              className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                               value={editForm.address.city === 'Other Custom' ? '' : editForm.address.city}
                               onChange={e => setEditForm({...editForm, address: { ...editForm.address, city: e.target.value }})}
                               placeholder="Custom District"
@@ -988,7 +988,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                           </div>
                         ) : (editForm.address?.stateProvince && CAMBODIA_LOCATIONS[editForm.address.stateProvince]) ? (
                           <select
-                            className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                            className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand cursor-pointer"
                             value={editForm.address?.city || ''}
                             onChange={e => {
                               if (e.target.value === 'Other') {
@@ -1007,7 +1007,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         ) : (
                           <input
                             type="text"
-                            className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             value={editForm.address?.city || ''}
                             onChange={e => setEditForm({...editForm, address: { ...editForm.address, city: e.target.value }})}
                             placeholder="District / Khan"
@@ -1021,7 +1021,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('panel_postal_code')}</label>
                         <input
                           type="text"
-                          className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono"
+                          className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono"
                           value={editForm.address?.postalCode || ''}
                           onChange={e => setEditForm({...editForm, address: { ...editForm.address, postalCode: e.target.value }})}
                           placeholder="12000"
@@ -1031,7 +1031,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] mb-1 font-mono">{t('panel_country')}</label>
                         <input
                           type="text"
-                          className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                          className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                           value={editForm.address?.country || 'Cambodia'}
                           onChange={e => setEditForm({...editForm, address: { ...editForm.address, country: e.target.value }})}
                         />
@@ -1054,7 +1054,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         type="text"
                         value={editForm.emergencyContactName}
                         onChange={e => setEditForm({ ...editForm, emergencyContactName: e.target.value })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                         placeholder="Contact person full name"
                       />
                     </div>
@@ -1064,7 +1064,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         type="tel"
                         value={editForm.emergencyContactPhone}
                         onChange={e => setEditForm({ ...editForm, emergencyContactPhone: e.target.value })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono"
                         placeholder="012 999 888"
                       />
                     </div>
@@ -1074,7 +1074,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                         type="text"
                         value={editForm.emergencyContactRelation}
                         onChange={e => setEditForm({ ...editForm, emergencyContactRelation: e.target.value })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                         placeholder="Spouse / Parent / Sibling"
                       />
                     </div>
@@ -1086,7 +1086,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       <textarea
                         value={editForm.medicalNotes}
                         onChange={e => setEditForm({ ...editForm, medicalNotes: e.target.value })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] resize-none h-20"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand resize-none h-20"
                         placeholder="Any relevant medical history..."
                       />
                     </div>
@@ -1095,7 +1095,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       <textarea
                         value={editForm.allergies}
                         onChange={e => setEditForm({ ...editForm, allergies: e.target.value })}
-                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] resize-none h-20"
+                        className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand resize-none h-20"
                         placeholder="Known allergies or sensitivities..."
                       />
                     </div>
@@ -1185,7 +1185,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                 <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-[#888] font-mono flex items-center gap-1.5">
-                      <Medal className="w-4 h-4 text-[#EF2F38]" weight="bold" />
+                      <Medal className="w-4 h-4 text-brand-ink" weight="bold" />
                       <span>Kukkiwon Credentials & Eligibility</span>
                     </h3>
                     {eligibility.status === 'ELIGIBLE' && (
@@ -1262,7 +1262,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   type="button"
                   onClick={handleSave}
                   disabled={isSaving || isDeleting}
-                  className="h-8.5 sm:h-9 px-3.5 sm:px-5 bg-[#EF2F38] hover:bg-[#D0252D] text-white font-bold uppercase tracking-wider text-[10px] sm:text-xs rounded-[6px] sm:rounded-[8px] shadow-sm shadow-[#EF2F38]/20 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50 active:scale-95 touch-manipulation"
+                  className="h-8.5 sm:h-9 px-3.5 sm:px-5 bg-brand hover:bg-brand-strong text-white font-bold uppercase tracking-wider text-[10px] sm:text-xs rounded-[6px] sm:rounded-[8px] shadow-sm shadow-brand/20 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50 active:scale-95 touch-manipulation"
                 >
                   {isSaving ? (
                     <>
@@ -1292,7 +1292,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                 {...dialogMotion}
                 className="w-full max-w-sm bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-6 text-center shadow-2xl flex flex-col items-center text-neutral-900 dark:text-white"
               >
-                <div className="w-12 h-12 rounded-full bg-[#EF2F38]/10 flex items-center justify-center text-[#EF2F38] mb-4">
+                <div className="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center text-brand-ink mb-4">
                   <ShieldCheck className="w-6 h-6" weight="bold" />
                 </div>
                 <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-white mb-2">
@@ -1314,7 +1314,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                     type="button"
                     onClick={executeSave}
                     disabled={isSaving}
-                    className="flex-1 py-2.5 bg-[#EF2F38] hover:bg-[#D0252D] text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors shadow-sm shadow-[#EF2F38]/20 cursor-pointer flex items-center justify-center gap-1.5"
+                    className="flex-1 py-2.5 bg-brand hover:bg-brand-strong text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors shadow-sm shadow-brand/20 cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     {isSaving ? (
                       <>
@@ -1340,7 +1340,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
               <div className="p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#1A1A1A]">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-[8px] bg-[#EF2F38]/10 flex items-center justify-center text-[#EF2F38]">
+                  <div className="w-8 h-8 rounded-[8px] bg-brand/10 flex items-center justify-center text-brand-ink">
                     <Lock className="w-4 h-4" />
                   </div>
                   <div>
@@ -1369,7 +1369,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       value={newStaffPassword}
                       onChange={e => setNewStaffPassword(e.target.value)}
                       placeholder="Min 6 characters (e.g. Coach1234!)"
-                      className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#333] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38] transition-colors pr-10"
+                      className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#333] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-brand transition-colors pr-10"
                       autoFocus
                     />
                     <button
@@ -1386,7 +1386,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   <button
                     type="button"
                     onClick={() => setNewStaffPassword(`Tkd${staff.username.replace(/[^a-zA-Z0-9]/g, '').slice(0, 5)}!2026`)}
-                    className="text-[10px] text-[#EF2F38] hover:underline font-mono cursor-pointer"
+                    className="text-[10px] text-brand-ink hover:underline font-mono cursor-pointer"
                   >
                     Suggest: Tkd{staff.username.replace(/[^a-zA-Z0-9]/g, '').slice(0, 5)}!2026
                   </button>
@@ -1406,7 +1406,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   type="button"
                   onClick={handleUpdateStaffPassword}
                   disabled={isUpdatingPassword || !newStaffPassword || newStaffPassword.length < 6}
-                  className="px-5 py-2 bg-[#EF2F38] hover:bg-[#EF2F38]/90 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition-all shadow-md shadow-[#EF2F38]/20 flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2 bg-brand hover:bg-brand/90 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition-all shadow-md shadow-brand/20 flex items-center gap-2 cursor-pointer"
                 >
                   {isUpdatingPassword ? (
                     <>
@@ -1431,7 +1431,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
               <div className="p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#1A1A1A]">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-[8px] bg-red-500/10 flex items-center justify-center text-[#EF2F38]">
+                  <div className="w-8 h-8 rounded-[8px] bg-red-500/10 flex items-center justify-center text-brand-ink">
                     <Medal className="w-4 h-4" weight="bold" />
                   </div>
                   <div>
@@ -1461,7 +1461,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                     <select
                       value={danModalForm.danLevel}
                       onChange={e => setDanModalForm({ ...danModalForm, danLevel: Number(e.target.value) })}
-                      className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer font-bold"
+                      className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand cursor-pointer font-bold"
                     >
                       {Object.values(KUKKIWON_DAN_RULES).map(rule => (
                         <option key={rule.danLevel} value={rule.danLevel}>
@@ -1480,7 +1480,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       required
                       value={danModalForm.issueDate}
                       onChange={e => setDanModalForm({ ...danModalForm, issueDate: e.target.value })}
-                      className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] [color-scheme:light] dark:[color-scheme:dark] font-mono"
+                      className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand [color-scheme:light] dark:[color-scheme:dark] font-mono"
                     />
                   </div>
 
@@ -1492,7 +1492,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       type="text"
                       value={danModalForm.certificateNo}
                       onChange={e => setDanModalForm({ ...danModalForm, certificateNo: e.target.value })}
-                      className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono"
+                      className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono"
                       placeholder="e.g. 05123456"
                     />
                   </div>
@@ -1505,7 +1505,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       type="text"
                       value={danModalForm.examinerName}
                       onChange={e => setDanModalForm({ ...danModalForm, examinerName: e.target.value })}
-                      className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                      className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                       placeholder="e.g. GM Lee"
                     />
                   </div>
@@ -1518,7 +1518,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       type="text"
                       value={danModalForm.location}
                       onChange={e => setDanModalForm({ ...danModalForm, location: e.target.value })}
-                      className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                      className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                       placeholder="Infinity Taekwondo Academy / Kukkiwon Seoul"
                     />
                   </div>
@@ -1531,7 +1531,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       type="text"
                       value={danModalForm.certificateUrl}
                       onChange={e => setDanModalForm({ ...danModalForm, certificateUrl: e.target.value })}
-                      className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono text-xs"
+                      className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono text-xs"
                       placeholder="https://..."
                     />
                   </div>
@@ -1544,7 +1544,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                       rows={2}
                       value={danModalForm.notes}
                       onChange={e => setDanModalForm({ ...danModalForm, notes: e.target.value })}
-                      className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] resize-none"
+                      className="w-full bg-white dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2A2A2A] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand resize-none"
                       placeholder="Special achievements, test score, notes..."
                     />
                   </div>
@@ -1562,7 +1562,7 @@ export function ManageStaffPanel({ staff, onClose }: ManageStaffPanelProps) {
                   <button
                     type="submit"
                     disabled={isSubmittingDan}
-                    className="h-8.5 sm:h-9 px-4 sm:px-5 bg-[#EF2F38] hover:bg-[#D0252D] disabled:opacity-50 text-white text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-[6px] sm:rounded-[8px] transition-all shadow-md shadow-[#EF2F38]/20 flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                    className="h-8.5 sm:h-9 px-4 sm:px-5 bg-brand hover:bg-brand-strong disabled:opacity-50 text-white text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-[6px] sm:rounded-[8px] transition-all shadow-md shadow-brand/20 flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
                   >
                     {isSubmittingDan ? (
                       <>

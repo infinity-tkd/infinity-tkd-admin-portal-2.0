@@ -58,7 +58,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                     <div>
                       <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_title_label')}</label>
                       <input type="text" value={newRoutine.title} onChange={(e) => setNewRoutine({ ...newRoutine, title: e.target.value })} required
-                        className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20"
+                        className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20"
                         placeholder="e.g. Rapid Footwork & Leg Conditioning"
                       />
                     </div>
@@ -66,7 +66,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                     <div>
                       <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_desc_label')}</label>
                       <textarea value={newRoutine.description} onChange={(e) => setNewRoutine({ ...newRoutine, description: e.target.value })} required rows={2}
-                        className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20"
+                        className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20"
                         placeholder={t('lib_placeholder_routine_desc')}
                       />
                     </div>
@@ -75,7 +75,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                       <div>
                         <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">Routine Type</label>
                         <select value={newRoutine.routineType} onChange={(e) => setNewRoutine({ ...newRoutine, routineType: e.target.value })}
-                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 shadow-sm font-semibold"
+                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 shadow-sm font-semibold"
                         >
                           {ROUTINE_TYPES.map(type => (
                             <option key={type} value={type} className="text-black dark:text-white dark:bg-neutral-900">{type}</option>
@@ -86,7 +86,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                       <div>
                         <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_diff_label')}</label>
                         <select value={newRoutine.difficulty} onChange={(e) => setNewRoutine({ ...newRoutine, difficulty: e.target.value })}
-                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 shadow-sm font-semibold"
+                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 shadow-sm font-semibold"
                         >
                           <option value="Beginner" className="text-black dark:text-white dark:bg-neutral-900">{t('lib_diff_beginner')}</option>
                           <option value="Intermediate" className="text-black dark:text-white dark:bg-neutral-900">{t('lib_diff_intermediate')}</option>
@@ -98,7 +98,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                       <div>
                         <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_rounds_label')}</label>
                         <input type="number" min={1} max={20} step={1} value={newRoutine.rounds} onChange={(e) => setNewRoutine({ ...newRoutine, rounds: Number(e.target.value) })} required
-                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 shadow-sm font-bold"
+                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 shadow-sm font-bold"
                         />
                       </div>
                     </div>
@@ -107,21 +107,21 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                       <div>
                         <label className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_prep_label')}</label>
                         <input type="number" min={0} max={300} step={1} value={newRoutine.prepareSeconds} onChange={(e) => setNewRoutine({ ...newRoutine, prepareSeconds: Number(e.target.value) })} required
-                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-bold"
+                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-bold"
                         />
                       </div>
 
                       <div>
                         <label className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_work_label')}</label>
                         <input type="number" min={1} max={3600} step={1} value={newRoutine.workSeconds} onChange={(e) => setNewRoutine({ ...newRoutine, workSeconds: Number(e.target.value) })} required
-                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-bold"
+                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-bold"
                         />
                       </div>
 
                       <div>
                         <label className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_rest_label')}</label>
                         <input type="number" min={0} max={1800} step={1} value={newRoutine.restSeconds} onChange={(e) => setNewRoutine({ ...newRoutine, restSeconds: Number(e.target.value) })} required
-                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-bold"
+                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-bold"
                         />
                       </div>
                     </div>
@@ -160,7 +160,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                                 }
                               }
                             }}
-                            className="w-full pl-10 pr-10 py-2.5 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] text-xs focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 transition-all font-medium placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+                            className="w-full pl-10 pr-10 py-2.5 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] text-xs focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 transition-all font-medium placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                           />
                           {exerciseSearch && (
                             <button
@@ -196,10 +196,10 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                                     setExerciseSearch('');
                                     setDropdownOpen(false);
                                   }}
-                                  className="w-full px-4 py-2.5 text-left text-xs text-[#EF2F38] hover:bg-[#EF2F38]/5 dark:hover:bg-[#EF2F38]/10 transition-colors flex justify-between items-center group font-bold border-b border-neutral-100 dark:border-[#262626] cursor-pointer"
+                                  className="w-full px-4 py-2.5 text-left text-xs text-brand-ink hover:bg-brand/5 dark:hover:bg-brand/10 transition-colors flex justify-between items-center group font-bold border-b border-neutral-100 dark:border-[#262626] cursor-pointer"
                                 >
                                   <span>+ Add Custom: &quot;{exerciseSearch.trim()}&quot;</span>
-                                  <Plus className="w-3.5 h-3.5 text-[#EF2F38]" />
+                                  <Plus className="w-3.5 h-3.5 text-brand-ink" />
                                 </button>
                               )}
                               {filteredExercises.length > 0 ? (
@@ -215,10 +215,10 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                                       setExerciseSearch('');
                                       setDropdownOpen(false);
                                     }}
-                                    className="w-full px-4 py-2.5 text-left text-xs text-neutral-700 dark:text-neutral-300 hover:bg-[#EF2F38]/5 hover:text-[#EF2F38] dark:hover:bg-[#EF2F38]/10 dark:hover:text-[#EF2F38] transition-colors flex justify-between items-center group font-medium cursor-pointer"
+                                    className="w-full px-4 py-2.5 text-left text-xs text-neutral-700 dark:text-neutral-300 hover:bg-brand/5 hover:text-brand-ink dark:hover:bg-brand/10 dark:hover:text-brand-ink transition-colors flex justify-between items-center group font-medium cursor-pointer"
                                   >
                                     <span>{exercise}</span>
-                                    <Plus aria-hidden="true" className="hover-reveal w-3.5 h-3.5 text-[#EF2F38]" />
+                                    <Plus aria-hidden="true" className="hover-reveal w-3.5 h-3.5 text-brand-ink" />
                                   </button>
                                 ))
                               ) : !exerciseSearch.trim() ? (
@@ -250,7 +250,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                                 className={cn(
                                   "flex items-center justify-between p-2.5 bg-neutral-50 dark:bg-[#1C1C1C] border rounded-[8px] transition-all group",
                                   draggedIndex === index
-                                    ? "opacity-40 border-dashed border-[#EF2F38] bg-red-500/5"
+                                    ? "opacity-40 border-dashed border-brand bg-red-500/5"
                                     : "border-neutral-200 dark:border-[#262626] hover:border-neutral-300 dark:hover:border-neutral-800"
                                 )}
                               >
@@ -284,7 +284,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                                       type="button"
                                       disabled={index === 0}
                                       onClick={() => handleMoveExercise(index, 'up')}
-                                      className="p-1 hover:bg-neutral-200 dark:hover:bg-[#2C2C2C] text-neutral-500 dark:text-neutral-400 hover:text-[#EF2F38] dark:hover:text-[#EF2F38] disabled:opacity-30 disabled:pointer-events-none rounded transition-colors cursor-pointer"
+                                      className="p-1 hover:bg-neutral-200 dark:hover:bg-[#2C2C2C] text-neutral-500 dark:text-neutral-400 hover:text-brand-ink dark:hover:text-brand-ink disabled:opacity-30 disabled:pointer-events-none rounded transition-colors cursor-pointer"
                                       title="Move up"
                                     >
                                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -295,7 +295,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                                       type="button"
                                       disabled={index === newRoutine.selectedExercises.length - 1}
                                       onClick={() => handleMoveExercise(index, 'down')}
-                                      className="p-1 hover:bg-neutral-200 dark:hover:bg-[#2C2C2C] text-neutral-500 dark:text-neutral-400 hover:text-[#EF2F38] dark:hover:text-[#EF2F38] disabled:opacity-30 disabled:pointer-events-none rounded transition-colors cursor-pointer"
+                                      className="p-1 hover:bg-neutral-200 dark:hover:bg-[#2C2C2C] text-neutral-500 dark:text-neutral-400 hover:text-brand-ink dark:hover:text-brand-ink disabled:opacity-30 disabled:pointer-events-none rounded transition-colors cursor-pointer"
                                       title="Move down"
                                     >
                                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -333,7 +333,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                       </div>
 
                     <div className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900">
-                      <label className="flex items-start gap-3 text-sm font-semibold"><input type="checkbox" checked={newRoutine.publishToStudents} onChange={event => setNewRoutine({ ...newRoutine, publishToStudents: event.target.checked })} className="mt-0.5 h-4 w-4 accent-[#EF2F38]" />Publish this version to the student portal</label>
+                      <label className="flex items-start gap-3 text-sm font-semibold"><input type="checkbox" checked={newRoutine.publishToStudents} onChange={event => setNewRoutine({ ...newRoutine, publishToStudents: event.target.checked })} className="mt-0.5 h-4 w-4 accent-brand" />Publish this version to the student portal</label>
                       <p className="text-xs leading-relaxed text-neutral-500">Drafts stay in Academy management. Publishing makes this approved routine available to students; existing student assignments retain their saved version.</p>
                       {newRoutine.publishToStudents && <label className="block text-xs font-medium">Publication reason<textarea required minLength={5} maxLength={500} rows={2} value={newRoutine.publicationReason} onChange={event => setNewRoutine({ ...newRoutine, publicationReason: event.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white p-2 text-sm dark:border-neutral-700 dark:bg-neutral-950" /></label>}
                     </div>

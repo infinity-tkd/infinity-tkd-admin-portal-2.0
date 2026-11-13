@@ -782,7 +782,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                     value={csvText}
                     onChange={handlePasteChange}
                     placeholder={`English Name,Khmer Name,Gender,Date of Birth\nChan Dara,ចាន់ ដារ៉ា,Male,2010-08-12\nSophal Phalla,សុផល ផាឡា,Female,2012-05-19`}
-                    className="w-full h-[154px] bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/25 resize-none placeholder:text-neutral-400 dark:placeholder:text-neutral-500 transition-all shadow-inner"
+                    className="w-full h-[154px] bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/25 resize-none placeholder:text-neutral-400 dark:placeholder:text-neutral-500 transition-all shadow-inner"
                   />
                 </div>
 
@@ -800,7 +800,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                   <button
                     type="button"
                     onClick={handleAddManualRow}
-                    className="w-full sm:w-auto px-5 py-2.5 bg-[#EF2F38] hover:opacity-90 text-white text-xs font-bold uppercase tracking-widest rounded-[8px] transition-all flex items-center justify-center gap-2 shadow-md shadow-[#EF2F38]/20 shrink-0"
+                    className="w-full sm:w-auto px-5 py-2.5 bg-brand hover:opacity-90 text-white text-xs font-bold uppercase tracking-widest rounded-[8px] transition-all flex items-center justify-center gap-2 shadow-md shadow-brand/20 shrink-0"
                   >
                     + Start Blank Grid
                   </button>
@@ -819,7 +819,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                     <button
                       type="button"
                       onClick={handleAddManualRow}
-                      className="px-4 py-1.5 bg-[#EF2F38] hover:opacity-90 text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center gap-1.5 shadow-md shadow-[#EF2F38]/20 mr-2"
+                      className="px-4 py-1.5 bg-brand hover:opacity-90 text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center gap-1.5 shadow-md shadow-brand/20 mr-2"
                     >
                       + Add Row
                     </button>
@@ -835,7 +835,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                 </div>
 
                 <div className="text-[11px] text-neutral-500 dark:text-neutral-400 flex items-center gap-1 font-mono font-bold italic">
-                  <PencilSimple className="w-3.5 h-3.5 text-[#EF2F38]" /> Double-click or select any cell to fix typos and validation errors inline!
+                  <PencilSimple className="w-3.5 h-3.5 text-brand-ink" /> Double-click or select any cell to fix typos and validation errors inline!
                 </div>
 
                 <div className="border border-neutral-200 dark:border-[#262626] rounded-[8px] max-h-[350px] overflow-auto">
@@ -1107,7 +1107,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                 </div>
                 <div className="w-full max-w-sm bg-neutral-100 dark:bg-[#141414] h-2 rounded-full overflow-hidden border border-neutral-200 dark:border-[#262626]">
                   <div
-                    className="bg-[#EF2F38] h-full rounded-full transition-all duration-300"
+                    className="bg-brand h-full rounded-full transition-all duration-300"
                     style={{ width: `${(currentIndex / totalValid) * 100}%` }}
                   />
                 </div>
@@ -1180,7 +1180,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                   className={cn(
                     "px-5 py-2 rounded-[8px] text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-1.5 shadow-lg shadow-black/20",
                     totalValid > 0
-                      ? "bg-[#EF2F38] text-white hover:bg-red-600 active:scale-95 cursor-pointer"
+                      ? "bg-brand text-white hover:bg-red-600 active:scale-95 cursor-pointer"
                       : "bg-neutral-100 text-neutral-400 dark:bg-[#1E1E1E] dark:text-[#666] border border-neutral-200 dark:border-neutral-800 cursor-not-allowed"
                   )}
                 >
@@ -1242,7 +1242,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                   </button>
                   <button
                     onClick={() => setShowHelp(false)}
-                    className="px-4 py-2 bg-[#EF2F38] hover:bg-red-600 text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors cursor-pointer"
+                    className="px-4 py-2 bg-brand hover:bg-red-600 text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors cursor-pointer"
                   >
                     {t('bulk_got_it')}
                   </button>

@@ -74,7 +74,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                 <div className="text-center min-w-[120px] sm:min-w-[130px]">
                   <div className="text-sm sm:text-base font-bold text-neutral-900 dark:text-white tracking-tight flex items-center justify-center gap-1.5 sm:gap-2">
                     <span>{calendarMonth}</span>
-                    <span className="text-[#EF2F38] font-mono font-black">{calendarYear}</span>
+                    <span className="text-brand-ink font-mono font-black">{calendarYear}</span>
                   </div>
                   <span className="text-[9px] text-neutral-500 dark:text-[#888] font-mono uppercase tracking-widest block font-semibold">
                     Renewal Schedule
@@ -105,7 +105,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                     setCalendarYear(currentActualYear);
                     setCalendarMonth(months[currentActualMonthIndex]);
                   }}
-                  className="px-3 h-9 bg-[#EF2F38] hover:bg-[#D0252D] text-white rounded-[8px] text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm shadow-[#EF2F38]/20 flex items-center gap-1.5 active:scale-95 touch-manipulation shrink-0"
+                  className="px-3 h-9 bg-brand hover:bg-brand-strong text-white rounded-[8px] text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm shadow-brand/20 flex items-center gap-1.5 active:scale-95 touch-manipulation shrink-0"
                   title="Jump to Current Month"
                 >
                   <CalendarCheck className="w-3.5 h-3.5" /> TODAY
@@ -120,7 +120,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                     className={cn(
                       "px-2.5 h-7.5 rounded-[6px] text-[10px] font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation",
                       calendarViewMode === 'grid'
-                        ? "bg-white dark:bg-[#262626] text-[#EF2F38] dark:text-white shadow-xs font-black"
+                        ? "bg-white dark:bg-[#262626] text-brand-ink dark:text-white shadow-xs font-black"
                         : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white"
                     )}
                   >
@@ -134,7 +134,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                     className={cn(
                       "px-2.5 h-7.5 rounded-[6px] text-[10px] font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation",
                       calendarViewMode === 'agenda'
-                        ? "bg-white dark:bg-[#262626] text-[#EF2F38] dark:text-white shadow-xs font-black"
+                        ? "bg-white dark:bg-[#262626] text-brand-ink dark:text-white shadow-xs font-black"
                         : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white"
                     )}
                   >
@@ -156,7 +156,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                     placeholder="Filter student..."
                     value={calendarSearch}
                     onChange={(e) => setCalendarSearch(e.target.value)}
-                    className="w-full pl-8 pr-7 h-9 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-[11px] sm:text-xs focus:outline-none focus:border-[#EF2F38] transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666] font-mono"
+                    className="w-full pl-8 pr-7 h-9 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-[11px] sm:text-xs focus:outline-none focus:border-brand transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666] font-mono"
                   />
                   {calendarSearch && (
                     <button
@@ -173,7 +173,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                 <select
                   value={calendarFilterBranch}
                   onChange={(e) => setCalendarFilterBranch(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                  className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-[11px] sm:text-xs h-9 px-2.5 focus:outline-none focus:border-[#EF2F38] font-mono cursor-pointer shrink-0 max-w-[125px] sm:max-w-none"
+                  className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-[11px] sm:text-xs h-9 px-2.5 focus:outline-none focus:border-brand font-mono cursor-pointer shrink-0 max-w-[125px] sm:max-w-none"
                 >
                   <option value="all">All Branches</option>
                   {state.branches.map(b => (
@@ -316,10 +316,10 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                       className={cn(
                         "min-h-[56px] sm:min-h-[90px] md:min-h-[110px] p-1 sm:p-2 rounded-[6px] sm:rounded-[8px] border transition-all flex flex-col justify-between group active:scale-95 touch-manipulation",
                         dueStudents.length > 0
-                          ? "cursor-pointer hover:border-[#EF2F38]/60 dark:hover:border-[#555] hover:bg-neutral-50 dark:hover:bg-[#1A1A1A]"
+                          ? "cursor-pointer hover:border-brand/60 dark:hover:border-[#555] hover:bg-neutral-50 dark:hover:bg-[#1A1A1A]"
                           : "opacity-60 bg-neutral-50/60 dark:bg-[#0F0F0F]/60 border-neutral-200/60 dark:border-[#1F1F1F]",
-                        isToday && "border-[#EF2F38] bg-red-500/5 dark:bg-[#EF2F38]/10 ring-1 ring-[#EF2F38]/30",
-                        isSelected && "ring-2 ring-[#EF2F38] border-[#EF2F38]"
+                        isToday && "border-brand bg-red-500/5 dark:bg-brand/10 ring-1 ring-brand/30",
+                        isSelected && "ring-2 ring-brand border-brand"
                       )}
                     >
                       {/* Day Header */}
@@ -327,7 +327,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                         <span className={cn(
                           "w-5 h-5 sm:w-6 sm:h-6 rounded-full text-[10px] sm:text-xs font-bold font-mono flex items-center justify-center transition-colors",
                           isToday
-                            ? "bg-[#EF2F38] text-white font-black shadow-xs shadow-[#EF2F38]/30"
+                            ? "bg-brand text-white font-black shadow-xs shadow-brand/30"
                             : "text-neutral-800 dark:text-[#AAA] group-hover:text-neutral-900 dark:group-hover:text-white"
                         )}>
                           {dayNum}
@@ -460,7 +460,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                       className={cn(
                         "bg-white dark:bg-[#141414] border rounded-[8px] p-3.5 sm:p-4 shadow-sm transition-all",
                         isToday
-                          ? "border-[#EF2F38] bg-red-500/5 dark:bg-[#EF2F38]/5 ring-1 ring-[#EF2F38]/30"
+                          ? "border-brand bg-red-500/5 dark:bg-brand/5 ring-1 ring-brand/30"
                           : "border-neutral-200 dark:border-[#262626]"
                       )}
                     >
@@ -470,7 +470,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                           <div className={cn(
                             "w-10 h-10 rounded-[8px] flex flex-col items-center justify-center shrink-0 font-mono shadow-xs",
                             isToday
-                              ? "bg-[#EF2F38] text-white"
+                              ? "bg-brand text-white"
                               : "bg-neutral-100 dark:bg-[#1C1C1C] text-neutral-900 dark:text-white border border-neutral-200 dark:border-[#2A2A2A]"
                           )}>
                             <span className="text-xs font-black leading-none">{dayNum}</span>
@@ -482,7 +482,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                                 Day {dayNum} Cohort • {cohort.length} {cohort.length === 1 ? 'Student' : 'Students'}
                               </h3>
                               {isToday && (
-                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-[#EF2F38] text-white">
+                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-brand text-white">
                                   Today
                                 </span>
                               )}
@@ -543,7 +543,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                                 />
                                 <div className="min-w-0">
                                   <div className="flex items-center gap-1.5">
-                                    <button type="button" onClick={() => {setStudentDetailsId(student.id);setPaymentAmounts({});}} className="font-bold text-neutral-900 hover:text-[#EF2F38] dark:text-white truncate text-left">{student.englishName}</button>
+                                    <button type="button" onClick={() => {setStudentDetailsId(student.id);setPaymentAmounts({});}} className="font-bold text-neutral-900 hover:text-brand-ink dark:text-white truncate text-left">{student.englishName}</button>
                                     <span className="text-[10px] font-mono text-neutral-400">({student.id})</span>
                                   </div>
                                   <p className="text-[10px] font-mono text-neutral-500 dark:text-[#777] truncate">
@@ -582,7 +582,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                                           showNotification("Failed to record payment.", 'error');
                                         }
                                       }}
-                                      className="px-2.5 py-1 bg-[#EF2F38] hover:bg-[#D0252D] text-white font-bold uppercase tracking-wider text-[10px] rounded-[6px] transition-colors cursor-pointer active:scale-95 touch-manipulation" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
+                                      className="px-2.5 py-1 bg-brand hover:bg-brand-strong text-white font-bold uppercase tracking-wider text-[10px] rounded-[6px] transition-colors cursor-pointer active:scale-95 touch-manipulation" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
                                     >
                                       Pay
                                     </button>
@@ -611,7 +611,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                             <button
                               type="button"
                               onClick={() => setSelectedCalendarDay({ year: calendarYear, month: calendarMonth, day: dayNum })}
-                              className="text-[11px] font-mono text-[#EF2F38] hover:underline font-bold cursor-pointer"
+                              className="text-[11px] font-mono text-brand-ink hover:underline font-bold cursor-pointer"
                             >
                               + {cohort.length - 4} more students in Day {dayNum} cohort →
                             </button>

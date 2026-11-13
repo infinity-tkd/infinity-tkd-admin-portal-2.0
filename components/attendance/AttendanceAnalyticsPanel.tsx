@@ -97,7 +97,7 @@ export function AttendanceAnalyticsPanel({ t, academyAttendanceRate, studentAtte
                             <p className="text-[9px] text-neutral-600 dark:text-neutral-400 uppercase font-bold">{t('nav_attendance')}</p>
                          </div>
                          <div className="w-16 h-1.5 bg-neutral-100 dark:bg-[#0F0F0F] rounded-full overflow-hidden border border-neutral-200 dark:border-[#262626]/40">
-                           <div className="h-full bg-[#EF2F38]" style={{ width: `${ba.attendanceRate}%` }} />
+                           <div className="h-full bg-brand" style={{ width: `${ba.attendanceRate}%` }} />
                          </div>
                       </div>
                     </div>
@@ -198,11 +198,11 @@ export function AttendanceAnalyticsPanel({ t, academyAttendanceRate, studentAtte
                          <SafeImage
                            src={ar.student.profilePicturePath}
                            alt={ar.student.englishName}
-                           containerClassName="w-8 h-8 rounded-[8px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 group-hover:border-[#EF2F38] transition-colors"
+                           containerClassName="w-8 h-8 rounded-[8px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 group-hover:border-brand transition-colors"
                            fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-xs">{ar.student.englishName.charAt(0)}</span>}
                          />
                          <div>
-                           <p className="font-bold text-neutral-900 dark:text-[#E4E4E4] group-hover:text-[#EF2F38] dark:group-hover:text-white transition-colors">{ar.student.englishName}</p>
+                           <p className="font-bold text-neutral-900 dark:text-[#E4E4E4] group-hover:text-brand-ink dark:group-hover:text-white transition-colors">{ar.student.englishName}</p>
                            <p className="text-[9px] text-neutral-600 dark:text-neutral-400 font-mono">{ar.student.id} • {formatBeltLocalized(ar.student.currentBelt, ar.student.dob, t)}</p>
                            {ar.student.emergencyContactPhone && (
                              <a href={`tel:${ar.student.emergencyContactPhone}`} onClick={(e) => e.stopPropagation()} className="text-[9px] text-rose-700 dark:text-rose-400 hover:underline flex items-center gap-1 mt-1">
@@ -291,7 +291,7 @@ export function AttendanceAnalyticsPanel({ t, academyAttendanceRate, studentAtte
                   placeholder="Search by student name or ID..."
                   value={progressSearch}
                   onChange={(e) => setProgressSearch(e.target.value)}
-                  className="w-full pl-9 pr-8 h-9 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-neutral-100 rounded-[6px] text-xs focus:outline-none focus:border-[#EF2F38] placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+                  className="w-full pl-9 pr-8 h-9 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-neutral-100 rounded-[6px] text-xs focus:outline-none focus:border-brand placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                 />
                 {progressSearch && (
                   <button
@@ -306,7 +306,7 @@ export function AttendanceAnalyticsPanel({ t, academyAttendanceRate, studentAtte
               <select
                 value={progressBeltFilter}
                 onChange={(e) => setProgressBeltFilter(e.target.value)}
-                className="w-full h-9 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-3 focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                className="w-full h-9 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-3 focus:outline-none focus:border-brand cursor-pointer"
               >
                 <option value="all">All Belt Ranks</option>
                 {beltTiers.map(tier => (
@@ -317,7 +317,7 @@ export function AttendanceAnalyticsPanel({ t, academyAttendanceRate, studentAtte
               <select
                 value={progressStatusFilter}
                 onChange={(e) => setProgressStatusFilter(e.target.value as any)}
-                className="w-full h-9 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-3 focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                className="w-full h-9 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-3 focus:outline-none focus:border-brand cursor-pointer"
               >
                 <option value="all">All Promotion Statuses</option>
                 <option value="ready">🎓 Ready for Exam</option>
@@ -370,11 +370,11 @@ export function AttendanceAnalyticsPanel({ t, academyAttendanceRate, studentAtte
                             <SafeImage
                               src={st.student.profilePicturePath}
                               alt={st.student.englishName}
-                              containerClassName="w-8 h-8 rounded-[6px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] overflow-hidden shrink-0 group-hover:border-[#EF2F38] transition-colors"
+                              containerClassName="w-8 h-8 rounded-[6px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] overflow-hidden shrink-0 group-hover:border-brand transition-colors"
                               fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-xs">{st.student.englishName.charAt(0)}</span>}
                             />
                             <div>
-                              <div className="font-bold text-neutral-900 dark:text-neutral-100 group-hover:text-[#EF2F38] dark:group-hover:text-white transition-colors">
+                              <div className="font-bold text-neutral-900 dark:text-neutral-100 group-hover:text-brand-ink dark:group-hover:text-white transition-colors">
                                 {st.student.englishName}
                                 {st.student.khmerName && (
                                   <span className="text-[10px] font-khmer text-neutral-500 dark:text-neutral-400 font-normal ml-1.5">

@@ -267,13 +267,13 @@ export function LoginView() {
       <LoginBackground />
 
       {/* 2. Soft Crimson Center Aura */}
-      <div className="absolute w-[500px] h-[500px] bg-[#EF2F38]/[0.035] dark:bg-[#EF2F38]/[0.06] rounded-full filter blur-[140px] pointer-events-none top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute w-[500px] h-[500px] bg-brand/[0.035] dark:bg-brand/[0.06] rounded-full filter blur-[140px] pointer-events-none top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
 
       {/* 3. Top Quick Utility Bar (Language Selector & Theme Switcher) */}
       <header className="relative z-20 w-full max-w-4xl mx-auto flex items-center justify-between py-2 pt-[env(safe-area-inset-top)] shrink-0">
         {/* Left: Brand Badge */}
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#EF2F38] animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
           <span className="text-[10px] font-mono font-bold tracking-widest text-neutral-600 dark:text-neutral-400 uppercase">
             {t('login_badge')}
           </span>
@@ -288,7 +288,7 @@ export function LoginView() {
               onClick={() => setLanguage('en')}
               className={`px-2 py-1 rounded-[8px] transition-all cursor-pointer ${
                 state.language === 'en'
-                  ? 'bg-[#EF2F38] text-white shadow-xs'
+                  ? 'bg-brand text-white shadow-xs'
                   : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
               }`}
               title="English"
@@ -300,7 +300,7 @@ export function LoginView() {
               onClick={() => setLanguage('kh')}
               className={`px-2 py-1 rounded-[8px] transition-all cursor-pointer ${
                 state.language === 'kh'
-                  ? 'bg-[#EF2F38] text-white shadow-xs'
+                  ? 'bg-brand text-white shadow-xs'
                   : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
               }`}
               title="ភាសាខ្មែរ"
@@ -312,7 +312,7 @@ export function LoginView() {
               onClick={() => setLanguage('zh')}
               className={`px-2 py-1 rounded-[8px] transition-all cursor-pointer ${
                 state.language === 'zh'
-                  ? 'bg-[#EF2F38] text-white shadow-xs'
+                  ? 'bg-brand text-white shadow-xs'
                   : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
               }`}
               title="中文"
@@ -387,7 +387,7 @@ export function LoginView() {
                   autoCorrect="off"
                   spellCheck="false"
                   autoComplete="username"
-                  className="w-full pl-10 pr-9 py-2.5 min-h-[44px] bg-neutral-50 dark:bg-[#181818] border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white focus:bg-white dark:focus:bg-[#141414] rounded-[8px] focus:border-[#EF2F38] focus:ring-2 focus:ring-[#EF2F38]/20 outline-none transition-all text-sm font-sans placeholder:text-neutral-400 dark:placeholder:text-neutral-600 shadow-inner"
+                  className="w-full pl-10 pr-9 py-2.5 min-h-[44px] bg-neutral-50 dark:bg-[#181818] border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white focus:bg-white dark:focus:bg-[#141414] rounded-[8px] focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none transition-all text-sm font-sans placeholder:text-neutral-400 dark:placeholder:text-neutral-600 shadow-inner"
                   placeholder={t('login_username_email')}
                 />
                 {identifier.length > 0 && (
@@ -428,7 +428,7 @@ export function LoginView() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  className="w-full pl-10 pr-11 py-2.5 min-h-[44px] bg-neutral-50 dark:bg-[#181818] border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white focus:bg-white dark:focus:bg-[#141414] rounded-[8px] focus:border-[#EF2F38] focus:ring-2 focus:ring-[#EF2F38]/20 outline-none transition-all text-sm font-sans placeholder:text-neutral-400 dark:placeholder:text-neutral-600 shadow-inner"
+                  className="w-full pl-10 pr-11 py-2.5 min-h-[44px] bg-neutral-50 dark:bg-[#181818] border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white focus:bg-white dark:focus:bg-[#141414] rounded-[8px] focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none transition-all text-sm font-sans placeholder:text-neutral-400 dark:placeholder:text-neutral-600 shadow-inner"
                   placeholder="••••••••"
                 />
                 <button
@@ -450,7 +450,7 @@ export function LoginView() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded-[4px] accent-[#EF2F38] cursor-pointer"
+                  className="w-4 h-4 rounded-[4px] accent-brand cursor-pointer"
                 />
                 <span className="text-[11px] text-neutral-600 dark:text-neutral-400 font-medium">
                   {t('login_remember_me')}
@@ -462,7 +462,7 @@ export function LoginView() {
             {error && (
               <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-[8px] p-3 text-left shadow-sm animate-[shake_0.4s_ease-in-out]">
                 <div className="flex gap-2.5 items-start">
-                  <ShieldWarning size={18} className="text-[#EF2F38] shrink-0 mt-0.5" weight="fill" />
+                  <ShieldWarning size={18} className="text-brand-ink shrink-0 mt-0.5" weight="fill" />
                   <div className="flex flex-col gap-0.5 min-w-0">
                     <span className="text-[10px] font-mono font-bold text-red-800 dark:text-red-400 uppercase tracking-wider">
                       {t('login_alert_title')}
@@ -479,7 +479,7 @@ export function LoginView() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#EF2F38] hover:bg-[#d6242c] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold uppercase tracking-widest text-xs py-3.5 min-h-[48px] rounded-[8px] transition-all duration-200 mt-1 shadow-md shadow-[#EF2F38]/20 flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full bg-brand hover:bg-brand-strong active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold uppercase tracking-widest text-xs py-3.5 min-h-[48px] rounded-[8px] transition-all duration-200 mt-1 shadow-md shadow-brand/20 flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? (
                 <>
@@ -525,7 +525,7 @@ export function LoginView() {
             >
               <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-[8px] bg-[#EF2F38]/10 text-[#EF2F38] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-[8px] bg-brand/10 text-brand-ink flex items-center justify-center">
                     <ShieldWarning size={18} weight="bold" />
                   </div>
                   <div>
@@ -559,13 +559,13 @@ export function LoginView() {
                       <TelegramLogo size={20} className="text-[#0088cc] group-hover:scale-110 transition-transform" weight="fill" />
                       <div>
                         <span className="text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold block">{t('login_help_telegram')}</span>
-                        <span className="font-bold text-neutral-900 dark:text-white group-hover:text-[#EF2F38] transition-colors">@infinity_taekwondo</span>
+                        <span className="font-bold text-neutral-900 dark:text-white group-hover:text-brand-ink transition-colors">@infinity_taekwondo</span>
                       </div>
                     </a>
                     <button
                       type="button"
                       onClick={() => handleCopy('@infinity_taekwondo', 'telegram')}
-                      className="px-2.5 py-1 text-[10px] font-bold rounded-[8px] bg-neutral-200 dark:bg-neutral-800 hover:bg-[#EF2F38] hover:text-white transition-colors cursor-pointer flex items-center gap-1"
+                      className="px-2.5 py-1 text-[10px] font-bold rounded-[8px] bg-neutral-200 dark:bg-neutral-800 hover:bg-brand hover:text-white transition-colors cursor-pointer flex items-center gap-1"
                     >
                       {copiedTelegram ? <Check size={12} /> : <Copy size={12} />}
                       <span>{copiedTelegram ? t('login_help_copied') : t('login_help_copy')}</span>
@@ -581,13 +581,13 @@ export function LoginView() {
                       <Phone size={20} className="text-emerald-500 group-hover:scale-110 transition-transform" weight="fill" />
                       <div>
                         <span className="text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold block">{t('login_help_phone')}</span>
-                        <span className="font-bold text-neutral-900 dark:text-white group-hover:text-[#EF2F38] transition-colors">012 220 124</span>
+                        <span className="font-bold text-neutral-900 dark:text-white group-hover:text-brand-ink transition-colors">012 220 124</span>
                       </div>
                     </a>
                     <button
                       type="button"
                       onClick={() => handleCopy('012220124', 'phone')}
-                      className="px-2.5 py-1 text-[10px] font-bold rounded-[8px] bg-neutral-200 dark:bg-neutral-800 hover:bg-[#EF2F38] hover:text-white transition-colors cursor-pointer flex items-center gap-1"
+                      className="px-2.5 py-1 text-[10px] font-bold rounded-[8px] bg-neutral-200 dark:bg-neutral-800 hover:bg-brand hover:text-white transition-colors cursor-pointer flex items-center gap-1"
                     >
                       {copiedPhone ? <Check size={12} /> : <Copy size={12} />}
                       <span>{copiedPhone ? t('login_help_copied') : t('login_help_copy')}</span>
@@ -604,7 +604,7 @@ export function LoginView() {
                 <button
                   type="button"
                   onClick={() => setShowHelpModal(false)}
-                  className="px-4 py-2 bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition-colors cursor-pointer shadow-sm"
+                  className="px-4 py-2 bg-brand hover:bg-brand-strong text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition-colors cursor-pointer shadow-sm"
                 >
                   {t('login_help_close')}
                 </button>

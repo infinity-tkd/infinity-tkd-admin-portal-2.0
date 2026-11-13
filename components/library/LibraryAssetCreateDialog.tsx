@@ -88,7 +88,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                     <div>
                       <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_asset_title')}</label>
                       <input type="text" value={newAsset.title} onChange={(e) => setNewAsset({ ...newAsset, title: e.target.value })} required
-                        className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20"
+                        className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20"
                         placeholder={t('lib_placeholder_asset_title')}
                       />
                     </div>
@@ -96,7 +96,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                     <div>
                       <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_desc_guidelines')}</label>
                       <textarea value={newAsset.description} onChange={(e) => setNewAsset({ ...newAsset, description: e.target.value })} required rows={2} maxLength={20000}
-                        className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20"
+                        className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20"
                         placeholder={t('lib_placeholder_asset_desc')}
                       />
                     </div>
@@ -105,7 +105,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                       <div>
                         <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_bulk_category_col')}</label>
                         <select value={newAsset.category} onChange={(e) => setNewAsset({ ...newAsset, category: e.target.value })}
-                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 shadow-sm font-semibold text-black dark:text-white"
+                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 shadow-sm font-semibold text-black dark:text-white"
                         >
                           {activeTab === 'tkd' ? (
                             TKD_CATEGORIES.map(c => <option key={c} value={c} className="text-black dark:text-white dark:bg-neutral-900">{t(getCategoryTranslationKey(c)) || c}</option>)
@@ -121,13 +121,13 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                         <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{activeTab === 'tkd' ? t('lib_bulk_belt_col') : t('lib_routine_diff_label')}</label>
                         {activeTab === 'tkd' ? (
                           <select value={newAsset.minBeltLevel} onChange={(e) => setNewAsset({ ...newAsset, minBeltLevel: e.target.value })}
-                            className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 shadow-sm font-semibold text-black dark:text-white"
+                            className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 shadow-sm font-semibold text-black dark:text-white"
                           >
                             {BELTS.slice(1).map(b => <option key={b} value={b} className="text-black dark:text-white dark:bg-neutral-900">{t(getBeltTranslationKey(b))}</option>)}
                           </select>
                         ) : (
                           <select value={newAsset.difficulty} onChange={(e) => setNewAsset({ ...newAsset, difficulty: e.target.value as any })}
-                            className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 shadow-sm font-semibold text-black dark:text-white"
+                            className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 shadow-sm font-semibold text-black dark:text-white"
                           >
                             <option value="Beginner" className="text-black dark:text-white dark:bg-neutral-900">{t('lib_diff_beginner')}</option>
                             <option value="Intermediate" className="text-black dark:text-white dark:bg-neutral-900">{t('lib_diff_intermediate')}</option>
@@ -143,7 +143,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                         <div>
                           <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_diff_label')}</label>
                           <select value={newAsset.difficulty} onChange={(e) => setNewAsset({ ...newAsset, difficulty: e.target.value as any })}
-                            className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 shadow-sm font-semibold text-black dark:text-white"
+                            className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 shadow-sm font-semibold text-black dark:text-white"
                           >
                             <option value="Beginner" className="text-black dark:text-white dark:bg-neutral-900">{t('lib_diff_beginner')}</option>
                             <option value="Intermediate" className="text-black dark:text-white dark:bg-neutral-900">{t('lib_diff_intermediate')}</option>
@@ -154,7 +154,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                         <div>
                           <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_form_reps_sets')}</label>
                           <input type="text" value={newAsset.repsSets} onChange={(e) => setNewAsset({ ...newAsset, repsSets: e.target.value })}
-                            className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             placeholder="e.g. 3 sets x 15 reps"
                           />
                         </div>
@@ -165,7 +165,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                       <div>
                         <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_form_reps_sets')}</label>
                         <input type="text" value={newAsset.repsSets} onChange={(e) => setNewAsset({ ...newAsset, repsSets: e.target.value })}
-                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                           placeholder="e.g. 3 sets x 45 secs hold"
                         />
                       </div>
@@ -227,7 +227,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                                   setActiveMuscleIdx(-1);
                                 }
                               }}
-                              className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] pl-3.5 pr-8 py-2.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+                              className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] pl-3.5 pr-8 py-2.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                             />
                             <button
                               type="button"
@@ -268,15 +268,15 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                                         }
                                       }}
                                       className={cn(
-                                        "w-full px-3 py-2 text-left text-xs hover:bg-[#EF2F38]/10 text-neutral-700 dark:text-neutral-300 transition-colors flex justify-between items-center cursor-pointer border-0 bg-transparent",
-                                        isSelected && "bg-[#EF2F38]/5 font-semibold text-[#EF2F38] dark:text-[#EF2F38]"
+                                        "w-full px-3 py-2 text-left text-xs hover:bg-brand/10 text-neutral-700 dark:text-neutral-300 transition-colors flex justify-between items-center cursor-pointer border-0 bg-transparent",
+                                        isSelected && "bg-brand/5 font-semibold text-brand-ink dark:text-brand-ink"
                                       )}
                                     >
                                       <span>
                                         {state.language === 'kh' && m.nameKh ? m.nameKh : (state.language === 'zh' && m.nameZh ? m.nameZh : m.name)}
                                         <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-normal ml-1">({m.muscleGroup})</span>
                                       </span>
-                                      {isSelected && <Check className="w-3.5 h-3.5 text-[#EF2F38]" />}
+                                      {isSelected && <Check className="w-3.5 h-3.5 text-brand-ink" />}
                                     </button>
                                   );
                                 });
@@ -321,7 +321,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                       <div className={cn(newAsset.category === 'Theory & Terminology' ? "col-span-2" : "")}>
                         <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_form_cover_url')}</label>
                         <input type="text" value={newAsset.thumbnailUrl} onChange={(e) => setNewAsset({ ...newAsset, thumbnailUrl: e.target.value })}
-                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                           placeholder="e.g. https://images.unsplash.com/..."
                         />
                         {(() => {
@@ -362,7 +362,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                               onDragEnd={() => setDraggedIndex(null)}
                               className={cn(
                                 "flex items-center gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all",
-                                draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-[#EF2F38]" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]"
+                                draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-brand" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]"
                               )}
                             >
                               {/* Drag Handle */}
@@ -371,7 +371,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                               </div>
 
                               {/* Step Badge */}
-                              <span className="text-[10px] font-mono font-bold bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[50px] text-center">
+                              <span className="text-[10px] font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[50px] text-center">
                                 Step {idx + 1}
                               </span>
 
@@ -405,7 +405,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                                     }, 30);
                                   }
                                 }}
-                                className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-medium"
+                                className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium"
                               />
 
                               {/* Remove button */}
@@ -432,7 +432,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                               document.getElementById(`step-input-add-${instructionSteps.length}`)?.focus();
                             }, 30);
                           }}
-                          className="mt-2 text-xs font-bold uppercase tracking-wider text-[#EF2F38] hover:text-[#EF2F38]/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"
+                          className="mt-2 text-xs font-bold uppercase tracking-wider text-brand-ink hover:text-brand-ink/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"
                         >
                           <Plus className="w-3.5 h-3.5" /> Add Instruction Step
                         </button>
@@ -452,7 +452,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                               setShowFitnessDropdown(true);
                             }}
                             onFocus={() => setShowFitnessDropdown(true)}
-                            className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] pl-3.5 pr-8 py-2.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] placeholder:text-neutral-400 dark:placeholder:text-neutral-500 font-semibold"
+                            className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] pl-3.5 pr-8 py-2.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand placeholder:text-neutral-400 dark:placeholder:text-neutral-500 font-semibold"
                           />
                           <button
                             type="button"
@@ -492,15 +492,15 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                                       }
                                     }}
                                     className={cn(
-                                      "w-full px-3 py-2 text-left text-xs hover:bg-[#EF2F38]/10 text-neutral-700 dark:text-neutral-300 transition-colors flex justify-between items-center cursor-pointer border-0 bg-transparent",
-                                      isSelected && "bg-[#EF2F38]/5 font-semibold text-[#EF2F38] dark:text-[#EF2F38]"
+                                      "w-full px-3 py-2 text-left text-xs hover:bg-brand/10 text-neutral-700 dark:text-neutral-300 transition-colors flex justify-between items-center cursor-pointer border-0 bg-transparent",
+                                      isSelected && "bg-brand/5 font-semibold text-brand-ink dark:text-brand-ink"
                                     )}
                                   >
                                     <span>
                                       {f.title}
                                       <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-normal ml-1">({f.category.replace('Fitness: ', '')})</span>
                                     </span>
-                                    {isSelected && <Check className="w-3.5 h-3.5 text-[#EF2F38]" />}
+                                    {isSelected && <Check className="w-3.5 h-3.5 text-brand-ink" />}
                                   </button>
                                 );
                               });
@@ -545,14 +545,14 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                                 onDragOver={(e) => e.preventDefault()}
                                 onDrop={(e) => { e.preventDefault(); if (draggedIndex === null || draggedIndex === idx) return; const updated = [...prerequisiteSteps]; const [d] = updated.splice(draggedIndex, 1); updated.splice(idx, 0, d); setPrerequisiteSteps(updated); setDraggedIndex(null); }}
                                 onDragEnd={() => setDraggedIndex(null)}
-                                className={cn("flex items-center gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-[#EF2F38]" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}
+                                className={cn("flex items-center gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-brand" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}
                               >
                                 <div className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-neutral-600 dark:hover:text-white shrink-0 p-1"><ListChecks className="w-4 h-4" /></div>
-                                <span className="text-[10px] font-mono font-bold bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
+                                <span className="text-[10px] font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
                                 <input id={`prereq-step-add-${idx}`} type="text" value={step} placeholder="e.g. Ap Chagi (Front Kick)"
                                   onChange={(e) => { const u = [...prerequisiteSteps]; u[idx] = e.target.value; setPrerequisiteSteps(u); }}
                                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const u = [...prerequisiteSteps]; u.splice(idx + 1, 0, ''); setPrerequisiteSteps(u); setTimeout(() => document.getElementById(`prereq-step-add-${idx + 1}`)?.focus(), 30); } else if (e.key === 'Backspace' && !step && idx > 0) { e.preventDefault(); const u = [...prerequisiteSteps]; u.splice(idx, 1); setPrerequisiteSteps(u); setTimeout(() => document.getElementById(`prereq-step-add-${idx - 1}`)?.focus(), 30); } }}
-                                  className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-medium"
+                                  className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium"
                                 />
                                 {prerequisiteSteps.length > 1 && (
                                   <button type="button" onClick={() => setPrerequisiteSteps(prerequisiteSteps.filter((_, i) => i !== idx))} className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent"><Trash className="w-3.5 h-3.5" /></button>
@@ -560,7 +560,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                               </div>
                             ))}
                           </div>
-                          <button type="button" onClick={() => { setPrerequisiteSteps([...prerequisiteSteps, '']); setTimeout(() => document.getElementById(`prereq-step-add-${prerequisiteSteps.length}`)?.focus(), 30); }} className="mt-2 text-xs font-bold uppercase tracking-wider text-[#EF2F38] hover:text-[#EF2F38]/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"><Plus className="w-3.5 h-3.5" /> Add Prerequisite</button>
+                          <button type="button" onClick={() => { setPrerequisiteSteps([...prerequisiteSteps, '']); setTimeout(() => document.getElementById(`prereq-step-add-${prerequisiteSteps.length}`)?.focus(), 30); }} className="mt-2 text-xs font-bold uppercase tracking-wider text-brand-ink hover:text-brand-ink/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"><Plus className="w-3.5 h-3.5" /> Add Prerequisite</button>
                         </div>
 
                         {/* Principle of the Skill Step Builder */}
@@ -573,14 +573,14 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                                 onDragOver={(e) => e.preventDefault()}
                                 onDrop={(e) => { e.preventDefault(); if (draggedIndex === null || draggedIndex === idx) return; const updated = [...principleSteps]; const [d] = updated.splice(draggedIndex, 1); updated.splice(idx, 0, d); setPrincipleSteps(updated); setDraggedIndex(null); }}
                                 onDragEnd={() => setDraggedIndex(null)}
-                                className={cn("flex items-center gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-[#EF2F38]" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}
+                                className={cn("flex items-center gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-brand" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}
                               >
                                 <div className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-neutral-600 dark:hover:text-white shrink-0 p-1"><ListChecks className="w-4 h-4" /></div>
-                                <span className="text-[10px] font-mono font-bold bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
+                                <span className="text-[10px] font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
                                 <input id={`principle-step-add-${idx}`} type="text" value={step} placeholder="e.g. Dynamic snap at knee joint"
                                   onChange={(e) => { const u = [...principleSteps]; u[idx] = e.target.value; setPrincipleSteps(u); }}
                                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const u = [...principleSteps]; u.splice(idx + 1, 0, ''); setPrincipleSteps(u); setTimeout(() => document.getElementById(`principle-step-add-${idx + 1}`)?.focus(), 30); } else if (e.key === 'Backspace' && !step && idx > 0) { e.preventDefault(); const u = [...principleSteps]; u.splice(idx, 1); setPrincipleSteps(u); setTimeout(() => document.getElementById(`principle-step-add-${idx - 1}`)?.focus(), 30); } }}
-                                  className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-medium"
+                                  className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium"
                                 />
                                 {principleSteps.length > 1 && (
                                   <button type="button" onClick={() => setPrincipleSteps(principleSteps.filter((_, i) => i !== idx))} className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent"><Trash className="w-3.5 h-3.5" /></button>
@@ -588,7 +588,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                               </div>
                             ))}
                           </div>
-                          <button type="button" onClick={() => { setPrincipleSteps([...principleSteps, '']); setTimeout(() => document.getElementById(`principle-step-add-${principleSteps.length}`)?.focus(), 30); }} className="mt-2 text-xs font-bold uppercase tracking-wider text-[#EF2F38] hover:text-[#EF2F38]/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"><Plus className="w-3.5 h-3.5" /> Add Principle</button>
+                          <button type="button" onClick={() => { setPrincipleSteps([...principleSteps, '']); setTimeout(() => document.getElementById(`principle-step-add-${principleSteps.length}`)?.focus(), 30); }} className="mt-2 text-xs font-bold uppercase tracking-wider text-brand-ink hover:text-brand-ink/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"><Plus className="w-3.5 h-3.5" /> Add Principle</button>
                         </div>
 
                         {/* Drilling Methods Step Builder */}
@@ -601,14 +601,14 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                                 onDragOver={(e) => e.preventDefault()}
                                 onDrop={(e) => { e.preventDefault(); if (draggedIndex === null || draggedIndex === idx) return; const updated = [...drillingSteps]; const [d] = updated.splice(draggedIndex, 1); updated.splice(idx, 0, d); setDrillingSteps(updated); setDraggedIndex(null); }}
                                 onDragEnd={() => setDraggedIndex(null)}
-                                className={cn("flex items-center gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-[#EF2F38]" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}
+                                className={cn("flex items-center gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-brand" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}
                               >
                                 <div className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-neutral-600 dark:hover:text-white shrink-0 p-1"><ListChecks className="w-4 h-4" /></div>
-                                <span className="text-[10px] font-mono font-bold bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
+                                <span className="text-[10px] font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
                                 <input id={`drilling-step-add-${idx}`} type="text" value={step} placeholder="e.g. 3 rounds of 10 rapid repetitions per leg..."
                                   onChange={(e) => { const u = [...drillingSteps]; u[idx] = e.target.value; setDrillingSteps(u); }}
                                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const u = [...drillingSteps]; u.splice(idx + 1, 0, ''); setDrillingSteps(u); setTimeout(() => document.getElementById(`drilling-step-add-${idx + 1}`)?.focus(), 30); } else if (e.key === 'Backspace' && !step && idx > 0) { e.preventDefault(); const u = [...drillingSteps]; u.splice(idx, 1); setDrillingSteps(u); setTimeout(() => document.getElementById(`drilling-step-add-${idx - 1}`)?.focus(), 30); } }}
-                                  className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-medium"
+                                  className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium"
                                 />
                                 {drillingSteps.length > 1 && (
                                   <button type="button" onClick={() => setDrillingSteps(drillingSteps.filter((_, i) => i !== idx))} className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent"><Trash className="w-3.5 h-3.5" /></button>
@@ -616,7 +616,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                               </div>
                             ))}
                           </div>
-                          <button type="button" onClick={() => { setDrillingSteps([...drillingSteps, '']); setTimeout(() => document.getElementById(`drilling-step-add-${drillingSteps.length}`)?.focus(), 30); }} className="mt-2 text-xs font-bold uppercase tracking-wider text-[#EF2F38] hover:text-[#EF2F38]/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"><Plus className="w-3.5 h-3.5" /> Add Drilling Method</button>
+                          <button type="button" onClick={() => { setDrillingSteps([...drillingSteps, '']); setTimeout(() => document.getElementById(`drilling-step-add-${drillingSteps.length}`)?.focus(), 30); }} className="mt-2 text-xs font-bold uppercase tracking-wider text-brand-ink hover:text-brand-ink/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"><Plus className="w-3.5 h-3.5" /> Add Drilling Method</button>
                         </div>
 
                         {/* Common Mistakes & Corrections Step Builder */}
@@ -629,7 +629,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                                 onDragOver={(e) => e.preventDefault()}
                                 onDrop={(e) => { e.preventDefault(); if (draggedIndex === null || draggedIndex === idx) return; const updated = [...mistakeSteps]; const [d] = updated.splice(draggedIndex, 1); updated.splice(idx, 0, d); setMistakeSteps(updated); setDraggedIndex(null); }}
                                 onDragEnd={() => setDraggedIndex(null)}
-                                className={cn("flex items-start gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-[#EF2F38]" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}
+                                className={cn("flex items-start gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-brand" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}
                               >
                                 <div className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-neutral-600 dark:hover:text-white shrink-0 p-1 mt-1"><ListChecks className="w-4 h-4" /></div>
                                 <span className="text-[10px] font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center mt-1">#{idx + 1}</span>
@@ -673,7 +673,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                               </div>
                             ))}
                           </div>
-                          <button type="button" onClick={() => { setMistakeSteps([...mistakeSteps, { mistake: '', correction: '' }]); setTimeout(() => document.getElementById(`mistake-input-add-${mistakeSteps.length}`)?.focus(), 30); }} className="mt-2 text-xs font-bold uppercase tracking-wider text-[#EF2F38] hover:text-[#EF2F38]/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"><Plus className="w-3.5 h-3.5" /> Add Mistake & Correction</button>
+                          <button type="button" onClick={() => { setMistakeSteps([...mistakeSteps, { mistake: '', correction: '' }]); setTimeout(() => document.getElementById(`mistake-input-add-${mistakeSteps.length}`)?.focus(), 30); }} className="mt-2 text-xs font-bold uppercase tracking-wider text-brand-ink hover:text-brand-ink/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"><Plus className="w-3.5 h-3.5" /> Add Mistake & Correction</button>
                         </div>
 
                         {/* Performance & Application Step Builder */}
@@ -686,14 +686,14 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                                 onDragOver={(e) => e.preventDefault()}
                                 onDrop={(e) => { e.preventDefault(); if (draggedIndex === null || draggedIndex === idx) return; const updated = [...performanceSteps]; const [d] = updated.splice(draggedIndex, 1); updated.splice(idx, 0, d); setPerformanceSteps(updated); setDraggedIndex(null); }}
                                 onDragEnd={() => setDraggedIndex(null)}
-                                className={cn("flex items-center gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-[#EF2F38]" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}
+                                className={cn("flex items-center gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-brand" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}
                               >
                                 <div className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-neutral-600 dark:hover:text-white shrink-0 p-1"><ListChecks className="w-4 h-4" /></div>
-                                <span className="text-[10px] font-mono font-bold bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
+                                <span className="text-[10px] font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
                                 <input id={`performance-step-add-${idx}`} type="text" value={step} placeholder="e.g. Used for counter attacks in sparring..."
                                   onChange={(e) => { const u = [...performanceSteps]; u[idx] = e.target.value; setPerformanceSteps(u); }}
                                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const u = [...performanceSteps]; u.splice(idx + 1, 0, ''); setPerformanceSteps(u); setTimeout(() => document.getElementById(`performance-step-add-${idx + 1}`)?.focus(), 30); } else if (e.key === 'Backspace' && !step && idx > 0) { e.preventDefault(); const u = [...performanceSteps]; u.splice(idx, 1); setPerformanceSteps(u); setTimeout(() => document.getElementById(`performance-step-add-${idx - 1}`)?.focus(), 30); } }}
-                                  className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-medium"
+                                  className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium"
                                 />
                                 {performanceSteps.length > 1 && (
                                   <button type="button" onClick={() => setPerformanceSteps(performanceSteps.filter((_, i) => i !== idx))} className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent"><Trash className="w-3.5 h-3.5" /></button>
@@ -701,7 +701,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                               </div>
                             ))}
                           </div>
-                          <button type="button" onClick={() => { setPerformanceSteps([...performanceSteps, '']); setTimeout(() => document.getElementById(`performance-step-add-${performanceSteps.length}`)?.focus(), 30); }} className="mt-2 text-xs font-bold uppercase tracking-wider text-[#EF2F38] hover:text-[#EF2F38]/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"><Plus className="w-3.5 h-3.5" /> Add Performance Note</button>
+                          <button type="button" onClick={() => { setPerformanceSteps([...performanceSteps, '']); setTimeout(() => document.getElementById(`performance-step-add-${performanceSteps.length}`)?.focus(), 30); }} className="mt-2 text-xs font-bold uppercase tracking-wider text-brand-ink hover:text-brand-ink/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"><Plus className="w-3.5 h-3.5" /> Add Performance Note</button>
                         </div>
                       </>
                     )}
@@ -725,7 +725,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                                       u[idx].korean = e.target.value;
                                       setTerminologyList(u);
                                     }}
-                                    className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                                    className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                                   />
                                   <input
                                     type="text"
@@ -736,7 +736,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                                       u[idx].english = e.target.value;
                                       setTerminologyList(u);
                                     }}
-                                    className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                                    className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                                   />
                                   <input
                                     type="text"
@@ -747,7 +747,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                                       u[idx].khmer = e.target.value;
                                       setTerminologyList(u);
                                     }}
-                                    className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                                    className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                                   />
                                 </div>
                                 {terminologyList.length > 1 && (
@@ -765,7 +765,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                           <button
                             type="button"
                             onClick={() => setTerminologyList([...terminologyList, { korean: '', english: '', khmer: '' }])}
-                            className="text-xs font-bold uppercase tracking-wider text-[#EF2F38] hover:text-[#EF2F38]/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"
+                            className="text-xs font-bold uppercase tracking-wider text-brand-ink hover:text-brand-ink/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"
                           >
                             <Plus className="w-3.5 h-3.5" /> Add Vocabulary Term
                           </button>
@@ -787,7 +787,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                                       u[idx].question = e.target.value;
                                       setStudyGuideList(u);
                                     }}
-                                    className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                                    className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                                   />
                                   <textarea
                                     value={item.answer}
@@ -798,7 +798,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                                       u[idx].answer = e.target.value;
                                       setStudyGuideList(u);
                                     }}
-                                    className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                                    className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                                   />
                                 </div>
                                 {studyGuideList.length > 1 && (
@@ -816,7 +816,7 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                           <button
                             type="button"
                             onClick={() => setStudyGuideList([...studyGuideList, { question: '', answer: '' }])}
-                            className="text-xs font-bold uppercase tracking-wider text-[#EF2F38] hover:text-[#EF2F38]/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"
+                            className="text-xs font-bold uppercase tracking-wider text-brand-ink hover:text-brand-ink/85 transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent px-1 py-1"
                           >
                             <Plus className="w-3.5 h-3.5" /> Add Q&A Card
                           </button>
@@ -827,13 +827,13 @@ export function LibraryAssetCreateDialog({ isSaving, t, activeTab, setShowAddMod
                     <div>
                       <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_bulk_link_col')} ({state.language === 'kh' ? 'ស្រេចចិត្ត' : (state.language === 'zh' ? '选填' : 'Optional')})</label>
                       <input type="text" value={newAsset.videoUrl} onChange={(e) => setNewAsset({ ...newAsset, videoUrl: e.target.value })}
-                        className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                        className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                         placeholder="e.g. https://drive.google.com/file/d/..."
                       />
                     </div>
 
                     <button type="submit" disabled={isSaving}
-                      className="w-full bg-[#EF2F38] text-white hover:bg-[#d6262f] py-3 min-h-[42px] rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all mt-2 shadow-sm cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                      className="w-full bg-brand text-white hover:bg-[#d6262f] py-3 min-h-[42px] rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all mt-2 shadow-sm cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                     >
                       {t('lib_add_to_library')}
                     </button>

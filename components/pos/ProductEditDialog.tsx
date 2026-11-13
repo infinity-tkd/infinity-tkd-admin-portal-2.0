@@ -39,7 +39,7 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
             <form onSubmit={handleEditProduct} className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] w-full max-w-md rounded-[10px] p-4 sm:p-5 font-mono space-y-4 shadow-2xl my-auto max-h-[92dvh] overflow-y-auto" ref={dialog} role="dialog" aria-modal="true" aria-label="Edit product" tabIndex={-1} aria-busy={isEditSubmitting}><fieldset disabled={isEditSubmitting} className="contents space-y-4">
               <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3">
                 <div>
-                  <h3 className="text-xs font-bold tracking-wider text-[#EF2F38]">{"// EDIT INVENTORY ITEM"}</h3>
+                  <h3 className="text-xs font-bold tracking-wider text-brand-ink">{"// EDIT INVENTORY ITEM"}</h3>
                   <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5 truncate max-w-[260px]">{editingProduct.name}</p>
                 </div>
                 <button
@@ -63,7 +63,7 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                     required
                     aria-label="Product name" value={editFormData.name}
                     onChange={e => setEditFormData({ ...editFormData, name: e.target.value })}
-                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38]"
+                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand"
                   />
                 </div>
 
@@ -74,7 +74,7 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                       <button
                         type="button"
                         onClick={handleGenerateEditItemSku}
-                        className="text-[10px] font-mono font-bold text-[#EF2F38] hover:underline flex items-center gap-1 cursor-pointer py-0.5 active:scale-95 touch-manipulation"
+                        className="text-[10px] font-mono font-bold text-brand-ink hover:underline flex items-center gap-1 cursor-pointer py-0.5 active:scale-95 touch-manipulation"
                         title="Auto-generate standardized unique SKU"
                       >
                         <Barcode size={13} /> Auto Gen
@@ -91,7 +91,7 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                           ? "border-rose-500 focus:border-rose-500"
                           : editFormData.sku
                           ? "border-emerald-500/60 focus:border-emerald-500"
-                          : "border-neutral-300 dark:border-[#262626] focus:border-[#EF2F38]"
+                          : "border-neutral-300 dark:border-[#262626] focus:border-brand"
                       )}
                     />
                     {editFormData.sku && (
@@ -117,7 +117,7 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                     <select
                       aria-label="Product category" value={editFormData.category}
                       onChange={e => setEditFormData({ ...editFormData, category: e.target.value as any })}
-                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38] cursor-pointer pointer-coarse:min-h-11"
+                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand cursor-pointer pointer-coarse:min-h-11"
                     >
                       {dynamicCategories.filter(c => c !== 'All').map(c => (
                         <option key={c} value={c}>{c}</option>
@@ -136,7 +136,7 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                       required
                       aria-label="Product price" value={editFormData.price}
                       onChange={e => setEditFormData({ ...editFormData, price: parseFloat(e.target.value) || 0 })}
-                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38]"
+                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand"
                     />
                   </div>
                   <div>
@@ -147,7 +147,7 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                       required
                       readOnly aria-label="Current stock; use Stock Adjustment to change" value={editFormData.stock}
                       title="Use Stock Adjustment so every quantity change is logged."
-                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38]"
+                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand"
                     />
                   </div>
                   <div>
@@ -158,7 +158,7 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                       required
                       aria-label="Minimum stock threshold" value={editFormData.minStockThreshold}
                       onChange={e => setEditFormData({ ...editFormData, minStockThreshold: stockAlertThreshold(e.target.valueAsNumber) })}
-                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38]"
+                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand"
                     />
                   </div>
                 </div>
@@ -170,7 +170,7 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                     placeholder="e.g. Size 3 (160cm) or Medium"
                     aria-label="Product size" value={editFormData.size}
                     onChange={e => setEditFormData({ ...editFormData, size: e.target.value })}
-                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38]"
+                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand"
                   />
                 </div>}
                 {editingProduct.hasVariants && <ProductVariantMetadataFields variants={editFormData.variantMetadata} basePrice={editFormData.price} onChange={variantMetadata => setEditFormData(previous => ({ ...previous, variantMetadata }))} />}
@@ -203,7 +203,7 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                   <button
                     type="submit"
                     disabled={isEditSubmitting || !editFormData.name.trim() || !editFormData.sku.trim() || Boolean(editItemSkuConflict) || !editItemSkuFormatValid.isValid}
-                    className="flex-1 sm:flex-initial px-5 py-2 min-h-[42px] bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-bold rounded-[8px] shadow-sm cursor-pointer disabled:opacity-50 transition-colors active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                    className="flex-1 sm:flex-initial px-5 py-2 min-h-[42px] bg-brand hover:bg-brand-strong text-white text-xs font-bold rounded-[8px] shadow-sm cursor-pointer disabled:opacity-50 transition-colors active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                   >
                     {isEditSubmitting ? 'Saving...' : 'Save Changes'}
                   </button>

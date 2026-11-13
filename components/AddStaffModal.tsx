@@ -239,10 +239,10 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
 
             {/* Column 1: Credentials */}
             <div className="space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-[#EF2F38] border-b border-neutral-200 dark:border-[#262626] pb-2">1. {t('usr_account_details')}</h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-brand-ink border-b border-neutral-200 dark:border-[#262626] pb-2">1. {t('usr_account_details')}</h3>
 
               <div>
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_username')} <span className="text-[#EF2F38]">*</span></label>
+                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_username')} <span className="text-brand-ink">*</span></label>
                 <input type="text" value={form.username} onChange={e => setForm({...form, username: e.target.value})}
                   className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                   placeholder="e.g. coach_moni"
@@ -251,7 +251,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_display_name')} <span className="text-[#EF2F38]">*</span></label>
+                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_display_name')} <span className="text-brand-ink">*</span></label>
                 <input type="text" value={form.displayName} onChange={e => setForm({...form, displayName: e.target.value})}
                   className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                   placeholder={t('panel_english_name_placeholder')}
@@ -260,7 +260,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_email')} <span className="text-[#EF2F38]">*</span></label>
+                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_email')} <span className="text-brand-ink">*</span></label>
                 <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})}
                   className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                   placeholder="e.g. moni@infinitytkd.com"
@@ -318,7 +318,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
 
               <div className="flex items-center gap-3 pt-2">
                 <input type="checkbox" id="isActive" checked={form.isActive} onChange={e => setForm({ ...form, isActive: e.target.checked })}
-                  className="w-4 h-4 bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[4px] text-[#EF2F38] focus:ring-[#EF2F38]"
+                  className="w-4 h-4 bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[4px] text-brand-ink focus:ring-brand"
                 />
                 <label htmlFor="isActive" className="text-xs uppercase font-bold text-neutral-500 dark:text-[#999] tracking-wider">{t('usr_active_on_creation')}</label>
               </div>
@@ -326,7 +326,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
 
             {/* Column 2: Personal & Emergency info */}
             <div className="space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-[#EF2F38] border-b border-neutral-200 dark:border-[#262626] pb-2">2. {t('usr_role_snapshot')}</h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-brand-ink border-b border-neutral-200 dark:border-[#262626] pb-2">2. {t('usr_role_snapshot')}</h3>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -381,7 +381,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
               <div className="space-y-4 pt-4 border-t border-neutral-200 dark:border-[#262626]">
                 <div className="flex items-center gap-2 border-b border-neutral-200 dark:border-[#262626] pb-2">
                   <MapPin className="w-4 h-4 text-red-500" />
-                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#EF2F38]">{t('stf_home_address') || 'Home Address'}</h4>
+                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-ink">{t('stf_home_address') || 'Home Address'}</h4>
                 </div>
 
                 <div className="space-y-4">
@@ -485,7 +485,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                 </div>
               </div>
 
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#EF2F38] pt-2 border-t border-neutral-200 dark:border-[#262626]">{t('stu_emergency_contact')}</h4>
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-ink pt-2 border-t border-neutral-200 dark:border-[#262626]">{t('stu_emergency_contact')}</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_emergency_contact')}</label>
@@ -536,7 +536,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
 
           <div className="p-4 border-t border-neutral-200 dark:border-[#262626] flex justify-end gap-3 bg-neutral-50 dark:bg-[#0A0A0A] shrink-0">
             <button onClick={onClose} className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] text-neutral-700 dark:text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] dark:hover:bg-[#262626] transition-colors">{t('act_cancel')}</button>
-            <button onClick={handleSave} className="px-4 py-2 bg-[#EF2F38] text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] hover:opacity-90 transition-opacity">{t('usr_provision_account')}</button>
+            <button onClick={handleSave} className="px-4 py-2 bg-brand text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] hover:opacity-90 transition-opacity">{t('usr_provision_account')}</button>
           </div>
          </motion.div>
       </div>
@@ -550,7 +550,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
               <motion.div {...dialogMotion}
                 className="w-full max-w-sm bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-6 text-center shadow-2xl flex flex-col items-center text-neutral-900 dark:text-white"
               >
-                <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center mb-4 text-[#EF2F38]">
+                <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center mb-4 text-brand-ink">
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
@@ -572,7 +572,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                     type="button"
                     onClick={executeSave}
                     disabled={isSaving}
-                    className="flex-1 py-2.5 bg-[#EF2F38] hover:opacity-90 disabled:opacity-50 text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-opacity flex items-center justify-center gap-1.5"
+                    className="flex-1 py-2.5 bg-brand hover:opacity-90 disabled:opacity-50 text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-opacity flex items-center justify-center gap-1.5"
                   >
                     {isSaving ? (
                       <>

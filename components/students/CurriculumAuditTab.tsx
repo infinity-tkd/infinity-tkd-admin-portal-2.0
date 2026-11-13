@@ -79,7 +79,7 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
             placeholder="Filter student..."
             value={promotionSearch}
             onChange={(e) => setPromotionSearch(e.target.value)}
-            className="w-full pl-8 pr-2 h-8 md:h-9 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[6px] md:rounded-[8px] text-[11px] md:text-xs focus:outline-none focus:border-[#EF2F38] placeholder:text-neutral-400 dark:placeholder:text-[#666]"
+            className="w-full pl-8 pr-2 h-8 md:h-9 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[6px] md:rounded-[8px] text-[11px] md:text-xs focus:outline-none focus:border-brand placeholder:text-neutral-400 dark:placeholder:text-[#666]"
           />
         </div>
 
@@ -100,7 +100,7 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
                   className={cn(
                     "w-full text-left p-2.5 rounded-[8px] border text-xs flex items-center justify-between transition-all font-bold cursor-pointer active:scale-95 touch-manipulation",
                     isSelected
-                      ? "bg-[#EF2F38] border-[#EF2F38] text-white shadow-md shadow-[#EF2F38]/20"
+                      ? "bg-brand border-brand text-white shadow-md shadow-brand/20"
                       : "bg-neutral-50 dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A]"
                   )}
                 >
@@ -156,7 +156,7 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
                 </div>
                 <CaretRight className="w-4 h-4 text-neutral-400 dark:text-[#666]" />
                 <div className="text-center space-y-0.5">
-                  <span className="text-[9px] text-[#EF2F38] uppercase block font-black">{t('dir_target_rank')}</span>
+                  <span className="text-[9px] text-brand-ink uppercase block font-black">{t('dir_target_rank')}</span>
                   <span className="text-[10px] text-amber-600 dark:text-amber-400 uppercase tracking-widest font-black">{targetBelt}</span>
                 </div>
               </div>
@@ -194,7 +194,7 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
                 <button
                   type="button"
                   onClick={() => handleOpenSinglePromote(activeStudentObj.id)}
-                  className="w-full sm:w-auto px-4 h-9 pointer-coarse:h-11 bg-[#EF2F38] hover:bg-[#D9222B] text-white rounded-[6px] text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95 touch-manipulation cursor-pointer shrink-0"
+                  className="w-full sm:w-auto px-4 h-9 pointer-coarse:h-11 bg-brand hover:bg-brand-strong text-white rounded-[6px] text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95 touch-manipulation cursor-pointer shrink-0"
                 >
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Promote Now</span>

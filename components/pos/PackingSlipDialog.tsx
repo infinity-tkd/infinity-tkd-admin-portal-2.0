@@ -16,7 +16,7 @@ return <>
               <div id="printable-packing-slip">
                 {/* Slip Header */}
                 <div className="text-center border-b-2 border-neutral-900 pb-3 mb-3">
-                  <h2 className="text-sm font-black tracking-widest text-[#EF2F38]">INFINITY TAEKWONDO ACADEMY</h2>
+                  <h2 className="text-sm font-black tracking-widest text-brand-ink">INFINITY TAEKWONDO ACADEMY</h2>
                   <p className="text-[10px] text-neutral-700 font-bold uppercase tracking-wider">
                     STUDENT GEAR BAG PACKING SLIP
                   </p>

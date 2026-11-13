@@ -89,11 +89,11 @@ URL: ${typeof window !== 'undefined' ? window.location.href : ''}`;
   const theme = isError
     ? {
         accentColor: '#EF2F38',
-        iconBg: 'bg-red-500/10 border-red-500/25 text-[#EF2F38]',
+        iconBg: 'bg-red-500/10 border-red-500/25 text-brand-ink',
         badgeBg: 'bg-red-500/10 text-red-400 border-red-500/20',
         borderColor: 'border-red-500/30',
         glowColor: 'rgba(239, 47, 56, 0.15)',
-        btnBg: 'bg-[#EF2F38] hover:bg-red-600 text-white',
+        btnBg: 'bg-brand hover:bg-red-600 text-white',
         Icon: XCircle,
         headerLabel: 'Action Failed',
       }
@@ -216,7 +216,7 @@ URL: ${typeof window !== 'undefined' ? window.location.href : ''}`;
                   className="w-full px-3 py-2 flex items-center justify-between text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer font-mono text-[11px]"
                 >
                   <span className="flex items-center gap-1.5 font-bold">
-                    <Bug className="w-3.5 h-3.5 text-[#EF2F38]" />
+                    <Bug className="w-3.5 h-3.5 text-brand-ink" />
                     {showDetails ? 'Hide Diagnostics' : 'Show Technical Diagnostics'}
                   </span>
                   {showDetails ? <CaretUp className="w-3.5 h-3.5" /> : <CaretDown className="w-3.5 h-3.5" />}

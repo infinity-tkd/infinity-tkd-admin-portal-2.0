@@ -59,7 +59,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                     placeholder="Search product name, SKU code..."
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs text-neutral-900 dark:text-[#E4E4E4] pl-9 pr-8 py-2 min-h-[38px] rounded-[8px] focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 placeholder:text-neutral-400 dark:placeholder:text-neutral-600 font-mono transition-all"
+                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs text-neutral-900 dark:text-[#E4E4E4] pl-9 pr-8 py-2 min-h-[38px] rounded-[8px] focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/20 placeholder:text-neutral-400 dark:placeholder:text-neutral-600 font-mono transition-all"
                   />
                   {searchQuery && (
                     <button
@@ -149,7 +149,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                     className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] cursor-pointer disabled:opacity-50 transition-colors shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                     title="Refresh live catalog from database"
                   >
-                    <ArrowsClockwise size={14} className={isCatalogLoading ? "animate-spin text-[#EF2F38]" : ""} />
+                    <ArrowsClockwise size={14} className={isCatalogLoading ? "animate-spin text-brand-ink" : ""} />
                   </button>
                 </div>
               </div>
@@ -169,7 +169,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                         className={cn(
                           "px-3 py-1.5 min-h-[34px] text-[11px] font-mono rounded-[8px] border transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 select-none active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                           isSelected
-                            ? "bg-[#EF2F38] text-white font-bold border-[#EF2F38] shadow-sm shadow-red-500/20 ring-1 ring-[#EF2F38]"
+                            ? "bg-brand text-white font-bold border-brand shadow-sm shadow-red-500/20 ring-1 ring-brand"
                             : "bg-neutral-100/80 text-neutral-700 border-neutral-200/90 hover:bg-neutral-200/70 hover:text-neutral-900 dark:bg-[#1a1a1a] dark:text-neutral-300 dark:border-[#262626] dark:hover:bg-[#222] dark:hover:text-white"
                         )}
                       >
@@ -178,7 +178,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                           className={cn(
                             "px-1.5 py-0.5 text-[9px] rounded-full font-mono font-bold leading-none tabular-nums",
                             isSelected
-                              ? "bg-white/25 text-white"
+                              ? "bg-black/20 text-white"
                               : "bg-neutral-200 dark:bg-[#292929] text-neutral-600 dark:text-neutral-400"
                           )}
                         >
@@ -202,7 +202,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                         setSearchQuery('');
                         setOnlyLowStock(false);
                       }}
-                      className="text-[#EF2F38] hover:underline font-bold cursor-pointer ml-1"
+                      className="text-brand-ink hover:underline font-bold cursor-pointer ml-1"
                     >
                       Reset
                     </button>
@@ -243,7 +243,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                       setSearchQuery('');
                       setOnlyLowStock(false);
                     }}
-                    className="mt-2 px-3 py-1.5 bg-[#EF2F38] text-white text-[11px] rounded-[6px] font-bold cursor-pointer hover:bg-[#d6242c] transition-colors"
+                    className="mt-2 px-3 py-1.5 bg-brand text-white text-[11px] rounded-[6px] font-bold cursor-pointer hover:bg-brand-strong transition-colors"
                   >
                     Clear All Filters
                   </button>
@@ -264,10 +264,10 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                       className={cn(
                         "group relative border rounded-[8px] p-3.5 flex flex-col justify-between transition-all duration-200 shadow-sm",
                         inCartQty > 0
-                          ? "border-[#EF2F38]/60 ring-1 ring-[#EF2F38]/20 bg-red-50/40 dark:bg-red-950/15"
+                          ? "border-brand/60 ring-1 ring-brand/20 bg-red-50/40 dark:bg-red-950/15"
                           : isOutOfStock
                           ? "bg-neutral-50 dark:bg-[#111] border-neutral-200 dark:border-[#262626] opacity-65"
-                          : "bg-white dark:bg-[#141414] border-neutral-200 dark:border-[#262626] hover:border-[#EF2F38]/40 hover:shadow-md"
+                          : "bg-white dark:bg-[#141414] border-neutral-200 dark:border-[#262626] hover:border-brand/40 hover:shadow-md"
                       )}
                     >
                       <div>
@@ -307,7 +307,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                         </div>
 
                         {/* Product Title & Metadata */}
-                        <h3 className="text-xs font-bold text-neutral-900 dark:text-white group-hover:text-[#EF2F38] transition-colors leading-snug">
+                        <h3 className="text-xs font-bold text-neutral-900 dark:text-white group-hover:text-brand-ink transition-colors leading-snug">
                           {product.name}
                         </h3>
                         <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono text-neutral-500 dark:text-neutral-400 flex-wrap">
@@ -315,7 +315,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                           {product.hasVariants && product.variants && product.variants.length > 0 ? (
                             <>
                               <span>•</span>
-                              <span className="bg-red-50 dark:bg-red-950/30 text-[#EF2F38] border border-red-500/20 px-1.5 py-0.2 rounded font-bold">
+                              <span className="bg-red-50 dark:bg-red-950/30 text-brand-ink border border-red-500/20 px-1.5 py-0.2 rounded font-bold">
                                 {product.variants.length} Variations
                               </span>
                               {product.sizes && product.sizes.length > 0 && (
@@ -352,7 +352,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                           {product.hasVariants && product.variants && product.variants.length > 0 ? (
                             <div className="flex items-center gap-1.5">
                               {inCartQty > 0 && (
-                                <span className="text-[10px] font-mono font-bold text-[#EF2F38] bg-red-50 dark:bg-red-950/30 border border-red-500/30 px-1.5 py-0.5 rounded">
+                                <span className="text-[10px] font-mono font-bold text-brand-ink bg-red-50 dark:bg-red-950/30 border border-red-500/30 px-1.5 py-0.5 rounded">
                                   {inCartQty} in cart
                                 </span>
                               )}
@@ -364,7 +364,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                   "px-3 py-1.5 min-h-[36px] text-xs font-mono font-bold rounded-[8px] flex items-center gap-1.5 transition-all active:scale-95 touch-manipulation cursor-pointer pointer-coarse:min-h-11",
                                   isOutOfStock
                                     ? "bg-neutral-100 text-neutral-400 border border-neutral-200 dark:bg-[#1a1a1a] dark:text-[#555] dark:border-[#262626] cursor-not-allowed"
-                                    : "bg-[#EF2F38] hover:bg-[#d6242c] text-white shadow-xs"
+                                    : "bg-brand hover:bg-brand-strong text-white shadow-xs"
                                 )}
                               >
                                 <Tag size={13} weight="bold" /> Choose Size
@@ -380,7 +380,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                               >
                                 <Minus size={13} weight="bold" />
                               </button>
-                              <span className="text-xs font-mono font-bold text-[#EF2F38] px-1.5 min-w-[22px] text-center">
+                              <span className="text-xs font-mono font-bold text-brand-ink px-1.5 min-w-[22px] text-center">
                                 {inCartQty}
                               </span>
                               <button
@@ -402,7 +402,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                 "px-3 py-1.5 min-h-[36px] text-xs font-mono font-bold rounded-[8px] flex items-center gap-1.5 transition-all active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                                 isOutOfStock
                                   ? "bg-neutral-100 text-neutral-400 border border-neutral-200 dark:bg-[#1a1a1a] dark:text-[#555] dark:border-[#262626] cursor-not-allowed"
-                                  : "bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 hover:bg-[#EF2F38] hover:text-white cursor-pointer"
+                                  : "bg-brand/10 text-brand-ink border border-brand/20 hover:bg-brand hover:text-white cursor-pointer"
                               )}
                             >
                               <Plus size={13} weight="bold" /> ADD
@@ -457,7 +457,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                   {product.name}
                                 </span>
                                 {product.hasVariants && product.variants && product.variants.length > 0 ? (
-                                  <span className="text-[9px] bg-red-50 dark:bg-red-950/30 text-[#EF2F38] border border-red-500/20 px-1.5 py-0.2 rounded font-bold whitespace-nowrap">
+                                  <span className="text-[9px] bg-red-50 dark:bg-red-950/30 text-brand-ink border border-red-500/20 px-1.5 py-0.2 rounded font-bold whitespace-nowrap">
                                     {product.variants.length} Variants
                                   </span>
                                 ) : product.size ? (
@@ -504,7 +504,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                       "px-2.5 py-1 text-[10px] font-mono font-bold rounded-[6px] flex items-center gap-1 transition active:scale-95 touch-manipulation cursor-pointer",
                                       isOutOfStock
                                         ? "bg-neutral-100 text-neutral-400 dark:bg-[#1a1a1a] dark:text-[#555] cursor-not-allowed"
-                                        : "bg-[#EF2F38] text-white hover:bg-[#d6242c]"
+                                        : "bg-brand text-white hover:bg-brand-strong"
                                     )}
                                   >
                                     <Tag size={11} weight="bold" /> {inCartQty > 0 ? `(${inCartQty}) Choose` : 'Choose'}
@@ -518,7 +518,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                     >
                                       <Minus size={10} weight="bold" />
                                     </button>
-                                    <span className="text-xs font-bold text-[#EF2F38] px-1.5 min-w-[18px] text-center">
+                                    <span className="text-xs font-bold text-brand-ink px-1.5 min-w-[18px] text-center">
                                       {inCartQty}
                                     </span>
                                     <button
@@ -539,7 +539,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                       "px-2.5 py-1 text-[10px] font-mono font-bold rounded-[6px] flex items-center gap-1 transition active:scale-95 touch-manipulation",
                                       isOutOfStock
                                         ? "bg-neutral-100 text-neutral-400 dark:bg-[#1a1a1a] dark:text-[#555] cursor-not-allowed"
-                                        : "bg-[#EF2F38]/10 text-[#EF2F38] hover:bg-[#EF2F38] hover:text-white cursor-pointer"
+                                        : "bg-brand/10 text-brand-ink hover:bg-brand hover:text-white cursor-pointer"
                                     )}
                                   >
                                     <Plus size={10} weight="bold" /> ADD
@@ -579,7 +579,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                               {product.sku}
                             </span>
                             {product.hasVariants && product.variants && product.variants.length > 0 ? (
-                              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-red-50 dark:bg-red-950/30 text-[#EF2F38] border border-red-500/20 font-bold">
+                              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-red-50 dark:bg-red-950/30 text-brand-ink border border-red-500/20 font-bold">
                                 {product.variants.length} Variations
                               </span>
                             ) : product.size ? (
@@ -592,7 +592,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                             {product.name}
                           </p>
                           <div className="flex items-center gap-2 mt-0.5 text-[10px] font-mono">
-                            <span className="font-bold text-[#EF2F38]">${product.price.toFixed(2)}</span>
+                            <span className="font-bold text-brand-ink">${product.price.toFixed(2)}</span>
                             <span>•</span>
                             {isOutOfStock ? (
                               <span className="text-rose-600 dark:text-rose-400 font-bold">OUT</span>
@@ -615,7 +615,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                 "px-3 py-1.5 min-h-[36px] text-xs font-mono font-bold rounded-[8px] flex items-center gap-1 transition active:scale-95 touch-manipulation cursor-pointer pointer-coarse:min-h-11",
                                 isOutOfStock
                                   ? "bg-neutral-100 text-neutral-400 dark:bg-[#1a1a1a] dark:text-[#555] cursor-not-allowed"
-                                  : "bg-[#EF2F38] text-white shadow-xs"
+                                  : "bg-brand text-white shadow-xs"
                               )}
                             >
                               <Tag size={12} weight="bold" /> {inCartQty > 0 ? `(${inCartQty}) Choose` : 'Choose'}
@@ -629,7 +629,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                               >
                                 <Minus size={12} weight="bold" />
                               </button>
-                              <span className="text-xs font-bold font-mono text-[#EF2F38] px-1.5 min-w-[20px] text-center">
+                              <span className="text-xs font-bold font-mono text-brand-ink px-1.5 min-w-[20px] text-center">
                                 {inCartQty}
                               </span>
                               <button
@@ -650,7 +650,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                 "px-3 py-1.5 min-h-[36px] text-xs font-mono font-bold rounded-[8px] flex items-center gap-1 transition active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                                 isOutOfStock
                                   ? "bg-neutral-100 text-neutral-400 dark:bg-[#1a1a1a] dark:text-[#555] cursor-not-allowed"
-                                  : "bg-[#EF2F38]/10 text-[#EF2F38] hover:bg-[#EF2F38] hover:text-white cursor-pointer"
+                                  : "bg-brand/10 text-brand-ink hover:bg-brand hover:text-white cursor-pointer"
                               )}
                             >
                               <Plus size={12} weight="bold" /> ADD
@@ -668,12 +668,12 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
             {cart.length > 0 && (
               <div className="lg:hidden fixed left-3 right-3 sm:left-auto sm:right-6 sm:w-80 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] z-40 p-2.5 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-md border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex items-center justify-between animate-in slide-in-from-bottom-2">
                 <div className="flex items-center gap-2.5 pl-2">
-                  <ShoppingCart size={18} className="text-[#EF2F38]" />
+                  <ShoppingCart size={18} className="text-brand-ink" />
                   <div>
                     <span className="text-xs font-mono font-bold text-neutral-900 dark:text-white block">
                       {cart.reduce((s, i) => s + i.quantity, 0)} items
                     </span>
-                    <span className="text-xs font-mono font-black text-[#EF2F38]">
+                    <span className="text-xs font-mono font-black text-brand-ink">
                       ${grandTotal.toFixed(2)}
                     </span>
                   </div>
@@ -684,7 +684,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                     const cartEl = document.getElementById('pos-checkout-cart');
                     cartEl?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="px-4 py-2 min-h-[44px] bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-mono font-bold uppercase rounded-[8px] transition-all cursor-pointer shadow-sm active:scale-95 touch-manipulation flex items-center justify-center gap-1"
+                  className="px-4 py-2 min-h-[44px] bg-brand hover:bg-brand-strong text-white text-xs font-mono font-bold uppercase rounded-[8px] transition-all cursor-pointer shadow-sm active:scale-95 touch-manipulation flex items-center justify-center gap-1"
                 >
                   Checkout →
                 </button>

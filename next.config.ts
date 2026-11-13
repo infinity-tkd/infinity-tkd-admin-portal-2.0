@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
     : process.env.NODE_ENV === 'development' ? '.next-dev' : '.next',
   outputFileTracingRoot: path.resolve(__dirname),
   reactStrictMode: true,
+  // No "X-Powered-By: Next.js" header: it only tells visitors which framework to probe.
+  poweredByHeader: false,
   eslint: {
     ignoreDuringBuilds: false,
   },

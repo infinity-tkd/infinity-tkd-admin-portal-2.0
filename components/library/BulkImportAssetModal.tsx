@@ -358,7 +358,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
         {/* Header */}
         <div className="p-4 md:p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#0F0F0F]">
           <div className="flex items-center gap-2.5">
-            <FileCsv className="w-6 h-6 text-[#EF2F38]" />
+            <FileCsv className="w-6 h-6 text-brand-ink" />
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-800 dark:text-white">{t('lib_bulk_title')}</h2>
               <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">{t('lib_bulk_subtitle')}</p>
@@ -392,9 +392,9 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={cn(
-                  "border-2 border-dashed border-neutral-300 dark:border-[#262626] bg-neutral-50/50 dark:bg-[#141414]/50 rounded-[8px] p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#EF2F38]/40 dark:hover:border-[#EF2F38]/40 hover:bg-neutral-100/60 dark:hover:bg-[#181818]/60 transition-all group relative overflow-hidden",
-                  fileName && "border-[#EF2F38]/30 bg-[#EF2F38]/[0.02]",
-                  isDragging && "border-[#EF2F38] bg-[#EF2F38]/[0.05] scale-[0.99] shadow-inner"
+                  "border-2 border-dashed border-neutral-300 dark:border-[#262626] bg-neutral-50/50 dark:bg-[#141414]/50 rounded-[8px] p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:border-brand/40 dark:hover:border-brand/40 hover:bg-neutral-100/60 dark:hover:bg-[#181818]/60 transition-all group relative overflow-hidden",
+                  fileName && "border-brand/30 bg-brand/[0.02]",
+                  isDragging && "border-brand bg-brand/[0.05] scale-[0.99] shadow-inner"
                 )}
               >
                 <input 
@@ -424,9 +424,9 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="absolute inset-0 bg-[#EF2F38]/[0.08] backdrop-blur-[1px] flex items-center justify-center pointer-events-none"
+                      className="absolute inset-0 bg-brand/[0.08] backdrop-blur-[1px] flex items-center justify-center pointer-events-none"
                     >
-                      <span className="text-[#EF2F38] font-bold uppercase tracking-widest text-xs border border-[#EF2F38] bg-white dark:bg-black px-4 py-2 rounded-full shadow-lg">{t('lib_bulk_drop_here')}</span>
+                      <span className="text-brand-ink font-bold uppercase tracking-widest text-xs border border-brand bg-white dark:bg-black px-4 py-2 rounded-full shadow-lg">{t('lib_bulk_drop_here')}</span>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -442,7 +442,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
                     ? "Title,Description,Category,Target Belt,Video URL\nTaegeuk Ee Jang,Second Taekwondo Form,Poomsae,Yellow,https://..."
                     : "Push Ups,Standard core upper body pushing,Strength,https://..."
                   }
-                  className="w-full h-[154px] bg-neutral-50 dark:bg-[#141414] border border-neutral-300 dark:border-[#262626] rounded-[8px] p-4 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/25 resize-none placeholder:text-neutral-400 dark:placeholder:text-neutral-500 transition-all shadow-inner"
+                  className="w-full h-[154px] bg-neutral-50 dark:bg-[#141414] border border-neutral-300 dark:border-[#262626] rounded-[8px] p-4 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/25 resize-none placeholder:text-neutral-400 dark:placeholder:text-neutral-500 transition-all shadow-inner"
                 />
               </div>
 
@@ -460,7 +460,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
                 <button
                   type="button"
                   onClick={handleAddManualRow}
-                  className="w-full sm:w-auto px-5 py-2.5 bg-[#EF2F38] hover:opacity-90 text-white text-xs font-bold uppercase tracking-widest rounded-[8px] transition-all flex items-center justify-center gap-2 shadow-md shrink-0"
+                  className="w-full sm:w-auto px-5 py-2.5 bg-brand hover:opacity-90 text-white text-xs font-bold uppercase tracking-widest rounded-[8px] transition-all flex items-center justify-center gap-2 shadow-md shrink-0"
                 >
                   {t('lib_bulk_add_row')}
                 </button>
@@ -479,7 +479,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
                   <button
                     type="button"
                     onClick={handleAddManualRow}
-                    className="px-3.5 py-1.5 bg-[#EF2F38] hover:opacity-90 text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center gap-1 shadow-md"
+                    className="px-3.5 py-1.5 bg-brand hover:opacity-90 text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center gap-1 shadow-md"
                   >
                     <Plus className="w-3.5 h-3.5"/> {t('lib_bulk_add_row')}
                   </button>
@@ -506,7 +506,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
               </div>
 
               <div className="text-[11px] text-neutral-400 dark:text-neutral-500 flex items-center gap-1 font-mono font-semibold">
-                <PencilSimple className="w-3.5 h-3.5 text-[#EF2F38]" /> {t('lib_bulk_verify_desc')}
+                <PencilSimple className="w-3.5 h-3.5 text-brand-ink" /> {t('lib_bulk_verify_desc')}
               </div>
 
               <div className="border border-neutral-200 dark:border-[#262626] rounded-[8px] max-h-[350px] overflow-auto">
@@ -627,8 +627,8 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
             <div className="py-12 flex flex-col items-center justify-center text-center space-y-4">
               <div className="relative w-16 h-16 flex items-center justify-center">
                 <div className="absolute inset-0 rounded-full border-4 border-neutral-100 dark:border-neutral-800 animate-pulse" />
-                <div className="absolute inset-0 rounded-full border-4 border-t-[#EF2F38] border-r-transparent border-b-transparent border-l-transparent animate-spin" />
-                <FileCsv className="w-6 h-6 text-[#EF2F38] animate-bounce" />
+                <div className="absolute inset-0 rounded-full border-4 border-t-brand border-r-transparent border-b-transparent border-l-transparent animate-spin" />
+                <FileCsv className="w-6 h-6 text-brand-ink animate-bounce" />
               </div>
               <div>
                 <p className="text-sm font-bold text-neutral-800 dark:text-white uppercase tracking-wider">{t('lib_bulk_uploading')}</p>
@@ -708,7 +708,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
                   "flex-1 sm:flex-initial px-5 py-2 min-h-[40px] text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95 touch-manipulation cursor-pointer pointer-coarse:min-h-11",
                   totalValid === 0 
                     ? "bg-neutral-300 dark:bg-[#262626] text-neutral-400 dark:text-neutral-600 border-transparent cursor-not-allowed shadow-none" 
-                    : "bg-[#EF2F38] hover:bg-[#d6262f] shadow-[#EF2F38]/20"
+                    : "bg-brand hover:bg-[#d6262f] shadow-brand/20"
                 )}
               >
                 {t('lib_bulk_import_btn').replace('{count}', String(totalValid))}
@@ -725,7 +725,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
             <div className="w-full max-w-lg bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[10px] shadow-2xl p-6 text-neutral-900 dark:text-white max-h-[85dvh] overflow-y-auto">
               <div className="flex justify-between items-center border-b border-neutral-200 dark:border-[#262626] pb-3 mb-4">
                 <h3 className="text-sm font-bold uppercase tracking-wider flex items-center gap-1.5 text-neutral-800 dark:text-white">
-                  <Question className="w-4.5 h-4.5 text-[#EF2F38]"/> {t('bulk_tutorial_title')}
+                  <Question className="w-4.5 h-4.5 text-brand-ink"/> {t('bulk_tutorial_title')}
                 </h3>
                 <button 
                   onClick={() => setShowHelp(false)} 

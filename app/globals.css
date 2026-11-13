@@ -4,10 +4,17 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* Brand reds, deepened from #EF2F38 so white text on red and red text on white both reach
+     WCAG AA (4.5:1): red-500 5.0, red-600 5.9 against white. Same hue, calmer on the eyes. */
   --color-red-400: #ef5a61;
-  --color-red-500: #EF2F38;
-  --color-red-600: #d6242c;
-  --color-red-700: #b21a21;
+  --color-red-500: #d62630;
+  --color-red-600: #c41f28;
+  --color-red-700: #a3181f;
+  /* Tailwind 4's emerald-600 (#009966) gives white text only 3.7:1 ("Quick Pay", "Kiosk mode"). */
+  --color-emerald-600: #047857;
+  --color-emerald-700: #036246;
+  /* Gender badges: pink-600 text on its own tint was 4.0:1. */
+  --color-pink-600: #c6005c;
   --font-sans: var(--font-sans), var(--font-khmer), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --radius-lg: 8px;
@@ -27,6 +34,8 @@
 @theme inline {
   --color-brand: var(--ui-brand);
   --color-brand-strong: var(--ui-brand-strong);
+  /* Red text (text-brand-ink): darker on light surfaces, brighter on dark ones, so it reads at 4.5:1+ in both. */
+  --color-brand-ink: var(--ui-brand-ink);
   --color-on-brand: #ffffff;
   --color-page: var(--ui-page);
   --color-surface: var(--ui-surface);
@@ -42,8 +51,9 @@
 }
 
 :root {
-  --ui-brand: #ef2f38;
-  --ui-brand-strong: #d4252e;
+  --ui-brand: #c41f28;        /* white text on it 5.9:1 */
+  --ui-brand-strong: #a3181f; /* hover / pressed */
+  --ui-brand-ink: #c41f28;    /* red text on white 5.9:1, on its own 10% tint 5.0:1 */
   --ui-page: #ffffff;
   --ui-surface: #ffffff;
   --ui-surface-muted: #fafafa;
@@ -59,6 +69,9 @@
 }
 
 .dark {
+  --ui-brand: #d62630;        /* white text on it 5.0:1 */
+  --ui-brand-strong: #b91c24;
+  --ui-brand-ink: #f66b71;    /* red text on #141414 6.4:1, on its own 20% tint 4.8:1 */
   --ui-page: #0a0a0a;
   --ui-surface: #141414;
   --ui-surface-muted: #141414;
@@ -67,7 +80,8 @@
   --ui-control-hover: #262626;
   --ui-line: #262626;
   --ui-line-strong: #383838;
-  --ui-ink: #fafafa;
+  /* Off-white instead of #fafafa: ~15:1 on the cards instead of 19:1, less glare on near-black. */
+  --ui-ink: #ededed;
   --ui-ink-muted: #b4b4b4;
   --ui-ink-subtle: #949494;
   color-scheme: dark;
@@ -238,7 +252,7 @@ pre {
 }
 
 :focus-visible {
-  outline: 2px solid #EF2F38;
+  outline: 2px solid var(--ui-brand);
   outline-offset: 2px;
 }
 
@@ -387,7 +401,7 @@ html:not(.dark) .border-\[\#383838\] {
 }
 
 /* High-Contrast Red Accents */
-html:not(.dark) .border-\[\#EF2F38\]\/20 {
+html:not(.dark) .border-brand\/20 {
   border-color: rgba(239, 47, 56, 0.25) !important;
 }
 
@@ -489,6 +503,7 @@ html:not(.dark) .text-rose-500 {
 .dark .text-blue-900 {
   color: #60A5FA !important; /* Bright Sky Blue 7.5:1 contrast against #0A0A0A */
 }
+.dark .text-emerald-600,
 .dark .text-emerald-700,
 .dark .text-emerald-800,
 .dark .text-emerald-900,
@@ -502,6 +517,8 @@ html:not(.dark) .text-rose-500 {
 .dark .text-amber-900 {
   color: #FBBF24 !important; /* Bright Amber Gold 10.4:1 contrast against #0A0A0A */
 }
+.dark .text-red-500,
+.dark .text-red-600,
 .dark .text-red-700,
 .dark .text-red-800,
 .dark .text-red-900 {
@@ -529,30 +546,22 @@ html:not(.dark) .bg-red-600,
 html:not(.dark) .bg-red-600 *,
 html:not(.dark) .bg-red-700,
 html:not(.dark) .bg-red-700 *,
-html:not(.dark) .bg-\[\#EF2F38\],
-html:not(.dark) .bg-\[\#EF2F38\] *,
-html:not(.dark) [class~="bg-[#EF2F38]"],
-html:not(.dark) [class~="bg-[#EF2F38]"] *,
-html:not(.dark) [class~="bg-[#D0252D]"],
-html:not(.dark) [class~="bg-[#D0252D]"] *,
-html:not(.dark) [class~="bg-[#D9222B]"],
-html:not(.dark) [class~="bg-[#D9222B]"] *,
-html:not(.dark) [class~="bg-[#d6242c]"],
-html:not(.dark) [class~="bg-[#d6242c]"] *,
-html:not(.dark) [class~="bg-[#d4252e]"],
-html:not(.dark) [class~="bg-[#d4252e]"] *,
+html:not(.dark) .bg-brand,
+html:not(.dark) .bg-brand *,
+html:not(.dark) .bg-brand-strong,
+html:not(.dark) .bg-brand-strong *,
 html:not(.dark) button.bg-red-500,
-html:not(.dark) button.bg-\[\#EF2F38\],
+html:not(.dark) button.bg-brand,
 /* Only solid hover fills turn the text white. A substring match also caught tinted
-   hovers (hover:bg-red-50, hover:bg-red-500/10, hover:bg-[#EF2F38]/10), turning their
+   hovers (hover:bg-red-50, hover:bg-red-500/10, hover:bg-brand/10), turning their
    text white on a near-white background, so those buttons went blank on mouse-over. */
 html:not(.dark) button[class~="hover:bg-red-500"]:hover,
 html:not(.dark) button[class~="hover:bg-red-600"]:hover,
 html:not(.dark) button[class~="hover:bg-red-700"]:hover,
-html:not(.dark) button[class~="hover:bg-[#EF2F38]"]:hover,
-html:not(.dark) button[class~="hover:bg-[#D0252D]"]:hover,
+html:not(.dark) button[class~="hover:bg-brand"]:hover,
+html:not(.dark) button[class~="hover:bg-brand-strong"]:hover,
 html:not(.dark) a.bg-red-500 *,
-html:not(.dark) a.bg-\[\#EF2F38\] *,
+html:not(.dark) a.bg-brand *,
 html:not(.dark) .bg-green-600,
 html:not(.dark) .bg-green-600 *,
 html:not(.dark) .bg-green-700,
@@ -642,9 +651,9 @@ html:not(.dark) .text-white-override * {
 #printable-packing-slip .text-neutral-600 {
   color: #4B5563 !important;
 }
-#printable-receipt .text-\[\#EF2F38\],
-#printable-packing-slip .text-\[\#EF2F38\] {
-  color: #EF2F38 !important;
+#printable-receipt .text-brand-ink,
+#printable-packing-slip .text-brand-ink {
+  color: #c41f28 !important;
 }
 #printable-receipt .text-red-600,
 #printable-packing-slip .text-red-600 {
@@ -666,11 +675,11 @@ html:not(.dark) aside a.text-\[\#999\]:hover {
 
 /* Settings switcher button state highlights in light mode */
 html:not(.dark) .theme-switcher-container .bg-white.text-black {
-  background-color: #EF2F38 !important;
+  background-color: var(--ui-brand) !important;
   color: #FFFFFF !important;
 }
 html:not(.dark) .theme-switcher-container .bg-\[\#262626\].text-white {
-  background-color: #EF2F38 !important;
+  background-color: var(--ui-brand) !important;
   color: #FFFFFF !important;
 }
 
@@ -712,8 +721,8 @@ html:not(.dark) textarea::placeholder {
 html:not(.dark) input:not(.border-none):focus,
 html:not(.dark) select:not(.border-none):focus,
 html:not(.dark) textarea:not(.border-none):focus {
-  border-color: #EF2F38 !important;
-  box-shadow: 0 0 0 1px rgba(239, 47, 56, 0.2) !important;
+  border-color: var(--ui-brand) !important;
+  box-shadow: 0 0 0 1px rgba(196, 31, 40, 0.2) !important;
 }
 
 /* Tables & Rosters */

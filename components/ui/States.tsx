@@ -24,7 +24,7 @@ export function BrandSplash({ message, tone = 'brand' }: { message: string; tone
         <Image unoptimized priority width={56} height={56} src="/icons/logo.svg" alt="" className="size-14 object-contain drop-shadow-[0_0_15px_rgba(239,47,56,0.35)] motion-safe:animate-pulse" />
         <div className="flex flex-col items-center gap-1.5 text-center">
           <p className="text-[11px] font-black uppercase leading-none tracking-[0.25em]">Infinity TKD</p>
-          <p className={cn('font-mono text-[10px] uppercase tracking-[0.18em]', tone === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-brand')}>{message}</p>
+          <p className={cn('font-mono text-[10px] uppercase tracking-[0.18em]', tone === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-brand-ink')}>{message}</p>
         </div>
         <div aria-hidden="true" className="relative h-0.5 w-32 overflow-hidden rounded-full bg-line">
           <div className={cn('absolute inset-y-0 left-0 w-1/2 rounded-full animate-shimmer', accent)} />

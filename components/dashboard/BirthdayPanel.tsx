@@ -32,7 +32,7 @@ export function BirthdayPanel({ birthdayStudents, calculateAge, checkIsBirthdayT
 
       <div className="py-2.5 px-3 border-b border-neutral-200 dark:border-[#262626] bg-white dark:bg-[#0F0F0F] rounded-t-[8px] flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <Cake className="w-3.5 h-3.5 text-[#EF2F38] animate-bounce" />
+          <Cake className="w-3.5 h-3.5 text-brand-ink animate-bounce" />
           <h2 className="text-xs font-bold uppercase tracking-widest">{t('dash_student_birthdays')}</h2>
         </div>
 
@@ -64,13 +64,13 @@ export function BirthdayPanel({ birthdayStudents, calculateAge, checkIsBirthdayT
                 className={cn(
                   "p-2 rounded-[8px] border transition-all flex items-center justify-between gap-2 shadow-sm",
                   isBirthdayToday
-                    ? "bg-red-50 dark:bg-[#1E1111] border-red-500/40 dark:border-[#EF2F38]/40 shadow-[0_0_12px_rgba(239,47,56,0.15)] relative overflow-hidden"
+                    ? "bg-red-50 dark:bg-[#1E1111] border-red-500/40 dark:border-brand/40 shadow-[0_0_12px_rgba(239,47,56,0.15)] relative overflow-hidden"
                     : "bg-white dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626]"
                 )}
               >
                 {isBirthdayToday && (
                   <div className="absolute top-0 right-0 p-1 flex gap-1">
-                    <Sparkle className="w-2.5 h-2.5 text-[#EF2F38] animate-pulse" />
+                    <Sparkle className="w-2.5 h-2.5 text-brand-ink animate-pulse" />
                   </div>
                 )}
 
@@ -78,7 +78,7 @@ export function BirthdayPanel({ birthdayStudents, calculateAge, checkIsBirthdayT
                   <div className={cn(
                     "w-6.5 h-6.5 rounded-full flex items-center justify-center font-black text-[10px] font-mono border shrink-0",
                     isBirthdayToday
-                      ? "bg-[#EF2F38] text-white border-[#EF2F38]"
+                      ? "bg-brand text-white border-brand"
                       : "bg-neutral-50 dark:bg-[#141414] text-neutral-500 dark:text-neutral-400 border-neutral-200 dark:border-[#262626]"
                   )}>
                     {bDay}
@@ -87,7 +87,7 @@ export function BirthdayPanel({ birthdayStudents, calculateAge, checkIsBirthdayT
                     <div className="flex items-center gap-1.5">
                       <span className="text-[11px] font-bold truncate text-neutral-900 dark:text-white">{student.englishName}</span>
                       {isBirthdayToday && (
-                        <span className="px-1 py-0.2 bg-[#EF2F38] text-white text-[9px] font-black uppercase tracking-wider rounded-full animate-bounce shrink-0">
+                        <span className="px-1 py-0.2 bg-brand text-white text-[9px] font-black uppercase tracking-wider rounded-full animate-bounce shrink-0">
                           {t('dash_today')}
                         </span>
                       )}
@@ -109,7 +109,7 @@ export function BirthdayPanel({ birthdayStudents, calculateAge, checkIsBirthdayT
                     isBirthdayToday
                       ? wishState[student.id] === 'sent'
                         ? "bg-green-600/10 border-green-500/20 text-green-600 dark:text-green-400"
-                        : "bg-[#EF2F38] hover:bg-[#d6242c] border-transparent text-white"
+                        : "bg-brand hover:bg-brand-strong border-transparent text-white"
                       : wishState[student.id] === 'sent'
                         ? "bg-green-600/10 border-green-500/20 text-green-600 dark:text-green-400"
                         : "bg-neutral-50 dark:bg-[#141414] hover:bg-neutral-100 dark:hover:bg-[#262626] border-neutral-200 dark:border-[#262626] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"

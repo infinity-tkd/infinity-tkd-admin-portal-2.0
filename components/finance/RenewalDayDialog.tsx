@@ -43,7 +43,7 @@ export function RenewalDayDialog({ selectedCalendarDay, calendarData, setSelecte
                 {/* Modal Header */}
                 <div className="p-4 bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626] flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-full bg-[#EF2F38]/10 border border-[#EF2F38]/30 flex items-center justify-center text-[#EF2F38] font-mono font-bold text-sm">
+                    <div className="w-9 h-9 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center text-brand-ink font-mono font-bold text-sm">
                       {selectedCalendarDay.day}
                     </div>
                     <div>
@@ -75,7 +75,7 @@ export function RenewalDayDialog({ selectedCalendarDay, calendarData, setSelecte
                       placeholder="Search student in this cohort..."
                       value={selectedDaySearch}
                       onChange={(e) => setSelectedDaySearch(e.target.value)}
-                      className="w-full pl-8 pr-3 py-1.5 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-xs focus:outline-none focus:border-[#EF2F38] transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666] font-mono"
+                      className="w-full pl-8 pr-3 py-1.5 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-xs focus:outline-none focus:border-brand transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666] font-mono"
                     />
                   </div>
                 </div>
@@ -112,7 +112,7 @@ export function RenewalDayDialog({ selectedCalendarDay, calendarData, setSelecte
                             />
                             <div>
                               <div className="flex items-center gap-2">
-                                <button type="button" onClick={() => {setSelectedCalendarDay(null);setStudentDetailsId(student.id);setPaymentAmounts({});}} className="text-xs font-bold text-neutral-900 hover:text-[#EF2F38] dark:text-white tracking-tight text-left">{student.englishName}</button>
+                                <button type="button" onClick={() => {setSelectedCalendarDay(null);setStudentDetailsId(student.id);setPaymentAmounts({});}} className="text-xs font-bold text-neutral-900 hover:text-brand-ink dark:text-white tracking-tight text-left">{student.englishName}</button>
                                 {billingStatus === 'Paid' && (
                                   <span className="px-2 py-0.5 rounded-[8px] bg-green-500/10 text-green-600 dark:text-green-400 font-bold uppercase text-[9px] border border-green-500/30 flex items-center gap-1">
                                     <CheckCircle className="w-2.5 h-2.5" /> Paid
@@ -174,7 +174,7 @@ export function RenewalDayDialog({ selectedCalendarDay, calendarData, setSelecte
                                       showNotification("Failed to record payment.", 'error');
                                     }
                                   }}
-                                  className="px-3 py-1.5 bg-[#EF2F38] hover:bg-[#D0252D] text-white font-bold uppercase tracking-wider text-[10px] rounded-[8px] transition-colors flex items-center gap-1 shadow-md cursor-pointer" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
+                                  className="px-3 py-1.5 bg-brand hover:bg-brand-strong text-white font-bold uppercase tracking-wider text-[10px] rounded-[8px] transition-colors flex items-center gap-1 shadow-md cursor-pointer" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
                                 >
                                   Record Payment
                                 </button>
@@ -191,7 +191,7 @@ export function RenewalDayDialog({ selectedCalendarDay, calendarData, setSelecte
                                 })}
                                 className="px-3 py-1.5 bg-neutral-200 hover:bg-neutral-300 dark:bg-[#1F1F1F] dark:hover:bg-[#2A2A2A] border border-neutral-300 dark:border-[#333] text-neutral-900 dark:text-white font-bold uppercase tracking-wider text-[10px] rounded-[8px] transition-colors flex items-center gap-1 cursor-pointer"
                               >
-                                <Receipt className="w-3.5 h-3.5 text-[#EF2F38]" /> E-Receipt
+                                <Receipt className="w-3.5 h-3.5 text-brand-ink" /> E-Receipt
                               </button>
                             ) : (
                               <span className="text-[10px] font-mono text-neutral-400 dark:text-[#666] italic">No payment needed</span>

@@ -339,7 +339,7 @@ export function Biomechanical2DScanner({
         {(viewAngle === 'both' || viewAngle === 'anterior') && (
           <div className="flex flex-col items-center relative group">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-2 h-2 rounded-full bg-[#EF2F38] " />
+              <span className="w-2 h-2 rounded-full bg-brand " />
               <span className="text-[10px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-widest">
                 Front
               </span>
@@ -803,7 +803,7 @@ export function Biomechanical2DScanner({
         {(viewAngle === 'both' || viewAngle === 'posterior') && (
           <div className="flex flex-col items-center relative group">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-2 h-2 rounded-full bg-[#EF2F38] " />
+              <span className="w-2 h-2 rounded-full bg-brand " />
               <span className="text-[10px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-widest">
                 POSTERIOR · POSTERIOR CHAIN
               </span>

@@ -17,9 +17,11 @@ for(const path of ['/','/profile','/dashboard','/students','/attendance','/sched
  // The service worker's offline page is static on purpose: no scripts at all, so nothing needs a nonce.
  if(path==='/offline.html')assert.ok(html.includes("You're offline")&&!/<script\b/i.test(html),path+' is the static offline page');
  else assert.ok(html.includes(`nonce="${nonce}"`),path+' nonce');
- assert.equal(response.headers.get('x-content-type-options'),'nosniff');checked++;
+ assert.equal(response.headers.get('x-content-type-options'),'nosniff');
+ assert.equal(response.headers.get('x-powered-by'),null,path+' does not announce the framework');checked++;
 }
-for(const path of ['/api/admin/pos/orders','/api/admin/pos/products','/api/admin/workout-templates','/api/admin/households','/api/admin/export','/api/admin/permissions','/api/admin/classes','/api/admin/partners','/api/admin/staff-dan','/api/admin/user-permissions','/api/shop/order','/api/notifications','/api/attendance/makeup','/api/operations']){
+for(const path of ['/api/admin/pos/orders','/api/admin/pos/products','/api/admin/workout-templates','/api/admin/households','/api/admin/export','/api/admin/permissions','/api/admin/classes','/api/admin/partners','/api/admin/staff-dan','/api/admin/user-permissions','/api/shop/order','/api/notifications','/api/attendance/makeup','/api/operations',
+ '/api/admin/lms?view=overview','/api/admin/lms/video?submission=00000000-0000-4000-8000-000000000000','/api/admin/lms/announcements']){
  const response=await request(path);assert.equal(response.status,401,path+' must require authentication');checked++;
 }
 const writes={
@@ -33,7 +35,8 @@ const writes={
  '/api/admin/partners':['POST','PUT','DELETE'],'/api/admin/staff-dan':['POST','PUT','DELETE'],
  '/api/admin/permissions':['POST'],'/api/admin/user-permissions':['POST'],'/api/admin/pos/products':['POST','PUT','DELETE'],
  '/api/admin/pos/orders':['POST','PUT'],'/api/admin/pos/orders/cancel':['POST'],'/api/admin/pos/orders/refund':['POST'],
- '/api/admin/promotions/reconcile':['POST'],'/api/shop/order':['POST']
+ '/api/admin/promotions/reconcile':['POST'],'/api/shop/order':['POST'],
+ '/api/admin/lms':['POST'],'/api/admin/lms/announcements':['POST'],'/api/admin/lms/settings':['POST']
 };
 for(const [path,methods] of Object.entries(writes))for(const method of methods){
  const response=await request(path,{method,headers:{Origin:'https://'+new URL(base).host,'Content-Type':'application/json'},body:'{}'});

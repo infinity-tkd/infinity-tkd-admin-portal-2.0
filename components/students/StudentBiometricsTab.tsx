@@ -104,7 +104,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                         <label className="block text-[9px] uppercase font-mono font-bold text-neutral-500 dark:text-[#666] mb-1">{t('bio_date')}</label>
                         <input
                           type="date"
-                          className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                          className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                           value={biometricsForm.recordedDate}
                           onChange={e => setBiometricsForm({...biometricsForm, recordedDate: e.target.value})}
                           required
@@ -116,7 +116,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           type="number"
                           step="0.1"
                           placeholder="cm"
-                          className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                          className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                           value={biometricsForm.heightCm}
                           onChange={e => setBiometricsForm({...biometricsForm, heightCm: e.target.value})}
                           required
@@ -128,7 +128,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           type="number"
                           step="0.1"
                           placeholder="kg"
-                          className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                          className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                           value={biometricsForm.weightKg}
                           onChange={e => setBiometricsForm({...biometricsForm, weightKg: e.target.value})}
                           required
@@ -144,7 +144,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           type="number"
                           step="0.1"
                           placeholder="e.g. 15.5"
-                          className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                          className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                           value={biometricsForm.bodyFatPercentage}
                           onChange={e => setBiometricsForm({...biometricsForm, bodyFatPercentage: e.target.value})}
                         />
@@ -155,7 +155,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           type="number"
                           step="0.1"
                           placeholder="e.g. 32.0"
-                          className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                          className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                           value={biometricsForm.skeletalMuscleMassKg}
                           onChange={e => setBiometricsForm({...biometricsForm, skeletalMuscleMassKg: e.target.value})}
                         />
@@ -171,7 +171,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           <input
                             type="number"
                             step="0.1"
-                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             placeholder="cm"
                             value={biometricsForm.neckCm}
                             onChange={e => setBiometricsForm({...biometricsForm, neckCm: e.target.value})}
@@ -182,7 +182,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           <input
                             type="number"
                             step="0.1"
-                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             placeholder="cm"
                             value={biometricsForm.shoulderWidthCm}
                             onChange={e => setBiometricsForm({...biometricsForm, shoulderWidthCm: e.target.value})}
@@ -193,7 +193,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           <input
                             type="number"
                             step="0.1"
-                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             placeholder="cm"
                             value={biometricsForm.chestCm}
                             onChange={e => setBiometricsForm({...biometricsForm, chestCm: e.target.value})}
@@ -204,7 +204,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           <input
                             type="number"
                             step="0.1"
-                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             placeholder="cm"
                             value={biometricsForm.waistCm}
                             onChange={e => setBiometricsForm({...biometricsForm, waistCm: e.target.value})}
@@ -215,7 +215,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           <input
                             type="number"
                             step="0.1"
-                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             placeholder="cm"
                             value={biometricsForm.hipsCm}
                             onChange={e => setBiometricsForm({...biometricsForm, hipsCm: e.target.value})}
@@ -233,7 +233,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           <input
                             type="number"
                             step="0.1"
-                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             placeholder="L Arm cm"
                             value={biometricsForm.leftArmCm}
                             onChange={e => setBiometricsForm({...biometricsForm, leftArmCm: e.target.value})}
@@ -244,7 +244,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           <input
                             type="number"
                             step="0.1"
-                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             placeholder="R Arm cm"
                             value={biometricsForm.rightArmCm}
                             onChange={e => setBiometricsForm({...biometricsForm, rightArmCm: e.target.value})}
@@ -255,7 +255,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           <input
                             type="number"
                             step="0.1"
-                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             placeholder="L Thigh cm"
                             value={biometricsForm.leftThighCm}
                             onChange={e => setBiometricsForm({...biometricsForm, leftThighCm: e.target.value})}
@@ -266,7 +266,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           <input
                             type="number"
                             step="0.1"
-                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             placeholder="R Thigh cm"
                             value={biometricsForm.rightThighCm}
                             onChange={e => setBiometricsForm({...biometricsForm, rightThighCm: e.target.value})}
@@ -277,7 +277,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           <input
                             type="number"
                             step="0.1"
-                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             placeholder="L Calf cm"
                             value={biometricsForm.leftCalfCm}
                             onChange={e => setBiometricsForm({...biometricsForm, leftCalfCm: e.target.value})}
@@ -288,7 +288,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                           <input
                             type="number"
                             step="0.1"
-                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2 py-1.5 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             placeholder="R Calf cm"
                             value={biometricsForm.rightCalfCm}
                             onChange={e => setBiometricsForm({...biometricsForm, rightCalfCm: e.target.value})}
@@ -300,7 +300,7 @@ export function StudentBiometricsTab({ setIsFullScreen, muscleLoads, maxLoad, st
                     <div className="flex justify-end pt-2">
                       <button
                         type="submit"
-                        className="px-6 py-2.5 bg-[#EF2F38] hover:opacity-90 disabled:opacity-50 text-white rounded-[8px] font-bold uppercase tracking-widest text-xs shadow-md shadow-[#EF2F38]/20 flex items-center gap-2"
+                        className="px-6 py-2.5 bg-brand hover:opacity-90 disabled:opacity-50 text-white rounded-[8px] font-bold uppercase tracking-widest text-xs shadow-md shadow-brand/20 flex items-center gap-2"
                         disabled={isSavingBiometrics}
                       >
                         {isSavingBiometrics ? (

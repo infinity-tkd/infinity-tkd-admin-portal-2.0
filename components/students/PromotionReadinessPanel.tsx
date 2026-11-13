@@ -121,9 +121,9 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                   <div className="space-y-0.5 sm:space-y-1 min-w-0">
                     <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-[#888] font-bold uppercase tracking-wider truncate">Recent Promoted</p>
                     <h4 className="text-base sm:text-2xl font-black text-neutral-900 dark:text-white font-mono">{recentPromotionsCount}</h4>
-                    <p className="text-[9px] text-[#EF2F38] font-mono truncate hidden sm:block">View history ledger →</p>
+                    <p className="text-[9px] text-brand-ink font-mono truncate hidden sm:block">View history ledger →</p>
                   </div>
-                  <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-600 dark:text-red-500 shrink-0 ml-1">
+                  <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-600 dark:text-red-400 shrink-0 ml-1">
                     <ShieldCheck className="w-3.5 h-3.5 sm:w-5 sm:h-5" weight="bold" />
                   </div>
                 </button>
@@ -150,7 +150,7 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                         placeholder="Search candidate..."
                         value={promotionSearch}
                         onChange={(e) => setPromotionSearch(e.target.value)}
-                        className="w-full pl-8 pr-2 py-1.5 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs h-8.5 sm:h-9 focus:outline-none focus:border-[#EF2F38] placeholder:text-neutral-400 dark:placeholder:text-[#666]"
+                        className="w-full pl-8 pr-2 py-1.5 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs h-8.5 sm:h-9 focus:outline-none focus:border-brand placeholder:text-neutral-400 dark:placeholder:text-[#666]"
                       />
                     </div>
 
@@ -181,7 +181,7 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                     {selectedStudentsForPromotion.length > 0 && (
                       <button
                         onClick={() => setShowPromotionModal(true)}
-                        className="w-full sm:w-auto px-3.5 py-1.5 h-8.5 sm:h-9 bg-[#EF2F38] hover:bg-[#D9222B] text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all shadow-md shadow-[#EF2F38]/20 flex items-center justify-center gap-1.5 shrink-0 cursor-pointer active:scale-95 touch-manipulation animate-in fade-in"
+                        className="w-full sm:w-auto px-3.5 py-1.5 h-8.5 sm:h-9 bg-brand hover:bg-brand-strong text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all shadow-md shadow-brand/20 flex items-center justify-center gap-1.5 shrink-0 cursor-pointer active:scale-95 touch-manipulation animate-in fade-in"
                       >
                         <ShieldCheck className="w-3.5 h-3.5" />
                         <span>{t('dir_promote_selected').replace('{count}', String(selectedStudentsForPromotion.length))}</span>
@@ -198,7 +198,7 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                         <th className="px-4 py-2.5 w-12 text-center">
                           <input
                             type="checkbox"
-                            className="accent-[#EF2F38] rounded bg-white dark:bg-[#0F0F0F] border-neutral-300 dark:border-[#262626]"
+                            className="accent-brand rounded bg-white dark:bg-[#0F0F0F] border-neutral-300 dark:border-[#262626]"
                             checked={
                               filteredPromoCandidates.length > 0 &&
                               filteredPromoCandidates.filter(c => c.student.studentStatus === 'Active').every(c => selectedStudentsForPromotion.includes(c.student.id))
@@ -234,7 +234,7 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                               key={student.id}
                               className={cn(
                                 "hover:bg-neutral-50 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer text-neutral-800 dark:text-[#E4E4E4]",
-                                isSelected && "bg-red-500/5 dark:bg-[#EF2F38]/5"
+                                isSelected && "bg-red-500/5 dark:bg-brand/5"
                               )}
                               onClick={() => {
                                 if (student.studentStatus === 'Active') {
@@ -246,7 +246,7 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                                 <input
                                   type="checkbox"
                                   disabled={student.studentStatus !== 'Active'}
-                                  className="accent-[#EF2F38] rounded bg-white dark:bg-[#0F0F0F] border-neutral-300 dark:border-[#262626] disabled:opacity-30 cursor-pointer"
+                                  className="accent-brand rounded bg-white dark:bg-[#0F0F0F] border-neutral-300 dark:border-[#262626] disabled:opacity-30 cursor-pointer"
                                   checked={isSelected}
                                   onChange={(e) => handleSelectPromo(student.id, e.target.checked)}
                                 />
@@ -348,7 +348,7 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                                     type="button"
                                     onClick={() => handleOpenSinglePromote(student.id)}
                                     disabled={student.studentStatus !== 'Active'}
-                                    className="px-2 py-1 rounded bg-[#EF2F38] hover:bg-[#D9222B] disabled:opacity-40 text-white font-bold text-[9px] uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation shadow-xs"
+                                    className="px-2 py-1 rounded bg-brand hover:bg-brand-strong disabled:opacity-40 text-white font-bold text-[9px] uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation shadow-xs"
                                     title="Promote Candidate"
                                   >
                                     <ShieldCheck className="w-3 h-3" />
@@ -392,7 +392,7 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                           key={student.id}
                           className={cn(
                             "p-3.5 space-y-3 transition-colors",
-                            isSelected ? "bg-red-500/5 dark:bg-[#EF2F38]/5" : "bg-white dark:bg-[#141414]"
+                            isSelected ? "bg-red-500/5 dark:bg-brand/5" : "bg-white dark:bg-[#141414]"
                           )}
                         >
                           {/* Card Top Row */}
@@ -401,7 +401,7 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                               <input
                                 type="checkbox"
                                 disabled={student.studentStatus !== 'Active'}
-                                className="accent-[#EF2F38] rounded bg-white dark:bg-[#0F0F0F] border-neutral-300 dark:border-[#262626] w-4 h-4 shrink-0 cursor-pointer"
+                                className="accent-brand rounded bg-white dark:bg-[#0F0F0F] border-neutral-300 dark:border-[#262626] w-4 h-4 shrink-0 cursor-pointer"
                                 checked={isSelected}
                                 onChange={(e) => handleSelectPromo(student.id, e.target.checked)}
                               />
@@ -519,7 +519,7 @@ export function PromotionReadinessPanel({ setFilterEligibility, filterEligibilit
                               type="button"
                               onClick={() => handleOpenSinglePromote(student.id)}
                               disabled={student.studentStatus !== 'Active'}
-                              className="flex-1 h-8 sm:h-8.5 bg-[#EF2F38] hover:bg-[#D9222B] disabled:opacity-40 text-white rounded-[6px] text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation cursor-pointer shadow-xs"
+                              className="flex-1 h-8 sm:h-8.5 bg-brand hover:bg-brand-strong disabled:opacity-40 text-white rounded-[6px] text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation cursor-pointer shadow-xs"
                             >
                               <ShieldCheck className="w-3.5 h-3.5" />
                               <span>Promote</span>

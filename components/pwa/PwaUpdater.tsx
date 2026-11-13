@@ -76,7 +76,7 @@ export function PwaUpdater() {
     >
       <div className="bg-[#141414]/95 backdrop-blur-md border border-red-500/40 rounded-[8px] p-4 shadow-2xl flex items-center justify-between gap-3 text-white">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-[#EF2F38] flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-brand-ink flex items-center justify-center shrink-0">
             <Sparkle className="w-4 h-4" />
           </div>
           <div className="min-w-0">
@@ -87,7 +87,7 @@ export function PwaUpdater() {
 
         <button
           onClick={handleApplyUpdate}
-          className="px-3 py-1.5 bg-[#EF2F38] hover:bg-red-600 text-white font-bold uppercase tracking-wider text-[10px] rounded-[6px] transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer shadow-sm"
+          className="px-3 py-1.5 bg-brand hover:bg-red-600 text-white font-bold uppercase tracking-wider text-[10px] rounded-[6px] transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer shadow-sm"
         >
           <ArrowClockwise className="w-3.5 h-3.5" />
           <span>Apply</span>

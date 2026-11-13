@@ -110,7 +110,7 @@ export function SyllabusTab({ overview, canManage }: { overview: BeltTestOvervie
         ? 'Kukkiwon black belt tests are run by Kukkiwon Cambodia through the CTF. This syllabus lists what will be tested so students can prepare; the academy does not score it.'
         : 'Color belt tests are scored by the academy: each item 0–10, sections weighted to 100%. Published versions are frozen; edit a new draft version to change them.'}</p>
       {versions.length > 0 && <div className="flex flex-wrap gap-2">{versions.map(row => <button key={row.id} type="button" onClick={() => setOpenId(row.id)} aria-pressed={openId === row.id}
-        className={secondaryButton + (openId === row.id ? ' ring-2 ring-[#EF2F38]' : '')}>v{row.version} · {row.status === 'draft' ? 'Draft' : row.status === 'published' ? 'Published' : 'Retired'}</button>)}</div>}
+        className={secondaryButton + (openId === row.id ? ' ring-2 ring-brand' : '')}>v{row.version} · {row.status === 'draft' ? 'Draft' : row.status === 'published' ? 'Published' : 'Retired'}</button>)}</div>}
       <ErrorNote message={actions.error} />
     </div>
     {newDraft && belt && <SyllabusEditor key="new" belt={belt} initial={newDraft} actions={actions} onSaved={id => { setNewDraft(null); setOpenId(id); }} onClose={() => setNewDraft(null)} />}

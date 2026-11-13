@@ -109,7 +109,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                         setSearch(e.target.value);
                         setLedgerPage(1);
                       }}
-                      className="w-full pl-9 pr-8 h-10 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[6px] text-xs focus:outline-none focus:border-[#EF2F38] transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666]"
+                      className="w-full pl-9 pr-8 h-10 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[6px] text-xs focus:outline-none focus:border-brand transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666]"
                     />
                     {search && (
                       <button
@@ -186,7 +186,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                         setFilterYear(Number(e.target.value));
                         setLedgerPage(1);
                       }}
-                      className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-2.5 h-10 font-mono font-bold focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                      className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-2.5 h-10 font-mono font-bold focus:outline-none focus:border-brand cursor-pointer"
                     >
                       <option value={currentActualYear}>{currentActualYear}</option>
                       <option value={currentActualYear - 1}>{currentActualYear - 1}</option>
@@ -199,7 +199,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                         setFilterMonth(e.target.value);
                         setLedgerPage(1);
                       }}
-                      className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-2.5 h-10 focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                      className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-2.5 h-10 focus:outline-none focus:border-brand cursor-pointer"
                     >
                       <option value="all">YTD / All</option>
                       {months.map(m => (
@@ -215,7 +215,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                       setFilterBranch(e.target.value === 'all' ? 'all' : Number(e.target.value));
                       setLedgerPage(1);
                     }}
-                    className="w-full bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-3 h-10 focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                    className="w-full bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-3 h-10 focus:outline-none focus:border-brand cursor-pointer"
                   >
                     <option value="all">All Branches</option>
                     {state.branches.map(b => (
@@ -230,7 +230,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                       setFilterScholarship(e.target.value === 'all' ? 'all' : Number(e.target.value));
                       setLedgerPage(1);
                     }}
-                    className="w-full bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-3 h-10 focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                    className="w-full bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-3 h-10 focus:outline-none focus:border-brand cursor-pointer"
                   >
                     <option value="all">Any Scholarship Tier</option>
                     {state.scholarships.map(s => (
@@ -294,7 +294,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                       onClick={() => setIsAlertsCollapsedMobile(prev => !prev)}
                     >
                       <div className="space-y-0.5">
-                        <span className="text-[9px] uppercase tracking-widest text-[#EF2F38] font-mono font-bold">Billing CRM</span>
+                        <span className="text-[9px] uppercase tracking-widest text-brand-ink font-mono font-bold">Billing CRM</span>
                         <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white leading-none">Renewal Alerts</h3>
                       </div>
                       <div className="flex items-center gap-1.5">
@@ -316,7 +316,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                             placeholder="Filter alerts..."
                             value={alertSearch}
                             onChange={(e) => setAlertSearch(e.target.value)}
-                            className="w-full pl-7 pr-2 py-1.5 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded text-[10px] focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full pl-7 pr-2 py-1.5 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded text-[10px] focus:outline-none focus:border-brand"
                           />
                         </div>
                       )}
@@ -334,7 +334,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                               <div
                                 key={student.id}
                                 className={cn(
-                                  "p-2.5 rounded-[6px] border text-xs flex flex-col gap-2 relative group hover:border-[#EF2F38]/30 transition-all duration-150 shadow-xs",
+                                  "p-2.5 rounded-[6px] border text-xs flex flex-col gap-2 relative group hover:border-brand/30 transition-all duration-150 shadow-xs",
                                   billing.status === 'Overdue'
                                     ? "bg-rose-500/5 border-rose-500/20"
                                     : "bg-amber-500/5 border-amber-500/20"
@@ -345,7 +345,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                     <button
                                       type="button"
                                       onClick={() => { setStudentDetailsId(student.id); setPaymentAmounts({}); }}
-                                      className="font-bold text-neutral-900 dark:text-white leading-none hover:text-[#EF2F38] text-left cursor-pointer transition-colors"
+                                      className="font-bold text-neutral-900 dark:text-white leading-none hover:text-brand-ink text-left cursor-pointer transition-colors"
                                     >
                                       {student.englishName}
                                     </button>
@@ -559,7 +559,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                               />
                               <div className="min-w-0">
                                 <div className="font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-1.5 truncate">
-                                  <button type="button" onClick={() => {setStudentDetailsId(student.id);setPaymentAmounts({});}} className="min-h-[44px] truncate text-left hover:text-[#EF2F38] focus-visible:outline-2 focus-visible:outline-offset-2">{student.englishName}</button>
+                                  <button type="button" onClick={() => {setStudentDetailsId(student.id);setPaymentAmounts({});}} className="min-h-[44px] truncate text-left hover:text-brand-ink focus-visible:outline-2 focus-visible:outline-offset-2">{student.englishName}</button>
                                   {student.khmerName && (
                                     <span className="text-[11px] font-khmer text-neutral-500 dark:text-neutral-400 font-normal shrink-0">
                                       {student.khmerName}
@@ -669,7 +669,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                     <button
                       type="button"
                       onClick={() => setLedgerViewMode('cards')}
-                      className="text-[#EF2F38] font-bold uppercase hover:underline cursor-pointer active:scale-95 touch-manipulation"
+                      className="text-brand-ink font-bold uppercase hover:underline cursor-pointer active:scale-95 touch-manipulation"
                     >
                       Cards View →
                     </button>
@@ -687,15 +687,15 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                 <button
                                   type="button"
                                   onClick={() => handleLedgerSort('student')}
-                                  className={cn("hover:text-neutral-900 dark:hover:text-white transition-colors uppercase font-bold cursor-pointer px-0.5", ledgerSortField === 'student' ? "text-[#EF2F38]" : "text-neutral-500 dark:text-[#999]")}
+                                  className={cn("hover:text-neutral-900 dark:hover:text-white transition-colors uppercase font-bold cursor-pointer px-0.5", ledgerSortField === 'student' ? "text-brand-ink" : "text-neutral-500 dark:text-[#999]")}
                                 >
                                   Name {ledgerSortField === 'student' && (ledgerSortDirection === 'asc' ? '▲' : '▼')}
                                 </button>
-                                <span className="text-neutral-300 dark:text-[#333] select-none">|</span>
+                                <span aria-hidden="true" className="text-neutral-300 dark:text-[#333] select-none">|</span>
                                 <button
                                   type="button"
                                   onClick={() => handleLedgerSort('dueDay')}
-                                  className={cn("hover:text-neutral-900 dark:hover:text-white transition-colors uppercase font-bold cursor-pointer px-0.5", ledgerSortField === 'dueDay' ? "text-[#EF2F38]" : "text-neutral-500 dark:text-[#999]")}
+                                  className={cn("hover:text-neutral-900 dark:hover:text-white transition-colors uppercase font-bold cursor-pointer px-0.5", ledgerSortField === 'dueDay' ? "text-brand-ink" : "text-neutral-500 dark:text-[#999]")}
                                 >
                                   Due {ledgerSortField === 'dueDay' && (ledgerSortDirection === 'asc' ? '▲' : '▼')}
                                 </button>
@@ -757,12 +757,12 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                     <SafeImage
                                       src={student.profilePicturePath}
                                       alt={student.englishName}
-                                      containerClassName="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 group-hover:border-[#EF2F38] transition-colors"
+                                      containerClassName="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 group-hover:border-brand transition-colors"
                                       fallback={<span className="font-bold text-neutral-400 dark:text-[#666] text-[10px]">{student.englishName.charAt(0)}</span>}
                                     />
                                     <div className="min-w-0 flex-1">
-                                      <div className="font-bold text-xs text-neutral-900 dark:text-white group-hover:text-[#EF2F38] dark:group-hover:text-white transition-colors flex items-center gap-1.5 truncate">
-                                        <button type="button" onClick={event => {event.stopPropagation();setStudentDetailsId(student.id);setPaymentAmounts({});}} className="min-h-[44px] truncate text-left hover:text-[#EF2F38] focus-visible:outline-2 focus-visible:outline-offset-2">{student.englishName}</button>
+                                      <div className="font-bold text-xs text-neutral-900 dark:text-white group-hover:text-brand-ink dark:group-hover:text-white transition-colors flex items-center gap-1.5 truncate">
+                                        <button type="button" onClick={event => {event.stopPropagation();setStudentDetailsId(student.id);setPaymentAmounts({});}} className="min-h-[44px] truncate text-left hover:text-brand-ink focus-visible:outline-2 focus-visible:outline-offset-2">{student.englishName}</button>
                                         {student.khmerName && (
                                           <span className="text-[10px] font-khmer text-neutral-400 dark:text-neutral-500 font-normal shrink-0">
                                             {student.khmerName}

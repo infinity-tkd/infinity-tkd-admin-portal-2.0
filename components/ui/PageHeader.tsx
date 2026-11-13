@@ -23,14 +23,15 @@ export function PageHeader({ icon, eyebrow, meta, title, description, actions, c
       {/* The title keeps a readable width; extra actions wrap instead of squeezing it. */}
       <div className="flex min-w-0 items-start gap-3 lg:min-w-72 lg:flex-1">
         {icon && (
-          <div aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 text-brand [&_svg]:size-5">
+          <div aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 text-brand-ink [&_svg]:size-5">
             {icon}
           </div>
         )}
         <div className="min-w-0">
           {(eyebrow || meta) && (
             <div className="flex flex-wrap items-center gap-2">
-              {eyebrow && <span className="rounded-md border border-brand/20 bg-brand/10 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-widest text-brand">{eyebrow}</span>}
+              {/* A plain label, not a second red pill next to the red icon tile: one accent per header. */}
+              {eyebrow && <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-brand-ink">{eyebrow}</span>}
               {meta && <span className="font-mono text-[10px] text-ink-subtle">{meta}</span>}
             </div>
           )}

@@ -69,7 +69,7 @@ function ConfirmContent({ confirmData }: { confirmData: SystemConfirm }) {
         topBarColor: 'via-red-500/50',
         iconBg: 'border-red-500/20',
         iconType: 'danger',
-        confirmBtn: 'bg-[#EF2F38] hover:bg-red-600 text-white'
+        confirmBtn: 'bg-brand hover:bg-red-600 text-white'
       };
     }
 

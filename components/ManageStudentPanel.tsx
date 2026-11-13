@@ -876,7 +876,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                 <button
                   type="button"
                   onClick={() => handleCopy(student.id, 'Student ID')}
-                  className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] text-[#EF2F38] border border-neutral-200 dark:border-[#262626] transition-colors cursor-pointer flex items-center gap-1"
+                  className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] text-brand-ink border border-neutral-200 dark:border-[#262626] transition-colors cursor-pointer flex items-center gap-1"
                   title="Click to copy ID"
                 >
                   <span>{student.id}</span>
@@ -1020,7 +1020,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
             onClick={() => { setActiveTab('profile'); setIsExpanded(false); }}
             className={cn(
               "flex-1 py-3 px-3.5 min-h-[44px] text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation",
-              activeTab === 'profile' ? "border-[#EF2F38] text-[#EF2F38]" : "border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+              activeTab === 'profile' ? "border-brand text-brand-ink" : "border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
             )}
           >
             <User className="w-3.5 h-3.5" />
@@ -1032,7 +1032,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
             onClick={() => { setActiveTab('belts'); setIsExpanded(false); }}
             className={cn(
               "flex-1 py-3 px-3.5 min-h-[44px] text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation",
-              activeTab === 'belts' ? "border-[#EF2F38] text-[#EF2F38]" : "border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+              activeTab === 'belts' ? "border-brand text-brand-ink" : "border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
             )}
           >
             <Certificate className="w-3.5 h-3.5" />
@@ -1049,7 +1049,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
             onClick={() => { setActiveTab('skills'); setIsExpanded(false); }}
             className={cn(
               "flex-1 py-3 px-3.5 min-h-[44px] text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation",
-              activeTab === 'skills' ? "border-[#EF2F38] text-[#EF2F38]" : "border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+              activeTab === 'skills' ? "border-brand text-brand-ink" : "border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
             )}
           >
             <Trophy className="w-3.5 h-3.5" />
@@ -1066,7 +1066,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
             onClick={() => { setActiveTab('biometrics'); setIsExpanded(true); }}
             className={cn(
               "flex-1 py-3 px-3.5 min-h-[44px] text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation",
-              activeTab === 'biometrics' ? "border-[#EF2F38] text-[#EF2F38]" : "border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+              activeTab === 'biometrics' ? "border-brand text-brand-ink" : "border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
             )}
           >
             <Heart className="w-3.5 h-3.5" />
@@ -1149,7 +1149,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                        <button
                          onClick={handleSave}
                          disabled={isSavingProfile}
-                         className="flex-1 py-2.5 min-h-[44px] bg-[#EF2F38] hover:opacity-90 disabled:opacity-50 text-white font-bold uppercase tracking-widest text-xs rounded-[8px] transition-colors shadow-md shadow-[#EF2F38]/20 flex items-center justify-center gap-2 cursor-pointer"
+                         className="flex-1 py-2.5 min-h-[44px] bg-brand hover:opacity-90 disabled:opacity-50 text-white font-bold uppercase tracking-widest text-xs rounded-[8px] transition-colors shadow-md shadow-brand/20 flex items-center justify-center gap-2 cursor-pointer"
                        >
                          {isSavingProfile ? (
                            <>
@@ -1242,7 +1242,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                     </div>
                     <div className="pt-4 flex justify-end gap-2 text-xs">
                       <button onClick={() => { setShowBeltModal(false); setEditingBeltHistoryId(null); }} className="px-4 py-2 min-h-[44px] text-neutral-500 hover:text-neutral-900 dark:hover:text-white font-bold uppercase tracking-widest active:scale-95 touch-manipulation flex items-center justify-center">{t('act_cancel')}</button>
-                      <button onClick={handleAddBelt} className="px-5 py-2 min-h-[44px] bg-[#EF2F38] hover:opacity-90 text-white rounded-[8px] font-bold uppercase tracking-widest shadow-md shadow-[#EF2F38]/20 active:scale-95 touch-manipulation flex items-center justify-center">{t('act_save')}</button>
+                      <button onClick={handleAddBelt} className="px-5 py-2 min-h-[44px] bg-brand hover:opacity-90 text-white rounded-[8px] font-bold uppercase tracking-widest shadow-md shadow-brand/20 active:scale-95 touch-manipulation flex items-center justify-center">{t('act_save')}</button>
                     </div>
                  </div>
               </div>
@@ -1283,7 +1283,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                            <button
                              type="button"
                              onClick={() => setAchvEvents([...achvEvents, { category: 'Recognized Poomsae', division: 'Male Division', medalRank: 'Gold', notes: '', ageDivision: 'No Age Requirement', beltDivision: 'No Belt Requirement' }])}
-                             className="text-[9px] text-[#EF2F38] border border-[#EF2F38]/20 bg-[#EF2F38]/5 hover:bg-[#EF2F38]/10 px-2.5 py-1.5 rounded-[8px] font-bold uppercase tracking-wider transition-colors"
+                             className="text-[9px] text-brand-ink border border-brand/20 bg-brand/5 hover:bg-brand/10 px-2.5 py-1.5 rounded-[8px] font-bold uppercase tracking-wider transition-colors"
                            >
                              + Add Another Event
                            </button>
@@ -1441,7 +1441,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
 
                    <div className="p-4 border-t border-neutral-200 dark:border-[#262626] flex justify-end gap-2 text-xs bg-neutral-50 dark:bg-[#0F0F0F] shrink-0">
                      <button disabled={isSavingAchievement} onClick={handleCloseAchievementModal} className="px-4 py-2 min-h-[44px] text-neutral-500 hover:text-neutral-950 dark:hover:text-white font-bold uppercase tracking-widest active:scale-95 touch-manipulation flex items-center justify-center">{t('act_cancel')}</button>
-                     <button disabled={isSavingAchievement} onClick={handleAddAchievement} className="px-5 py-2 min-h-[44px] bg-[#EF2F38] hover:opacity-90 text-white rounded-[8px] font-bold uppercase tracking-widest shadow-md shadow-[#EF2F38]/20 active:scale-95 touch-manipulation flex items-center justify-center">{isSavingAchievement ? 'Saving…' : editingAchievementId !== null ? t('act_save') : t('panel_add_achv_btn')}</button>
+                     <button disabled={isSavingAchievement} onClick={handleAddAchievement} className="px-5 py-2 min-h-[44px] bg-brand hover:opacity-90 text-white rounded-[8px] font-bold uppercase tracking-widest shadow-md shadow-brand/20 active:scale-95 touch-manipulation flex items-center justify-center">{isSavingAchievement ? 'Saving…' : editingAchievementId !== null ? t('act_save') : t('panel_add_achv_btn')}</button>
                    </div>
                 </div>
               </div>
@@ -1459,7 +1459,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                   <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] animate-in fade-in zoom-in-95 duration-150">
                     <div className="p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#1A1A1A] shrink-0">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-[8px] bg-[#EF2F38]/10 flex items-center justify-center text-[#EF2F38]">
+                        <div className="w-8 h-8 rounded-[8px] bg-brand/10 flex items-center justify-center text-brand-ink">
                           <Lock className="w-4 h-4" />
                         </div>
                         <div>
@@ -1477,7 +1477,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
 
                     <div className="p-5 space-y-4 overflow-y-auto">
                       <div className="bg-neutral-50 dark:bg-[#1E1E1E] p-3 rounded-[8px] border border-neutral-200 dark:border-[#333] text-xs text-neutral-600 dark:text-neutral-300">
-                        Directly set the student&apos;s portal password. They will be able to log in immediately using this password with either their Student ID (<span className="font-mono font-bold text-[#EF2F38]">{student.id}</span>) or Username.
+                        Directly set the student&apos;s portal password. They will be able to log in immediately using this password with either their Student ID (<span className="font-mono font-bold text-brand-ink">{student.id}</span>) or Username.
                       </div>
 
                       <div className="space-y-1.5">
@@ -1488,7 +1488,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                             value={newPassword}
                             onChange={e => setNewPassword(e.target.value)}
                             placeholder="At least 12 characters"
-                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#333] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38] transition-colors pr-10"
+                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#333] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-brand transition-colors pr-10"
                             autoFocus
                           />
                           <button
@@ -1505,7 +1505,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                         <button
                           type="button"
                           onClick={() => setNewPassword(`TKD${student.id.replace(/[^a-zA-Z0-9]/g, '')}!`)}
-                          className="text-[10px] text-neutral-500 hover:text-[#EF2F38] dark:text-neutral-400 font-mono underline cursor-pointer"
+                          className="text-[10px] text-neutral-500 hover:text-brand-ink dark:text-neutral-400 font-mono underline cursor-pointer"
                         >
                           Use default: TKD{student.id.replace(/[^a-zA-Z0-9]/g, '')}!
                         </button>
@@ -1537,7 +1537,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                           }
                         }}
                         disabled={isUpdatingPassword || !newPassword}
-                        className="px-5 py-2 min-h-[44px] bg-[#EF2F38] hover:bg-[#EF2F38]/90 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition-all shadow-md shadow-[#EF2F38]/20 flex items-center gap-2 active:scale-95 touch-manipulation"
+                        className="px-5 py-2 min-h-[44px] bg-brand hover:bg-brand/90 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition-all shadow-md shadow-brand/20 flex items-center gap-2 active:scale-95 touch-manipulation"
                       >
                         {isUpdatingPassword ? (
                           <>
@@ -1561,7 +1561,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                   <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] animate-in fade-in zoom-in-95 duration-150">
                     <div className="p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#1A1A1A] shrink-0">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-[8px] bg-[#EF2F38]/10 flex items-center justify-center text-[#EF2F38]">
+                        <div className="w-8 h-8 rounded-[8px] bg-brand/10 flex items-center justify-center text-brand-ink">
                           <Key className="w-4 h-4" />
                         </div>
                         <div>
@@ -1592,7 +1592,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                             type="text"
                             value={provisionUsername}
                             onChange={e => setProvisionUsername(e.target.value)}
-                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#333] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38] transition-colors"
+                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#333] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-brand transition-colors"
                           />
                         </div>
                         <p className="text-[9px] text-neutral-400 dark:text-[#666]">Student can log in using either this username or <span className="font-mono font-bold text-neutral-700 dark:text-neutral-300">{student.id}</span>.</p>
@@ -1605,7 +1605,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                           value={provisionEmail}
                           onChange={e => setProvisionEmail(e.target.value)}
                           placeholder="e.g. name@portal.infinitytkd.com"
-                          className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#333] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38] transition-colors"
+                          className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#333] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-brand transition-colors"
                         />
                         <p className="text-[9px] text-neutral-400 dark:text-[#666]">Used for auth identification. If student has no personal email, a dedicated portal address is auto-generated.</p>
                       </div>
@@ -1618,7 +1618,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                             value={provisionPassword}
                             onChange={e => setProvisionPassword(e.target.value)}
                             placeholder="At least 12 characters"
-                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#333] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38] transition-colors pr-10"
+                            className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#333] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-brand transition-colors pr-10"
                           />
                           <button
                             type="button"
@@ -1644,7 +1644,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                         type="button"
                         onClick={handleProvisionStudentAccount}
                         disabled={isProvisioning}
-                        className="px-5 py-2 min-h-[44px] bg-[#EF2F38] hover:bg-[#EF2F38]/90 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition-all shadow-md shadow-[#EF2F38]/20 flex items-center gap-2 active:scale-95 touch-manipulation"
+                        className="px-5 py-2 min-h-[44px] bg-brand hover:bg-brand/90 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition-all shadow-md shadow-brand/20 flex items-center gap-2 active:scale-95 touch-manipulation"
                       >
                         {isProvisioning ? (
                           <>

@@ -162,7 +162,7 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
           {/* Header */}
           <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3.5">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-[8px] bg-red-500/10 border border-red-500/20 text-[#EF2F38] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-[8px] bg-red-500/10 border border-red-500/20 text-brand-ink flex items-center justify-center">
                 <Pulse className="w-4 h-4" weight="bold" />
               </div>
               <div>
@@ -187,7 +187,7 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
 
           {/* Action Status Feedback */}
           {actionMessage && (
-            <div className="p-2.5 rounded-[8px] bg-red-500/10 border border-red-500/25 text-[#EF2F38] text-xs font-mono flex items-center gap-2">
+            <div className="p-2.5 rounded-[8px] bg-red-500/10 border border-red-500/25 text-brand-ink text-xs font-mono flex items-center gap-2">
               <CheckCircle className="w-4 h-4 shrink-0" />
               <span>{actionMessage}</span>
             </div>
@@ -253,7 +253,7 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
                     type="button"
                     onClick={() => { void flushQueue(); }}
                     disabled={!isOnline}
-                    className="min-h-8 px-1 text-[10px] font-mono font-bold text-[#EF2F38] hover:underline cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                    className="min-h-8 px-1 text-[10px] font-mono font-bold text-brand-ink hover:underline cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Send now
                   </button>
@@ -312,7 +312,7 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
                 type="button"
                 onClick={handleClearCaches}
                 disabled={isRefreshing}
-                className="px-3 py-1.5 rounded-[6px] bg-red-500/10 hover:bg-red-500/20 text-[#EF2F38] text-xs font-bold uppercase tracking-wider font-mono transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="px-3 py-1.5 rounded-[6px] bg-red-500/10 hover:bg-red-500/20 text-brand-ink text-xs font-bold uppercase tracking-wider font-mono transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Trash className="w-3.5 h-3.5" />
                 <span>Clear Caches</span>

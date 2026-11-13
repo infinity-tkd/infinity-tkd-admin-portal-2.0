@@ -74,7 +74,7 @@ export function LiveRosterPanel({ absentCount, activeClass, attendanceActions, c
           <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-[#1F1F1F] text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-[#333]">
             Unmarked: {unmarkedCount}
           </span>
-          <span className="text-[9px] font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20">
+          <span className="text-[9px] font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand/10 text-brand-ink border border-brand/20">
             Turnout: {classTurnoutPct}%
           </span>
         </div>
@@ -93,7 +93,7 @@ export function LiveRosterPanel({ absentCount, activeClass, attendanceActions, c
             placeholder="Search student or belt..."
             value={rosterSearch}
             onChange={(e) => setRosterSearch(e.target.value)}
-            className="w-full bg-white dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[6px] sm:rounded-[8px] pl-8 pr-7 h-8 sm:h-8.5 text-[11px] sm:text-xs font-medium focus:outline-none focus:border-[#EF2F38]/50 placeholder-neutral-400 dark:placeholder-neutral-500"
+            className="w-full bg-white dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[6px] sm:rounded-[8px] pl-8 pr-7 h-8 sm:h-8.5 text-[11px] sm:text-xs font-medium focus:outline-none focus:border-brand/50 placeholder-neutral-400 dark:placeholder-neutral-500"
           />
           {rosterSearch && (
             <button
@@ -266,7 +266,7 @@ export function LiveRosterPanel({ absentCount, activeClass, attendanceActions, c
             {rosterSearch && (
               <button
                 onClick={() => { setRosterSearch(''); setRosterStatusFilter('all'); }}
-                className="mt-2 text-[10px] text-[#EF2F38] hover:underline font-mono uppercase tracking-wider cursor-pointer"
+                className="mt-2 text-[10px] text-brand-ink hover:underline font-mono uppercase tracking-wider cursor-pointer"
               >
                 Clear search &amp; filters
               </button>

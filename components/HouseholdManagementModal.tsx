@@ -151,7 +151,7 @@ export function HouseholdManagementModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-[#EF2F38]/10 border border-[#EF2F38]/30 rounded-[8px] text-[#EF2F38]">
+            <div className="p-2 bg-brand/10 border border-brand/30 rounded-[8px] text-brand-ink">
               <House size={20} weight="bold" />
             </div>
             <div>
@@ -176,11 +176,11 @@ export function HouseholdManagementModal({
           {/* LEFT: HOUSEHOLD PROFILES (4 Columns) */}
           <div className="md:col-span-4 flex flex-col space-y-3 border-r border-neutral-200 dark:border-neutral-850 pr-4">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono font-black text-[#EF2F38] uppercase tracking-wider">{"// HOUSEHOLDS"}</span>
+              <span className="text-[10px] font-mono font-black text-brand-ink uppercase tracking-wider">{"// HOUSEHOLDS"}</span>
               <button
                 disabled={savingHousehold || !can('action:student_edit')}
                 onClick={() => setIsCreatingHousehold(true)}
-                className="px-2 py-1 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-[#EF2F38] text-neutral-900 dark:text-white text-[9px] font-mono rounded-[8px] flex items-center gap-1 cursor-pointer"
+                className="px-2 py-1 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-brand text-neutral-900 dark:text-white text-[9px] font-mono rounded-[8px] flex items-center gap-1 cursor-pointer"
               >
                 <UserPlus size={12} /> NEW GUARDIAN
               </button>
@@ -195,7 +195,7 @@ export function HouseholdManagementModal({
                     onClick={() => setSelectedHouseholdId(hh.id)}
                     className={`p-3 rounded-[8px] border transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#EF2F38]/10 border-[#EF2F38] text-neutral-900 dark:text-white'
+                        ? 'bg-brand/10 border-brand text-neutral-900 dark:text-white'
                         : 'bg-neutral-50 dark:bg-neutral-900/60 border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-neutral-300 dark:hover:border-neutral-700'
                     }`}
                   >
@@ -247,7 +247,7 @@ export function HouseholdManagementModal({
                     <button
                       onClick={handleAddSibling}
                       disabled={savingHousehold || !addStudentId || !can('action:student_edit')}
-                      className="px-2.5 py-1.5 bg-[#EF2F38] disabled:bg-neutral-300 dark:disabled:bg-neutral-800 text-white text-[10px] font-mono font-bold rounded-[8px] cursor-pointer"
+                      className="px-2.5 py-1.5 bg-brand disabled:bg-neutral-300 dark:disabled:bg-neutral-800 text-white text-[10px] font-mono font-bold rounded-[8px] cursor-pointer"
                     >
                       LINK
                     </button>
@@ -256,7 +256,7 @@ export function HouseholdManagementModal({
 
                 {/* Linked Siblings Grid */}
                 <div>
-                  <span className="block text-[9px] font-mono font-black text-[#EF2F38] uppercase tracking-wider mb-2">
+                  <span className="block text-[9px] font-mono font-black text-brand-ink uppercase tracking-wider mb-2">
                     {"// LINKED SIBLINGS ("}{linkedStudents.length})
                   </span>
 
@@ -273,7 +273,7 @@ export function HouseholdManagementModal({
                           />
                           <div>
                             <p className="text-xs font-bold text-neutral-900 dark:text-white">{st.englishName}</p>
-                            <span className="text-[9px] font-mono text-[#EF2F38]">{st.currentBelt}</span>
+                            <span className="text-[9px] font-mono text-brand-ink">{st.currentBelt}</span>
                           </div>
                         </div>
 
@@ -294,9 +294,9 @@ export function HouseholdManagementModal({
                 <div className="bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-800 p-4 rounded-[8px] space-y-3">
                   <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
                     <span className="text-[10px] font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
-                      <Receipt size={14} className="text-[#EF2F38]" /> CONSOLIDATED FAMILY TUITION
+                      <Receipt size={14} className="text-brand-ink" /> CONSOLIDATED FAMILY TUITION
                     </span>
-                    <span className="text-xs font-mono font-black text-[#EF2F38]">
+                    <span className="text-xs font-mono font-black text-brand-ink">
                       ${familyTotal.toFixed(2)} outstanding
                     </span>
                   </div>
@@ -308,7 +308,7 @@ export function HouseholdManagementModal({
                   <button
                     onClick={handleFamilyCheckout}
                     disabled={!familyEntries.length || !can('action:finance_record_payment')}
-                    className="w-full py-2.5 bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-mono font-bold uppercase rounded-[8px] transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:bg-neutral-300 dark:disabled:bg-neutral-800 disabled:text-neutral-500"
+                    className="w-full py-2.5 bg-brand hover:bg-brand-strong text-white text-xs font-mono font-bold uppercase rounded-[8px] transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:bg-neutral-300 dark:disabled:bg-neutral-800 disabled:text-neutral-500"
                   >
                     <Receipt size={16} /> REVIEW FAMILY COLLECTION (${familyTotal.toFixed(2)})
                   </button>
@@ -332,7 +332,7 @@ export function HouseholdManagementModal({
           <ModalA11y label="Create household" onClose={() => setIsCreatingHousehold(false)} />
           <form onSubmit={handleCreateHousehold} className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white w-full max-w-md rounded-[8px] p-5 font-mono space-y-4 shadow-2xl max-h-[90dvh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
-              <h3 className="text-xs font-black tracking-wider text-[#EF2F38]">{"// CREATE HOUSEHOLD GUARDIAN"}</h3>
+              <h3 className="text-xs font-black tracking-wider text-brand-ink">{"// CREATE HOUSEHOLD GUARDIAN"}</h3>
               <button type="button" onClick={() => setIsCreatingHousehold(false)} className="text-neutral-400 hover:text-neutral-900 dark:hover:text-white cursor-pointer">
                 <X size={16} />
               </button>
@@ -347,7 +347,7 @@ export function HouseholdManagementModal({
                   placeholder="e.g. Sokha Tan (Father)"
                   value={newGuardian.name}
                   onChange={e => setNewGuardian({ ...newGuardian, name: e.target.value })}
-                  className="w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-[8px] p-2 text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                  className="w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-[8px] p-2 text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                 />
               </div>
 
@@ -359,7 +359,7 @@ export function HouseholdManagementModal({
                   placeholder="e.g. +855 12 345 678"
                   value={newGuardian.phone}
                   onChange={e => setNewGuardian({ ...newGuardian, phone: e.target.value })}
-                  className="w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-[8px] p-2 text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                  className="w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-[8px] p-2 text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                 />
               </div>
 
@@ -370,7 +370,7 @@ export function HouseholdManagementModal({
                   placeholder="e.g. parent@gmail.com"
                   value={newGuardian.email}
                   onChange={e => setNewGuardian({ ...newGuardian, email: e.target.value })}
-                  className="w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-[8px] p-2 text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                  className="w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-[8px] p-2 text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                 />
               </div>
             </div>
@@ -386,7 +386,7 @@ export function HouseholdManagementModal({
               <button
                 type="submit"
                 disabled={savingHousehold}
-                className="px-4 py-1.5 bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-bold rounded-[8px] shadow cursor-pointer"
+                className="px-4 py-1.5 bg-brand hover:bg-brand-strong text-white text-xs font-bold rounded-[8px] shadow cursor-pointer"
               >
                 Create Household
               </button>
@@ -415,7 +415,7 @@ export function HouseholdManagementModal({
             {retryPayload.current && <p className="text-xs text-amber-600">An attempted collection is awaiting confirmation. Retry to retrieve its receipt.</p>}
             <div className="flex gap-3">
               <button disabled={collecting || !!retryPayload.current} onClick={()=>setPaymentReview(null)} className="border rounded px-3 py-2">Close</button>
-              <button disabled={collecting || !paymentConfirmed || (paymentMethod!=='Cash' && paymentReference.trim().length<3)} onClick={collectFamilyPayment} className="bg-[#EF2F38] text-white rounded px-3 py-2 disabled:opacity-40">{collecting?'Recording…':retryPayload.current?'Retry collection':'Record collection'}</button>
+              <button disabled={collecting || !paymentConfirmed || (paymentMethod!=='Cash' && paymentReference.trim().length<3)} onClick={collectFamilyPayment} className="bg-brand text-white rounded px-3 py-2 disabled:opacity-40">{collecting?'Recording…':retryPayload.current?'Retry collection':'Record collection'}</button>
             </div>
           </div>
         </div>
@@ -427,7 +427,7 @@ export function HouseholdManagementModal({
           <ModalA11y label="Family tuition receipt" onClose={() => setFamilyReceipt(null)} />
           <div className="bg-white text-neutral-900 w-full max-w-sm rounded-[8px] p-6 font-mono shadow-2xl space-y-4 max-h-[90dvh] overflow-y-auto">
             <div className="text-center border-b border-neutral-300 pb-3">
-              <h2 className="text-sm font-black tracking-widest text-[#EF2F38]">INFINITY TAEKWONDO ACADEMY</h2>
+              <h2 className="text-sm font-black tracking-widest text-brand-ink">INFINITY TAEKWONDO ACADEMY</h2>
               <p className="text-[9px] text-neutral-600 uppercase font-bold">CONSOLIDATED FAMILY TUITION RECEIPT</p>
               <p className="text-[9px] text-neutral-500 mt-1">TX #: {familyReceipt.receipt_number}</p>
             </div>
@@ -450,12 +450,12 @@ export function HouseholdManagementModal({
 
             <div className="flex justify-between text-xs font-black pt-1 border-t border-neutral-400">
               <span>TOTAL FAMILY TUITION:</span>
-              <span className="text-[#EF2F38]">${familyReceipt.transactions.reduce((sum,t)=>sum+Number(t.amount_usd),0).toFixed(2)}</span>
+              <span className="text-brand-ink">${familyReceipt.transactions.reduce((sum,t)=>sum+Number(t.amount_usd),0).toFixed(2)}</span>
             </div>
 
             <button
               onClick={() => setFamilyReceipt(null)}
-              className="w-full py-2 bg-[#EF2F38] hover:bg-[#d6242c] text-white text-[10px] font-bold uppercase rounded-[8px] shadow cursor-pointer"
+              className="w-full py-2 bg-brand hover:bg-brand-strong text-white text-[10px] font-bold uppercase rounded-[8px] shadow cursor-pointer"
             >
               Close Receipt
             </button>

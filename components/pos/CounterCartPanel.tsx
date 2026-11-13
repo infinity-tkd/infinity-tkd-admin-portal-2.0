@@ -107,7 +107,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
             {/* Cart Header */}
             <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3 mb-3 shrink-0">
               <div className="flex items-center gap-2">
-                <ShoppingCart size={18} className="text-[#EF2F38]" />
+                <ShoppingCart size={18} className="text-brand-ink" />
                 <h2 className="text-xs font-bold font-mono uppercase tracking-wider text-neutral-900 dark:text-white">
                   CHECKOUT TERMINAL
                 </h2>
@@ -126,7 +126,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                     <button
                       type="button"
                       onClick={clearCart}
-                      className="px-2 py-0.5 text-[9px] font-mono text-neutral-700 hover:text-[#EF2F38] dark:text-neutral-300 dark:hover:text-[#EF2F38] border border-neutral-200 dark:border-[#262626] bg-neutral-100 dark:bg-[#0F0F0F] rounded-[6px] transition cursor-pointer flex items-center gap-1"
+                      className="px-2 py-0.5 text-[9px] font-mono text-neutral-700 hover:text-brand-ink dark:text-neutral-300 dark:hover:text-brand-ink border border-neutral-200 dark:border-[#262626] bg-neutral-100 dark:bg-[#0F0F0F] rounded-[6px] transition cursor-pointer flex items-center gap-1"
                       title="Clear Cart"
                     >
                       <Trash size={10} /> Clear
@@ -188,7 +188,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                   <button
                     type="button"
                     onClick={() => setSelectedStudentId('')}
-                    className="p-1 text-neutral-400 hover:text-[#EF2F38] dark:text-neutral-500 dark:hover:text-[#EF2F38] cursor-pointer transition ml-2"
+                    className="p-1 text-neutral-400 hover:text-brand-ink dark:text-neutral-500 dark:hover:text-brand-ink cursor-pointer transition ml-2"
                     title="Remove Tag"
                   >
                     <X size={12} />
@@ -208,7 +208,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                         setStudentSearchTerm(e.target.value);
                         setIsStudentDropdownOpen(true);
                       }}
-                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs text-neutral-900 dark:text-[#E4E4E4] pl-8 pr-7 py-2 rounded-[8px] focus:outline-none focus:border-[#EF2F38] font-mono placeholder:text-neutral-400 dark:placeholder:text-neutral-600"
+                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs text-neutral-900 dark:text-[#E4E4E4] pl-8 pr-7 py-2 rounded-[8px] focus:outline-none focus:border-brand font-mono placeholder:text-neutral-400 dark:placeholder:text-neutral-600"
                     />
                     {studentSearchTerm && (
                       <button
@@ -296,7 +296,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                           {item.variant ? (
                             <>
                               {item.variant.color && (
-                                <span className="text-[9px] font-mono bg-red-50 dark:bg-red-950/30 text-[#EF2F38] border border-red-500/30 px-1 rounded font-bold">
+                                <span className="text-[9px] font-mono bg-red-50 dark:bg-red-950/30 text-brand-ink border border-red-500/30 px-1 rounded font-bold">
                                   {item.variant.color}
                                 </span>
                               )}
@@ -314,7 +314,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                         </div>
                         <p className="text-[9px] font-mono text-neutral-600 dark:text-neutral-400 mt-0.5">
                           <span className="text-neutral-400 mr-1">SKU: {item.variant?.sku || item.product.sku}</span>
-                          • ${itemPrice.toFixed(2)} × {item.quantity} = <strong className="text-[#EF2F38]">${(itemPrice * item.quantity).toFixed(2)}</strong>
+                          • ${itemPrice.toFixed(2)} × {item.quantity} = <strong className="text-brand-ink">${(itemPrice * item.quantity).toFixed(2)}</strong>
                         </p>
                       </div>
 
@@ -341,7 +341,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                         <button
                           type="button"
                           onClick={() => removeFromCart(itemKey)}
-                          className="w-7 h-7 min-w-[28px] min-h-[28px] flex items-center justify-center text-neutral-400 hover:text-[#EF2F38] dark:text-neutral-500 dark:hover:text-[#EF2F38] ml-0.5 cursor-pointer transition-colors active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
+                          className="w-7 h-7 min-w-[28px] min-h-[28px] flex items-center justify-center text-neutral-400 hover:text-brand-ink dark:text-neutral-500 dark:hover:text-brand-ink ml-0.5 cursor-pointer transition-colors active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                           title="Remove"
                         >
                           <Trash size={13} />
@@ -361,7 +361,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                 aria-expanded={isNotesExpanded}
                 className="min-h-8 pointer-coarse:min-h-9 text-[10px] font-mono text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white flex items-center gap-1 cursor-pointer transition-colors py-1 touch-manipulation"
               >
-                <ChatCenteredText size={12} weight={orderNotes ? "fill" : "regular"} className={orderNotes ? "text-[#EF2F38]" : ""} />
+                <ChatCenteredText size={12} weight={orderNotes ? "fill" : "regular"} className={orderNotes ? "text-brand-ink" : ""} />
                 <span>Order Notes {orderNotes ? `("${orderNotes.slice(0, 15)}...")` : ''}</span>
                 <span className="text-[9px] text-neutral-400">({isNotesExpanded ? 'Hide' : 'Add'})</span>
               </button>
@@ -372,7 +372,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                     value={orderNotes}
                     onChange={e => setOrderNotes(e.target.value)}
                     placeholder="Embroidery name, uniform size swap, pickup notes..."
-                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs text-neutral-900 dark:text-[#E4E4E4] p-2 rounded-[6px] focus:outline-none focus:border-[#EF2F38] font-mono placeholder:text-neutral-400 dark:placeholder:text-neutral-600 resize-none"
+                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs text-neutral-900 dark:text-[#E4E4E4] p-2 rounded-[6px] focus:outline-none focus:border-brand font-mono placeholder:text-neutral-400 dark:placeholder:text-neutral-600 resize-none"
                   />
                 </div>
               )}
@@ -394,7 +394,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                       inputMode="numeric"
                       aria-label="Discount percent"
                       onChange={e => setDiscountPercent(Math.max(0, Math.min(100, parseInt(e.target.value) || 0)))}
-                      className="min-h-8 pointer-coarse:min-h-9 w-14 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[6px] px-1.5 py-0.5 text-center text-[10px] font-bold text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38]"
+                      className="min-h-8 pointer-coarse:min-h-9 w-14 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[6px] px-1.5 py-0.5 text-center text-[10px] font-bold text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                     />
                     <span>%</span>
                   </div>
@@ -409,7 +409,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                       className={cn(
                         "flex-1 py-1 min-h-[34px] text-[10px] font-mono rounded-[6px] border transition cursor-pointer font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                         discountPercent === d
-                          ? "bg-[#EF2F38] text-white border-[#EF2F38] shadow-sm"
+                          ? "bg-brand text-white border-brand shadow-sm"
                           : "bg-neutral-100 dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                       )}
                     >
@@ -426,7 +426,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
                 {discountAmount > 0 && (
-                  <div className="flex justify-between text-[#EF2F38]">
+                  <div className="flex justify-between text-brand-ink">
                     <span>Discount ({clampedDiscount}%):</span>
                     <span>-${discountAmount.toFixed(2)}</span>
                   </div>
@@ -437,7 +437,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                     <span className="text-[10px] text-neutral-500 dark:text-neutral-400">Exchange @ 4,100 KHR</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-base font-black text-[#EF2F38] block leading-tight">
+                    <span className="text-base font-black text-brand-ink block leading-tight">
                       ${grandTotal.toFixed(2)}
                     </span>
                     <span className="text-[10px] font-bold text-neutral-600 dark:text-neutral-400 font-mono">
@@ -455,7 +455,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                   className={cn(
                     "p-2.5 min-h-[44px] text-xs font-mono rounded-[8px] border flex items-center justify-center gap-1.5 cursor-pointer transition-colors active:scale-95 touch-manipulation",
                     paymentMethod === 'ABA Bank KHQR'
-                      ? "bg-red-50 text-[#EF2F38] border-[#EF2F38] dark:bg-red-500/10 dark:text-[#EF2F38] dark:border-[#EF2F38] font-bold shadow-sm"
+                      ? "bg-red-50 text-brand-ink border-brand dark:bg-red-500/10 dark:text-brand-ink dark:border-brand font-bold shadow-sm"
                       : "bg-neutral-100 text-neutral-700 border-neutral-200 dark:bg-[#0F0F0F] dark:text-neutral-400 dark:border-[#262626] hover:text-neutral-900 dark:hover:text-white"
                   )}
                 >
@@ -543,7 +543,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                     "w-full py-3.5 min-h-[48px] text-xs sm:text-sm font-mono font-bold uppercase rounded-[8px] transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95 touch-manipulation",
                     cart.length === 0
                       ? "bg-neutral-200 text-neutral-400 dark:bg-[#1a1a1a] dark:text-[#555] border border-neutral-300 dark:border-[#262626] cursor-not-allowed"
-                      : "bg-[#EF2F38] hover:bg-[#d6242c] text-white cursor-pointer shadow-red-500/20"
+                      : "bg-brand hover:bg-brand-strong text-white cursor-pointer shadow-red-500/20"
                   )}
                 >
                   <QrCode size={18} weight="bold" />

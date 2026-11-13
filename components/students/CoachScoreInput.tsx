@@ -32,7 +32,7 @@ export function CoachScoreInput({ score, skill, disabled = false, onSave }: { sc
         onChange={event => { setValue(event.target.value); setError(''); }}
         onBlur={() => void commit()}
         onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); void commit(); } }}
-        className="h-8 w-16 rounded-[6px] border border-neutral-300 bg-white px-2 text-xs font-mono text-neutral-900 focus:border-[#EF2F38] focus:outline-none disabled:opacity-50 dark:border-[#333] dark:bg-[#141414] dark:text-white"
+        className="h-8 w-16 rounded-[6px] border border-neutral-300 bg-white px-2 text-xs font-mono text-neutral-900 focus:border-brand focus:outline-none disabled:opacity-50 dark:border-[#333] dark:bg-[#141414] dark:text-white"
       />
       {error && <span id={errorId} role="alert" className="text-[10px] text-red-600 dark:text-red-400">{error}</span>}
     </span>
