@@ -233,7 +233,12 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                     )}
                   >
                     <span>{t('belt_all')}</span>
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-mono font-bold">
+                    {/* On the selected (black) chip, light mode forces its contents to white text,
+                        so the count sits on a translucent white pill instead of a light grey one. */}
+                    <span className={cn("px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold",
+                      statusFilter === 'all'
+                        ? "bg-white/20 text-white dark:bg-neutral-900/10 dark:text-neutral-900"
+                        : "bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300")}>
                       {totalRosterCount}
                     </span>
                   </button>

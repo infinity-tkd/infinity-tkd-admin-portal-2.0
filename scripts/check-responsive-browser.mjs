@@ -97,9 +97,11 @@ try{
      if(offenders.length>=4)break;
     }
     const small=[...document.querySelectorAll('[data-portal-scroll] :is(button,a[href],select,input:not([type=hidden]),[role=button])')].filter(element=>{const box=element.getBoundingClientRect();return box.width>0&&box.height>0&&(box.height<32||box.width<32)&&getComputedStyle(element).visibility!=='hidden';}).length;
-    return {page:document.documentElement.scrollWidth>viewport+1,shell:scroller?scroller.scrollWidth>scroller.clientWidth+1:false,offenders,small};
+    // Metric cards from tablet width up: labels and hints are whole, not cut off ("Tuition collecti…").
+    const cutKpis=viewport>=768?[...document.querySelectorAll('[data-kpi-card] .truncate')].filter(element=>element.getBoundingClientRect().width>0&&element.scrollWidth>element.clientWidth+1).map(element=>element.textContent.trim().slice(0,40)):[];
+    return {page:document.documentElement.scrollWidth>viewport+1,shell:scroller?scroller.scrollWidth>scroller.clientWidth+1:false,offenders,small,cutKpis};
    });
-   if(result.page||result.shell||result.offenders.length)findings.push({route,width,...result});
+   if(result.page||result.shell||result.offenders.length||result.cutKpis.length)findings.push({route,width,...result});
    if(screenshotDir)await page.screenshot({path:path.join(screenshotDir,route.slice(1).replace(/\W+/g,'-')+'-'+width+'.png')});
   }
  }
