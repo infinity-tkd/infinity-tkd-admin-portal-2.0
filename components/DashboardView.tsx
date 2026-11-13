@@ -516,11 +516,13 @@ export function DashboardView() {
 
   // Academy AI Health Score & 4 Core Pillars
   const healthScoreMetrics = useMemo(() => {
+    // Both inputs already fall back to a neutral default when there is no data at all; a real
+    // 0% (nobody attended, nothing collected) must stay 0 instead of reading as healthy.
     // Pillar 1: Turnout Attendance Score (0-100)
-    const turnoutScore = Math.min(100, Math.max(0, turnoutTrendStats.baseline || attendanceRate || 75));
+    const turnoutScore = Math.min(100, Math.max(0, turnoutTrendStats.baseline));
 
     // Pillar 2: Financial Compliance Efficiency (0-100)
-    const financialScore = Math.min(100, Math.max(0, financialForecast.historicalEfficiencyRate || 85));
+    const financialScore = Math.min(100, Math.max(0, financialForecast.historicalEfficiencyRate));
 
     // Pillar 3: Testing Pipeline Readiness (0-100)
     const activeSts = state.students.filter(s => s.studentStatus === 'Active');
@@ -572,7 +574,7 @@ export function DashboardView() {
       highRiskCount,
       mediumRiskCount: churnHazardRoster.filter(c => c.riskLevel === 'Medium').length
     };
-  }, [turnoutTrendStats.baseline, attendanceRate, financialForecast.historicalEfficiencyRate, state.students, promotionReadinessRoster, churnHazardRoster]);
+  }, [turnoutTrendStats.baseline, financialForecast.historicalEfficiencyRate, state.students, promotionReadinessRoster, churnHazardRoster]);
 
   const filteredPriCandidates = useMemo(() => {
     const q = priSearch.trim().toLowerCase();

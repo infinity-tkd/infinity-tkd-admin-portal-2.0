@@ -34,13 +34,15 @@ export function KpiCard({ label, value, icon, tone = 'neutral', hint, onClick, a
         <p className={cn('mt-0.5 font-mono text-xl font-black tabular-nums sm:text-2xl', palette.text)}>{value}</p>
         {hint && <div className="mt-1 truncate text-[10px] font-medium text-ink-subtle">{hint}</div>}
       </div>
-      {icon && <div aria-hidden="true" className={cn('hidden size-9 shrink-0 items-center justify-center rounded-lg border min-[420px]:flex [&_svg]:size-4', palette.tile)}>{icon}</div>}
+      {/* The icon shows only when the card itself is wide enough, so four cards across an
+          iPad in portrait keep their labels ("Tuition collection") whole instead of cut off. */}
+      {icon && <div aria-hidden="true" className={cn('hidden size-9 shrink-0 items-center justify-center rounded-lg border @min-[15rem]:flex [&_svg]:size-4', palette.tile)}>{icon}</div>}
     </>
   );
-  const base = cn('flex w-full min-w-0 items-center justify-between gap-3 rounded-lg border bg-surface-muted p-3 text-left shadow-2xs sm:p-4', className);
-  if (!onClick) return <div className={cn(base, 'border-line')}>{body}</div>;
+  const base = cn('@container flex w-full min-w-0 items-center justify-between gap-3 rounded-lg border bg-surface-muted p-3 text-left shadow-2xs sm:p-4', className);
+  if (!onClick) return <div data-kpi-card className={cn(base, 'border-line')}>{body}</div>;
   return (
-    <button type="button" aria-pressed={active} onClick={onClick}
+    <button type="button" data-kpi-card aria-pressed={active} onClick={onClick}
       className={cn(base, 'cursor-pointer touch-manipulation transition-colors', active ? palette.active : cn('border-line', palette.hover))}>
       {body}
     </button>
