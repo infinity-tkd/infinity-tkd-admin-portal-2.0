@@ -41,7 +41,7 @@ export function BirthdayWishActionModal({ student, onClose, onMarkSent }: { stud
           {/* Header */}
           <div className="flex justify-between items-start border-b border-neutral-200 dark:border-[#262626] pb-3">
             <div>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-[#EF2F38] font-mono">{t('dash_birthday_wizard')}</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-brand-ink font-mono">{t('dash_birthday_wizard')}</span>
               <h3 className="text-sm font-bold text-neutral-800 dark:text-white mt-1">{t('dash_send_birthday_greeting')}</h3>
             </div>
             <button
@@ -56,7 +56,7 @@ export function BirthdayWishActionModal({ student, onClose, onMarkSent }: { stud
 
           {/* Student Profile Preview */}
           <div className="flex items-center gap-3 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] p-3 rounded-[8px]">
-            <div className="w-10 h-10 rounded-full bg-[#EF2F38] text-white flex items-center justify-center font-black text-sm">
+            <div className="w-10 h-10 rounded-full bg-brand text-white flex items-center justify-center font-black text-sm">
               {student.englishName.charAt(0)}
             </div>
             <div>
@@ -106,7 +106,7 @@ export function BirthdayWishActionModal({ student, onClose, onMarkSent }: { stud
             </button>
             <button
               onClick={onMarkSent}
-              className="flex-1 h-10 pointer-coarse:h-11 bg-[#EF2F38] hover:bg-[#D0252D] text-white rounded-[6px] sm:rounded-[8px] text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all shadow-md shadow-[#EF2F38]/20 active:scale-95 touch-manipulation cursor-pointer flex items-center justify-center"
+              className="flex-1 h-10 pointer-coarse:h-11 bg-brand hover:bg-brand-strong text-white rounded-[6px] sm:rounded-[8px] text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all shadow-md shadow-brand/20 active:scale-95 touch-manipulation cursor-pointer flex items-center justify-center"
             >
               {t('dash_mark_sent')}
             </button>

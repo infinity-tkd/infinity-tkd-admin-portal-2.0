@@ -28,7 +28,7 @@ export function MetricGuideDialog({ activeHelpSection, helpContent, setActiveHel
           {/* Header */}
           <div className="flex justify-between items-start border-b border-neutral-200 dark:border-[#262626] pb-3">
             <div className="space-y-1">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-[#EF2F38] font-mono">{t('dash_intel_guide')}</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-brand-ink font-mono">{t('dash_intel_guide')}</span>
               <h3 className="text-sm font-black text-neutral-800 dark:text-white mt-1">
                 {helpContent[activeHelpSection].title}
               </h3>
@@ -50,7 +50,7 @@ export function MetricGuideDialog({ activeHelpSection, helpContent, setActiveHel
             <ul className="space-y-1.5 text-xs text-neutral-700 dark:text-neutral-300">
               {helpContent[activeHelpSection].read.map((item, idx) => (
                 <li key={idx} className="flex gap-2 items-start">
-                  <span className="text-[#EF2F38] mt-1 shrink-0">•</span>
+                  <span className="text-brand-ink mt-1 shrink-0">•</span>
                   <span>{item}</span>
                 </li>
               ))}

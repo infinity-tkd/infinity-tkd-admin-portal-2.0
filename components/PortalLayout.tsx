@@ -245,7 +245,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
           </div>
           <div>
             <h1 className="text-xs font-black tracking-widest text-neutral-900 dark:text-white leading-none">INFINITY</h1>
-            <p className="text-[10px] font-bold text-red-600 dark:text-[#EF2F38] uppercase tracking-tighter mt-1">{t('nav_admin_portal')}</p>
+            <p className="text-[10px] font-bold text-red-600 dark:text-brand-ink uppercase tracking-tighter mt-1">{t('nav_admin_portal')}</p>
           </div>
           <button type="button" aria-label="Close Navigation Menu" onClick={() => setSidebarOpen(false)} className={cn(layoutStyles.compactOnly, "ml-auto min-h-11 min-w-11 items-center justify-center rounded-lg text-neutral-600 dark:text-neutral-300")}>×</button>
         </div>
@@ -262,7 +262,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
                     : "text-ink-muted hover:bg-control hover:text-ink"
                 )}
               >
-                <tItem.icon className={cn("w-5 h-5 shrink-0", isActive ? "text-brand" : "opacity-70")} weight={isActive ? 'bold' : 'regular'} aria-hidden="true" />
+                <tItem.icon className={cn("w-5 h-5 shrink-0", isActive ? "text-brand-ink" : "opacity-70")} weight={isActive ? 'bold' : 'regular'} aria-hidden="true" />
                 <span className="truncate">{tItem.label}</span>
               </Link>
             );
@@ -279,7 +279,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
             />
             <div className="flex-1 min-w-0 overflow-hidden">
               <p className="text-sm font-bold text-neutral-900 dark:text-white truncate">{state.currentUser?.displayName}</p>
-              <p className="text-[10px] font-black text-red-600 dark:text-[#EF2F38] truncate uppercase mt-0.5">{state.currentUser?.role}</p>
+              <p className="text-[10px] font-black text-red-600 dark:text-brand-ink truncate uppercase mt-0.5">{state.currentUser?.role}</p>
             </div>
           </Link>
           <button
@@ -342,7 +342,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
             <div
               ref={progressRef}
               data-scroll-progress
-              className="h-full bg-[#EF2F38] origin-left"
+              className="h-full bg-brand origin-left"
               style={{ transform: 'scaleX(0)' }}
             />
           </div>
@@ -363,7 +363,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
               <div className="flex flex-col items-center justify-center min-h-[60dvh] text-center px-4 relative">
                 <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(239,47,56,0.03)_0%,transparent_70%)] pointer-events-none" />
                 <div className="relative z-10 flex flex-col items-center max-w-md bg-surface border border-line rounded-lg p-6 sm:p-8 shadow-2xl">
-                  <div aria-hidden="true" className="w-16 h-16 bg-brand/10 border border-brand/20 text-brand rounded-full flex items-center justify-center mb-6">
+                  <div aria-hidden="true" className="w-16 h-16 bg-brand/10 border border-brand/20 text-brand-ink rounded-full flex items-center justify-center mb-6">
                     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0-6V9m0-6H6.22C4.52 3 3.12 4.3 3.02 6.02L2.52 14.7c-.1 1.7 1.25 3.3 2.98 3.3H18.5c1.73 0 3.08-1.6 2.98-3.3l-.5-8.68c-.1-1.72-1.5-3.02-3.2-3.02H12z" />
                     </svg>
@@ -393,8 +393,10 @@ export function PortalLayout({ children }: PortalLayoutProps) {
                 href={tItem.href}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  "relative flex-1 min-w-0 max-w-28 flex flex-col items-center justify-center gap-0.5 py-1 px-1 rounded-lg text-[10px] font-bold tracking-tight transition-colors min-h-12 touch-manipulation",
-                  isActive ? "text-brand" : "text-ink-subtle hover:text-ink"
+                  // Below 360px (iPhone SE, small Android) five tabs get ~61px each: no side padding and a
+                  // slightly tighter label keep "Attendance" and "Dashboard" whole instead of "Attenda…".
+                  "relative flex-1 min-w-0 max-w-28 flex flex-col items-center justify-center gap-0.5 py-1 px-1 max-[359px]:px-0 rounded-lg text-[10px] max-[359px]:text-[9.5px] font-bold tracking-tight max-[359px]:tracking-tighter transition-colors min-h-12 touch-manipulation",
+                  isActive ? "text-brand-ink" : "text-ink-subtle hover:text-ink"
                 )}
               >
                 {isActive && <span aria-hidden="true" className="absolute -top-1.5 w-6 h-0.5 bg-brand rounded-full" />}
@@ -407,8 +409,8 @@ export function PortalLayout({ children }: PortalLayoutProps) {
             type="button"
             onClick={() => setSidebarOpen(true)}
             className={cn(
-              "relative flex-1 min-w-0 max-w-28 flex flex-col items-center justify-center gap-0.5 py-1 px-1 rounded-lg text-[10px] font-bold transition-colors min-h-12 touch-manipulation cursor-pointer",
-              moreActive ? "text-brand" : "text-ink-subtle hover:text-ink"
+              "relative flex-1 min-w-0 max-w-28 flex flex-col items-center justify-center gap-0.5 py-1 px-1 max-[359px]:px-0 rounded-lg text-[10px] max-[359px]:text-[9.5px] font-bold max-[359px]:tracking-tighter transition-colors min-h-12 touch-manipulation cursor-pointer",
+              moreActive ? "text-brand-ink" : "text-ink-subtle hover:text-ink"
             )}
             aria-label="Open More Navigation Menu"
           >
@@ -428,7 +430,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
             exit={{ opacity: 0, scale: 0.98, y: 6 }}
             onClick={scrollToTop}
             className={cn(
-              "fixed right-4 sm:right-6 z-40 p-2.5 min-h-[44px] min-w-[44px] rounded-full bg-white/95 dark:bg-[#141414]/95 border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-white shadow-xl hover:bg-[#EF2F38] hover:text-white hover:border-[#EF2F38] dark:hover:bg-[#EF2F38] dark:hover:text-white dark:hover:border-[#EF2F38] transition-all cursor-pointer backdrop-blur-md flex items-center justify-center active:scale-90 touch-manipulation group",
+              "fixed right-4 sm:right-6 z-40 p-2.5 min-h-[44px] min-w-[44px] rounded-full bg-white/95 dark:bg-[#141414]/95 border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-white shadow-xl hover:bg-brand hover:text-white hover:border-brand dark:hover:bg-brand dark:hover:text-white dark:hover:border-brand transition-all cursor-pointer backdrop-blur-md flex items-center justify-center active:scale-90 touch-manipulation group",
               layoutStyles.floatingControl
             )}
             title="Scroll to Top"

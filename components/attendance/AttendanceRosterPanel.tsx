@@ -97,7 +97,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                 <button
                   onClick={requestCommitRoster}
                   title="Choose a class to finalize its saved session roster." disabled={isCommitting || filterClass==='all' || isAttendanceLocked || !canMarkAttendance}
-                  className="px-5 sm:px-6 py-2 min-h-[40px] bg-[#EF2F38] hover:bg-[#D0252D] disabled:opacity-50 text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-all shadow-md shadow-[#EF2F38]/20 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                  className="px-5 sm:px-6 py-2 min-h-[40px] bg-brand hover:bg-brand-strong disabled:opacity-50 text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-all shadow-md shadow-brand/20 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                 >
                   {isCommitting ? t('act_loading') : t('att_commit_roster')}
                 </button>
@@ -113,7 +113,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                    placeholder={t('fin_search_student')}
                    value={search}
                    onChange={(e) => setSearch(e.target.value)}
-                   className="w-full pl-9 pr-8 h-10 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-xs focus:outline-none focus:border-[#EF2F38] transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+                   className="w-full pl-9 pr-8 h-10 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-xs focus:outline-none focus:border-brand transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                  />
                  {search && (
                    <button
@@ -131,7 +131,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                   setFilterClass('all');
                   setStatusFilter('all');
                 }}
-                className="w-full h-10 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs px-3 focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                className="w-full h-10 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs px-3 focus:outline-none focus:border-brand cursor-pointer"
               >
                 <option value="all">{t('att_all_branches')}</option>
                 {state.branches.map(b => (
@@ -142,7 +142,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                   setFilterClass(e.target.value === 'all' ? 'all' : Number(e.target.value));
                   setStatusFilter('all');
                 }}
-                className="w-full h-10 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs px-3 focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                className="w-full h-10 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs px-3 focus:outline-none focus:border-brand cursor-pointer"
               >
                 <option value="all">{t('att_all_classes')}</option>
                 {branchClasses.map(c => (
@@ -157,7 +157,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-neutral-900 dark:text-white uppercase text-[10px] tracking-wide">{selectedClassObj.name}</span>
-                    <span className="px-2 py-0.5 bg-red-500/10 border border-red-500/20 text-[#EF2F38] text-[9px] font-black uppercase tracking-wider rounded">
+                    <span className="px-2 py-0.5 bg-red-500/10 border border-red-500/20 text-brand-ink text-[9px] font-black uppercase tracking-wider rounded">
                       {selectedClassObj.classType}
                     </span>
                   </div>
@@ -213,7 +213,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                     type="checkbox"
                     checked={overrideMismatch}
                     onChange={(e) => setOverrideMismatch(e.target.checked)}
-                    className="rounded border-neutral-300 dark:border-[#262626] bg-white dark:bg-[#0F0F0F] text-[#EF2F38] focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                    className="rounded border-neutral-300 dark:border-[#262626] bg-white dark:bg-[#0F0F0F] text-brand-ink focus:ring-0 focus:ring-offset-0 cursor-pointer"
                   />
                   <span>{t('att_override_mismatch')}</span>
                 </label>
@@ -252,7 +252,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                     )}
                   >
                     <span>{t('att_present')}</span>
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-mono font-bold">
+                    <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-mono font-bold">
                       {presentRosterCount}
                     </span>
                   </button>
@@ -266,7 +266,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                     )}
                   >
                     <span>{t('att_late')}</span>
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-amber-500/20 text-amber-700 dark:text-amber-300 font-mono font-bold">
+                    <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-amber-500/10 text-amber-700 dark:text-amber-300 font-mono font-bold">
                       {lateRosterCount}
                     </span>
                   </button>
@@ -280,7 +280,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                     )}
                   >
                     <span>{t('att_absent')}</span>
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-rose-500/20 text-rose-700 dark:text-rose-300 font-mono font-bold">
+                    <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-rose-500/10 text-rose-700 dark:text-rose-300 font-mono font-bold">
                       {absentRosterCount}
                     </span>
                   </button>
@@ -294,7 +294,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                     )}
                   >
                     <span>{t('dash_unmarked')}</span>
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-blue-500/20 text-blue-700 dark:text-blue-300 font-mono font-bold">
+                    <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-blue-500/10 text-blue-700 dark:text-blue-300 font-mono font-bold">
                       {unmarkedRosterCount}
                     </span>
                   </button>
@@ -347,7 +347,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                   <div
                     className={cn(
                       "h-full rounded-full transition-all duration-300",
-                      markedPercentage === 100 ? "bg-emerald-500" : "bg-[#EF2F38]"
+                      markedPercentage === 100 ? "bg-emerald-500" : "bg-brand"
                     )}
                     style={{ width: `${markedPercentage}%` }}
                   />
@@ -415,7 +415,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                         <SafeImage
                           src={student.profilePicturePath}
                           alt={student.englishName}
-                          containerClassName="w-11 h-11 rounded-[8px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 group-hover:border-[#EF2F38] transition-colors"
+                          containerClassName="w-11 h-11 rounded-[8px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 group-hover:border-brand transition-colors"
                           fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-base group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">{student.englishName.charAt(0)}</span>}
                         />
                         <span
@@ -433,7 +433,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                         />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="font-bold text-xs mb-0.5 text-neutral-900 dark:text-[#E4E4E4] group-hover:text-[#EF2F38] dark:group-hover:text-white transition-colors truncate">
+                        <p className="font-bold text-xs mb-0.5 text-neutral-900 dark:text-[#E4E4E4] group-hover:text-brand-ink dark:group-hover:text-white transition-colors truncate">
                           {student.englishName} <span className="text-[10px] font-khmer text-neutral-500 dark:text-[#888] ml-1 font-normal">{student.khmerName}</span>
                           {isNotYetEnrolled && (
                             <span className="ml-2 px-2 py-0.5 rounded-[8px] bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 font-bold uppercase tracking-widest text-[9px] whitespace-nowrap">

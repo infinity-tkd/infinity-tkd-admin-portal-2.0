@@ -61,11 +61,11 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-neutral-200 dark:border-[#262626] pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-[8px] bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
-              <Sparkle className="w-5 h-5 text-[#EF2F38]" />
+              <Sparkle className="w-5 h-5 text-brand-ink" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-mono font-bold text-[#EF2F38]">{t('dash_tab_intelligence')}</span>
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-mono font-bold text-brand-ink">{t('dash_tab_intelligence')}</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
               </div>
               <h2 className="text-sm sm:text-base font-bold text-neutral-900 dark:text-white leading-tight">
@@ -161,21 +161,21 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
           <div className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-3 sm:p-4 rounded-[8px] flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[9px] sm:text-[9.5px] uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#EF2F38]" />
+                <ShieldCheck className="w-3.5 h-3.5 text-brand-ink" />
                 {t('dash_health_retention')}
               </span>
-              <span className={cn("text-xs sm:text-[13px] font-mono font-bold", healthScoreMetrics.highRiskCount > 0 ? "text-[#EF2F38]" : "text-green-600 dark:text-green-400")}>
+              <span className={cn("text-xs sm:text-[13px] font-mono font-bold", healthScoreMetrics.highRiskCount > 0 ? "text-brand-ink" : "text-green-600 dark:text-green-400")}>
                 {healthScoreMetrics.retentionScore}%
               </span>
             </div>
             <div className="w-full bg-neutral-200 dark:bg-neutral-800 h-1.5 sm:h-2 rounded-full overflow-hidden mt-2.5">
               <div
-                className={cn("h-full rounded-full transition-all duration-500", healthScoreMetrics.highRiskCount > 0 ? "bg-[#EF2F38]" : "bg-green-500")}
+                className={cn("h-full rounded-full transition-all duration-500", healthScoreMetrics.highRiskCount > 0 ? "bg-brand" : "bg-green-500")}
                 style={{ width: `${healthScoreMetrics.retentionScore}%` }}
               />
             </div>
             <span className="text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
-              Hazards: <strong className={healthScoreMetrics.highRiskCount > 0 ? "text-[#EF2F38]" : "text-neutral-700 dark:text-neutral-300"}>{healthScoreMetrics.highRiskCount} High</strong>, {healthScoreMetrics.mediumRiskCount} Med
+              Hazards: <strong className={healthScoreMetrics.highRiskCount > 0 ? "text-brand-ink" : "text-neutral-700 dark:text-neutral-300"}>{healthScoreMetrics.highRiskCount} High</strong>, {healthScoreMetrics.mediumRiskCount} Med
             </span>
           </div>
         </div>
@@ -189,7 +189,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
           <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 shadow-sm space-y-3 relative overflow-hidden flex flex-col justify-between">
             <div className="flex justify-between items-start border-b border-neutral-200 dark:border-[#262626] pb-2">
               <div className="space-y-0.5">
-                <span className="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-[#EF2F38] font-mono font-bold">{t('dash_predictive_analytics')}</span>
+                <span className="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-brand-ink font-mono font-bold">{t('dash_predictive_analytics')}</span>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-[#E4E4E4] flex items-center gap-1.5 leading-none">
                   {t('dash_tuition_cashflow_forecast')}
                 </h3>
@@ -211,8 +211,8 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                   <span className="text-base sm:text-lg font-bold font-mono tracking-tight text-neutral-900 dark:text-white">${expectedMonthlyRevenue.toFixed(0)}</span>
                 </div>
                 <div className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-2.5 sm:p-3 rounded-[8px] shadow-sm">
-                  <span className="text-[9px] uppercase tracking-widest text-[#EF2F38] font-mono block mb-0.5">{t('dash_simulated_forecast')}</span>
-                  <span className="text-base sm:text-lg font-bold font-mono tracking-tight text-[#EF2F38]">${predictedRevenueDynamic.toFixed(0)}</span>
+                  <span className="text-[9px] uppercase tracking-widest text-brand-ink font-mono block mb-0.5">{t('dash_simulated_forecast')}</span>
+                  <span className="text-base sm:text-lg font-bold font-mono tracking-tight text-brand-ink">${predictedRevenueDynamic.toFixed(0)}</span>
                 </div>
               </div>
 
@@ -233,7 +233,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                       className={cn(
                         "px-1.5 py-1 rounded text-[9px] font-mono font-bold uppercase tracking-wider border transition-all text-center cursor-pointer",
                         forecastChurnRate === sc.rate
-                          ? "bg-[#EF2F38] text-white border-[#EF2F38] shadow-sm"
+                          ? "bg-brand text-white border-brand shadow-sm"
                           : "bg-white dark:bg-[#0F0F0F] text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-[#262626] hover:border-neutral-400 dark:hover:border-neutral-600"
                       )}
                     >
@@ -247,7 +247,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
               <div className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-2.5 sm:p-3 rounded-[8px] shadow-sm space-y-1.5">
                 <div className="flex justify-between text-[9px] uppercase font-bold text-neutral-500 font-mono">
                   <span>Simulated Churn Stress</span>
-                  <span className="text-[#EF2F38] font-bold">{forecastChurnRate}% Loss Multiplier</span>
+                  <span className="text-brand-ink font-bold">{forecastChurnRate}% Loss Multiplier</span>
                 </div>
                 <input
                   type="range"
@@ -255,7 +255,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                   max="50"
                   value={forecastChurnRate}
                   onChange={(e) => setForecastChurnRate(parseInt(e.target.value, 10))}
-                  className="w-full h-1.5 sm:h-2 bg-neutral-100 dark:bg-[#1A1A1A] rounded-[8px] appearance-none cursor-pointer accent-[#EF2F38] outline-none"
+                  className="w-full h-1.5 sm:h-2 bg-neutral-100 dark:bg-[#1A1A1A] rounded-[8px] appearance-none cursor-pointer accent-brand outline-none"
                 />
               </div>
 
@@ -426,7 +426,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                   value={priSearch}
                   onChange={(e) => setPriSearch(e.target.value)}
                   placeholder={t('dash_search_candidates')}
-                  className="w-full bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded px-2.5 pl-7 py-1 text-[10px] sm:text-xs font-mono text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 focus:outline-none focus:border-[#EF2F38]"
+                  className="w-full bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded px-2.5 pl-7 py-1 text-[10px] sm:text-xs font-mono text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 focus:outline-none focus:border-brand"
                 />
                 {priSearch && (
                   <button
@@ -463,7 +463,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                         )}
                       </div>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-[9px] text-[#EF2F38] dark:text-red-400 font-mono uppercase tracking-wider font-bold leading-none">
+                        <span className="text-[9px] text-brand-ink dark:text-red-400 font-mono uppercase tracking-wider font-bold leading-none">
                           {translateBeltFormatted(candidate.student.currentBelt, candidate.student.dob)}
                         </span>
                         <span className="text-[9px] text-neutral-400 font-mono leading-none">• {candidate.student.id}</span>
@@ -516,7 +516,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                   <button
                     type="button"
                     onClick={() => setPriSearch('')}
-                    className="text-[9px] sm:text-xs text-[#EF2F38] hover:underline font-mono font-bold"
+                    className="text-[9px] sm:text-xs text-brand-ink hover:underline font-mono font-bold"
                   >
                     Clear search filter
                   </button>
@@ -531,7 +531,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
           <div className="flex flex-col gap-2 border-b border-neutral-200 dark:border-[#262626] pb-2.5">
             <div className="flex justify-between items-start">
               <div className="space-y-0.5">
-                <span className="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-[#EF2F38] font-mono font-bold">{t('dash_retentivity_analyzer')}</span>
+                <span className="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-brand-ink font-mono font-bold">{t('dash_retentivity_analyzer')}</span>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-[#E4E4E4] leading-none">{t('dash_student_churn_hazard')}</h3>
               </div>
               <button
@@ -559,7 +559,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                     className={cn(
                       "px-2 py-0.5 rounded text-[9px] sm:text-[9.5px] font-mono font-bold uppercase tracking-wider border transition-all cursor-pointer whitespace-nowrap",
                       churnFilter === tab.key
-                        ? "bg-[#EF2F38] text-white border-[#EF2F38] shadow-sm"
+                        ? "bg-brand text-white border-brand shadow-sm"
                         : "bg-white dark:bg-[#0F0F0F] text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-[#262626] hover:border-neutral-300 dark:hover:border-neutral-700"
                     )}
                   >
@@ -576,7 +576,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                   value={churnSearch}
                   onChange={(e) => setChurnSearch(e.target.value)}
                   placeholder={t('dash_search_hazards')}
-                  className="w-full bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded px-2.5 pl-7 py-1 text-[10px] sm:text-xs font-mono text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 focus:outline-none focus:border-[#EF2F38]"
+                  className="w-full bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded px-2.5 pl-7 py-1 text-[10px] sm:text-xs font-mono text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 focus:outline-none focus:border-brand"
                 />
                 {churnSearch && (
                   <button
@@ -617,7 +617,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                       <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono">
                         <span>Last Class: {hazard.lastDate === 'Never' ? 'Never' : hazard.lastDate}</span>
                         <span className="text-neutral-300 dark:text-neutral-700">•</span>
-                        <span className="text-[#EF2F38] font-bold">{hazard.daysSinceLastClass}d inactive</span>
+                        <span className="text-brand-ink font-bold">{hazard.daysSinceLastClass}d inactive</span>
                       </div>
                       <div className="text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono leading-none">
                         Missed: <strong className="text-neutral-700 dark:text-neutral-300">{hazard.estimatedMissedClasses} classes</strong> (Expected {hazard.expectedWeeklyFrequency}x/wk)
@@ -654,7 +654,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                       {hazard.student.emergencyContactPhone && (
                         <a
                           href={`tel:${hazard.student.emergencyContactPhone}`}
-                          className="px-2.5 py-1 min-h-[28px] bg-[#EF2F38]/10 hover:bg-[#EF2F38] text-[#EF2F38] hover:text-white border border-[#EF2F38]/20 hover:border-transparent rounded-[6px] text-[9px] sm:text-[9.5px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                          className="px-2.5 py-1 min-h-[28px] bg-brand/10 hover:bg-brand text-brand-ink hover:text-white border border-brand/20 hover:border-transparent rounded-[6px] text-[9px] sm:text-[9.5px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                           title={`Call: ${hazard.student.emergencyContactPhone}`}
                         >
                           <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -674,7 +674,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                   <button
                     type="button"
                     onClick={() => setChurnSearch('')}
-                    className="text-[9px] sm:text-xs text-[#EF2F38] hover:underline font-mono font-bold"
+                    className="text-[9px] sm:text-xs text-brand-ink hover:underline font-mono font-bold"
                   >
                     Clear search filter
                   </button>
@@ -690,9 +690,9 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
       <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 lg:p-5 shadow-sm space-y-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-neutral-200 dark:border-[#262626] pb-2.5">
           <div className="space-y-0.5">
-            <span className="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-[#EF2F38] font-mono font-bold">Pipeline Diagnostics</span>
+            <span className="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-brand-ink font-mono font-bold">Pipeline Diagnostics</span>
             <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-[#E4E4E4] flex items-center gap-1.5 leading-none">
-              <ChartBar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#EF2F38]" />
+              <ChartBar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-ink" />
               {t('dash_belt_demographics')}
             </h3>
           </div>

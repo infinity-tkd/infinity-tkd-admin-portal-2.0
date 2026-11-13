@@ -72,7 +72,7 @@ export function DialogHeader({ icon, title, description, onClose, closeLabel = '
   return (
     <div className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-surface-inset px-4 py-3 sm:p-5">
       <div className="flex min-w-0 items-center gap-3">
-        {icon && <div aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand [&_svg]:size-4">{icon}</div>}
+        {icon && <div aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand-ink [&_svg]:size-4">{icon}</div>}
         <div className="min-w-0">
           <h2 id={titleId} className="truncate text-sm font-bold uppercase tracking-wider text-ink">{title}</h2>
           {description && <p className="mt-0.5 font-mono text-[10px] text-ink-subtle">{description}</p>}

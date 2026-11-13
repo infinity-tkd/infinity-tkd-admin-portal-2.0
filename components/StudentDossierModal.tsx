@@ -397,7 +397,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
           {/* Header Action Control Panel */}
           <div className="px-4 sm:px-6 py-3 sm:py-4 bg-neutral-950 border-b border-neutral-800 flex items-center justify-between shrink-0 text-white z-10 shadow-md gap-2">
             <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-[8px] bg-[#EF2F38]/10 border border-[#EF2F38]/30 flex items-center justify-center text-[#EF2F38] shrink-0">
+              <div className="w-8 h-8 rounded-[8px] bg-brand/10 border border-brand/30 flex items-center justify-center text-brand-ink shrink-0">
                 <FileText weight="fill" className="w-5 h-5" />
               </div>
               <div className="min-w-0">
@@ -435,7 +435,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
               <button
                 onClick={handlePrintPDF}
-                className="p-2 bg-[#EF2F38] hover:bg-red-600 text-white rounded-[8px] transition-colors flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider shadow-md shadow-red-500/10 font-mono"
+                className="p-2 bg-brand hover:bg-red-600 text-white rounded-[8px] transition-colors flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider shadow-md shadow-red-500/10 font-mono"
               >
                 <Printer className="w-4 h-4" />
                 <span className="hidden sm:inline">Print / PDF</span>
@@ -458,14 +458,14 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
             <div className="flex bg-neutral-900 border border-neutral-800 rounded-[8px] p-0.5">
               <button
                 onClick={() => setViewMode('single')}
-                className={`px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center gap-1.5 ${viewMode === 'single' ? 'bg-[#EF2F38] text-white shadow' : 'text-neutral-400 hover:text-white'}`}
+                className={`px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center gap-1.5 ${viewMode === 'single' ? 'bg-brand text-white shadow' : 'text-neutral-400 hover:text-white'}`}
               >
                 <FileText className="w-3.5 h-3.5" />
                 <span>Page-by-Page</span>
               </button>
               <button
                 onClick={() => setViewMode('scroll')}
-                className={`px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center gap-1.5 ${viewMode === 'scroll' ? 'bg-[#EF2F38] text-white shadow' : 'text-neutral-400 hover:text-white'}`}
+                className={`px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center gap-1.5 ${viewMode === 'scroll' ? 'bg-brand text-white shadow' : 'text-neutral-400 hover:text-white'}`}
               >
                 <Notebook className="w-3.5 h-3.5" />
                 <span>Continuous Scroll</span>
@@ -591,11 +591,11 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
                   <div className="relative z-10 flex flex-col flex-grow">
                     {/* Official Header */}
-                    <div className="flex justify-between items-center border-b-[3px] border-[#EF2F38] pb-4 mb-6">
+                    <div className="flex justify-between items-center border-b-[3px] border-brand pb-4 mb-6">
                       <div className="flex items-center gap-4">
                         <NextImage unoptimized width={56} height={56} src="/logo.svg" alt="Infinity TKD Crest Logo" className="w-14 h-14 shrink-0 filter brightness-95" />
                         <div>
-                          <h1 className="text-lg font-black tracking-widest text-[#EF2F38] leading-none uppercase">
+                          <h1 className="text-lg font-black tracking-widest text-brand-ink leading-none uppercase">
                             INFINITY TAEKWONDO ACADEMY
                           </h1>
                           <h2 className="text-[10px] font-semibold text-neutral-700 font-khmer mt-1 leading-none">
@@ -639,7 +639,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                       <div className="col-span-3 grid grid-cols-2 gap-y-2.5 gap-x-6 text-[10px]">
                         <div>
                           <span className="block text-[7px] uppercase font-bold text-neutral-600 tracking-wider">Student ID</span>
-                          <span className="font-mono font-black text-[#EF2F38] text-xs">{student.id}</span>
+                          <span className="font-mono font-black text-brand-ink text-xs">{student.id}</span>
                         </div>
                         <div>
                           <span className="block text-[7px] uppercase font-bold text-neutral-600 tracking-wider">Active Belt Rank</span>
@@ -681,7 +681,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                     {/* Contact details & Home address block */}
                     <div className="grid grid-cols-2 gap-6 mb-6">
                       <div className="p-4 bg-neutral-100 rounded-[8px] border border-neutral-300">
-                        <h4 className="text-[9px] font-black uppercase text-[#EF2F38] tracking-widest mb-2 flex items-center gap-1 border-b border-neutral-300 pb-1">
+                        <h4 className="text-[9px] font-black uppercase text-brand-ink tracking-widest mb-2 flex items-center gap-1 border-b border-neutral-300 pb-1">
                           <Phone className="w-3.5 h-3.5" />
                           <span>CONTACT INFORMATION</span>
                         </h4>
@@ -698,7 +698,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                       </div>
 
                       <div className="p-4 bg-neutral-100 rounded-[8px] border border-neutral-300">
-                        <h4 className="text-[9px] font-black uppercase text-[#EF2F38] tracking-widest mb-2 flex items-center gap-1 border-b border-neutral-300 pb-1">
+                        <h4 className="text-[9px] font-black uppercase text-brand-ink tracking-widest mb-2 flex items-center gap-1 border-b border-neutral-300 pb-1">
                           <MapPin className="w-3.5 h-3.5" />
                           <span>RESIDENTIAL HOME ADDRESS</span>
                         </h4>
@@ -717,7 +717,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
                     {/* Emergency & Guardian Information */}
                     <div className="p-4 bg-neutral-100 rounded-[8px] border border-neutral-300 mb-6">
-                      <h4 className="text-[9px] font-black uppercase text-[#EF2F38] tracking-widest mb-2.5 flex items-center gap-1 border-b border-neutral-300 pb-1">
+                      <h4 className="text-[9px] font-black uppercase text-brand-ink tracking-widest mb-2.5 flex items-center gap-1 border-b border-neutral-300 pb-1">
                         <ShieldCheck className="w-3.5 h-3.5" />
                         <span>GUARDIAN BIO & EMERGENCY CONTACTS</span>
                       </h4>
@@ -739,7 +739,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
                     {/* Enrollments & Branch Scheduling Matrix */}
                     <div className="p-4 bg-neutral-100 rounded-[8px] border border-neutral-300 mb-6">
-                      <h4 className="text-[9px] font-black uppercase text-[#EF2F38] tracking-widest mb-2.5 flex items-center gap-1 border-b border-neutral-300 pb-1">
+                      <h4 className="text-[9px] font-black uppercase text-brand-ink tracking-widest mb-2.5 flex items-center gap-1 border-b border-neutral-300 pb-1">
                         <GraduationCap className="w-3.5 h-3.5" />
                         <span>ACADEMY STATUS & TRAINING CLASS SCHEDULES</span>
                       </h4>
@@ -791,7 +791,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                                 </div>
                                 <div className="text-right">
                                   <span className="text-neutral-800 text-[8px] uppercase font-semibold">Coach: </span>
-                                  <span className="font-bold text-[#EF2F38]">{coachName}</span>
+                                  <span className="font-bold text-brand-ink">{coachName}</span>
                                 </div>
                               </div>
                             );
@@ -804,7 +804,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                     <div className="grid grid-cols-2 gap-6 mb-6">
                       {/* Attendance Consistency Analytics */}
                       <div className="p-4 bg-neutral-100 rounded-[8px] border border-neutral-300">
-                        <h4 className="text-[9px] font-black uppercase text-[#EF2F38] tracking-widest mb-2.5 flex items-center gap-1 border-b border-neutral-300 pb-1">
+                        <h4 className="text-[9px] font-black uppercase text-brand-ink tracking-widest mb-2.5 flex items-center gap-1 border-b border-neutral-300 pb-1">
                           <Clock className="w-3.5 h-3.5" />
                           <span>ATTENDANCE METRICS SUMMARY</span>
                         </h4>
@@ -827,7 +827,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                           </div>
                           <div>
                             <span className="block text-[7px] text-neutral-800 uppercase font-bold tracking-wider">Consistency Rate</span>
-                            <span className="text-xs font-mono font-black text-[#EF2F38]">
+                            <span className="text-xs font-mono font-black text-brand-ink">
                               {attendanceRate !== null ? `${attendanceRate}%` : '100%'}
                             </span>
                           </div>
@@ -836,7 +836,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
                       {/* Tuition Payments Financial Ledger */}
                       <div className="p-4 bg-neutral-100 rounded-[8px] border border-neutral-300">
-                        <h4 className="text-[9px] font-black uppercase text-[#EF2F38] tracking-widest mb-2.5 flex items-center gap-1 border-b border-neutral-300 pb-1">
+                        <h4 className="text-[9px] font-black uppercase text-brand-ink tracking-widest mb-2.5 flex items-center gap-1 border-b border-neutral-300 pb-1">
                           <Receipt className="w-3.5 h-3.5" />
                           <span>RECENT TUITION FEES LEDGER</span>
                         </h4>
@@ -881,7 +881,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                   <div className="border-t border-neutral-300 pt-3 flex justify-between items-center text-[7px] text-black font-mono uppercase tracking-wider">
                     <span>© {currentYear} Infinity Taekwondo Academy.</span>
                     <span>Page 1 of 3</span>
-                    <span className="font-bold text-[#EF2F38]">Verification Code: {student.id.substring(0, 8)}-P1</span>
+                    <span className="font-bold text-brand-ink">Verification Code: {student.id.substring(0, 8)}-P1</span>
                   </div>
                 </div>
               </div>
@@ -919,11 +919,11 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
                   <div className="relative z-10 flex flex-col flex-grow">
                     {/* Official Header */}
-                    <div className="flex justify-between items-center border-b-[3px] border-[#EF2F38] pb-4 mb-6">
+                    <div className="flex justify-between items-center border-b-[3px] border-brand pb-4 mb-6">
                       <div className="flex items-center gap-4">
                         <NextImage unoptimized width={56} height={56} src="/logo.svg" alt="Infinity TKD Crest Logo" className="w-14 h-14 shrink-0 filter brightness-95" />
                         <div>
-                          <h1 className="text-lg font-black tracking-widest text-[#EF2F38] leading-none uppercase">
+                          <h1 className="text-lg font-black tracking-widest text-brand-ink leading-none uppercase">
                             INFINITY TAEKWONDO ACADEMY
                           </h1>
                           <h2 className="text-[10px] font-semibold text-neutral-700 font-khmer mt-1 leading-none">
@@ -948,7 +948,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
                     {/* Belt History Timeline */}
                     <div className="mb-6">
-                      <h4 className="text-[9px] font-black uppercase text-[#EF2F38] tracking-widest mb-2.5 pb-1 border-b border-neutral-300 flex items-center gap-1.5">
+                      <h4 className="text-[9px] font-black uppercase text-brand-ink tracking-widest mb-2.5 pb-1 border-b border-neutral-300 flex items-center gap-1.5">
                         <GraduationCap className="w-4 h-4" />
                         <span>OFFICIAL BELT PROMOTION HISTORY LEDGER</span>
                       </h4>
@@ -974,7 +974,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                               <tr key={log.id} className="hover:bg-neutral-100">
                                 <td className="px-3 py-2.5 font-bold text-black">{log.beltLevel}</td>
                                 <td className="px-3 py-2.5 font-mono text-black">{log.promotionDate}</td>
-                                <td className="px-3 py-2.5 font-mono text-[#EF2F38] font-black">{log.testScore || 80} pts</td>
+                                <td className="px-3 py-2.5 font-mono text-brand-ink font-black">{log.testScore || 80} pts</td>
                                 <td className="px-3 py-2.5 text-black">{log.program || 'Standard Class'}</td>
                                 <td className="px-3 py-2.5 font-mono text-black tracking-wider truncate max-w-[200px]" title={log.certificateRef || log.kukkiwonDanCardId}>
                                   {log.certificateRef || log.kukkiwonDanCardId || '—'}
@@ -991,7 +991,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                       {/* Left Side: LMS Video Checkpoint */}
                       <div className="p-4 bg-neutral-100 rounded-[8px] border border-neutral-300 flex flex-col justify-between">
                         <div>
-                          <h4 className="text-[9px] font-black uppercase text-[#EF2F38] tracking-widest mb-2.5 pb-1 border-b border-neutral-300 flex items-center gap-1.5">
+                          <h4 className="text-[9px] font-black uppercase text-brand-ink tracking-widest mb-2.5 pb-1 border-b border-neutral-300 flex items-center gap-1.5">
                             <CheckCircle className="w-3.5 h-3.5" />
                             <span>LMS VIDEO CHECKPOINT STATUS</span>
                           </h4>
@@ -1003,7 +1003,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                             </div>
                             <div>
                               <span className="block text-[7px] text-neutral-800 uppercase font-bold tracking-wider">Completion Rate</span>
-                              <span className="font-black text-[#EF2F38] font-mono">{watchedBeltVideosCount}/{totalBeltVideosCount} ({lmsCompletionPct}%)</span>
+                              <span className="font-black text-brand-ink font-mono">{watchedBeltVideosCount}/{totalBeltVideosCount} ({lmsCompletionPct}%)</span>
                             </div>
                           </div>
 
@@ -1032,7 +1032,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                       {/* Right Side: Physical Techniques */}
                       <div className="p-4 bg-neutral-100 rounded-[8px] border border-neutral-300 flex flex-col justify-between">
                         <div>
-                          <h4 className="text-[9px] font-black uppercase text-[#EF2F38] tracking-widest mb-2.5 pb-1 border-b border-neutral-300 flex items-center gap-1.5">
+                          <h4 className="text-[9px] font-black uppercase text-brand-ink tracking-widest mb-2.5 pb-1 border-b border-neutral-300 flex items-center gap-1.5">
                             <ListChecks className="w-3.5 h-3.5" />
                             <span>PHYSICAL SYLLABUS SKILLS (DOJANG)</span>
                           </h4>
@@ -1044,7 +1044,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                             </div>
                             <div>
                               <span className="block text-[7px] text-neutral-800 uppercase font-bold tracking-wider">Total Syllabus</span>
-                              <span className="font-black text-[#EF2F38] font-mono">{beltTechniques.length} Techniques</span>
+                              <span className="font-black text-brand-ink font-mono">{beltTechniques.length} Techniques</span>
                             </div>
                           </div>
 
@@ -1055,7 +1055,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                               beltTechniques.map(tech => (
                                 <div key={tech.id} className="flex justify-between items-center p-2 border border-neutral-300 rounded text-[8px] font-medium bg-white">
                                   <div className="flex items-center gap-1.5 min-w-0">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#EF2F38] shrink-0" />
+                                    <span className="w-1.5 h-1.5 rounded-full bg-brand shrink-0" />
                                     <span className="font-bold text-black truncate" title={tech.techniqueName}>{tech.techniqueName}</span>
                                   </div>
                                   <span className="text-[7px] font-mono text-neutral-700 uppercase shrink-0">{tech.category.split(' ')[0]}</span>
@@ -1069,7 +1069,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
                     {/* Medical Bios & Physical Notes */}
                     <div className="p-4 bg-neutral-100 rounded-[8px] border border-neutral-300">
-                      <h4 className="text-[9px] font-black uppercase text-[#EF2F38] tracking-widest mb-2.5 pb-1 border-b border-neutral-300 flex items-center gap-1.5">
+                      <h4 className="text-[9px] font-black uppercase text-brand-ink tracking-widest mb-2.5 pb-1 border-b border-neutral-300 flex items-center gap-1.5">
                         <Heart className="w-3.5 h-3.5" />
                         <span>HEALTH BIO & KUKKIWON REGISTRY</span>
                       </h4>
@@ -1096,15 +1096,15 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
                       <div className="grid grid-cols-3 gap-4 text-[9px] font-medium leading-relaxed">
                         <div className="bg-white border border-neutral-300 p-2.5 rounded">
-                          <span className="text-[8px] text-[#EF2F38] uppercase font-bold tracking-wider">Medical Remarks</span>
+                          <span className="text-[8px] text-brand-ink uppercase font-bold tracking-wider">Medical Remarks</span>
                           <p className="text-black mt-1">{student.medicalNotes || 'No health conditions registered.'}</p>
                         </div>
                         <div className="bg-white border border-neutral-300 p-2.5 rounded">
-                          <span className="text-[8px] text-[#EF2F38] uppercase font-bold tracking-wider">Allergies Info</span>
+                          <span className="text-[8px] text-brand-ink uppercase font-bold tracking-wider">Allergies Info</span>
                           <p className="text-black mt-1">{student.allergies || 'No allergies recorded.'}</p>
                         </div>
                         <div className="bg-white border border-neutral-300 p-2.5 rounded">
-                          <span className="text-[8px] text-[#EF2F38] uppercase font-bold tracking-wider">Kukkiwon Credentials</span>
+                          <span className="text-[8px] text-brand-ink uppercase font-bold tracking-wider">Kukkiwon Credentials</span>
                           <p className="font-mono text-black font-bold mt-1">{student.kukkiwonId || 'No Kukkiwon ID Registered'}</p>
                         </div>
                       </div>
@@ -1116,7 +1116,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                   <div className="border-t border-neutral-300 pt-3 flex justify-between items-center text-[7px] text-black font-mono uppercase tracking-wider">
                     <span>© {currentYear} Infinity Taekwondo Academy.</span>
                     <span>Page 2 of 3</span>
-                    <span className="font-bold text-[#EF2F38]">Verification Code: {student.id.substring(0, 8)}-P2</span>
+                    <span className="font-bold text-brand-ink">Verification Code: {student.id.substring(0, 8)}-P2</span>
                   </div>
                 </div>
               </div>
@@ -1154,11 +1154,11 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
                   <div className="relative z-10 flex flex-col flex-grow">
                     {/* Official Header */}
-                    <div className="flex justify-between items-center border-b-[3px] border-[#EF2F38] pb-4 mb-6">
+                    <div className="flex justify-between items-center border-b-[3px] border-brand pb-4 mb-6">
                       <div className="flex items-center gap-4">
                         <NextImage unoptimized width={56} height={56} src="/logo.svg" alt="Infinity TKD Crest Logo" className="w-14 h-14 shrink-0 filter brightness-95" />
                         <div>
-                          <h1 className="text-lg font-black tracking-widest text-[#EF2F38] leading-none uppercase">
+                          <h1 className="text-lg font-black tracking-widest text-brand-ink leading-none uppercase">
                             INFINITY TAEKWONDO ACADEMY
                           </h1>
                           <h2 className="text-[10px] font-semibold text-neutral-700 font-khmer mt-1 leading-none">
@@ -1183,7 +1183,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
                     {/* Physical Evaluations & Athlete Diagnostics */}
                     <div className="mb-6">
-                      <h4 className="text-[9px] font-black uppercase text-[#EF2F38] tracking-widest mb-2.5 pb-1 border-b border-neutral-300 flex items-center gap-1.5">
+                      <h4 className="text-[9px] font-black uppercase text-brand-ink tracking-widest mb-2.5 pb-1 border-b border-neutral-300 flex items-center gap-1.5">
                         <Heart className="w-4 h-4" />
                         <span>ATHLETIC PHYSICAL EVALUATIONS DIAGNOSTICS</span>
                       </h4>
@@ -1210,7 +1210,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                               <tr key={evalObj.id} className="hover:bg-neutral-100">
                                 <td className="px-3 py-2.5 font-bold text-black">{evalObj.skillName}</td>
                                 <td className="px-3 py-2.5 text-black">{evalObj.beltLevel}</td>
-                                <td className="px-3 py-2.5 font-mono text-[#EF2F38] font-black">{evalObj.score || 0} pts</td>
+                                <td className="px-3 py-2.5 font-mono text-brand-ink font-black">{evalObj.score || 0} pts</td>
                                 <td className="px-3 py-2.5">
                                   <span className="font-mono font-black text-black bg-neutral-200 border border-neutral-300 px-1.5 py-0.5 rounded">
                                     {evalObj.grade}
@@ -1229,7 +1229,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
                     {/* Tournament Competitions & Medals Shelf */}
                     <div className="mb-6">
-                      <h4 className="text-[9px] font-black uppercase text-[#EF2F38] tracking-widest mb-2.5 pb-1 border-b border-neutral-300 flex items-center gap-1.5">
+                      <h4 className="text-[9px] font-black uppercase text-brand-ink tracking-widest mb-2.5 pb-1 border-b border-neutral-300 flex items-center gap-1.5">
                         <Trophy className="w-4 h-4" />
                         <span>TOURNAMENT COMPETITIONS & HONOURS CABINET</span>
                       </h4>
@@ -1292,7 +1292,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
 
                     {/* Administrative chronicle progress comments & notes */}
                     <div className="mb-6">
-                      <h4 className="text-[9px] font-black uppercase text-[#EF2F38] tracking-widest mb-2.5 pb-1 border-b border-neutral-300 flex items-center gap-1.5">
+                      <h4 className="text-[9px] font-black uppercase text-brand-ink tracking-widest mb-2.5 pb-1 border-b border-neutral-300 flex items-center gap-1.5">
                         <Notebook className="w-3.5 h-3.5" />
                         <span>ADMINISTRATIVE PROGRESS REMARKS & NOTES</span>
                       </h4>
@@ -1356,7 +1356,7 @@ export function StudentDossierModal({ studentId, onClose }: StudentDossierModalP
                   <div className="border-t border-neutral-300 pt-3 flex justify-between items-center text-[7px] text-black font-mono uppercase tracking-wider">
                     <span>© {currentYear} Infinity Taekwondo Academy.</span>
                     <span>Page 3 of 3</span>
-                    <span className="font-bold text-[#EF2F38]">Verification Code: {student.id.substring(0, 8)}-P3</span>
+                    <span className="font-bold text-brand-ink">Verification Code: {student.id.substring(0, 8)}-P3</span>
                   </div>
                 </div>
               </div>

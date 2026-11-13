@@ -17,7 +17,7 @@ return <>
             <div ref={dialog} role="dialog" aria-modal="true" aria-label="Shop sale receipt" tabIndex={-1} className="bg-white text-neutral-900 w-full max-w-sm rounded-[10px] p-4 sm:p-6 font-mono shadow-2xl flex flex-col justify-between space-y-4 my-auto max-h-[92dvh] overflow-y-auto">
               <div id="printable-receipt">
                 <div className="text-center border-b border-neutral-300 pb-3 mb-3">
-                  <h2 className="text-sm font-black tracking-widest text-[#EF2F38]">INFINITY TAEKWONDO ACADEMY</h2>
+                  <h2 className="text-sm font-black tracking-widest text-brand-ink">INFINITY TAEKWONDO ACADEMY</h2>
                   <p className="text-[9px] text-neutral-700 uppercase font-bold">PRO-SHOP OFFICIAL SALES RECEIPT</p>
                   <p className="text-[9px] text-neutral-500 mt-1">TX #: {completedTx.txId} {"// "}{completedTx.date}</p>
                 </div>

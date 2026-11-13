@@ -26,7 +26,7 @@ export function TestDaysTab({ overview, canManage }: { overview: BeltTestOvervie
     {!overview.events.length ? <p className="text-sm text-neutral-500">No belt test days yet.</p> : <ul className="space-y-2">
       {overview.events.map(event => { const status = eventStatus(event); const counts = event.counts ?? {};
         const active = Object.entries(counts).filter(([key]) => !OFF_ROSTER.has(key)).reduce((sum, [, n]) => sum + n, 0), requests = counts.requested ?? 0;
-        return <li key={event.id}><button type="button" onClick={() => setOpenId(event.id)} className={cardClass + ' flex w-full flex-wrap items-center justify-between gap-3 text-left hover:border-[#EF2F38]/50'}>
+        return <li key={event.id}><button type="button" onClick={() => setOpenId(event.id)} className={cardClass + ' flex w-full flex-wrap items-center justify-between gap-3 text-left hover:border-brand/50'}>
           <span className="min-w-0"><span className="block text-sm font-bold">{event.title}</span>
             <span className="block text-xs text-neutral-500">{event.exam_date}{event.start_time ? ' · ' + hhmm(event.start_time) : ''} · {beltName(event.target_belt_id)}{event.location ? ' · ' + event.location : ''} · {active}{event.capacity ? ` of ${event.capacity}` : ''} candidate{active === 1 && !event.capacity ? '' : 's'}</span></span>
           <span className="flex flex-wrap gap-1.5">{requests > 0 && <Badge tone="blue">{requests} request{requests === 1 ? '' : 's'}</Badge>}<Badge tone={event.kind === 'kukkiwon' ? 'black' : 'neutral'}>{event.kind === 'kukkiwon' ? 'Kukkiwon via CTF' : 'Academy color test'}</Badge><Badge tone={status.tone}>{status.label}</Badge></span>
@@ -201,7 +201,7 @@ function CandidateList({ detail, selected, onSelect, canManage }: { detail: Even
     {!roster.length && <p className="text-sm text-neutral-500">No candidates yet.</p>}
     <ul className="space-y-1.5">{roster.map(row => { const status = CANDIDATE_STATUS[row.status] ?? { label: row.status, tone: 'neutral' as const }; const result = row.result ? RESULT_LABEL[row.result] : null;
       const fee = row.fee_status && row.fee_status !== 'none' ? FEE_LABEL[row.fee_status] : null;
-      return <li key={row.id}><button type="button" aria-pressed={selected === row.id} onClick={() => onSelect(row.id)} className={'w-full rounded-lg border p-2.5 text-left text-sm ' + (selected === row.id ? 'border-[#EF2F38] bg-red-50/40 dark:bg-red-950/20' : 'border-neutral-200 hover:border-neutral-400 dark:border-neutral-800')}>
+      return <li key={row.id}><button type="button" aria-pressed={selected === row.id} onClick={() => onSelect(row.id)} className={'w-full rounded-lg border p-2.5 text-left text-sm ' + (selected === row.id ? 'border-brand bg-red-50/40 dark:bg-red-950/20' : 'border-neutral-200 hover:border-neutral-400 dark:border-neutral-800')}>
         <span className="block font-semibold">{row.student?.english_name ?? row.student_id}</span>
         <span className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-neutral-500"><Badge tone={status.tone}>{status.label}</Badge>{result && row.result !== 'pending' && <Badge tone={result.tone}>{result.label}{row.overall_percent != null ? ` ${row.overall_percent}%` : ''}</Badge>}
           {fee && <Badge tone={fee.tone}>{fee.label}</Badge>}{row.status !== 'withdrawn' && `${countedItems(detail, row.id, viewer, panel)}/${total} ${viewer.manages ? 'scored' : 'scored by you'}`}</span>

@@ -73,7 +73,7 @@ export function StudentQuickStatusDialog({ isSavingStatus, quickStatusForm, sele
                     placeholder="e.g. Medical leave (knee injury), School exam break, Moving away"
                     value={quickStatusForm.statusReason}
                     onChange={e => setQuickStatusForm({ ...quickStatusForm, statusReason: e.target.value })}
-                    className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[8px] px-3 py-2 text-xs focus:outline-none focus:border-[#EF2F38]"
+                    className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[8px] px-3 py-2 text-xs focus:outline-none focus:border-brand"
                   />
                 </div>
 
@@ -84,7 +84,7 @@ export function StudentQuickStatusDialog({ isSavingStatus, quickStatusForm, sele
                       type="date"
                       value={quickStatusForm.pauseEndDate}
                       onChange={e => setQuickStatusForm({ ...quickStatusForm, pauseEndDate: e.target.value })}
-                      className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[8px] px-3 py-2 text-xs focus:outline-none focus:border-[#EF2F38]"
+                      className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[8px] px-3 py-2 text-xs focus:outline-none focus:border-brand"
                     />
                   </div>
                 )}
@@ -119,7 +119,7 @@ export function StudentQuickStatusDialog({ isSavingStatus, quickStatusForm, sele
                   setIsSavingStatus(false);
                 }
               }}
-              className="px-4 py-2 rounded-[8px] bg-[#EF2F38] text-xs font-bold text-white uppercase tracking-wider hover:opacity-90 disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-md shadow-[#EF2F38]/20"
+              className="px-4 py-2 rounded-[8px] bg-brand text-xs font-bold text-white uppercase tracking-wider hover:opacity-90 disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-md shadow-brand/20"
             >
               {isSavingStatus ? 'Saving...' : 'Update Status'}
             </button>

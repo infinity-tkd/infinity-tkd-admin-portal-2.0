@@ -251,7 +251,7 @@ export function StudentBulkAchievementDialog({ t, setShowBulkAchvModal, bulkAchv
                        </button>
                        <button
                          onClick={handleSaveBulkAchvs}
-                         className="px-5 py-2 bg-[#EF2F38] hover:opacity-90 disabled:opacity-50 text-white rounded-[8px] font-bold uppercase tracking-widest shadow-md shadow-[#EF2F38]/20 flex items-center gap-2"
+                         className="px-5 py-2 bg-brand hover:opacity-90 disabled:opacity-50 text-white rounded-[8px] font-bold uppercase tracking-widest shadow-md shadow-brand/20 flex items-center gap-2"
                          disabled={isSavingBulkAchv}
                        >
                          {isSavingBulkAchv ? (

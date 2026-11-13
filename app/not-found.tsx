@@ -65,7 +65,7 @@ export default function NotFound() {
       <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(239,47,56,0.06)_0%,transparent_70%)] pointer-events-none" />
 
       <div className="relative z-10 flex w-full max-w-md flex-col items-center space-y-6 rounded-lg border border-line bg-surface p-6 text-center shadow-2xl sm:p-8">
-        <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center text-[#EF2F38] shadow-[0_0_20px_rgba(239,47,56,0.15)]">
+        <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center text-brand-ink shadow-[0_0_20px_rgba(239,47,56,0.15)]">
           <span className="text-xl font-mono font-black tracking-tight">404</span>
         </div>
 

@@ -57,7 +57,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
           <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3.5 sm:gap-4 shadow-sm">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-white flex items-center gap-2">
-                <ChartLine className="w-4 h-4 text-[#EF2F38]" />
+                <ChartLine className="w-4 h-4 text-brand-ink" />
                 Revenue & Receivable Analytics
               </h2>
               <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
@@ -70,7 +70,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
               <select
                 value={filterYear}
                 onChange={(e) => setFilterYear(Number(e.target.value))}
-                className="h-9 px-3 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs font-mono font-bold focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                className="h-9 px-3 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs font-mono font-bold focus:outline-none focus:border-brand cursor-pointer"
               >
                 <option value={currentActualYear}>{currentActualYear}</option>
                 <option value={currentActualYear - 1}>{currentActualYear - 1}</option>
@@ -80,7 +80,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
               <select
                 value={filterMonth}
                 onChange={(e) => setFilterMonth(e.target.value)}
-                className="h-9 px-3 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                className="h-9 px-3 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs focus:outline-none focus:border-brand cursor-pointer"
               >
                 <option value="all">All Months</option>
                 {months.map(m => (
@@ -91,7 +91,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
               <select
                 value={filterBranch}
                 onChange={(e) => setFilterBranch(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                className="h-9 px-3 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                className="h-9 px-3 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs focus:outline-none focus:border-brand cursor-pointer"
               >
                 <option value="all">All Branches</option>
                 {state.branches.map(b => (
@@ -102,7 +102,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
               <select
                 value={filterScholarship}
                 onChange={(e) => setFilterScholarship(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                className="h-9 px-3 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                className="h-9 px-3 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs focus:outline-none focus:border-brand cursor-pointer"
               >
                 <option value="all">All Plans</option>
                 {state.scholarships.map(s => (
@@ -195,12 +195,12 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                     className={cn(
                       "p-2.5 rounded-[8px] border flex flex-col justify-between transition-all min-w-[76px] sm:min-w-0 shrink-0 snap-start",
                       isCurrentMonth
-                        ? "bg-neutral-50 dark:bg-[#1C1C1C] border-[#EF2F38]/40 ring-1 ring-[#EF2F38]/20 shadow-sm"
+                        ? "bg-neutral-50 dark:bg-[#1C1C1C] border-brand/40 ring-1 ring-brand/20 shadow-sm"
                         : "bg-neutral-50/50 dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626]"
                     )}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className={cn("text-xs font-mono font-bold", isCurrentMonth ? "text-[#EF2F38]" : "text-neutral-900 dark:text-neutral-100")}>
+                      <span className={cn("text-xs font-mono font-bold", isCurrentMonth ? "text-brand-ink" : "text-neutral-900 dark:text-neutral-100")}>
                         {item.month}
                       </span>
                       <span className={cn(
@@ -273,7 +273,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                       placeholder="Search overdue student..."
                       value={agingSearch}
                       onChange={(e) => setAgingSearch(e.target.value)}
-                      className="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#EF2F38]"
+                      className="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-brand"
                     />
                     {agingSearch && (
                       <button onClick={() => setAgingSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-white">
@@ -429,11 +429,11 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                                <SafeImage
                                  src={ar.student.profilePicturePath}
                                  alt={ar.student.englishName}
-                                 containerClassName="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 group-hover:border-[#EF2F38] transition-colors"
+                                 containerClassName="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 group-hover:border-brand transition-colors"
                                  fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-[10px]">{ar.student.englishName.charAt(0)}</span>}
                                />
                                <div>
-                                 <div className="font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5 group-hover:text-[#EF2F38] dark:group-hover:text-white transition-colors">
+                                 <div className="font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5 group-hover:text-brand-ink dark:group-hover:text-white transition-colors">
                                    {ar.student.englishName}
                                    {ar.student.khmerName && (
                                      <span className="text-[10px] font-khmer text-neutral-500 dark:text-neutral-400 font-normal">

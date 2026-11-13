@@ -135,7 +135,7 @@ export function AccountSecurityPanel() {
       <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-5 sm:p-6 shadow-sm transition-colors space-y-4">
         <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3">
           <div className="flex items-center gap-2">
-            <Lock className="w-4 h-4 text-[#EF2F38]" weight="bold" />
+            <Lock className="w-4 h-4 text-brand-ink" weight="bold" />
             <h3 className="text-xs font-black uppercase tracking-wider text-neutral-900 dark:text-white font-mono">
               Change Account Password
             </h3>
@@ -158,7 +158,7 @@ export function AccountSecurityPanel() {
                     setNewPassword(generated);
                     setConfirmPassword(generated);
                   }}
-                  className="min-h-8 pointer-coarse:min-h-9 px-1 text-[10px] text-[#EF2F38] hover:underline cursor-pointer flex items-center gap-1 font-bold"
+                  className="min-h-8 pointer-coarse:min-h-9 px-1 text-[10px] text-brand-ink hover:underline cursor-pointer flex items-center gap-1 font-bold"
                 >
                   <Sparkle className="w-3 h-3" />
                   <span>Generate Strong</span>
@@ -172,7 +172,7 @@ export function AccountSecurityPanel() {
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   placeholder="Min 12 characters (e.g. Master2026!)"
-                  className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38] pr-10"
+                  className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-brand pr-10"
                 />
                 <button
                   type="button"
@@ -202,7 +202,7 @@ export function AccountSecurityPanel() {
                     "w-full bg-neutral-50 dark:bg-[#1A1A1A] border rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs text-neutral-900 dark:text-white font-mono focus:outline-none pr-10",
                     confirmPassword && confirmPassword !== newPassword 
                       ? "border-red-500 focus:border-red-500" 
-                      : "border-neutral-200 dark:border-[#262626] focus:border-[#EF2F38]"
+                      : "border-neutral-200 dark:border-[#262626] focus:border-brand"
                   )}
                 />
                 <button
@@ -235,7 +235,7 @@ export function AccountSecurityPanel() {
             <button
               type="submit"
               disabled={isUpdatingPassword || !newPassword || newPassword !== confirmPassword || newPassword.length < 12}
-              className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] bg-[#EF2F38] hover:bg-[#D9222B] disabled:opacity-40 text-white font-mono font-bold uppercase tracking-wider text-xs rounded-[8px] cursor-pointer shadow-sm shadow-[#EF2F38]/20 flex items-center justify-center gap-2 transition-all active:scale-95 touch-manipulation"
+              className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] bg-brand hover:bg-brand-strong disabled:opacity-40 text-white font-mono font-bold uppercase tracking-wider text-xs rounded-[8px] cursor-pointer shadow-sm shadow-brand/20 flex items-center justify-center gap-2 transition-all active:scale-95 touch-manipulation"
             >
               <Key className="w-4 h-4" weight="bold" />
               <span>{isUpdatingPassword ? 'Updating...' : 'Update Password'}</span>
@@ -248,7 +248,7 @@ export function AccountSecurityPanel() {
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <h3 className="text-xs font-black uppercase tracking-wider text-neutral-900 dark:text-white flex items-center gap-2 font-mono">
-            <Desktop className="w-4 h-4 text-[#EF2F38]" weight="bold" /> 
+            <Desktop className="w-4 h-4 text-brand-ink" weight="bold" /> 
             <span>Current browser session</span>
           </h3>
           <button
@@ -270,7 +270,7 @@ export function AccountSecurityPanel() {
               <div className="flex items-start sm:items-center gap-3">
                 <div className="p-2.5 bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-neutral-600 dark:text-neutral-400 shrink-0">
                   {session.device.includes('iPhone') || session.device.includes('Mobile') ? (
-                    <DeviceMobile className="w-5 h-5 text-[#EF2F38]" weight="bold" />
+                    <DeviceMobile className="w-5 h-5 text-brand-ink" weight="bold" />
                   ) : (
                     <Desktop className="w-5 h-5 text-neutral-600 dark:text-neutral-300" weight="bold" />
                   )}

@@ -99,7 +99,7 @@ export function InstallPrompt() {
         title="Install Infinity Admin Portal"
         aria-label="Install Infinity Admin Portal"
       >
-        <DownloadSimple className="w-4 h-4 shrink-0 text-[#EF2F38]" weight="bold" />
+        <DownloadSimple className="w-4 h-4 shrink-0 text-brand-ink" weight="bold" />
         <span className="hidden sm:inline">Install App</span>
       </button>
 
@@ -113,7 +113,7 @@ export function InstallPrompt() {
               <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-[#262626]">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center shrink-0">
-                    <Desktop className="w-4 h-4 text-[#EF2F38]" />
+                    <Desktop className="w-4 h-4 text-brand-ink" />
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-neutral-900 dark:text-white uppercase tracking-wider leading-none">
@@ -141,7 +141,7 @@ export function InstallPrompt() {
               {/* Instructions List with Clean Indentation and Alignment */}
               <div className="space-y-2.5 bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 text-xs">
                 <div className="flex items-start gap-3 p-2 rounded-[6px] bg-white dark:bg-[#141414] border border-neutral-200/60 dark:border-[#202020]">
-                  <div className="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/30 text-[#EF2F38] flex items-center justify-center shrink-0 font-bold text-xs font-mono">
+                  <div className="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/30 text-brand-ink flex items-center justify-center shrink-0 font-bold text-xs font-mono">
                     1
                   </div>
                   <div className="min-w-0 flex-1 pt-0.5">
@@ -152,7 +152,7 @@ export function InstallPrompt() {
                 </div>
 
                 <div className="flex items-start gap-3 p-2 rounded-[6px] bg-white dark:bg-[#141414] border border-neutral-200/60 dark:border-[#202020]">
-                  <div className="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/30 text-[#EF2F38] flex items-center justify-center shrink-0 font-bold text-xs font-mono">
+                  <div className="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/30 text-brand-ink flex items-center justify-center shrink-0 font-bold text-xs font-mono">
                     2
                   </div>
                   <div className="min-w-0 flex-1 pt-0.5">
@@ -167,7 +167,7 @@ export function InstallPrompt() {
               <button
                 type="button"
                 onClick={() => setShowDesktopGuide(false)}
-                className="w-full min-h-[44px] px-4 py-2.5 bg-[#EF2F38] hover:bg-red-600 text-white font-bold uppercase tracking-wider text-xs rounded-[8px] transition-colors cursor-pointer shadow-sm active:scale-95 touch-manipulation flex items-center justify-center"
+                className="w-full min-h-[44px] px-4 py-2.5 bg-brand hover:bg-red-600 text-white font-bold uppercase tracking-wider text-xs rounded-[8px] transition-colors cursor-pointer shadow-sm active:scale-95 touch-manipulation flex items-center justify-center"
               >
                 Close
               </button>
@@ -212,7 +212,7 @@ export function InstallPrompt() {
               {/* Instructions List with Clean Indentation */}
               <div className="space-y-2.5 bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 text-xs">
                 <div className="flex items-start gap-3 p-2 rounded-[6px] bg-white dark:bg-[#141414] border border-neutral-200/60 dark:border-[#202020]">
-                  <div className="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/30 text-[#EF2F38] flex items-center justify-center shrink-0 font-bold text-xs font-mono">
+                  <div className="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/30 text-brand-ink flex items-center justify-center shrink-0 font-bold text-xs font-mono">
                     1
                   </div>
                   <div className="min-w-0 flex-1 pt-0.5">
@@ -227,7 +227,7 @@ export function InstallPrompt() {
                 </div>
 
                 <div className="flex items-start gap-3 p-2 rounded-[6px] bg-white dark:bg-[#141414] border border-neutral-200/60 dark:border-[#202020]">
-                  <div className="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/30 text-[#EF2F38] flex items-center justify-center shrink-0 font-bold text-xs font-mono">
+                  <div className="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/30 text-brand-ink flex items-center justify-center shrink-0 font-bold text-xs font-mono">
                     2
                   </div>
                   <div className="min-w-0 flex-1 pt-0.5">
@@ -242,7 +242,7 @@ export function InstallPrompt() {
                 </div>
 
                 <div className="flex items-start gap-3 p-2 rounded-[6px] bg-white dark:bg-[#141414] border border-neutral-200/60 dark:border-[#202020]">
-                  <div className="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/30 text-[#EF2F38] flex items-center justify-center shrink-0 font-bold text-xs font-mono">
+                  <div className="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/30 text-brand-ink flex items-center justify-center shrink-0 font-bold text-xs font-mono">
                     3
                   </div>
                   <div className="min-w-0 flex-1 pt-0.5">
@@ -257,7 +257,7 @@ export function InstallPrompt() {
               <button
                 type="button"
                 onClick={() => setShowIosGuide(false)}
-                className="w-full min-h-[44px] px-4 py-2.5 bg-[#EF2F38] hover:bg-red-600 text-white font-bold uppercase tracking-wider text-xs rounded-[8px] transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center shadow-sm"
+                className="w-full min-h-[44px] px-4 py-2.5 bg-brand hover:bg-red-600 text-white font-bold uppercase tracking-wider text-xs rounded-[8px] transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center shadow-sm"
               >
                 Got It
               </button>

@@ -48,7 +48,7 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
             </div>
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 shadow-sm">
               <span className="text-[10px] font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400">Items Sold</span>
-              <p className="text-lg sm:text-2xl font-black font-mono text-[#EF2F38] mt-1">
+              <p className="text-lg sm:text-2xl font-black font-mono text-brand-ink mt-1">
                 {totalItemsSold}
               </p>
             </div>
@@ -76,7 +76,7 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
                       className={cn(
                         "min-w-0 flex-1 sm:flex-initial px-1.5 sm:px-2.5 py-1 min-h-[38px] text-[10px] font-mono rounded-[6px] transition cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                         salesPeriodFilter === period
-                          ? "bg-[#EF2F38] text-white font-bold shadow-sm"
+                          ? "bg-brand text-white font-bold shadow-sm"
                           : "text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
                       )}
                     >
@@ -90,7 +90,7 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
                   aria-label="Sales payment method"
                   value={salesMethodFilter}
                   onChange={e => setSalesMethodFilter(e.target.value as any)}
-                  className="min-w-0 w-full sm:w-auto bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-1.5 min-h-11 focus:outline-none focus:border-[#EF2F38] font-mono cursor-pointer"
+                  className="min-w-0 w-full sm:w-auto bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-1.5 min-h-11 focus:outline-none focus:border-brand font-mono cursor-pointer"
                 >
                   <option value="All">All Payment Methods</option>
                   <option value="ABA Bank KHQR">ABA Bank KHQR</option>
@@ -107,7 +107,7 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
                     placeholder="Search TX #, customer, item..."
                     value={salesSearch}
                     onChange={e => setSalesSearch(e.target.value)}
-                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs text-neutral-900 dark:text-[#E4E4E4] pl-8 pr-7 py-2 min-h-[38px] rounded-[8px] focus:outline-none focus:border-[#EF2F38] font-mono placeholder:text-neutral-400 dark:placeholder:text-neutral-600"
+                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs text-neutral-900 dark:text-[#E4E4E4] pl-8 pr-7 py-2 min-h-[38px] rounded-[8px] focus:outline-none focus:border-brand font-mono placeholder:text-neutral-400 dark:placeholder:text-neutral-600"
                   />
                   {salesSearch && (
                     <button
@@ -168,7 +168,7 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
                   ) : (
                     filteredSales.map(tx => (
                       <tr key={tx.txId} className="hover:bg-neutral-50 dark:hover:bg-[#1a1a1a] transition-colors">
-                        <td className="py-3 px-4 font-bold text-[#EF2F38]">{tx.txId}<span className="mt-1 block text-[10px] font-normal text-neutral-500">{tx.paymentStatus || 'UNKNOWN'}</span></td>
+                        <td className="py-3 px-4 font-bold text-brand-ink">{tx.txId}<span className="mt-1 block text-[10px] font-normal text-neutral-500">{tx.paymentStatus || 'UNKNOWN'}</span></td>
                         <td className="py-3 px-4 text-neutral-600 dark:text-neutral-400">{tx.date}</td>
                         <td className="py-3 px-4 font-bold text-neutral-900 dark:text-white">{tx.studentName}</td>
                         <td className="py-3 px-4 text-neutral-700 dark:text-neutral-300 max-w-xs truncate">
@@ -179,7 +179,7 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
                             "px-2 py-0.5 rounded-[6px] text-[10px] font-bold border",
                             tx.method === 'Cash'
                               ? "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
-                              : "bg-red-100 text-red-800 border-red-300 dark:bg-red-500/10 dark:text-[#EF2F38] dark:border-red-500/20"
+                              : "bg-red-100 text-red-800 border-red-300 dark:bg-red-500/10 dark:text-brand-ink dark:border-red-500/20"
                           )}>
                             {tx.method}
                           </span>
@@ -192,7 +192,7 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
                             <button
                               onClick={() => setCompletedTx(tx)}
                               title="Re-print Thermal Receipt"
-                              className="p-1.5 bg-neutral-100 hover:bg-[#EF2F38] hover:text-white text-neutral-600 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-[#EF2F38] dark:hover:text-white dark:text-neutral-400 dark:border-[#262626] rounded-[6px] transition cursor-pointer"
+                              className="p-1.5 bg-neutral-100 hover:bg-brand hover:text-white text-neutral-600 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-brand dark:hover:text-white dark:text-neutral-400 dark:border-[#262626] rounded-[6px] transition cursor-pointer"
                             >
                               <Printer size={13} />
                             </button>
@@ -229,7 +229,7 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
                 >
                   <div className="flex items-start justify-between gap-2 border-b border-neutral-100 dark:border-[#202020] pb-2">
                     <div>
-                      <span className="text-xs font-bold text-[#EF2F38]">{tx.txId}</span>
+                      <span className="text-xs font-bold text-brand-ink">{tx.txId}</span>
                       <p className="text-[10px] text-neutral-500">{tx.paymentStatus || 'UNKNOWN'}</p>
                       <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">{tx.date}</p>
                     </div>
@@ -237,7 +237,7 @@ export function SalesHistoryPanel({ onRefresh, canCancelOrder, totalSalesRevenue
                       "px-2 py-0.5 rounded-[6px] text-[10px] font-bold border",
                       tx.method === 'Cash'
                         ? "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
-                        : "bg-red-100 text-red-800 border-red-300 dark:bg-red-500/10 dark:text-[#EF2F38] dark:border-red-500/20"
+                        : "bg-red-100 text-red-800 border-red-300 dark:bg-red-500/10 dark:text-brand-ink dark:border-red-500/20"
                     )}>
                       {tx.method}
                     </span>

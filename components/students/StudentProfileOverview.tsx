@@ -117,7 +117,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                   <div className="bg-neutral-50/70 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] p-3.5 rounded-[8px] flex flex-col justify-between shadow-sm">
                     <div className="flex justify-between items-center mb-1.5">
                       <span className="text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_belt')}</span>
-                      <Certificate className="w-4 h-4 text-[#EF2F38]" />
+                      <Certificate className="w-4 h-4 text-brand-ink" />
                     </div>
                     <div>
                       <p className="text-sm font-bold text-neutral-900 dark:text-white truncate">
@@ -166,7 +166,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                   <div className="bg-neutral-50/50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] p-4 md:p-5 rounded-[8px] space-y-3.5">
                     <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-2.5">
                       <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-[#EF2F38]" />
+                        <User className="w-4 h-4 text-brand-ink" />
                         <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider">
                           1. {t('panel_tab_profile')} {t('panel_overview')}
                         </h3>
@@ -239,7 +239,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                   {/* Card 2: Contact & Family Dossier */}
                   <div className="bg-neutral-50/50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] p-4 md:p-5 rounded-[8px] space-y-3.5">
                     <div className="flex items-center gap-2 border-b border-neutral-200 dark:border-[#262626] pb-2.5">
-                      <IdentificationCard className="w-4 h-4 text-[#EF2F38]" />
+                      <IdentificationCard className="w-4 h-4 text-brand-ink" />
                       <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider">
                         2. {t('panel_contacts_dossier')}
                       </h3>
@@ -250,7 +250,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                         <div className="space-y-0.5 min-w-0 pr-2">
                           <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_phone')}</p>
                           {student.phone ? (
-                            <a href={`tel:${student.phone}`} className="text-xs font-mono font-bold text-neutral-900 dark:text-white hover:text-[#EF2F38] transition-colors flex items-center gap-1.5 truncate">
+                            <a href={`tel:${student.phone}`} className="text-xs font-mono font-bold text-neutral-900 dark:text-white hover:text-brand-ink transition-colors flex items-center gap-1.5 truncate">
                               <Phone className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
                               <span>{student.phone}</span>
                             </a>
@@ -274,7 +274,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                         <div className="space-y-0.5 min-w-0 pr-2">
                           <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_email')}</p>
                           {student.email ? (
-                            <a href={`mailto:${student.email}`} className="text-xs font-mono font-bold text-neutral-900 dark:text-white hover:text-[#EF2F38] transition-colors flex items-center gap-1.5 truncate" title={student.email}>
+                            <a href={`mailto:${student.email}`} className="text-xs font-mono font-bold text-neutral-900 dark:text-white hover:text-brand-ink transition-colors flex items-center gap-1.5 truncate" title={student.email}>
                               <Envelope className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
                               <span className="truncate">{student.email}</span>
                             </a>
@@ -319,7 +319,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                           <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">{t('panel_guardian_phone')}</p>
                           <div className="flex items-center justify-between mt-0.5">
                             {student.emergencyContactPhone ? (
-                              <a href={`tel:${student.emergencyContactPhone}`} className="text-xs font-mono font-bold text-neutral-900 dark:text-white hover:text-[#EF2F38] transition-colors flex items-center gap-1.5">
+                              <a href={`tel:${student.emergencyContactPhone}`} className="text-xs font-mono font-bold text-neutral-900 dark:text-white hover:text-brand-ink transition-colors flex items-center gap-1.5">
                                 <Phone className="w-3.5 h-3.5 text-neutral-400" />
                                 <span>{student.emergencyContactPhone}</span>
                               </a>
@@ -363,7 +363,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                   {/* Card 3: Physical & Health Bio */}
                   <div className="bg-neutral-50/50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] p-4 md:p-5 rounded-[8px] space-y-3.5">
                     <div className="flex items-center gap-2 border-b border-neutral-200 dark:border-[#262626] pb-2.5">
-                      <Heart className="w-4 h-4 text-[#EF2F38]" />
+                      <Heart className="w-4 h-4 text-brand-ink" />
                       <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider">
                         3. {t('panel_medical_bio')}
                       </h3>
@@ -407,7 +407,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="p-3 bg-white dark:bg-[#1A1A1A] rounded-[8px] border border-neutral-200 dark:border-[#262626] space-y-1">
                         <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#EF2F38]"></span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-brand"></span>
                           <span>{t('stu_medical_notes')}</span>
                         </p>
                         <p className="text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed font-medium">
@@ -430,7 +430,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                   {/* Card 4: Academy Status & Schedules */}
                   <div className="bg-neutral-50/50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] p-4 md:p-5 rounded-[8px] space-y-3.5">
                     <div className="flex items-center gap-2 border-b border-neutral-200 dark:border-[#262626] pb-2.5">
-                      <GraduationCap className="w-4 h-4 text-[#EF2F38]" />
+                      <GraduationCap className="w-4 h-4 text-brand-ink" />
                       <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider">
                         4. {t('panel_status_schedules')}
                       </h3>
@@ -484,7 +484,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                               href={student.kukkiwonId}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-[#EF2F38]/10 hover:bg-[#EF2F38]/20 border border-[#EF2F38]/20 text-[#EF2F38] text-xs font-bold transition-colors"
+                              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-brand/10 hover:bg-brand/20 border border-brand/20 text-brand-ink text-xs font-bold transition-colors"
                             >
                               <Globe className="w-3.5 h-3.5" />
                               <span>{t('panel_open_gdrive_cert')}</span>
@@ -492,12 +492,12 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                             </a>
                           ) : (
                             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626]">
-                              <span className="w-2 h-2 rounded-full bg-[#EF2F38]"></span>
+                              <span className="w-2 h-2 rounded-full bg-brand"></span>
                               <span className="font-mono text-xs font-bold text-neutral-900 dark:text-white">{student.kukkiwonId}</span>
                               <button
                                 type="button"
                                 onClick={() => handleCopy(student.kukkiwonId!, 'Kukkiwon ID')}
-                                className="p-1 hover:text-[#EF2F38] text-neutral-400 transition-colors cursor-pointer"
+                                className="p-1 hover:text-brand-ink text-neutral-400 transition-colors cursor-pointer"
                                 title="Copy ID"
                               >
                                 {copiedField === 'Kukkiwon ID' ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
@@ -520,7 +520,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                           <button
                             type="button"
                             onClick={() => setShowScheduleManager(!showScheduleManager)}
-                            className="text-[10px] font-bold uppercase tracking-wider text-[#EF2F38] hover:opacity-80 cursor-pointer"
+                            className="text-[10px] font-bold uppercase tracking-wider text-brand-ink hover:opacity-80 cursor-pointer"
                           >
                             {showScheduleManager ? t('panel_close_manager') : t('panel_manage_schedules')}
                           </button>
@@ -538,7 +538,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                             return (
                               <div key={e.id} className="text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white dark:bg-[#1A1A1A] p-3 rounded-[8px] border border-neutral-200 dark:border-[#262626]">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-[#EF2F38] shrink-0"></span>
+                                  <span className="w-1.5 h-1.5 rounded-full bg-brand shrink-0"></span>
                                   <span className="font-bold text-neutral-900 dark:text-white">{cls.name}</span>
                                   <span className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
                                     ({cls.daysOfWeek?.join(', ') || cls.dayOfWeek} • {cls.startTime} - {cls.endTime})
@@ -551,7 +551,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                 </div>
                                 <div className="flex items-center gap-1.5 shrink-0">
                                   <span className="text-[9px] text-neutral-400 dark:text-neutral-500 uppercase font-bold">{t('panel_coach_label')}</span>
-                                  <span className="text-[10px] font-bold text-[#EF2F38] bg-red-500/10 px-2 py-0.5 rounded-[8px] border border-red-500/10">{coachName}</span>
+                                  <span className="text-[10px] font-bold text-brand-ink bg-red-500/10 px-2 py-0.5 rounded-[8px] border border-red-500/10">{coachName}</span>
                                 </div>
                               </div>
                             );
@@ -627,7 +627,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                           "px-2.5 py-1 rounded-[8px] text-[9px] font-bold uppercase tracking-wider transition-all select-none border disabled:opacity-40 cursor-pointer",
                                           isEnrolled
                                             ? "bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white"
-                                            : "bg-neutral-900 dark:bg-white text-white dark:text-black hover:bg-[#EF2F38] hover:text-white border-transparent"
+                                            : "bg-neutral-900 dark:bg-white text-white dark:text-black hover:bg-brand hover:text-white border-transparent"
                                         )}
                                       >
                                         {isEnrolled ? 'Remove' : 'Enroll'}
@@ -686,7 +686,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                           <>
                             <div className="flex justify-between items-center border-b border-neutral-200 dark:border-[#262626] pb-2.5">
                               <div className="flex items-center gap-2">
-                                <Key className="w-4 h-4 text-[#EF2F38]" />
+                                <Key className="w-4 h-4 text-brand-ink" />
                                 <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider">{t('panel_portal_access')}</h3>
                               </div>
                               <div className="flex items-center gap-2">
@@ -726,7 +726,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                               </div>
                               <div className="space-y-1">
                                 <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('panel_system_role')}</p>
-                                <div className="bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-[#EF2F38] font-mono text-xs font-bold">
+                                <div className="bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-brand-ink font-mono text-xs font-bold">
                                   {studentAccount.role === 'Admin' ? t('role_admin') :
                                    studentAccount.role === 'Head Coach' ? t('role_head_coach') :
                                    studentAccount.role === 'Coach' ? t('role_coach') :
@@ -752,7 +752,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                         showNotification(err.message || 'Failed to toggle portal access', 'error');
                                       }
                                     }}
-                                    className="w-4 h-4 bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded text-[#EF2F38] focus:ring-[#EF2F38] cursor-pointer"
+                                    className="w-4 h-4 bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded text-brand-ink focus:ring-brand cursor-pointer"
                                   />
                                   <span className="text-xs text-neutral-700 dark:text-neutral-300 uppercase font-bold tracking-wider">{t('panel_enable_portal')}</span>
                                 </label>
@@ -764,7 +764,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                       setNewPassword('');
                                       setShowPasswordModal(true);
                                     }}
-                                    className="px-3 py-1.5 bg-[#EF2F38]/10 hover:bg-[#EF2F38]/20 border border-[#EF2F38]/30 text-[#EF2F38] text-[10px] font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center gap-1.5 cursor-pointer"
+                                    className="px-3 py-1.5 bg-brand/10 hover:bg-brand/20 border border-brand/30 text-brand-ink text-[10px] font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center gap-1.5 cursor-pointer"
                                   >
                                     <Lock className="w-3.5 h-3.5" />
                                     <span>Set / Change Password</span>
@@ -801,7 +801,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                           <>
                             <div className="flex justify-between items-center border-b border-neutral-200 dark:border-[#262626] pb-2.5">
                               <div className="flex items-center gap-2">
-                                <Key className="w-4 h-4 text-[#EF2F38]" />
+                                <Key className="w-4 h-4 text-brand-ink" />
                                 <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider">{t('panel_portal_access')}</h3>
                               </div>
                               <span className="text-[9px] bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-[8px] font-bold uppercase tracking-wider">{t('panel_no_account')}</span>
@@ -819,7 +819,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                     setProvisionPassword(generatePassword());
                                     setShowProvisionModal(true);
                                   }}
-                                  className="px-4 py-2 bg-[#EF2F38] hover:bg-[#EF2F38]/90 text-white text-[10px] font-bold uppercase tracking-wider rounded-[8px] transition-all shadow-md shadow-[#EF2F38]/20 inline-flex items-center gap-2 cursor-pointer"
+                                  className="px-4 py-2 bg-brand hover:bg-brand/90 text-white text-[10px] font-bold uppercase tracking-wider rounded-[8px] transition-all shadow-md shadow-brand/20 inline-flex items-center gap-2 cursor-pointer"
                                 >
                                   <Key className="w-3.5 h-3.5" />
                                   <span>{t('panel_btn_provision_portal')}</span>
@@ -875,7 +875,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                       {canDeleteStudent && (<button
                         type="button"
                         onClick={() => setShowDeleteConfirm(true)}
-                        className="px-4 py-2.5 min-h-[44px] bg-red-500/10 hover:bg-[#EF2F38] text-[#EF2F38] hover:text-white rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all border border-red-500/20 hover:border-[#EF2F38] flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                        className="px-4 py-2.5 min-h-[44px] bg-red-500/10 hover:bg-brand text-brand-ink hover:text-white rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all border border-red-500/20 hover:border-brand flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
                       >
                         <Trash className="w-3.5 h-3.5" />
                         <span>{t('act_delete')}</span>

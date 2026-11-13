@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {chromium} from 'playwright';
+import {contrastAudit} from './lib/contrast-audit.mjs';
 
 // Responsive layout audit. Every API and Supabase request is intercepted with
 // fictional fixtures, so this never reads or writes a real record.
@@ -20,7 +21,8 @@ const today=new Date().toISOString().slice(0,10);
 const students=Array.from({length:6},(_,index)=>({id:'STU-M-00'+(index+1),khmer_name:'Fixture '+index,english_name:index===0?'Fixture Athlete With An Exceptionally Long Legal Name':'Fixture Athlete '+(index+1),gender:index%2?'Female':'Male',dob:'2012-0'+(index+1)+'-15',registration_date:'2026-01-15',membership_start_date:'2026-01-15',scholarship_id:1,current_belt:['White','Yellow','Green','Blue','Red','1st Poom/Dan'][index],student_status:'Active',home_branch_id:1,student_addresses:[],phone:'+85512000000'}));
 const classSession={id:1,branch_id:1,class_name:'Fixture evening sparring class',class_type:'General Class',day_of_week:'Sunday',days_of_week:['Sunday','Wednesday'],start_time:'17:00',end_time:'18:30',capacity:30,standard_duration_mins:90};
 const partners=[{id:'9c000000-0000-4000-8000-000000000101',name:'Fixture National Sport University Taekwondo Department',brand_name:'Fixture University',partner_type:'MOU',status:'Active',contact_name:'Fixture liaison',contact_role:'Director',phone:'+85512000001',email:'liaison@example.test',telegram_username:'fixture_liaison',country:'Cambodia',mou_expiry_date:today,tags:['education']}];
-const errors=[],findings=[];
+const errors=[],findings=[],contrast=[];
+const contrastMode=process.env.RESPONSIVE_CONTRAST??'strict';
 
 const browser=await chromium.launch({headless:true,...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE}:{})});
 try{
@@ -99,11 +101,16 @@ try{
     const small=[...document.querySelectorAll('[data-portal-scroll] :is(button,a[href],select,input:not([type=hidden]),[role=button])')].filter(element=>{const box=element.getBoundingClientRect();return box.width>0&&box.height>0&&(box.height<32||box.width<32)&&getComputedStyle(element).visibility!=='hidden';}).length;
     // Metric cards from tablet width up: labels and hints are whole, not cut off ("Tuition collecti…").
     const cutKpis=viewport>=768?[...document.querySelectorAll('[data-kpi-card] .truncate')].filter(element=>element.getBoundingClientRect().width>0&&element.scrollWidth>element.clientWidth+1).map(element=>element.textContent.trim().slice(0,40)):[];
-    return {page:document.documentElement.scrollWidth>viewport+1,shell:scroller?scroller.scrollWidth>scroller.clientWidth+1:false,offenders,small,cutKpis};
+    // Phone and tablet bottom bar: every tab label is whole at every width ("Attendance", not "Attenda…").
+    const cutTabs=[...document.querySelectorAll('[data-portal-bottom-nav] span')].filter(element=>element.getBoundingClientRect().width>0&&element.scrollWidth>element.clientWidth+1).map(element=>element.textContent.trim());
+    return {page:document.documentElement.scrollWidth>viewport+1,shell:scroller?scroller.scrollWidth>scroller.clientWidth+1:false,offenders,small,cutKpis,cutTabs};
    });
-   if(result.page||result.shell||result.offenders.length||result.cutKpis.length)findings.push({route,width,...result});
+   if(result.page||result.shell||result.offenders.length||result.cutKpis.length||result.cutTabs.length)findings.push({route,width,...result});
    if(screenshotDir)await page.screenshot({path:path.join(screenshotDir,route.slice(1).replace(/\W+/g,'-')+'-'+width+'.png')});
   }
+  // WCAG AA text contrast of everything rendered on the page (light or dark theme, per RESPONSIVE_THEME).
+  // On by default and strict; RESPONSIVE_CONTRAST=0 skips it, =1 only reports.
+  if(contrastMode!=='0'){await page.setViewportSize({width:1280,height:900});await page.waitForTimeout(300);const audit=await page.evaluate(contrastAudit);contrast.push({route,checked:audit.checked,failing:audit.failing});}
  }
  // Legacy modals open as phone bottom sheets, take focus, close on Escape and return focus.
  const sheets=[['/students','Add student',page=>page.getByRole('button',{name:'Add',exact:true})],['/members','Add staff member',page=>page.getByRole('button',{name:/Add Staff/})]].filter(([route])=>!routeFilter.length||routeFilter.includes(route));
@@ -122,6 +129,8 @@ try{
   const focusReturned=await page.waitForFunction(element=>element===document.activeElement,await button.first().elementHandle(),{timeout:1500}).then(()=>true,()=>false);
   if(!focusReturned)findings.push({route,sheet:name,focusReturned:false});
  }
+ if(contrastMode!=='0'&&screenshotDir)fs.writeFileSync(path.join(screenshotDir,'contrast.json'),JSON.stringify(contrast,null,1));
+ if(contrastMode!=='0'){const failing=contrast.flatMap(entry=>entry.failing.map(f=>({route:entry.route,...f})));console.log(JSON.stringify({contrastChecked:contrast.reduce((sum,entry)=>sum+entry.checked,0),contrastFailing:failing.length}));if(contrastMode==='strict')assert.deepEqual(failing,[],'all text meets WCAG AA contrast (4.5:1, large text 3:1)');}
  console.log(JSON.stringify({findings,errors},null,1));
  if(screenshotDir)fs.writeFileSync(path.join(screenshotDir,'report.json'),JSON.stringify({findings,errors},null,1));
  assert.deepEqual(findings,[],'every page fits phone, tablet and desktop widths without horizontal scrolling');

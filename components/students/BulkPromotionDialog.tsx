@@ -30,7 +30,7 @@ export function BulkPromotionDialog({ BELT_RANK_ORDER, handleBulkPromoteSubmit, 
         >
           <div className="p-4 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0A0A0A] flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-[#EF2F38]" />
+              <ShieldCheck className="w-5 h-5 text-brand-ink" />
               <h3 className="text-xs font-black uppercase tracking-widest text-neutral-900 dark:text-white">{t('dir_bulk_promotion_title')}</h3>
             </div>
             <button
@@ -85,7 +85,7 @@ export function BulkPromotionDialog({ BELT_RANK_ORDER, handleBulkPromoteSubmit, 
                 <select
                   value={promotionForm.fixedTargetBelt}
                   onChange={(e) => setPromotionForm(prev => ({ ...prev, fixedTargetBelt: e.target.value }))}
-                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand cursor-pointer"
                 >
                   {BELT_RANK_ORDER.map(b => (
                     <option key={b} value={b}>{b}</option>
@@ -103,7 +103,7 @@ export function BulkPromotionDialog({ BELT_RANK_ORDER, handleBulkPromoteSubmit, 
                   max="100"
                   value={promotionForm.testScore}
                   onChange={(e) => setPromotionForm(prev => ({ ...prev, testScore: Number(e.target.value) }))}
-                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono font-bold"
+                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono font-bold"
                 />
               </div>
               <div className="space-y-1">
@@ -112,7 +112,7 @@ export function BulkPromotionDialog({ BELT_RANK_ORDER, handleBulkPromoteSubmit, 
                   type="date"
                   value={promotionForm.promotionDate}
                   onChange={(e) => setPromotionForm(prev => ({ ...prev, promotionDate: e.target.value }))}
-                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono [color-scheme:light] dark:[color-scheme:dark]"
+                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono [color-scheme:light] dark:[color-scheme:dark]"
                 />
               </div>
             </div>
@@ -123,7 +123,7 @@ export function BulkPromotionDialog({ BELT_RANK_ORDER, handleBulkPromoteSubmit, 
                 type="text"
                 value={promotionForm.program}
                 onChange={(e) => setPromotionForm(prev => ({ ...prev, program: e.target.value }))}
-                className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-bold"
+                className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-bold"
               />
             </div>
 
@@ -134,7 +134,7 @@ export function BulkPromotionDialog({ BELT_RANK_ORDER, handleBulkPromoteSubmit, 
                 placeholder="e.g. https://drive.google.com/file/d/..."
                 value={promotionForm.certificateUrl || ''}
                 onChange={(e) => setPromotionForm(prev => ({ ...prev, certificateUrl: e.target.value }))}
-                className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono"
+                className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono"
               />
             </div>
           </div>
@@ -148,7 +148,7 @@ export function BulkPromotionDialog({ BELT_RANK_ORDER, handleBulkPromoteSubmit, 
             </button>
             <button
               onClick={handleBulkPromoteSubmit}
-              className="px-5 py-2 bg-[#EF2F38] hover:bg-[#D9222B] text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-all shadow-md shadow-[#EF2F38]/20 cursor-pointer active:scale-95 touch-manipulation"
+              className="px-5 py-2 bg-brand hover:bg-brand-strong text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-all shadow-md shadow-brand/20 cursor-pointer active:scale-95 touch-manipulation"
             >
               {t('dir_confirm_promotion')}
             </button>

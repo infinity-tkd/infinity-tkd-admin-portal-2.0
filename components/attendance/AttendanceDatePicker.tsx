@@ -197,7 +197,7 @@ export function AttendanceDatePicker({ value, onChange }: DatePickerProps) {
           className={cn(
             "p-1.5 rounded-[6px] transition-colors cursor-pointer shrink-0",
             isOpen
-              ? "bg-[#EF2F38] text-white"
+              ? "bg-brand text-white"
               : "hover:bg-neutral-200 dark:hover:bg-[#1A1A1A] text-neutral-500 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
           )}
           title="Open Calendar"
@@ -296,7 +296,7 @@ export function AttendanceDatePicker({ value, onChange }: DatePickerProps) {
                     className={cn(
                       "h-6.5 w-6.5 rounded-[4px] flex items-center justify-center transition-all text-[11px] cursor-pointer",
                       isSelected
-                        ? "bg-[#EF2F38] text-white font-extrabold shadow-sm shadow-[#EF2F38]/30"
+                        ? "bg-brand text-white font-extrabold shadow-sm shadow-brand/30"
                         : cell.isCurrentMonth
                           ? "text-neutral-800 dark:text-[#E4E4E4] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] hover:text-neutral-900 dark:hover:text-white"
                           : "text-neutral-400 dark:text-[#444] hover:text-neutral-600 dark:hover:text-[#666]"

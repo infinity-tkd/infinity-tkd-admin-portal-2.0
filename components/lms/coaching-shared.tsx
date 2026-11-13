@@ -72,7 +72,7 @@ export function StatusLine({ message }: { message: { tone: 'ok' | 'error'; text:
 
 export function Pill({ tone = 'neutral', children }: { tone?: 'neutral' | 'brand' | 'good' | 'warn'; children: React.ReactNode }) {
   return <span className={cn('inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider', {
-    neutral: 'bg-control text-ink-muted', brand: 'bg-brand/10 text-brand', good: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400', warn: 'bg-amber-500/15 text-amber-800 dark:text-amber-300',
+    neutral: 'bg-control text-ink-muted', brand: 'bg-brand/10 text-brand-ink', good: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400', warn: 'bg-amber-500/15 text-amber-800 dark:text-amber-300',
   }[tone])}>{children}</span>;
 }
 
@@ -134,7 +134,7 @@ export function AudiencePicker({ overview, value, onChange }: { overview: Overvi
     onChange(next);
   };
   const [student, setStudent] = useState('');
-  const chip = (active: boolean) => cn('min-h-9 pointer-coarse:min-h-11 rounded-lg border px-2.5 text-xs font-semibold', active ? 'border-brand bg-brand/10 text-brand' : 'border-line bg-surface-muted text-ink-muted hover:bg-control');
+  const chip = (active: boolean) => cn('min-h-9 pointer-coarse:min-h-11 rounded-lg border px-2.5 text-xs font-semibold', active ? 'border-brand bg-brand/10 text-brand-ink' : 'border-line bg-surface-muted text-ink-muted hover:bg-control');
   return <fieldset className="space-y-2 rounded-lg border border-line p-2">
     <legend className={cn(labelClass, 'px-1')}>Who</legend>
     <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={Boolean(value.all)} onChange={event => onChange(event.target.checked ? { all: true } : {})} /> Every active student</label>

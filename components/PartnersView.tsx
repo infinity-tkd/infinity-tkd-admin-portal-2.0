@@ -433,7 +433,7 @@ export function PartnersView() {
             aria-label="Synchronize partner directory"
             className={buttonClass()}
           >
-            <ArrowsClockwise className={cn("w-4 h-4", isRefreshing && "motion-safe:animate-spin text-brand")} weight="bold" />
+            <ArrowsClockwise className={cn("w-4 h-4", isRefreshing && "motion-safe:animate-spin text-brand-ink")} weight="bold" />
             <span>Sync</span>
           </button>
           <button
@@ -560,7 +560,7 @@ export function PartnersView() {
                 <div
                   key={partner.id}
                   onClick={() => setDetailPartner(partner)}
-                  className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] hover:border-[#EF2F38]/40 dark:hover:border-[#EF2F38]/40 rounded-[8px] p-4 flex flex-col justify-between shadow-xs transition-all cursor-pointer group hover:shadow-md"
+                  className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] hover:border-brand/40 dark:hover:border-brand/40 rounded-[8px] p-4 flex flex-col justify-between shadow-xs transition-all cursor-pointer group hover:shadow-md"
                 >
                   {/* Top Partner Brand & Type */}
                   <div className="space-y-3">
@@ -573,12 +573,12 @@ export function PartnersView() {
                             className="w-12 h-12 rounded-[8px] object-cover border border-neutral-200 dark:border-[#262626] shrink-0 bg-neutral-100 dark:bg-[#1A1A1A]"
                           />
                         ) : (
-                          <div className="w-12 h-12 rounded-[8px] bg-[#EF2F38]/10 border border-[#EF2F38]/20 flex items-center justify-center text-[#EF2F38] font-black text-sm font-mono shrink-0">
+                          <div className="w-12 h-12 rounded-[8px] bg-brand/10 border border-brand/20 flex items-center justify-center text-brand-ink font-black text-sm font-mono shrink-0">
                             {partner.name.slice(0, 2).toUpperCase()}
                           </div>
                         )}
                         <div className="min-w-0">
-                          <h3 className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white truncate group-hover:text-[#EF2F38] transition-colors">
+                          <h3 className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white truncate group-hover:text-brand-ink transition-colors">
                             {partner.brandName || partner.name}
                           </h3>
                           {partner.brandName && (
@@ -663,7 +663,7 @@ export function PartnersView() {
                           href={partner.telegramLink || `https://t.me/${partner.telegramUsername.replace(/^@/, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="min-h-[36px] px-2.5 py-1 bg-[#229ED9]/10 hover:bg-[#229ED9] text-[#229ED9] hover:text-white rounded-[6px] text-[11px] font-mono font-bold flex items-center gap-1.5 transition-all active:scale-95 touch-manipulation border border-[#229ED9]/20 pointer-coarse:min-h-11"
+                          className="min-h-[36px] px-2.5 py-1 bg-[#229ED9]/10 hover:bg-[#229ED9] text-[#17739f] dark:text-[#229ED9] hover:text-white rounded-[6px] text-[11px] font-mono font-bold flex items-center gap-1.5 transition-all active:scale-95 touch-manipulation border border-[#229ED9]/20 pointer-coarse:min-h-11"
                           title={`Open Telegram: @${partner.telegramUsername.replace(/^@/, '')}`}
                         >
                           <PaperPlaneTilt className="w-3.5 h-3.5" weight="fill" />
@@ -710,7 +710,7 @@ export function PartnersView() {
                     <button
                       type="button"
                       onClick={() => setDetailPartner(partner)}
-                      className="min-h-[36px] px-2 text-xs font-bold font-mono text-[#EF2F38] hover:text-[#d4252e] hover:underline uppercase tracking-wider flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                      className="min-h-[36px] px-2 text-xs font-bold font-mono text-brand-ink hover:text-brand-ink hover:underline uppercase tracking-wider flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                     >
                       <span>Details</span>
                       <ArrowSquareOut className="w-3.5 h-3.5" />
@@ -741,7 +741,7 @@ export function PartnersView() {
                           className="w-10 h-10 rounded-[6px] object-cover border border-neutral-200 dark:border-[#262626] shrink-0"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-[6px] bg-[#EF2F38]/10 text-[#EF2F38] font-bold text-xs flex items-center justify-center shrink-0 font-mono">
+                        <div className="w-10 h-10 rounded-[6px] bg-brand/10 text-brand-ink font-bold text-xs flex items-center justify-center shrink-0 font-mono">
                           {partner.name.slice(0, 2).toUpperCase()}
                         </div>
                       )}
@@ -806,7 +806,7 @@ export function PartnersView() {
                     {partner.mouExpiryDate && (
                       <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
                         <span className="text-[10px] text-neutral-400 dark:text-neutral-500">Expiry:</span>
-                        <span className="text-[#EF2F38] font-bold">{partner.mouExpiryDate}</span>
+                        <span className="text-brand-ink font-bold">{partner.mouExpiryDate}</span>
                       </div>
                     )}
                   </div>
@@ -819,7 +819,7 @@ export function PartnersView() {
                           href={partner.telegramLink || `https://t.me/${partner.telegramUsername.replace(/^@/, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="min-h-[34px] px-2 py-1 bg-[#229ED9]/10 text-[#229ED9] rounded-[6px] text-[10px] font-mono font-bold flex items-center gap-1 border border-[#229ED9]/20 active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                          className="min-h-[34px] px-2 py-1 bg-[#229ED9]/10 text-[#17739f] dark:text-[#229ED9] rounded-[6px] text-[10px] font-mono font-bold flex items-center gap-1 border border-[#229ED9]/20 active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                         >
                           <PaperPlaneTilt className="w-3 h-3" weight="fill" />
                           <span>@{partner.telegramUsername.replace(/^@/, '')}</span>
@@ -848,7 +848,7 @@ export function PartnersView() {
                     <button
                       type="button"
                       onClick={() => setDetailPartner(partner)}
-                      className="min-h-[34px] px-2 text-xs font-bold font-mono text-[#EF2F38] hover:text-[#d4252e] hover:underline uppercase tracking-wider flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                      className="min-h-[34px] px-2 text-xs font-bold font-mono text-brand-ink hover:text-brand-ink hover:underline uppercase tracking-wider flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                     >
                       <span>Details</span>
                       <ArrowSquareOut className="w-3.5 h-3.5" />
@@ -891,7 +891,7 @@ export function PartnersView() {
                                 className="w-8 h-8 rounded-[6px] object-cover border border-neutral-200 dark:border-[#262626] shrink-0"
                               />
                             ) : (
-                              <div className="w-8 h-8 rounded-[6px] bg-[#EF2F38]/10 text-[#EF2F38] font-bold text-xs flex items-center justify-center shrink-0">
+                              <div className="w-8 h-8 rounded-[6px] bg-brand/10 text-brand-ink font-bold text-xs flex items-center justify-center shrink-0">
                                 {partner.name.slice(0, 2).toUpperCase()}
                               </div>
                             )}
@@ -934,7 +934,7 @@ export function PartnersView() {
                                 href={partner.telegramLink || `https://t.me/${partner.telegramUsername.replace(/^@/, '')}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[#229ED9] hover:underline font-bold flex items-center gap-1"
+                                className="text-[#17739f] dark:text-[#229ED9] hover:underline font-bold flex items-center gap-1"
                               >
                                 <PaperPlaneTilt className="w-3 h-3" weight="fill" />
                                 <span>@{partner.telegramUsername.replace(/^@/, '')}</span>
@@ -956,12 +956,12 @@ export function PartnersView() {
                         <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                           <div className="space-y-0.5">
                             {partner.phone && (
-                              <a href={`tel:${partner.phone}`} className="text-neutral-700 dark:text-neutral-300 hover:text-[#EF2F38] block text-[11px]">
+                              <a href={`tel:${partner.phone}`} className="text-neutral-700 dark:text-neutral-300 hover:text-brand-ink block text-[11px]">
                                 {partner.phone}
                               </a>
                             )}
                             {partner.email && (
-                              <a href={`mailto:${partner.email}`} className="text-neutral-500 dark:text-neutral-400 hover:text-[#EF2F38] block text-[10px] truncate max-w-[160px]">
+                              <a href={`mailto:${partner.email}`} className="text-neutral-500 dark:text-neutral-400 hover:text-brand-ink block text-[10px] truncate max-w-[160px]">
                                 {partner.email}
                               </a>
                             )}
@@ -1033,7 +1033,7 @@ export function PartnersView() {
                         className="w-12 h-12 rounded-[8px] object-cover border border-neutral-200 dark:border-[#262626] shrink-0"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-[8px] bg-[#EF2F38]/10 text-[#EF2F38] font-black text-base flex items-center justify-center shrink-0 font-mono">
+                      <div className="w-12 h-12 rounded-[8px] bg-brand/10 text-brand-ink font-black text-base flex items-center justify-center shrink-0 font-mono">
                         {detailPartner.name.slice(0, 2).toUpperCase()}
                       </div>
                     )}
@@ -1093,7 +1093,7 @@ export function PartnersView() {
 
                   {detailPartner.collaborationScope && (
                     <div className="bg-neutral-50 dark:bg-[#0F0F0F] p-3.5 rounded-[8px] border border-neutral-200 dark:border-[#262626]">
-                      <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#EF2F38] mb-1">MOU / Collaboration Scope</h4>
+                      <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-brand-ink mb-1">MOU / Collaboration Scope</h4>
                       <p className="text-neutral-800 dark:text-neutral-200 leading-relaxed font-sans">{detailPartner.collaborationScope}</p>
                     </div>
                   )}
@@ -1130,7 +1130,7 @@ export function PartnersView() {
                                 href={detailPartner.telegramLink || `https://t.me/${detailPartner.telegramUsername.replace(/^@/, '')}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[#229ED9] hover:underline font-bold min-h-[34px] flex items-center active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                                className="text-[#17739f] dark:text-[#229ED9] hover:underline font-bold min-h-[34px] flex items-center active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                               >
                                 @{detailPartner.telegramUsername.replace(/^@/, '')}
                               </a>
@@ -1141,7 +1141,7 @@ export function PartnersView() {
                               <span className="text-neutral-400 dark:text-neutral-500">Phone:</span>
                               <a
                                 href={`tel:${detailPartner.phone}`}
-                                className="text-neutral-700 dark:text-neutral-300 hover:text-[#EF2F38] min-h-[34px] flex items-center active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                                className="text-neutral-700 dark:text-neutral-300 hover:text-brand-ink min-h-[34px] flex items-center active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                               >
                                 {detailPartner.phone}
                               </a>
@@ -1152,7 +1152,7 @@ export function PartnersView() {
                               <span className="text-neutral-400 dark:text-neutral-500">Email:</span>
                               <a
                                 href={`mailto:${detailPartner.email}`}
-                                className="text-neutral-700 dark:text-neutral-300 hover:text-[#EF2F38] truncate max-w-[180px] min-h-[34px] flex items-center active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                                className="text-neutral-700 dark:text-neutral-300 hover:text-brand-ink truncate max-w-[180px] min-h-[34px] flex items-center active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                               >
                                 {detailPartner.email}
                               </a>
@@ -1204,7 +1204,7 @@ export function PartnersView() {
                             href={detailPartner.websiteUrl.startsWith('http') ? detailPartner.websiteUrl : `https://${detailPartner.websiteUrl}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[#EF2F38] hover:underline font-bold truncate block min-h-[30px] flex items-center active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                            className="text-brand-ink hover:underline font-bold truncate block min-h-[30px] flex items-center active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                           >
                             Open Link ↗
                           </a>
@@ -1221,7 +1221,7 @@ export function PartnersView() {
                           href={detailPartner.contractDocumentUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-3.5 py-2 min-h-[38px] bg-[#EF2F38] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 hover:bg-[#d4252e] active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                          className="px-3.5 py-2 min-h-[38px] bg-brand text-white rounded-[8px] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 hover:bg-brand-strong active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                         >
                           <FileText className="w-4 h-4" />
                           <span>View Document</span>
@@ -1275,7 +1275,7 @@ export function PartnersView() {
                 <DialogBody className="space-y-4 text-xs sm:p-5">
                   {/* Section 1: Institution & Brand */}
                   <div className="space-y-3 pb-3 border-b border-neutral-200 dark:border-[#262626]">
-                    <h3 className="text-[10px] uppercase font-bold text-[#EF2F38] tracking-wider">1. Institution & Brand Identity</h3>
+                    <h3 className="text-[10px] uppercase font-bold text-brand-ink tracking-wider">1. Institution & Brand Identity</h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <label className="block">
@@ -1366,7 +1366,7 @@ export function PartnersView() {
 
                   {/* Section 2: Contact Persons & Telegram */}
                   <div className="space-y-3 pb-3 border-b border-neutral-200 dark:border-[#262626]">
-                    <h3 className="text-[10px] uppercase font-bold text-[#EF2F38] tracking-wider">2. Working Contacts & Telegram (Liaison)</h3>
+                    <h3 className="text-[10px] uppercase font-bold text-brand-ink tracking-wider">2. Working Contacts & Telegram (Liaison)</h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <label className="block">
@@ -1394,7 +1394,7 @@ export function PartnersView() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <label className="block">
-                        <span className={labelClass}><span className="text-[#229ED9] font-bold">✈ Telegram Username</span></span>
+                        <span className={labelClass}><span className="text-[#17739f] dark:text-[#229ED9] font-bold">✈ Telegram Username</span></span>
                         <input
                           type="text"
                           placeholder="e.g. @sokhamean"
@@ -1461,7 +1461,7 @@ export function PartnersView() {
 
                   {/* Section 3: MOU Agreement & Validity */}
                   <div className="space-y-3">
-                    <h3 className="text-[10px] uppercase font-bold text-[#EF2F38] tracking-wider">3. Agreement Dates & Document Ref</h3>
+                    <h3 className="text-[10px] uppercase font-bold text-brand-ink tracking-wider">3. Agreement Dates & Document Ref</h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <label className="block">
