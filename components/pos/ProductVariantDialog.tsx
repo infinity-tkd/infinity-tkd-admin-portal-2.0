@@ -60,7 +60,7 @@ export function ProductVariantDialog({ selectedVariantModalProduct, modalSelecte
                   <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-[#EF2F38]/10 text-[#EF2F38]">
+                        <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-brand/10 text-brand-ink">
                           {product.category}
                         </span>
                         <span className="text-[10px] text-neutral-400 font-mono">
@@ -112,7 +112,7 @@ export function ProductVariantDialog({ selectedVariantModalProduct, modalSelecte
                               className={cn(
                                 "px-3 py-2 rounded-[8px] text-xs font-bold border transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center gap-1.5",
                                 isSelected
-                                  ? "bg-[#EF2F38] text-white border-[#EF2F38] shadow-sm"
+                                  ? "bg-brand text-white border-brand shadow-sm"
                                   : "bg-neutral-50 dark:bg-[#181818] text-neutral-800 dark:text-neutral-200 border-neutral-300 dark:border-[#262626] hover:border-neutral-400"
                               )}
                             >
@@ -160,10 +160,10 @@ export function ProductVariantDialog({ selectedVariantModalProduct, modalSelecte
                               className={cn(
                                 "p-2.5 rounded-[8px] border text-center transition-all cursor-pointer active:scale-95 touch-manipulation flex flex-col items-center justify-center min-h-[52px]",
                                 isSelected
-                                  ? "bg-[#EF2F38] text-white border-[#EF2F38] shadow-sm ring-2 ring-[#EF2F38]/20"
+                                  ? "bg-brand text-white border-brand shadow-sm ring-2 ring-brand/20"
                                   : isOutOfStock
                                   ? "opacity-35 bg-neutral-100 dark:bg-[#141414] border-neutral-200 dark:border-neutral-800 text-neutral-400 cursor-not-allowed line-through"
-                                  : "bg-neutral-50 dark:bg-[#181818] text-neutral-900 dark:text-white border-neutral-300 dark:border-[#262626] hover:border-[#EF2F38]"
+                                  : "bg-neutral-50 dark:bg-[#181818] text-neutral-900 dark:text-white border-neutral-300 dark:border-[#262626] hover:border-brand"
                               )}
                             >
                               <span className="font-bold text-xs">{sz}</span>
@@ -193,7 +193,7 @@ export function ProductVariantDialog({ selectedVariantModalProduct, modalSelecte
                       </div>
                       <div className="text-right">
                         <span className="text-[10px] text-neutral-500 uppercase font-mono block">Unit Price</span>
-                        <span className="font-bold text-base text-[#EF2F38]">${unitPrice.toFixed(2)}</span>
+                        <span className="font-bold text-base text-brand-ink">${unitPrice.toFixed(2)}</span>
                       </div>
                     </div>
 
@@ -258,7 +258,7 @@ export function ProductVariantDialog({ selectedVariantModalProduct, modalSelecte
                           'success'
                         );
                       }}
-                      className="px-5 py-2 min-h-[42px] bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-bold rounded-[8px] shadow-sm cursor-pointer disabled:opacity-40 transition-colors active:scale-95 touch-manipulation flex items-center gap-1.5 pointer-coarse:min-h-11"
+                      className="px-5 py-2 min-h-[42px] bg-brand hover:bg-brand-strong text-white text-xs font-bold rounded-[8px] shadow-sm cursor-pointer disabled:opacity-40 transition-colors active:scale-95 touch-manipulation flex items-center gap-1.5 pointer-coarse:min-h-11"
                     >
                       <ShoppingCart size={15} weight="bold" />
                       <span>

@@ -698,10 +698,10 @@ export function LibraryView() {
           {activeTab !== 'routines' && (
             <>
               <button type="button" onClick={() => { setSelected3DAsset(null); setShow3DStudio(true); }} className={buttonClass()} title={t('lib_3d_studio')}>
-                <Stack className="w-4 h-4 text-brand" weight="bold"/> {t('lib_3d_studio')}
+                <Stack className="w-4 h-4 text-brand-ink" weight="bold"/> {t('lib_3d_studio')}
               </button>
               {isElevated && <button type="button" onClick={() => setShowBulkModal(true)} className={buttonClass()}>
-                <UploadSimple className="w-4 h-4 text-brand"/> {t('lib_bulk_upload')}
+                <UploadSimple className="w-4 h-4 text-brand-ink"/> {t('lib_bulk_upload')}
               </button>}
             </>
           )}
@@ -743,9 +743,9 @@ export function LibraryView() {
                    : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white hover:bg-white/50 dark:hover:bg-neutral-800/40"
                )}
              >
-               <Sparkle className="w-4 h-4 text-[#EF2F38]" weight="fill"/>
+               <Sparkle className="w-4 h-4 text-brand-ink" weight="fill"/>
                <span>{t('lib_tab_tkd')}</span>
-               <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-mono font-bold", activeTab === 'tkd' ? "bg-red-500/10 text-[#EF2F38]" : "bg-neutral-200/70 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400")}>
+               <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-mono font-bold", activeTab === 'tkd' ? "bg-red-500/10 text-brand-ink" : "bg-neutral-200/70 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400")}>
                  {tkdCount}
                </span>
              </button>
@@ -798,7 +798,7 @@ export function LibraryView() {
          <div className="relative flex-1">
            <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 dark:text-neutral-500 pointer-events-none"/>
            <input type="search" aria-label={t('lib_search_placeholder')} placeholder={t('lib_search_placeholder')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-             className="w-full pl-10 pr-4 h-11 min-h-[44px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] text-xs focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500 font-medium"
+             className="w-full pl-10 pr-4 h-11 min-h-[44px] bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] text-xs focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500 font-medium"
            />
          </div>
 
@@ -806,7 +806,7 @@ export function LibraryView() {
          {activeTab === 'routines' && (
            <div className="flex gap-2">
              <select value={selectedRoutineType} onChange={(e) => setSelectedRoutineType(e.target.value)}
-               className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 text-xs rounded-[8px] px-3.5 h-11 min-h-[44px] focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 font-semibold cursor-pointer shadow-sm"
+               className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 text-xs rounded-[8px] px-3.5 h-11 min-h-[44px] focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 font-semibold cursor-pointer shadow-sm"
              >
                <option value="All" className="text-black dark:text-white dark:bg-neutral-900">All Routine Types</option>
                {ROUTINE_TYPES.map(type => (
@@ -821,7 +821,7 @@ export function LibraryView() {
            <div className="flex gap-2 flex-wrap">
              {activeTab === 'tkd' && (
                <select value={selectedBelt} onChange={(e) => setSelectedBelt(e.target.value)}
-                 className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 text-xs rounded-[8px] px-3.5 h-11 min-h-[44px] focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 font-semibold cursor-pointer shadow-sm"
+                 className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 text-xs rounded-[8px] px-3.5 h-11 min-h-[44px] focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 font-semibold cursor-pointer shadow-sm"
                >
                  <option value="All" className="text-black dark:text-white dark:bg-neutral-900">{t('lib_all_belts')}</option>
                  {BELTS.slice(1).map(b => <option key={b} value={b} className="text-black dark:text-white dark:bg-neutral-900">{t(getBeltTranslationKey(b))}</option>)}
@@ -831,7 +831,7 @@ export function LibraryView() {
 
              {(libraryCategories.categories?.length ?? 0) > 0 && (
                <select aria-label="Library category" value={selectedLibraryCategory} onChange={(e) => setSelectedLibraryCategory(e.target.value)}
-                 className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 text-xs rounded-[8px] px-3.5 h-11 min-h-[44px] focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 font-semibold cursor-pointer shadow-sm"
+                 className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 text-xs rounded-[8px] px-3.5 h-11 min-h-[44px] focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 font-semibold cursor-pointer shadow-sm"
                >
                  <option value="All" className="text-black dark:text-white dark:bg-neutral-900">All library categories</option>
                  {libraryCategories.categories!.map(category => <option key={category.id} value={category.id} className="text-black dark:text-white dark:bg-neutral-900">{category.title}</option>)}
@@ -840,7 +840,7 @@ export function LibraryView() {
              )}
 
              <select value={selectedSubCategory} onChange={(e) => setSelectedSubCategory(e.target.value)}
-               className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 text-xs rounded-[8px] px-3.5 h-11 min-h-[44px] focus:outline-none focus:border-[#EF2F38] dark:focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 font-semibold cursor-pointer shadow-sm"
+               className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 text-xs rounded-[8px] px-3.5 h-11 min-h-[44px] focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 font-semibold cursor-pointer shadow-sm"
              >
                <option value="All" className="text-black dark:text-white dark:bg-neutral-900">{t('lib_all_categories')}</option>
                {activeTab === 'tkd' ? (
@@ -861,12 +861,12 @@ export function LibraryView() {
       <div className={cn("grid gap-4 sm:gap-5", activeTab === 'routines' ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5")}>
          {/* Routines View Mode */}
          {activeTab === 'routines' && filteredTemplates.map(template => (
-           <div key={template.id} className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-5 flex flex-col justify-between hover:border-[#EF2F38]/40 dark:hover:border-[#EF2F38]/40 hover:shadow-md transition-all group duration-300 relative overflow-hidden shadow-sm">
+           <div key={template.id} className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-5 flex flex-col justify-between hover:border-brand/40 dark:hover:border-brand/40 hover:shadow-md transition-all group duration-300 relative overflow-hidden shadow-sm">
              {isElevated && 'publicationState' in template && <span className="mb-3 self-start rounded-md bg-neutral-100 px-2 py-1 text-[10px] font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">{template.publicationState === 'draft' ? 'Private draft' : template.publicationState === 'changes' ? 'Published · draft changes' : 'Published to students'}</span>}
              {/* Decorative difficulty accent bar */}
              <div className={cn("absolute top-0 left-0 right-0 h-[3px]",
                template.difficulty === 'Elite' ? 'bg-purple-600' :
-               template.difficulty === 'Advanced' ? 'bg-[#EF2F38]' :
+               template.difficulty === 'Advanced' ? 'bg-brand' :
                template.difficulty === 'Intermediate' ? 'bg-amber-500' : 'bg-emerald-500'
              )} />
 
@@ -889,7 +889,7 @@ export function LibraryView() {
                  </span>
                </div>
 
-               <h3 className="text-sm font-bold text-neutral-900 dark:text-white group-hover:text-[#EF2F38] dark:group-hover:text-[#EF2F38] transition-colors leading-tight mb-2">{template.title}</h3>
+               <h3 className="text-sm font-bold text-neutral-900 dark:text-white group-hover:text-brand-ink dark:group-hover:text-brand-ink transition-colors leading-tight mb-2">{template.title}</h3>
                <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed line-clamp-3 mb-4">{template.description}</p>
 
                <div className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 mb-4">
@@ -943,7 +943,7 @@ export function LibraryView() {
                         <PencilSimple className="w-4 h-4"/>
                       </button>
                       <button disabled={'publicationState' in template && template.publicationState !== 'draft'} onClick={() => handleDeleteRoutine(template.id, template.title)}
-                        className="bg-neutral-100 hover:bg-red-50 dark:bg-[#1C1C1C] dark:hover:bg-red-950/20 border border-neutral-300 dark:border-neutral-700 text-red-600 dark:text-red-500 p-2.5 min-h-[38px] min-w-[38px] rounded-[8px] transition-all flex items-center justify-center shadow-sm cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11 pointer-coarse:min-w-11"
+                        className="bg-neutral-100 hover:bg-red-50 dark:bg-[#1C1C1C] dark:hover:bg-red-950/20 border border-neutral-300 dark:border-neutral-700 text-red-600 dark:text-red-400 p-2.5 min-h-[38px] min-w-[38px] rounded-[8px] transition-all flex items-center justify-center shadow-sm cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                         title={'publicationState' in template && template.publicationState !== 'draft' ? 'Published routines are retained for students and assignment history' : 'Archive private draft'}
                       >
                         <Trash className="w-4 h-4"/>
@@ -961,7 +961,7 @@ export function LibraryView() {
             const thumbnail = lessonThumbnailUrl(details.thumbnailUrl, video.videoUrl);
             const publication = isElevated ? libraryLessonState(video) : 'legacy';
             return (
-              <div key={video.id} className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden flex flex-col justify-between hover:border-[#EF2F38]/40 dark:hover:border-[#EF2F38]/40 hover:shadow-md transition-all group duration-300 shadow-sm">
+              <div key={video.id} className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden flex flex-col justify-between hover:border-brand/40 dark:hover:border-brand/40 hover:shadow-md transition-all group duration-300 shadow-sm">
 
                 {/* Thumbnail card with dynamic play overlay */}
                 <div className="aspect-video bg-neutral-100 dark:bg-[#1A1A1A] relative flex items-center justify-center border-b border-neutral-200 dark:border-[#262626] overflow-hidden">
@@ -972,7 +972,7 @@ export function LibraryView() {
 
                   <div className="absolute inset-0 bg-black/55 flex items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity">
                     {video.videoUrl ? (
-                      <button type="button" aria-label={`Play ${video.title}`} onClick={(e) => { e.stopPropagation(); setActivePlayVideo(video); }} className="p-3 bg-[#EF2F38] text-white rounded-full hover:scale-110 transition-transform duration-300 shadow-xl shadow-red-950/40 cursor-pointer touch-manipulation active:scale-95">
+                      <button type="button" aria-label={`Play ${video.title}`} onClick={(e) => { e.stopPropagation(); setActivePlayVideo(video); }} className="p-3 bg-brand text-white rounded-full hover:scale-110 transition-transform duration-300 shadow-xl shadow-red-950/40 cursor-pointer touch-manipulation active:scale-95">
                         <PlayCircle className="w-7 h-7" weight="fill"/>
                       </button>
                     ) : (
@@ -996,7 +996,7 @@ export function LibraryView() {
 
                   {/* Belt label badge (TKD only) */}
                   {activeTab === 'tkd' && (
-                    <span className="absolute top-3 right-3 px-2 py-0.5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-[6px] text-[9px] font-bold uppercase tracking-wider text-[#EF2F38]">
+                    <span className="absolute top-3 right-3 px-2 py-0.5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-[6px] text-[9px] font-bold uppercase tracking-wider text-brand-ink">
                       {video.minBeltLevel === 'Unassigned' ? 'No belt yet' : video.minBeltLevel}
                     </span>
                   )}
@@ -1017,8 +1017,8 @@ export function LibraryView() {
                 <div onClick={() => setSelectedDetailAsset(video)} className="p-5 flex-1 flex flex-col justify-between space-y-4 cursor-pointer hover:bg-neutral-50/50 dark:hover:bg-neutral-900/10 transition-colors">
                   <div>
                     {/* The title is the keyboard and screen-reader entry point; the whole panel stays clickable for pointers. */}
-                    <h3 className="text-sm font-bold text-neutral-900 dark:text-white group-hover:text-[#EF2F38] dark:group-hover:text-[#EF2F38] transition-colors leading-tight">
-                      <button type="button" onClick={(e) => { e.stopPropagation(); setSelectedDetailAsset(video); }} className="text-left rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EF2F38]">{video.title}</button>
+                    <h3 className="text-sm font-bold text-neutral-900 dark:text-white group-hover:text-brand-ink dark:group-hover:text-brand-ink transition-colors leading-tight">
+                      <button type="button" onClick={(e) => { e.stopPropagation(); setSelectedDetailAsset(video); }} className="text-left rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">{video.title}</button>
                     </h3>
                     {(() => {
                       const category = video.categoryId ? categoryById.get(video.categoryId) : undefined;
@@ -1059,10 +1059,10 @@ export function LibraryView() {
                           setSelected3DAsset(video);
                           setShow3DStudio(true);
                         }}
-                        className="text-neutral-500 hover:text-[#EF2F38] dark:hover:text-[#EF2F38] transition-colors p-1.5 min-h-[32px] rounded-[6px] hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer flex items-center gap-1 touch-manipulation active:scale-95 pointer-coarse:min-h-11"
+                        className="text-neutral-500 hover:text-brand-ink dark:hover:text-brand-ink transition-colors p-1.5 min-h-[32px] rounded-[6px] hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer flex items-center gap-1 touch-manipulation active:scale-95 pointer-coarse:min-h-11"
                         title={t('lib_3d_biomechanics')}
                       >
-                        <Stack className="w-3.5 h-3.5 text-[#EF2F38]" weight="bold"/>
+                        <Stack className="w-3.5 h-3.5 text-brand-ink" weight="bold"/>
                         <span className="text-[9px] font-bold hidden sm:inline">3D</span>
                       </button>
                       {video.videoUrl && (
@@ -1080,7 +1080,7 @@ export function LibraryView() {
                       {isElevated && (
                         <>
                           <button onClick={(e) => { e.stopPropagation(); handleStartEdit(video); }}
-                            className="text-neutral-500 hover:text-[#EF2F38] dark:hover:text-[#EF2F38] transition-colors p-1.5 min-h-[32px] rounded-[6px] hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11"
+                            className="text-neutral-500 hover:text-brand-ink dark:hover:text-brand-ink transition-colors p-1.5 min-h-[32px] rounded-[6px] hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11"
                             title={t('act_edit')}
                           >
                             <PencilSimple className="w-3.5 h-3.5"/>
@@ -1188,7 +1188,7 @@ function LessonPlayerDialog({ video, t, onClose }: { video: CurriculumVideo; t: 
         <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="library-player-title" tabIndex={-1} className="w-full max-w-3xl bg-[#0A0A0A] border border-[#262626] rounded-[10px] overflow-hidden shadow-2xl flex flex-col max-h-[85dvh]">
           <div className="p-4 md:p-5 border-b border-[#262626] bg-[#0F0F0F] flex justify-between items-center gap-4">
             <div className="min-w-0">
-              <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 bg-red-500/10 border border-red-500/20 text-[#EF2F38] rounded-[6px]">
+              <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 bg-red-500/10 border border-red-500/20 text-brand-ink rounded-[6px]">
                 {t(getCategoryTranslationKey(video.category)) || video.category.replace('Fitness: ', '').replace('Dance: ', '')}
               </span>
               <h3 id="library-player-title" className="text-sm md:text-base font-bold text-white mt-1.5 leading-tight break-words">{video.title}</h3>

@@ -177,13 +177,13 @@ export function LmsView() {
           {can('action:curriculum_edit') && <button type="button" onClick={() => setShowPublicationPanel(true)} className={buttonClass()}>Student library</button>}
           {isElevated && can('page:library') && (
             <Link href="/library" className={cn(buttonClass(), 'max-w-full whitespace-normal text-center')}>
-              <BookOpen className="h-4 w-4 text-brand" weight="bold" />
+              <BookOpen className="h-4 w-4 text-brand-ink" weight="bold" />
               <span>{can('action:curriculum_edit') ? t('lms_manage_in_library') : t('nav_library')}</span>
             </Link>
           )}
           {isElevated && (
             <button type="button" onClick={() => { setSelected3DAsset(null); setShow3DStudio(true); }} className={buttonClass()} title={t('lib_3d_studio')}>
-              <Stack className="h-4 w-4 text-brand" weight="bold" />
+              <Stack className="h-4 w-4 text-brand-ink" weight="bold" />
               <span>{t('lib_3d_studio')}</span>
             </button>
           )}
@@ -218,7 +218,7 @@ export function LmsView() {
                     className={cn(
                       "px-4 py-2 min-h-[42px] rounded-[8px] text-xs font-bold tracking-tight whitespace-nowrap transition-all cursor-pointer shrink-0 flex items-center gap-2 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                       isActive
-                        ? "bg-[#EF2F38] text-white shadow-sm ring-2 ring-[#EF2F38]/20 font-black"
+                        ? "bg-brand text-white shadow-sm ring-2 ring-brand/20 font-black"
                         : "bg-neutral-50 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#252525] border border-neutral-200 dark:border-[#262626]"
                     )}
                   >
@@ -231,7 +231,7 @@ export function LmsView() {
                 className={cn(
                   "px-4 py-2 min-h-[42px] rounded-[8px] text-xs font-bold tracking-tight whitespace-nowrap transition-all cursor-pointer shrink-0 border active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                   selectedTrackBelt === 'All'
-                    ? "bg-[#EF2F38] text-white border-[#EF2F38] shadow-sm ring-2 ring-[#EF2F38]/20 font-black"
+                    ? "bg-brand text-white border-brand shadow-sm ring-2 ring-brand/20 font-black"
                     : "bg-neutral-50 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#252525] border-neutral-200 dark:border-[#262626]"
                 )}
               >
@@ -245,7 +245,7 @@ export function LmsView() {
             <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 rounded-[6px] text-[10px] font-bold uppercase tracking-wider font-mono">
+                  <span className="px-2.5 py-0.5 bg-brand/10 text-brand-ink border border-brand/20 rounded-[6px] text-[10px] font-bold uppercase tracking-wider font-mono">
                     {selectedTrackBelt === 'All' ? 'Complete Syllabus' : `${selectedTrackBelt} Belt Track`}
                   </span>
                   <span className="text-xs text-neutral-500 dark:text-neutral-400 font-mono">
@@ -279,7 +279,7 @@ export function LmsView() {
                 </div>
               ) : effectiveStudent ? (
                 <div className="flex items-center gap-3 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-4 min-h-[42px] shadow-sm">
-                  <UserCircle className="w-5 h-5 text-[#EF2F38]" weight="fill"/>
+                  <UserCircle className="w-5 h-5 text-brand-ink" weight="fill"/>
                   <div>
                     <span className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono">My Student Progress</span>
                     <span className="text-xs font-bold text-neutral-900 dark:text-white">
@@ -297,7 +297,7 @@ export function LmsView() {
                   <span className="font-bold text-neutral-700 dark:text-neutral-300">
                     {t('lms_belt_progress')}: {completedInTrack} of {totalTrackRequired} Lessons Completed
                   </span>
-                  <span className="font-mono font-bold text-[#EF2F38] text-sm">
+                  <span className="font-mono font-bold text-brand-ink text-sm">
                     {trackCompletionPct}%
                   </span>
                 </div>
@@ -305,7 +305,7 @@ export function LmsView() {
                   <motion.div
                     className={cn(
                       "h-full rounded-full transition-all duration-500",
-                      trackCompletionPct === 100 ? "bg-emerald-500" : trackCompletionPct >= 50 ? "bg-[#EF2F38]" : "bg-amber-500"
+                      trackCompletionPct === 100 ? "bg-emerald-500" : trackCompletionPct >= 50 ? "bg-brand" : "bg-amber-500"
                     )}
                     initial={false}
                     animate={{ scaleX: Math.min(1, Math.max(0, trackCompletionPct / 100)) }}
@@ -325,7 +325,7 @@ export function LmsView() {
                   placeholder={t('act_search')}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-xs focus:outline-none focus:border-[#EF2F38] transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500 font-medium"
+                  className="w-full pl-10 pr-4 min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-xs focus:outline-none focus:border-brand transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500 font-medium"
                 />
               </div>
 
@@ -333,7 +333,7 @@ export function LmsView() {
                 aria-label={t('lib_all_categories')}
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full sm:w-64 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[8px] px-3.5 min-h-[42px] text-xs focus:outline-none focus:border-[#EF2F38] font-bold cursor-pointer shadow-sm pointer-coarse:min-h-11"
+                className="w-full sm:w-64 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[8px] px-3.5 min-h-[42px] text-xs focus:outline-none focus:border-brand font-bold cursor-pointer shadow-sm pointer-coarse:min-h-11"
               >
                 <option value="All">{t('lib_all_categories')}</option>
                 <option value="Forms (Poomsae)">{t('cat_poomsae')}</option>
@@ -363,7 +363,7 @@ export function LmsView() {
               return (
                 <div
                   key={video.id}
-                  className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden group flex flex-col hover:border-[#EF2F38]/40 dark:hover:border-[#EF2F38]/40 hover:shadow-lg transition-all duration-300 shadow-sm"
+                  className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden group flex flex-col hover:border-brand/40 dark:hover:border-brand/40 hover:shadow-lg transition-all duration-300 shadow-sm"
                 >
                   {/* Thumbnail Card (pointer shortcut; the Watch button is the accessible control) */}
                   <div
@@ -376,7 +376,7 @@ export function LmsView() {
                       fallback={<span aria-hidden="true" />} />
                     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors z-10" />
 
-                    <PlayCircle className="w-12 h-12 text-white/90 z-20 group-hover:scale-110 group-hover:text-[#EF2F38] transition-all duration-300 shadow-lg"/>
+                    <PlayCircle className="w-12 h-12 text-white/90 z-20 group-hover:scale-110 group-hover:text-brand-ink transition-all duration-300 shadow-lg"/>
 
                     <div className="absolute top-3 left-3 z-20 flex gap-1.5">
                        <span className="px-2.5 py-1 bg-black/80 backdrop-blur-md rounded-[6px] text-[10px] font-bold uppercase tracking-wider text-white border border-white/10 shadow-sm">
@@ -404,7 +404,7 @@ export function LmsView() {
                   {/* Body Content */}
                   <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
                      <div>
-                       <h3 className="text-sm font-bold text-neutral-900 dark:text-white tracking-tight line-clamp-2 mb-1.5 group-hover:text-[#EF2F38] transition-colors leading-snug">
+                       <h3 className="text-sm font-bold text-neutral-900 dark:text-white tracking-tight line-clamp-2 mb-1.5 group-hover:text-brand-ink transition-colors leading-snug">
                          {t.translateText(video.title)}
                        </h3>
                        <p className="text-xs text-neutral-500 dark:text-neutral-400 line-clamp-2 leading-relaxed">
@@ -446,7 +446,7 @@ export function LmsView() {
                            onClick={() => handlePlayVideo(video)}
                            className="px-3.5 py-1.5 min-h-[36px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] text-neutral-900 dark:text-white text-[10px] font-bold uppercase tracking-wider rounded-[6px] border border-neutral-300 dark:border-[#262626] transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center gap-1 pointer-coarse:min-h-11"
                          >
-                           <PlayCircle size={14} className="text-[#EF2F38]" weight="fill" />
+                           <PlayCircle size={14} className="text-brand-ink" weight="fill" />
                            <span>{t('lms_watch')}</span>
                          </button>
                        </div>
@@ -530,7 +530,7 @@ export function LmsView() {
                     <div className="p-5 md:flex-1 md:overflow-y-auto md:p-6 bg-[#141414] border-t border-[#262626] space-y-4">
                       <div className="flex justify-between items-start gap-4">
                         <div>
-                          <span className="px-2.5 py-1 bg-red-500/10 text-[#EF2F38] border border-red-500/20 rounded-[6px] text-[9px] font-bold uppercase tracking-wider inline-block">
+                          <span className="px-2.5 py-1 bg-red-500/10 text-brand-ink border border-red-500/20 rounded-[6px] text-[9px] font-bold uppercase tracking-wider inline-block">
                             {t(getCategoryTranslationKey(activePlayVideo.category)) || activePlayVideo.category}
                           </span>
                           <h2 id="lesson-viewer-title" className="text-base md:text-lg font-bold text-white mt-2 tracking-tight">{t.translateText(activePlayVideo.title)}</h2>
@@ -630,9 +630,9 @@ export function LmsView() {
                         type="button"
                         aria-pressed={playerTab === 'biomechanics'}
                         onClick={() => setPlayerTab('biomechanics')}
-                        className={cn("px-3 py-1.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer flex items-center gap-1.5 min-h-[32px] pointer-coarse:min-h-11", playerTab === 'biomechanics' ? "bg-[#222] text-[#EF2F38] border border-[#EF2F38]/30" : "text-[#777] hover:text-white")}
+                        className={cn("px-3 py-1.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer flex items-center gap-1.5 min-h-[32px] pointer-coarse:min-h-11", playerTab === 'biomechanics' ? "bg-[#222] text-brand-ink border border-brand/30" : "text-[#777] hover:text-white")}
                       >
-                        <Stack className="w-3.5 h-3.5 text-[#EF2F38]" weight="bold"/>
+                        <Stack className="w-3.5 h-3.5 text-brand-ink" weight="bold"/>
                         <span>3D Studio</span>
                       </button>
                     </div>
@@ -668,7 +668,7 @@ export function LmsView() {
                                   const cleanStep = step.replace(/^Step\s+\d+:\s*/i, '');
                                   return (
                                     <li key={idx} className="flex items-start gap-2 text-xs text-[#999] leading-relaxed">
-                                      <span className="w-4 h-4 rounded-full bg-[#EF2F38]/10 border border-[#EF2F38]/20 text-[#EF2F38] text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                      <span className="w-4 h-4 rounded-full bg-brand/10 border border-brand/20 text-brand-ink text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                                       <span>{cleanStep}</span>
                                     </li>
                                   );
@@ -713,7 +713,7 @@ export function LmsView() {
                               <ul className="space-y-1.5">
                                 {parsed.drillingMethods.map((item, idx) => (
                                   <li key={idx} className="flex items-start gap-2 text-xs text-[#999]">
-                                    <span className="w-4 h-4 rounded-full bg-[#EF2F38]/10 border border-[#EF2F38]/20 text-[#EF2F38] text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                    <span className="w-4 h-4 rounded-full bg-brand/10 border border-brand/20 text-brand-ink text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                                     <span>{item}</span>
                                   </li>
                                 ))}
@@ -792,7 +792,7 @@ export function LmsView() {
                                 setSelected3DAsset(activePlayVideo);
                                 setShow3DStudio(true);
                               }}
-                              className="px-2 py-1 bg-red-500/10 hover:bg-red-500/20 text-[#EF2F38] border border-red-500/30 rounded-[6px] text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors cursor-pointer"
+                              className="px-2 py-1 bg-red-500/10 hover:bg-red-500/20 text-brand-ink border border-red-500/30 rounded-[6px] text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors cursor-pointer"
                             >
                               <ArrowsOut className="w-3 h-3" />
                               <span>{t('lib_3d_fullscreen')}</span>
@@ -806,7 +806,7 @@ export function LmsView() {
                                 {primaryMuscles.length > 0 && (
                                   <div className="p-3 bg-[#141414] border border-red-500/20 rounded-[8px] space-y-1.5">
                                     <span className="text-[9px] uppercase font-black text-red-400 tracking-wider flex items-center gap-1">
-                                      <Flame className="w-3 h-3 text-[#EF2F38]" weight="fill" />
+                                      <Flame className="w-3 h-3 text-brand-ink" weight="fill" />
                                       {t('lib_primary_muscles')}
                                     </span>
                                     <div className="flex flex-wrap gap-1">
@@ -1139,7 +1139,7 @@ function LmsAnalyticsTab() {
             </div>
             <button
               onClick={() => setShowManager(!showManager)}
-              className="px-4 py-2 bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-[#E4E4E4] hover:text-[#EF2F38] hover:border-[#EF2F38]/40 font-bold uppercase tracking-wider text-[10px] rounded-[8px] transition-colors min-h-[38px] cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11"
+              className="px-4 py-2 bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-[#E4E4E4] hover:text-brand-ink hover:border-brand/40 font-bold uppercase tracking-wider text-[10px] rounded-[8px] transition-colors min-h-[38px] cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11"
             >
               {showManager ? t('lms_close_editor') : t('lms_edit_belt_skills')}
             </button>
@@ -1154,7 +1154,7 @@ function LmsAnalyticsTab() {
                   <select
                     value={manageBelt}
                     onChange={e => setManageBelt(e.target.value)}
-                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-[#EF2F38] min-h-[42px]"
+                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-brand min-h-[42px]"
                   >
                     {BELTS.map(b => <option key={b} value={b}>{formatBeltLocalized(b, undefined, t)}</option>)}
                   </select>
@@ -1170,7 +1170,7 @@ function LmsAnalyticsTab() {
                       setShowTechDropdown(false);
                       setActiveTechIdx(-1);
                     }}
-                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-[#EF2F38] min-h-[42px]"
+                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-brand min-h-[42px]"
                   >
                     {SYLLABUS_CATEGORIES.map(cat => <option key={cat} value={cat}>{t(getCategoryTranslationKey(cat)) || cat}</option>)}
                   </select>
@@ -1192,7 +1192,7 @@ function LmsAnalyticsTab() {
                     }}
                     onKeyDown={handleKeyDown}
                     placeholder={t('lms_placeholder_tornado_kick')}
-                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-[#EF2F38] placeholder:text-neutral-400 dark:placeholder:text-[#555] min-h-[42px]"
+                    className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-brand placeholder:text-neutral-400 dark:placeholder:text-[#555] min-h-[42px]"
                   />
                   {showTechDropdown && filteredAssets.length > 0 && (
                     <div
@@ -1214,7 +1214,7 @@ function LmsAnalyticsTab() {
                             className={cn(
                               "px-3 py-2 text-xs cursor-pointer flex justify-between items-center transition-colors",
                               isHighlighted
-                                ? "bg-red-50 dark:bg-[#1A1A1A] text-[#EF2F38] dark:text-white font-bold"
+                                ? "bg-red-50 dark:bg-[#1A1A1A] text-brand-ink dark:text-white font-bold"
                                 : "text-neutral-700 dark:text-[#999] hover:bg-neutral-100 dark:hover:bg-[#141414] hover:text-neutral-900 dark:hover:text-[#E4E4E4]"
                             )}
                           >
@@ -1237,7 +1237,7 @@ function LmsAnalyticsTab() {
                 <button
                   type="submit"
                   disabled={isSubmittingTech}
-                  className="w-full py-2.5 min-h-[42px] bg-[#EF2F38] text-white font-bold uppercase tracking-wider text-[11px] rounded-[8px] hover:bg-[#d6262f] transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                  className="w-full py-2.5 min-h-[42px] bg-brand text-white font-bold uppercase tracking-wider text-[11px] rounded-[8px] hover:bg-[#d6262f] transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                 >
                   {isSubmittingTech ? t('act_saving') : t('lms_add_skill_to_belt')}
                 </button>
@@ -1267,7 +1267,7 @@ function LmsAnalyticsTab() {
 
                     return categories.map(cat => (
                       <div key={cat} className="space-y-1.5">
-                        <div className="text-[9px] font-bold uppercase tracking-wider text-[#EF2F38] mb-1">{cat}</div>
+                        <div className="text-[9px] font-bold uppercase tracking-wider text-brand-ink mb-1">{cat}</div>
                         <div className="space-y-1.5">
                           {beltTechs
                             .filter(t => (t.category || 'Kicks (Chagi)') === cat)
@@ -1307,7 +1307,7 @@ function LmsAnalyticsTab() {
               placeholder={t('dir_search_placeholder')}
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-3 min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-sm focus:outline-none focus:border-[#EF2F38] transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666]"
+              className="w-full pl-10 pr-3 min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-sm focus:outline-none focus:border-brand transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666]"
             />
           </div>
 
@@ -1315,7 +1315,7 @@ function LmsAnalyticsTab() {
              <select
                value={statusFilter}
                onChange={e => setStatusFilter(e.target.value)}
-               className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-[#EF2F38]"
+               className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-brand"
              >
                <option value="All">{t.translateText('All Statuses')}</option>
                <option value="Active">{t.translateText('Active')}</option>
@@ -1329,7 +1329,7 @@ function LmsAnalyticsTab() {
              <select
                value={genderFilter}
                onChange={e => setGenderFilter(e.target.value)}
-               className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-[#EF2F38]"
+               className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-brand"
              >
                <option value="All">{t.translateText('All Genders')}</option>
                <option value="Male">{t.translateText('Male')}</option>
@@ -1348,7 +1348,7 @@ function LmsAnalyticsTab() {
                  setBranchFilter(e.target.value);
                  setScheduleFilter('All');
                }}
-               className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-[#EF2F38]"
+               className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-brand"
              >
                <option value="All">{t('att_all_branches')}</option>
                {state.branches.map(b => <option key={b.id} value={b.id.toString()}>{b.name}</option>)}
@@ -1360,7 +1360,7 @@ function LmsAnalyticsTab() {
              <select
                value={scheduleFilter}
                onChange={e => setScheduleFilter(e.target.value)}
-               className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-[#EF2F38]"
+               className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-brand"
              >
                <option value="All">{t.translateText('All Schedules')}</option>
                {state.classSessions
@@ -1382,7 +1382,7 @@ function LmsAnalyticsTab() {
              <select
                value={beltFilter}
                onChange={e => setBeltFilter(e.target.value)}
-               className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-[#EF2F38]"
+               className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-brand"
              >
                <option value="All">{t('dir_all_belts')}</option>
                {BELTS.map(b => <option key={b} value={b}>{formatBeltLocalized(b, undefined, t)}</option>)}
@@ -1428,7 +1428,7 @@ function LmsAnalyticsTab() {
                                />
                                <div className="flex flex-col">
                                   <div className="flex items-center gap-2">
-                                     <button type="button" onClick={event => { event.stopPropagation(); setSelectedStudentId(student.id); }} className="text-left text-sm font-bold text-neutral-900 dark:text-white group-hover:text-[#EF2F38] transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EF2F38]">{student.englishName}</button>
+                                     <button type="button" onClick={event => { event.stopPropagation(); setSelectedStudentId(student.id); }} className="text-left text-sm font-bold text-neutral-900 dark:text-white group-hover:text-brand-ink transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">{student.englishName}</button>
                                      {student.khmerName && (
                                         <span className="text-xs text-neutral-500 dark:text-[#999] font-khmer">{student.khmerName}</span>
                                      )}
@@ -1673,7 +1673,7 @@ function LmsAnalyticsTab() {
                                      </div>
                                   </div>
                                   {report.beltTest ? <div className="space-y-2 rounded-[8px] border border-neutral-200 bg-white p-3 dark:border-[#262626] dark:bg-[#0F0F0F]">
-                                     <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-[10px] font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">Belt test eligibility · {report.beltTest.targetBelt}</span><Link href="/belt-tests" className="text-[10px] font-semibold text-[#EF2F38] underline">Open Belt Tests</Link></div>
+                                     <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-[10px] font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">Belt test eligibility · {report.beltTest.targetBelt}</span><Link href="/belt-tests" className="text-[10px] font-semibold text-brand-ink underline">Open Belt Tests</Link></div>
                                      <RuleChips entry={{ eligibility: report.beltTest }} />
                                      <p className="text-[10px] text-neutral-500">Ready is decided by the published {report.beltTest.targetBelt} test rules, the same check students see in the student portal. The index above still shows overall progress.</p>
                                   </div> : <p className="text-[10px] text-neutral-500">No published belt test syllabus for this student&apos;s next belt yet, so readiness uses the academy&apos;s standard requirements.</p>}
@@ -1698,7 +1698,7 @@ function LmsAnalyticsTab() {
                                      <div className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-4 rounded-[8px]">
                                         <div className="flex justify-between items-center mb-1">
                                            <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] tracking-wider">{t('lms_time_in_grade_min').replace('{days}', String(report.daysRequired))}</span>
-                                           <span className={cn("text-xs font-mono font-bold", report.daysEligible ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500')}>{daysElapsedCount} / {report.daysRequired}d</span>
+                                           <span className={cn("text-xs font-mono font-bold", report.daysEligible ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-400')}>{daysElapsedCount} / {report.daysRequired}d</span>
                                         </div>
                                         <div className="h-1.5 w-full bg-neutral-100 dark:bg-[#141414] rounded-full overflow-hidden">
                                            <div className={cn("h-full rounded-full transition-all", report.daysEligible ? 'bg-green-500' : 'bg-red-500')} style={{ width: `${daysPct}%` }} />
@@ -1708,7 +1708,7 @@ function LmsAnalyticsTab() {
                                      <div className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-4 rounded-[8px]">
                                         <div className="flex justify-between items-center mb-1">
                                            <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] tracking-wider">{t('lms_attendance_min').replace('{count}', String(report.attendanceRequired))}</span>
-                                           <span className={cn("text-xs font-mono font-bold", report.attendanceEligible ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500')}>{attendanceSinceCount} / {report.attendanceRequired}</span>
+                                           <span className={cn("text-xs font-mono font-bold", report.attendanceEligible ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-400')}>{attendanceSinceCount} / {report.attendanceRequired}</span>
                                         </div>
                                         <div className="h-1.5 w-full bg-neutral-100 dark:bg-[#141414] rounded-full overflow-hidden">
                                            <div className={cn("h-full rounded-full transition-all", report.attendanceEligible ? 'bg-green-500' : 'bg-red-500')} style={{ width: `${attendPct}%` }} />
@@ -1738,7 +1738,7 @@ function LmsAnalyticsTab() {
                                      <div className="space-y-6">
                                         {Object.entries(groupedSkills).map(([category, skills]) => (
                                            <div key={category} className="space-y-2">
-                                              <h4 className="text-[10px] uppercase font-bold text-[#EF2F38] tracking-wider border-b border-neutral-200 dark:border-[#262626] pb-1.5 mb-2">
+                                              <h4 className="text-[10px] uppercase font-bold text-brand-ink tracking-wider border-b border-neutral-200 dark:border-[#262626] pb-1.5 mb-2">
                                                  {t(getCategoryTranslationKey(category)) || category}
                                               </h4>
                                               <div className="space-y-2">
@@ -1815,7 +1815,7 @@ function LmsAnalyticsTab() {
                                      <div className="flex items-center gap-2">
                                         <h4 className="text-sm font-bold text-neutral-900 dark:text-white">{t.translateText(video.title)}</h4>
                                         {isCurrentBeltRequirement && !isDraft && (
-                                          <span className="px-2 py-0.5 bg-red-500/10 text-[#EF2F38] border border-red-500/20 rounded-[6px] text-[9px] font-bold uppercase tracking-wider">
+                                          <span className="px-2 py-0.5 bg-red-500/10 text-brand-ink border border-red-500/20 rounded-[6px] text-[9px] font-bold uppercase tracking-wider">
                                             {t.translateText("Current Syllabus")}
                                           </span>
                                         )}
@@ -1839,7 +1839,7 @@ function LmsAnalyticsTab() {
                                         onChange={(e) => void toggleVideoProgress(selectedStudent.id, video.id, e.target.checked).catch(() => {})}
                                         className="sr-only peer"
                                       />
-                                      <div className="w-9 h-5 bg-neutral-200 dark:bg-[#262626] rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-[#EF2F38] peer-disabled:opacity-40 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-[#666] peer-checked:after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600 shadow-inner"></div>
+                                      <div className="w-9 h-5 bg-neutral-200 dark:bg-[#262626] rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-brand peer-disabled:opacity-40 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-[#666] peer-checked:after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600 shadow-inner"></div>
                                     </label>}
                                     <span className={cn("text-[10px] font-bold tracking-wider uppercase w-16 text-right", isCompleted ? "text-emerald-600 dark:text-emerald-500" : "text-neutral-400 dark:text-[#666]")}>
                                       {isCompleted ? t('lms_completed') : t('lms_pending')}

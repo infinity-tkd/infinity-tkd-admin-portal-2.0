@@ -84,7 +84,7 @@ export function AnatomyStudioModal({ isOpen, onClose, asset = null, student = nu
   return <Portal>
     <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} data-testid="anatomy-studio" className="fixed inset-0 z-[10000] flex h-[100dvh] min-h-0 flex-col bg-white font-sans text-neutral-900 dark:bg-[#0A0A0A] dark:text-white motion-safe:animate-in motion-safe:fade-in motion-safe:duration-150">
       <header className="flex shrink-0 items-center justify-between gap-3 border-b border-neutral-200 px-4 py-3 pt-[max(.75rem,env(safe-area-inset-top))] dark:border-neutral-800 sm:px-6">
-        <div className="min-w-0 border-l-4 border-[#EF2F38] pl-3">
+        <div className="min-w-0 border-l-4 border-brand pl-3">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Infinity TKD · {sourceLabel}</p>
           <h2 id={titleId} className="truncate text-base font-semibold sm:text-lg">{title}</h2>
         </div>
@@ -92,7 +92,7 @@ export function AnatomyStudioModal({ isOpen, onClose, asset = null, student = nu
       </header>
       <div className="shrink-0 border-b border-neutral-200 bg-neutral-50 px-4 py-2.5 dark:border-neutral-800 dark:bg-neutral-950 sm:px-6">
         <p className="text-xs leading-relaxed text-neutral-500">{studentView ? `${coverage.completedAssetIds.length} completed learning material${coverage.completedAssetIds.length === 1 ? '' : 's'}. Colour shows mapped training coverage, not measured muscle fatigue or strength.` : asset ? 'Explore the muscles used in this material, then open related learning resources.' : 'Select a muscle to explore its role in Taekwondo and the academy’s related learning materials.'}</p>
-        {chips.length > 0 && <div className="mt-2 flex max-h-24 flex-wrap gap-1.5 overflow-y-auto" aria-label="Focus a mapped muscle">{chips.map(name => <button key={name} type="button" onClick={() => setFocusedMuscle(name)} aria-pressed={focusedMuscle === name} className={cn('min-h-11 rounded-lg border px-3 text-xs font-medium transition-colors', focusedMuscle === name ? 'border-[#EF2F38] bg-[#EF2F38] text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-red-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-200')}>{name}</button>)}</div>}
+        {chips.length > 0 && <div className="mt-2 flex max-h-24 flex-wrap gap-1.5 overflow-y-auto" aria-label="Focus a mapped muscle">{chips.map(name => <button key={name} type="button" onClick={() => setFocusedMuscle(name)} aria-pressed={focusedMuscle === name} className={cn('min-h-11 rounded-lg border px-3 text-xs font-medium transition-colors', focusedMuscle === name ? 'border-brand bg-brand text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-red-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-200')}>{name}</button>)}</div>}
       </div>
       <div className="min-h-0 flex-1 pb-[env(safe-area-inset-bottom)]">
         <Anatomical3DModel muscleLoads={loads} maxLoad={studentView ? coverage.maxLoad : 1} gender={student?.gender ?? initialGender} defaultViewMode="3d" allowFullscreen={false} focusedMuscle={focusedMuscle} context={context} className="h-full w-full rounded-none border-0" />

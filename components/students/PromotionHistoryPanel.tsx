@@ -54,7 +54,7 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                       placeholder={t('dir_history_search_placeholder')}
                       value={historySearch}
                       onChange={(e) => setHistorySearch(e.target.value)}
-                      className="w-full pl-8 pr-2 h-9 pointer-coarse:h-11 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs focus:outline-none focus:border-[#EF2F38] placeholder:text-neutral-400 dark:placeholder:text-[#666]"
+                      className="w-full pl-8 pr-2 h-9 pointer-coarse:h-11 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs focus:outline-none focus:border-brand placeholder:text-neutral-400 dark:placeholder:text-[#666]"
                     />
                   </div>
 
@@ -145,7 +145,7 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                                   />
                                 )}
                                 <div>
-                                  <div className="font-bold text-xs text-neutral-900 dark:text-white group-hover/st:text-[#EF2F38] transition-colors">
+                                  <div className="font-bold text-xs text-neutral-900 dark:text-white group-hover/st:text-brand-ink transition-colors">
                                     {student ? student.englishName : history.studentId}
                                   </div>
                                   <div className="text-[10px] text-neutral-500 dark:text-[#666] font-mono">
@@ -254,7 +254,7 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                           <button
                             type="button"
                             onClick={() => { if (student) setSelectedStudentId(student.id); }}
-                            className="font-bold text-xs text-neutral-900 dark:text-white hover:text-[#EF2F38] text-left transition-colors cursor-pointer"
+                            className="font-bold text-xs text-neutral-900 dark:text-white hover:text-brand-ink text-left transition-colors cursor-pointer"
                           >
                             {student ? student.englishName : history.studentId}
                             <span className="text-[10px] text-neutral-500 font-mono font-normal ml-1">({history.studentId})</span>

@@ -113,7 +113,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                     setSearchTransactions(e.target.value);
                     setTxnPage(1);
                   }}
-                  className="w-full pl-9 pr-8 h-10 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[6px] text-xs focus:outline-none focus:border-[#EF2F38] transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+                  className="w-full pl-9 pr-8 h-10 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[6px] text-xs focus:outline-none focus:border-brand transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                 />
                 {searchTransactions && (
                   <button onClick={() => setSearchTransactions('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-white p-1">
@@ -128,7 +128,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                   setFilterTransactionBranch(e.target.value === 'all' ? 'all' : Number(e.target.value));
                   setTxnPage(1);
                 }}
-                className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-2.5 h-10 focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-2.5 h-10 focus:outline-none focus:border-brand cursor-pointer"
               >
                 <option value="all">All Branches</option>
                 {state.branches.map(b => (
@@ -142,7 +142,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                   setFilterTransactionYear(e.target.value === 'all' ? 'all' : Number(e.target.value));
                   setTxnPage(1);
                 }}
-                className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-2.5 h-10 focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-2.5 h-10 focus:outline-none focus:border-brand cursor-pointer"
               >
                 <option value="all">All Years</option>
                 <option value={currentActualYear}>{currentActualYear}</option>
@@ -156,7 +156,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                   setFilterTransactionMonth(e.target.value);
                   setTxnPage(1);
                 }}
-                className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-2.5 h-10 focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs px-2.5 h-10 focus:outline-none focus:border-brand cursor-pointer"
               >
                 <option value="all">All Months</option>
                 {months.map(m => (
@@ -305,7 +305,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                       <div className="flex items-center gap-1.5">
                         <span>Student / ID</span>
                         {txnSortField === 'student' ? (
-                          txnSortDirection === 'asc' ? <CaretUp className="w-3.5 h-3.5 text-[#EF2F38]" /> : <CaretDown className="w-3.5 h-3.5 text-[#EF2F38]" />
+                          txnSortDirection === 'asc' ? <CaretUp className="w-3.5 h-3.5 text-brand-ink" /> : <CaretDown className="w-3.5 h-3.5 text-brand-ink" />
                         ) : (
                           <ArrowsDownUp className="w-3 h-3 text-neutral-400 dark:text-[#666] opacity-35 group-hover/th:opacity-100 transition-opacity" />
                         )}
@@ -318,7 +318,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                       <div className="flex items-center gap-1.5">
                         <span>Branch Facility</span>
                         {txnSortField === 'branch' ? (
-                          txnSortDirection === 'asc' ? <CaretUp className="w-3.5 h-3.5 text-[#EF2F38]" /> : <CaretDown className="w-3.5 h-3.5 text-[#EF2F38]" />
+                          txnSortDirection === 'asc' ? <CaretUp className="w-3.5 h-3.5 text-brand-ink" /> : <CaretDown className="w-3.5 h-3.5 text-brand-ink" />
                         ) : (
                           <ArrowsDownUp className="w-3 h-3 text-neutral-400 dark:text-[#666] opacity-35 group-hover/th:opacity-100 transition-opacity" />
                         )}
@@ -331,7 +331,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                       <div className="flex items-center gap-1.5">
                         <span>Billing Cycle</span>
                         {txnSortField === 'cycle' ? (
-                          txnSortDirection === 'asc' ? <CaretUp className="w-3.5 h-3.5 text-[#EF2F38]" /> : <CaretDown className="w-3.5 h-3.5 text-[#EF2F38]" />
+                          txnSortDirection === 'asc' ? <CaretUp className="w-3.5 h-3.5 text-brand-ink" /> : <CaretDown className="w-3.5 h-3.5 text-brand-ink" />
                         ) : (
                           <ArrowsDownUp className="w-3 h-3 text-neutral-400 dark:text-[#666] opacity-35 group-hover/th:opacity-100 transition-opacity" />
                         )}
@@ -344,7 +344,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                       <div className="flex items-center gap-1.5">
                         <span>Reference ID</span>
                         {txnSortField === 'refId' ? (
-                          txnSortDirection === 'asc' ? <CaretUp className="w-3.5 h-3.5 text-[#EF2F38]" /> : <CaretDown className="w-3.5 h-3.5 text-[#EF2F38]" />
+                          txnSortDirection === 'asc' ? <CaretUp className="w-3.5 h-3.5 text-brand-ink" /> : <CaretDown className="w-3.5 h-3.5 text-brand-ink" />
                         ) : (
                           <ArrowsDownUp className="w-3 h-3 text-neutral-400 dark:text-[#666] opacity-35 group-hover/th:opacity-100 transition-opacity" />
                         )}
@@ -358,7 +358,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                       <div className="flex items-center justify-end gap-1.5">
                         <span>Amount</span>
                         {txnSortField === 'amount' ? (
-                          txnSortDirection === 'asc' ? <CaretUp className="w-3.5 h-3.5 text-[#EF2F38]" /> : <CaretDown className="w-3.5 h-3.5 text-[#EF2F38]" />
+                          txnSortDirection === 'asc' ? <CaretUp className="w-3.5 h-3.5 text-brand-ink" /> : <CaretDown className="w-3.5 h-3.5 text-brand-ink" />
                         ) : (
                           <ArrowsDownUp className="w-3 h-3 text-neutral-400 dark:text-[#666] opacity-35 group-hover/th:opacity-100 transition-opacity" />
                         )}
@@ -391,11 +391,11 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                               <SafeImage
                                 src={student.profilePicturePath}
                                 alt={student.englishName}
-                                containerClassName="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 group-hover:border-[#EF2F38] transition-colors"
+                                containerClassName="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 group-hover:border-brand transition-colors"
                                 fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-[10px]">{student.englishName.charAt(0)}</span>}
                               />
                               <div>
-                                <div className="font-bold text-xs text-neutral-900 dark:text-white flex items-center gap-1.5 group-hover:text-[#EF2F38] dark:group-hover:text-white transition-colors">
+                                <div className="font-bold text-xs text-neutral-900 dark:text-white flex items-center gap-1.5 group-hover:text-brand-ink dark:group-hover:text-white transition-colors">
                                   {student.englishName}
                                   {student.khmerName && (
                                     <span className="text-[10px] font-khmer text-neutral-500 dark:text-neutral-400 font-normal">

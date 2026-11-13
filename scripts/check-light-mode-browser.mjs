@@ -11,7 +11,7 @@ const white = 'rgb(255, 255, 255)';
 const probes = [
   { id: 'tint-red', className: 'text-red-600 hover:bg-red-500/10', solid: false },
   { id: 'tint-red-50', className: 'text-red-600 hover:bg-red-50 dark:hover:bg-red-950', solid: false },
-  { id: 'tint-brand', className: 'text-[#EF2F38] hover:bg-[#EF2F38]/10', solid: false },
+  { id: 'tint-brand', className: 'text-brand-ink hover:bg-brand/10', solid: false },
   { id: 'tint-emerald', className: 'text-emerald-700 hover:bg-emerald-500/20', solid: false },
   { id: 'tint-amber', className: 'text-amber-700 hover:bg-amber-200', solid: false },
   { id: 'tint-purple', className: 'text-purple-700 hover:bg-purple-100', solid: false },
@@ -19,6 +19,7 @@ const probes = [
   { id: 'solid-emerald', className: 'text-emerald-700 hover:bg-emerald-600', solid: true },
   { id: 'solid-blue', className: 'text-blue-700 hover:bg-blue-700', solid: true },
   { id: 'solid-amber', className: 'text-amber-700 hover:bg-amber-500', solid: true },
+  { id: 'solid-brand', className: 'text-brand-ink hover:bg-brand', solid: true },
 ];
 const results = [];
 try {

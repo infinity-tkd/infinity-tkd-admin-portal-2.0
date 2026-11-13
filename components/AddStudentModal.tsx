@@ -41,7 +41,7 @@ const CLASS_STYLES: Record<string, { bg: string; text: string; border: string; a
     bg: 'bg-red-50 dark:bg-red-500/10',
     text: 'text-red-800 dark:text-red-400',
     border: 'border-red-200 dark:border-red-500/20',
-    accent: 'border-[#EF2F38] dark:border-[#EF2F38]'
+    accent: 'border-brand dark:border-brand'
   }
 };
 
@@ -573,7 +573,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
              </form>
              <div className="p-4 border-t border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 sm:gap-2 shrink-0">
                 <button type="button" onClick={onClose} className="w-full sm:w-auto px-6 py-2.5 min-h-[44px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] text-neutral-700 dark:text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation">{t('act_cancel')}</button>
-                <button type="button" onClick={submit} disabled={isSubmitting} aria-busy={isSubmitting} className="w-full sm:w-auto px-6 py-2.5 min-h-[44px] bg-[#EF2F38] hover:bg-[#D9222B] text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation shadow-md shadow-red-500/20 disabled:opacity-60 disabled:cursor-wait">{isSubmitting ? 'Saving…' : t('usr_provision_account')}</button>
+                <button type="button" onClick={submit} disabled={isSubmitting} aria-busy={isSubmitting} className="w-full sm:w-auto px-6 py-2.5 min-h-[44px] bg-brand hover:bg-brand-strong text-white rounded-[8px] text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation shadow-md shadow-red-500/20 disabled:opacity-60 disabled:cursor-wait">{isSubmitting ? 'Saving…' : t('usr_provision_account')}</button>
              </div>
             </div>
          </div>

@@ -58,7 +58,7 @@ export function EditPromotionDialog({ BELT_RANK_ORDER, editHistoryForm, editingH
                 <select
                   value={editHistoryForm.beltLevel}
                   onChange={(e) => setEditHistoryForm(prev => ({ ...prev, beltLevel: e.target.value }))}
-                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] cursor-pointer"
+                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand cursor-pointer"
                 >
                   {BELT_RANK_ORDER.map(b => (
                     <option key={b} value={b}>{b}</option>
@@ -72,7 +72,7 @@ export function EditPromotionDialog({ BELT_RANK_ORDER, editHistoryForm, editingH
                   type="date"
                   value={editHistoryForm.promotionDate}
                   onChange={(e) => setEditHistoryForm(prev => ({ ...prev, promotionDate: e.target.value }))}
-                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono [color-scheme:light] dark:[color-scheme:dark]"
+                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono [color-scheme:light] dark:[color-scheme:dark]"
                 />
               </div>
             </div>
@@ -86,7 +86,7 @@ export function EditPromotionDialog({ BELT_RANK_ORDER, editHistoryForm, editingH
                   max="100"
                   value={editHistoryForm.testScore}
                   onChange={(e) => setEditHistoryForm(prev => ({ ...prev, testScore: Number(e.target.value) }))}
-                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono font-bold"
+                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono font-bold"
                 />
               </div>
 
@@ -96,7 +96,7 @@ export function EditPromotionDialog({ BELT_RANK_ORDER, editHistoryForm, editingH
                   type="text"
                   value={editHistoryForm.program}
                   onChange={(e) => setEditHistoryForm(prev => ({ ...prev, program: e.target.value }))}
-                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-bold"
+                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-bold"
                 />
               </div>
             </div>
@@ -107,7 +107,7 @@ export function EditPromotionDialog({ BELT_RANK_ORDER, editHistoryForm, editingH
                 type="text"
                 value={editHistoryForm.certificateRef}
                 onChange={(e) => setEditHistoryForm(prev => ({ ...prev, certificateRef: e.target.value.toUpperCase() }))}
-                className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono uppercase"
+                className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono uppercase"
                 placeholder="e.g. INF-YYYYMMDD-ID-RAND"
               />
             </div>
@@ -118,7 +118,7 @@ export function EditPromotionDialog({ BELT_RANK_ORDER, editHistoryForm, editingH
                 type="text"
                 value={editHistoryForm.kukkiwonDanCardId}
                 onChange={(e) => setEditHistoryForm(prev => ({ ...prev, kukkiwonDanCardId: e.target.value }))}
-                className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] font-mono"
+                className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono"
                 placeholder="e.g. https://drive.google.com/file/... or DAN-XXXX"
               />
             </div>

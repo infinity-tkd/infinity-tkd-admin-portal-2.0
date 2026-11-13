@@ -84,7 +84,7 @@ export function BranchHoursPanel() {
             ))}
           </fieldset>
           {invalid && <p role="alert" className="text-xs text-red-700 dark:text-red-400">{invalid}</p>}
-          {canEdit ? <button type="submit" disabled={!available || saving || !!invalid} className="rounded-lg bg-[#EF2F38] px-4 py-2.5 text-xs font-bold text-white disabled:opacity-40">{saving ? 'Saving…' : 'Save opening hours'}</button>
+          {canEdit ? <button type="submit" disabled={!available || saving || !!invalid} className="rounded-lg bg-brand px-4 py-2.5 text-xs font-bold text-white disabled:opacity-40">{saving ? 'Saving…' : 'Save opening hours'}</button>
             : <p className="text-xs text-neutral-500">You can view opening hours. Staff managers can change them.</p>}
         </form>
       )}

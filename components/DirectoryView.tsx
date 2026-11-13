@@ -621,7 +621,7 @@ export function DirectoryView() {
           onClick={() => setActiveViewTab('roster')}
           className={cn(
             "py-2.5 sm:py-3 text-[11px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0",
-            activeViewTab === 'roster' ? "border-[#EF2F38] text-neutral-900 dark:text-white font-black" : "border-transparent text-neutral-500 dark:text-[#666] hover:text-neutral-900 dark:hover:text-white"
+            activeViewTab === 'roster' ? "border-brand text-neutral-900 dark:text-white font-black" : "border-transparent text-neutral-500 dark:text-[#666] hover:text-neutral-900 dark:hover:text-white"
           )}
         >
           Student Roster
@@ -630,10 +630,10 @@ export function DirectoryView() {
           onClick={() => setActiveViewTab('beltCenter')}
           className={cn(
             "py-2.5 sm:py-3 text-[11px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest border-b-2 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0",
-            activeViewTab === 'beltCenter' ? "border-[#EF2F38] text-neutral-900 dark:text-white font-black" : "border-transparent text-neutral-500 dark:text-[#666] hover:text-neutral-900 dark:hover:text-white"
+            activeViewTab === 'beltCenter' ? "border-brand text-neutral-900 dark:text-white font-black" : "border-transparent text-neutral-500 dark:text-[#666] hover:text-neutral-900 dark:hover:text-white"
           )}
         >
-          <span className={cn("w-1.5 h-1.5 rounded-full bg-[#EF2F38] inline-block", activeViewTab !== 'beltCenter' && "animate-pulse")}></span>
+          <span className={cn("w-1.5 h-1.5 rounded-full bg-brand inline-block", activeViewTab !== 'beltCenter' && "animate-pulse")}></span>
           Belt Promotion Center
         </button>
       </div>
@@ -654,7 +654,7 @@ export function DirectoryView() {
                     setSearch(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full pl-9 pr-8 py-2 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-xs h-10 pointer-coarse:h-11 focus:outline-none focus:border-[#EF2F38] focus:ring-1 focus:ring-[#EF2F38]/20 transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666] font-sans"
+                  className="w-full pl-9 pr-8 py-2 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-xs h-10 pointer-coarse:h-11 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/20 transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666] font-sans"
                 />
                 {search && (
                   <button
@@ -677,7 +677,7 @@ export function DirectoryView() {
                   <button
                     type="button"
                     onClick={() => setIsAdding(true)}
-                    className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3.5 bg-[#EF2F38] hover:bg-[#D9222B] active:scale-95 touch-manipulation text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider shadow-sm shadow-[#EF2F38]/20 whitespace-nowrap flex items-center justify-center gap-1 shrink-0 cursor-pointer"
+                    className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3.5 bg-brand hover:bg-brand-strong active:scale-95 touch-manipulation text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider shadow-sm shadow-brand/20 whitespace-nowrap flex items-center justify-center gap-1 shrink-0 cursor-pointer"
                   >
                     <Plus size={13} weight="bold" />
                     <span>Add</span>
@@ -691,14 +691,14 @@ export function DirectoryView() {
                   className={cn(
                     "h-9 pointer-coarse:h-11 px-2.5 sm:px-3 rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation border",
                     showFilters
-                      ? "bg-[#EF2F38] text-white border-[#EF2F38]"
+                      ? "bg-brand text-white border-brand"
                       : "bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white"
                   )}
                 >
                   <Funnel size={12} weight={showFilters ? "fill" : "bold"} />
                   <span>{t('act_filters')}</span>
                   {(filterBranch !== 'all' || filterClass !== 'all' || filterBelt !== 'all' || filterGender !== 'all' || filterScholarship !== 'all' || filterDivision !== 'all') && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#EF2F38] inline-block" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand inline-block" />
                   )}
                 </button>
 
@@ -717,7 +717,7 @@ export function DirectoryView() {
                     <button
                       type="button"
                       onClick={() => setIsHouseholdModalOpen(true)}
-                      className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[#EF2F38] rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation"
+                      className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-brand-ink rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation"
                     >
                       <House size={12} weight="bold" />
                       <span>Household</span>
@@ -789,13 +789,13 @@ export function DirectoryView() {
               <div className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-3 rounded-[8px] space-y-2.5 animate-in slide-in-from-top-2 fade-in duration-200">
                 <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-2">
                   <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
-                    <Funnel size={13} weight="bold" className="text-[#EF2F38]" />
+                    <Funnel size={13} weight="bold" className="text-brand-ink" />
                     <span>Filter Directory</span>
                   </div>
                   <button
                     type="button"
                     onClick={handleResetFilters}
-                    className="text-[10px] text-[#EF2F38] hover:underline font-bold uppercase tracking-wider cursor-pointer active:scale-95"
+                    className="text-[10px] text-brand-ink hover:underline font-bold uppercase tracking-wider cursor-pointer active:scale-95"
                   >
                     Reset All Filters
                   </button>
@@ -806,7 +806,7 @@ export function DirectoryView() {
                     setFilterClass('all');
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-[#EF2F38] font-mono cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand font-mono cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_branches')}</option>
                     {state.branches.map(b => (
@@ -817,7 +817,7 @@ export function DirectoryView() {
                     setFilterClass(e.target.value === 'all' ? 'all' : Number(e.target.value));
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-[#EF2F38] font-mono cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand font-mono cursor-pointer truncate"
                     disabled={filterBranch === 'all'}
                   >
                     <option value="all">{t('dir_all_classes')}</option>
@@ -829,7 +829,7 @@ export function DirectoryView() {
                     setFilterBelt(e.target.value);
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-[#EF2F38] cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_belts')}</option>
                     {BELT_RANK_ORDER.map(belt => <option key={belt} value={belt}>{belt}</option>)}
@@ -838,7 +838,7 @@ export function DirectoryView() {
                     setFilterGender(e.target.value);
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-[#EF2F38] cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_genders')}</option>
                     <option value="Male">{t('stu_male')}</option>
@@ -848,7 +848,7 @@ export function DirectoryView() {
                     setFilterScholarship(Number(e.target.value === 'all' ? 'all' : e.target.value));
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-[#EF2F38] cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_scholarships')}</option>
                     {state.scholarships.map(s => (
@@ -859,7 +859,7 @@ export function DirectoryView() {
                     setFilterDivision(e.target.value);
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-[#EF2F38] cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_divisions')}</option>
                     <option value="Kid">Kid (6-11)</option>
@@ -871,7 +871,7 @@ export function DirectoryView() {
                     setFilterStatus(e.target.value);
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-red-600 dark:text-red-500 border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none font-bold cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-red-600 dark:text-red-400 border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none font-bold cursor-pointer truncate"
                   >
                     <option value="all">All Statuses</option>
                     <option value="Active">Active</option>
@@ -971,7 +971,7 @@ export function DirectoryView() {
                           <div className="flex items-center gap-1.5">
                             <span>{t('stu_id')}</span>
                             {sortBy === 'id' && (
-                              <span className="text-[10px] text-[#EF2F38] font-bold">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+                              <span className="text-[10px] text-brand-ink font-bold">{sortOrder === 'asc' ? '▲' : '▼'}</span>
                             )}
                           </div>
                         </th>
@@ -979,7 +979,7 @@ export function DirectoryView() {
                           <div className="flex items-center gap-1.5">
                             <span>{t('stu_english_name')} / {t('stu_khmer_name')}</span>
                             {(sortBy === 'name' || sortBy === 'khmerName') && (
-                              <span className="text-[10px] text-[#EF2F38] font-bold">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+                              <span className="text-[10px] text-brand-ink font-bold">{sortOrder === 'asc' ? '▲' : '▼'}</span>
                             )}
                           </div>
                         </th>
@@ -987,7 +987,7 @@ export function DirectoryView() {
                           <div className="flex items-center gap-1.5">
                             <span>{t('stu_belt')}</span>
                             {sortBy === 'belt' && (
-                              <span className="text-[10px] text-[#EF2F38] font-bold">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+                              <span className="text-[10px] text-brand-ink font-bold">{sortOrder === 'asc' ? '▲' : '▼'}</span>
                             )}
                           </div>
                         </th>
@@ -1008,7 +1008,7 @@ export function DirectoryView() {
                           className="group hover:bg-neutral-50 dark:hover:bg-[#1A1A1A] cursor-pointer transition-colors text-neutral-800 dark:text-[#E4E4E4]"
                         >
                           {/* 1. Student ID */}
-                          <td className="px-5 py-3.5 font-mono font-bold text-[#EF2F38] tracking-tight">
+                          <td className="px-5 py-3.5 font-mono font-bold text-brand-ink tracking-tight">
                             {student.id}
                           </td>
 
@@ -1059,7 +1059,7 @@ export function DirectoryView() {
                           <td className="px-5 py-3.5">
                             <div className="space-y-0.5">
                               <div className="text-neutral-900 dark:text-neutral-200 font-semibold text-xs flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#EF2F38] shrink-0" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-brand shrink-0" />
                                 <span className="truncate max-w-[130px]">{state.branches.find(b => b.id === student.homeBranchId)?.name || 'Main Branch'}</span>
                               </div>
                               <div className="text-neutral-500 dark:text-[#888] text-[10px] font-mono truncate max-w-[140px]">
@@ -1080,10 +1080,10 @@ export function DirectoryView() {
                                 <button
                                   type="button"
                                   onClick={(e) => handleCopyContact(student.phone!, e)}
-                                  className="group/btn flex items-center gap-1.5 text-neutral-700 dark:text-neutral-300 hover:text-[#EF2F38] text-[11px] font-mono transition-colors cursor-pointer"
+                                  className="group/btn flex items-center gap-1.5 text-neutral-700 dark:text-neutral-300 hover:text-brand-ink text-[11px] font-mono transition-colors cursor-pointer"
                                   title="Click to copy phone number"
                                 >
-                                  <Phone size={11} className="text-neutral-400 group-hover/btn:text-[#EF2F38]" />
+                                  <Phone size={11} className="text-neutral-400 group-hover/btn:text-brand-ink" />
                                   <span>{student.phone}</span>
                                   {copiedContact === student.phone ? (
                                     <span className="text-[9px] text-emerald-500 font-bold ml-1">Copied!</span>
@@ -1098,10 +1098,10 @@ export function DirectoryView() {
                                 <button
                                   type="button"
                                   onClick={(e) => handleCopyContact(student.email!, e)}
-                                  className="group/btn flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400 hover:text-[#EF2F38] text-[10px] font-mono transition-colors cursor-pointer max-w-[170px] truncate"
+                                  className="group/btn flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400 hover:text-brand-ink text-[10px] font-mono transition-colors cursor-pointer max-w-[170px] truncate"
                                   title="Click to copy email address"
                                 >
-                                  <Envelope size={11} className="text-neutral-400 group-hover/btn:text-[#EF2F38] shrink-0" />
+                                  <Envelope size={11} className="text-neutral-400 group-hover/btn:text-brand-ink shrink-0" />
                                   <span className="truncate">{student.email}</span>
                                   {copiedContact === student.email && (
                                     <span className="text-[9px] text-emerald-500 font-bold ml-1 shrink-0">Copied!</span>
@@ -1184,7 +1184,7 @@ export function DirectoryView() {
                           <td className="px-5 py-3.5 text-right sticky right-0 bg-white dark:bg-[#141414] group-hover:bg-neutral-50 dark:group-hover:bg-[#1A1A1A] z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.06)] dark:shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.4)] border-l border-neutral-200 dark:border-[#262626]">
                             <button
                               type="button"
-                              className="text-xs text-white bg-[#EF2F38] hover:bg-[#D9222B] px-3 py-1.5 min-h-[34px] rounded-[6px] transition-colors inline-flex items-center justify-center font-bold uppercase tracking-wider cursor-pointer shadow-xs pointer-coarse:min-h-11"
+                              className="text-xs text-white bg-brand hover:bg-brand-strong px-3 py-1.5 min-h-[34px] rounded-[6px] transition-colors inline-flex items-center justify-center font-bold uppercase tracking-wider cursor-pointer shadow-xs pointer-coarse:min-h-11"
                               onClick={(e) => { e.stopPropagation(); setSelectedStudentId(student.id); }}
                             >
                               {t('act_details')}
@@ -1205,7 +1205,7 @@ export function DirectoryView() {
                       className="bg-white dark:bg-[#141414] hover:bg-neutral-50/80 dark:hover:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[10px] p-3 space-y-2.5 transition-all cursor-pointer shadow-xs active:scale-[0.99] touch-manipulation"
                     >
                       <div className="flex items-center justify-between gap-2 border-b border-neutral-100 dark:border-[#222] pb-2">
-                        <span className="font-mono text-[11px] font-bold text-[#EF2F38] bg-red-500/10 px-2 py-0.5 rounded-[5px] border border-red-500/20">{student.id}</span>
+                        <span className="font-mono text-[11px] font-bold text-brand-ink bg-red-500/10 px-2 py-0.5 rounded-[5px] border border-red-500/20">{student.id}</span>
                         <div className="flex items-center gap-1.5">
                           <button
                             type="button"
@@ -1278,7 +1278,7 @@ export function DirectoryView() {
                             <button
                               type="button"
                               onClick={(e) => handleCopyContact(student.phone!, e)}
-                              className="flex items-center gap-1 text-[10px] font-mono text-neutral-700 dark:text-neutral-300 hover:text-[#EF2F38] bg-neutral-100 dark:bg-[#1A1A1A] px-2 py-1 rounded-[6px] border border-neutral-200/60 dark:border-[#262626] active:scale-95 transition-all truncate"
+                              className="flex items-center gap-1 text-[10px] font-mono text-neutral-700 dark:text-neutral-300 hover:text-brand-ink bg-neutral-100 dark:bg-[#1A1A1A] px-2 py-1 rounded-[6px] border border-neutral-200/60 dark:border-[#262626] active:scale-95 transition-all truncate"
                             >
                               <Phone size={10} className="text-emerald-500 shrink-0" />
                               <span className="truncate">{student.phone}</span>
@@ -1288,7 +1288,7 @@ export function DirectoryView() {
                             <button
                               type="button"
                               onClick={(e) => handleCopyContact(student.email!, e)}
-                              className="flex items-center gap-1 text-[10px] font-mono text-neutral-500 dark:text-neutral-400 hover:text-[#EF2F38] bg-neutral-100 dark:bg-[#1A1A1A] px-2 py-1 rounded-[6px] border border-neutral-200/60 dark:border-[#262626] active:scale-95 transition-all truncate max-w-[170px]"
+                              className="flex items-center gap-1 text-[10px] font-mono text-neutral-500 dark:text-neutral-400 hover:text-brand-ink bg-neutral-100 dark:bg-[#1A1A1A] px-2 py-1 rounded-[6px] border border-neutral-200/60 dark:border-[#262626] active:scale-95 transition-all truncate max-w-[170px]"
                             >
                               <Envelope size={10} className="shrink-0" />
                               <span className="truncate">{student.email}</span>
@@ -1301,7 +1301,7 @@ export function DirectoryView() {
                         <button
                           type="button"
                           onClick={() => setSelectedStudentId(student.id)}
-                          className="h-7.5 px-3 bg-red-500/10 hover:bg-[#EF2F38] text-[#EF2F38] hover:text-white border border-red-500/25 rounded-[6px] text-[10.5px] font-bold uppercase tracking-wider flex items-center gap-1 transition-all active:scale-95 shrink-0 cursor-pointer shadow-xs"
+                          className="h-7.5 px-3 bg-red-500/10 hover:bg-brand text-brand-ink hover:text-white border border-red-500/25 rounded-[6px] text-[10.5px] font-bold uppercase tracking-wider flex items-center gap-1 transition-all active:scale-95 shrink-0 cursor-pointer shadow-xs"
                         >
                           <span>{t('act_details')}</span>
                           <CaretRight className="w-3 h-3" />
@@ -1362,7 +1362,7 @@ export function DirectoryView() {
                                 className={cn(
                                   "min-w-[28px] h-7 px-2 rounded-[6px] text-xs font-mono font-bold transition-all cursor-pointer pointer-coarse:min-w-11",
                                   safeCurrentPage === page
-                                    ? "bg-[#EF2F38] text-white shadow-xs"
+                                    ? "bg-brand text-white shadow-xs"
                                     : "bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#262626]"
                                 )}
                               >
@@ -1397,7 +1397,7 @@ export function DirectoryView() {
               onClick={() => setBeltCenterSubTab('readiness')}
               className={cn(
                 "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation",
-                beltCenterSubTab === 'readiness' ? "bg-[#EF2F38] text-white shadow-md font-black" : "text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
+                beltCenterSubTab === 'readiness' ? "bg-brand text-white shadow-md font-black" : "text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
               )}
             >
               <Checks className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
@@ -1408,7 +1408,7 @@ export function DirectoryView() {
               onClick={() => setBeltCenterSubTab('history')}
               className={cn(
                 "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation",
-                beltCenterSubTab === 'history' ? "bg-[#EF2F38] text-white shadow-md font-black" : "text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
+                beltCenterSubTab === 'history' ? "bg-brand text-white shadow-md font-black" : "text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
               )}
             >
               <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
@@ -1419,7 +1419,7 @@ export function DirectoryView() {
               onClick={() => setBeltCenterSubTab('curriculum')}
               className={cn(
                 "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation",
-                beltCenterSubTab === 'curriculum' ? "bg-[#EF2F38] text-white shadow-md font-black" : "text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
+                beltCenterSubTab === 'curriculum' ? "bg-brand text-white shadow-md font-black" : "text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
               )}
             >
               <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
@@ -1439,7 +1439,7 @@ export function DirectoryView() {
                 {selectedBeltPipelineFilter && (
                   <button
                     onClick={() => setSelectedBeltPipelineFilter(null)}
-                    className="text-[9px] text-[#EF2F38] uppercase font-bold tracking-widest hover:underline flex items-center gap-1 cursor-pointer active:scale-95"
+                    className="text-[9px] text-brand-ink uppercase font-bold tracking-widest hover:underline flex items-center gap-1 cursor-pointer active:scale-95"
                   >
                     Clear Filter
                   </button>
@@ -1468,7 +1468,7 @@ export function DirectoryView() {
                       className={cn(
                         "bg-white dark:bg-[#0F0F0F] border px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-[6px] sm:rounded-[8px] flex items-center justify-between transition-all duration-200 group relative overflow-hidden text-xs active:scale-95 touch-manipulation cursor-pointer shrink-0 min-w-[84px] sm:min-w-0 shadow-xs",
                         isSelected
-                          ? "border-[#EF2F38] bg-red-500/10 dark:bg-[#EF2F38]/15 shadow-sm shadow-[#EF2F38]/15 ring-1 ring-[#EF2F38]"
+                          ? "border-brand bg-red-500/10 dark:bg-brand/15 shadow-sm shadow-brand/15 ring-1 ring-brand"
                           : "border-neutral-200 dark:border-[#262626] hover:bg-neutral-50 dark:hover:bg-[#1A1A1A] hover:border-neutral-300 dark:hover:border-neutral-700"
                       )}
                     >
@@ -1476,7 +1476,7 @@ export function DirectoryView() {
                         <div className={cn("w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 shadow-xs", beltColorClass)} />
                         <span className={cn(
                           "text-[9px] font-black tracking-wider uppercase truncate",
-                          isSelected ? "text-[#EF2F38] dark:text-white" : "text-neutral-700 dark:text-[#999] group-hover:text-black dark:group-hover:text-white"
+                          isSelected ? "text-brand-ink dark:text-white" : "text-neutral-700 dark:text-[#999] group-hover:text-black dark:group-hover:text-white"
                         )}>
                           {belt === '1st Poom/Dan' ? '1st Dan' :
                            belt === '2nd Poom/Dan' ? '2nd Dan' :
@@ -1487,7 +1487,7 @@ export function DirectoryView() {
                       <div className="flex items-center gap-1 shrink-0 ml-1">
                         <span className={cn(
                           "text-[9px] font-mono font-black",
-                          isSelected ? "text-[#EF2F38]" : "text-neutral-500 dark:text-neutral-400 group-hover:text-[#EF2F38]"
+                          isSelected ? "text-brand-ink" : "text-neutral-500 dark:text-neutral-400 group-hover:text-brand-ink"
                         )}>
                           {count}
                         </span>

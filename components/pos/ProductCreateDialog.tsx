@@ -80,8 +80,8 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
               {/* Header */}
               <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3">
                 <div className="flex items-center gap-2">
-                  <Package size={18} className="text-[#EF2F38]" />
-                  <h3 className="text-xs font-bold tracking-wider text-[#EF2F38]">{"// ADD NEW INVENTORY ITEM"}</h3>
+                  <Package size={18} className="text-brand-ink" />
+                  <h3 className="text-xs font-bold tracking-wider text-brand-ink">{"// ADD NEW INVENTORY ITEM"}</h3>
                 </div>
                 <button
                   type="button"
@@ -98,7 +98,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="sm:col-span-2">
                     <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">
-                      PRODUCT / UNIFORM NAME <span className="text-[#EF2F38]">*</span>
+                      PRODUCT / UNIFORM NAME <span className="text-brand-ink">*</span>
                     </label>
                     <input
                       type="text"
@@ -106,7 +106,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                       placeholder="e.g. Infinity TKD Grandmaster Uniform"
                       aria-label="Product name" value={newItem.name}
                       onChange={e => handleNewItemNameChange(e.target.value)}
-                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38]"
+                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand"
                     />
                   </div>
 
@@ -115,7 +115,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                     <select
                       aria-label="Product category" value={newItem.category}
                       onChange={e => handleNewItemCategoryChange(e.target.value)}
-                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38] cursor-pointer pointer-coarse:min-h-11"
+                      className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand cursor-pointer pointer-coarse:min-h-11"
                     >
                       {dynamicCategories.filter(c => c !== 'All').map(c => (
                         <option key={c} value={c}>{c}</option>
@@ -126,12 +126,12 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400">
-                        BASE SKU CODE <span className="text-[#EF2F38]">*</span>
+                        BASE SKU CODE <span className="text-brand-ink">*</span>
                       </label>
                       <button
                         type="button"
                         onClick={handleGenerateNewItemSku}
-                        className="text-[10px] font-mono font-bold text-[#EF2F38] hover:underline flex items-center gap-1 cursor-pointer py-0.5 active:scale-95 touch-manipulation"
+                        className="text-[10px] font-mono font-bold text-brand-ink hover:underline flex items-center gap-1 cursor-pointer py-0.5 active:scale-95 touch-manipulation"
                         title="Auto-detect item and generate unique barcode-compatible SKU"
                       >
                         <Barcode size={13} /> Auto Gen
@@ -152,7 +152,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                           ? "border-rose-500 focus:border-rose-500"
                           : newItem.sku
                           ? "border-emerald-500/60 focus:border-emerald-500"
-                          : "border-neutral-300 dark:border-[#262626] focus:border-[#EF2F38]"
+                          : "border-neutral-300 dark:border-[#262626] focus:border-brand"
                       )}
                     />
                     {newItem.sku && (
@@ -179,7 +179,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                 <div className="p-3 sm:p-3.5 bg-neutral-50 dark:bg-[#181818] border border-neutral-200 dark:border-[#262626] rounded-[8px] flex items-center justify-between gap-3">
                   <div className="space-y-0.5">
                     <span className="text-xs font-bold text-neutral-900 dark:text-white flex items-center gap-1.5">
-                      <Tag size={15} className="text-[#EF2F38]" /> Multi-Size & Collar Matrix Variations
+                      <Tag size={15} className="text-brand-ink" /> Multi-Size & Collar Matrix Variations
                     </span>
                     <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
                       Enable for uniforms, sparring gear, or apparel with sizes (100–200, S–XL) & collar styles (White, Poom, Dan)
@@ -196,7 +196,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                     }}
                     className={cn(
                       "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none touch-manipulation",
-                      hasNewItemVariants ? "bg-[#EF2F38]" : "bg-neutral-300 dark:bg-neutral-700"
+                      hasNewItemVariants ? "bg-brand" : "bg-neutral-300 dark:bg-neutral-700"
                     )}
                     role="switch"
                     aria-checked={hasNewItemVariants}
@@ -223,7 +223,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                           required
                           aria-label="Product price" value={newItem.price}
                           onChange={e => setNewItem({ ...newItem, price: parseFloat(e.target.value) || 0 })}
-                          className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38]"
+                          className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand"
                         />
                       </div>
                       <div>
@@ -234,7 +234,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                           required
                           value={newItem.stock}
                           onChange={e => setNewItem({ ...newItem, stock: parseInt(e.target.value) || 0 })}
-                          className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38]"
+                          className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand"
                         />
                       </div>
                       <div>
@@ -245,7 +245,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                           required
                           aria-label="Minimum stock threshold" value={newItem.minStockThreshold}
                           onChange={e => setNewItem({ ...newItem, minStockThreshold: stockAlertThreshold(e.target.valueAsNumber) })}
-                          className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38]"
+                          className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand"
                         />
                       </div>
                     </div>
@@ -257,7 +257,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                         placeholder="e.g. One Size / Free Size"
                         aria-label="Product size" value={newItem.size}
                         onChange={e => handleNewItemSizeChange(e.target.value)}
-                        className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38]"
+                        className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand"
                       />
                     </div>
                   </div>
@@ -280,7 +280,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                             required
                             aria-label="Product price" value={newItem.price}
                             onChange={e => setNewItem({ ...newItem, price: parseFloat(e.target.value) || 0 })}
-                            className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand"
                           />
                         </div>
                         <div>
@@ -293,7 +293,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                             required
                             aria-label="Minimum stock threshold" value={newItem.minStockThreshold}
                             onChange={e => setNewItem({ ...newItem, minStockThreshold: stockAlertThreshold(e.target.valueAsNumber) })}
-                            className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38]"
+                            className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand"
                           />
                         </div>
                         <div>
@@ -314,7 +314,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                           onClick={applyUniformQuickTemplate}
                           className="text-[10px] px-2.5 py-1 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 rounded-[6px] border border-neutral-300 dark:border-neutral-700 flex items-center gap-1 transition-colors active:scale-95 touch-manipulation cursor-pointer"
                         >
-                          <Sparkle size={12} className="text-[#EF2F38]" /> TKD Uniform (Poom, Dan, White • 110-180)
+                          <Sparkle size={12} className="text-brand-ink" /> TKD Uniform (Poom, Dan, White • 110-180)
                         </button>
                         <button
                           type="button"
@@ -358,7 +358,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                               className={cn(
                                 "px-2.5 py-1 rounded-[6px] text-[10px] font-bold border transition-colors cursor-pointer active:scale-95 touch-manipulation",
                                 isSelected
-                                  ? "bg-[#EF2F38] text-white border-[#EF2F38]"
+                                  ? "bg-brand text-white border-brand"
                                   : "bg-white dark:bg-[#141414] text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-[#262626] hover:border-neutral-400"
                               )}
                             >
@@ -381,7 +381,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                               addCustomStyle();
                             }
                           }}
-                          className="flex-1 bg-white dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[6px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38]"
+                          className="flex-1 bg-white dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[6px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand"
                         />
                         <button
                           type="button"
@@ -469,7 +469,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                               className={cn(
                                 "w-9 h-7 rounded-[4px] text-[10px] font-bold border transition-colors flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation",
                                 isSelected
-                                  ? "bg-[#EF2F38] text-white border-[#EF2F38]"
+                                  ? "bg-brand text-white border-brand"
                                   : "bg-white dark:bg-[#141414] text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-[#262626]"
                               )}
                             >
@@ -492,7 +492,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                               addCustomSize();
                             }
                           }}
-                          className="flex-1 bg-white dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[6px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-[#EF2F38]"
+                          className="flex-1 bg-white dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[6px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand"
                         />
                         <button
                           type="button"
@@ -531,7 +531,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-200 dark:border-[#262626] pb-2">
                         <span className="text-[11px] font-bold uppercase text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
                           <span>3. Matrix Combinations</span>
-                          <span className="px-2 py-0.5 bg-[#EF2F38]/10 text-[#EF2F38] rounded-full text-[10px] font-bold">
+                          <span className="px-2 py-0.5 bg-brand/10 text-brand-ink rounded-full text-[10px] font-bold">
                             {matrixVariants.length} Combinations
                           </span>
                         </span>
@@ -655,7 +655,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                     !newItemSkuFormatValid.isValid ||
                     (hasNewItemVariants && matrixVariants.length === 0)
                   }
-                  className="px-5 py-2 min-h-[42px] bg-[#EF2F38] hover:bg-[#d6242c] text-white text-xs font-bold rounded-[8px] shadow-sm cursor-pointer disabled:opacity-50 transition-colors active:scale-95 touch-manipulation flex items-center gap-2 pointer-coarse:min-h-11"
+                  className="px-5 py-2 min-h-[42px] bg-brand hover:bg-brand-strong text-white text-xs font-bold rounded-[8px] shadow-sm cursor-pointer disabled:opacity-50 transition-colors active:scale-95 touch-manipulation flex items-center gap-2 pointer-coarse:min-h-11"
                 >
                   <Plus size={14} weight="bold" />
                   <span>

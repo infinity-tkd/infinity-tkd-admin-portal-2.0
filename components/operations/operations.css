@@ -5,7 +5,7 @@
 .operations-panel input[type="checkbox"] { width:18px;height:18px;accent-color:var(--ui-brand); }
 .operation-control,.operation-primary { min-height:44px;border:1px solid var(--ui-line-strong);border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;background:var(--ui-control);color:var(--ui-ink);cursor:pointer;transition:background-color var(--motion-fast) var(--motion-ease),border-color var(--motion-fast) var(--motion-ease); }
 .operation-control:hover { background:var(--ui-control-hover); }
-.operation-control[aria-pressed="true"] { background:var(--ui-surface);border-color:var(--ui-brand);color:var(--ui-brand);box-shadow:inset 0 -2px var(--ui-brand); }
+.operation-control[aria-pressed="true"] { background:var(--ui-surface);border-color:var(--ui-brand);color:var(--ui-brand-ink);box-shadow:inset 0 -2px var(--ui-brand); }
 .operation-primary { background:var(--ui-brand);color:#fff;border-color:var(--ui-brand); }
 .operation-primary:hover { background:var(--ui-brand-strong); }
 .operations-panel :disabled { opacity:.55;cursor:wait; }

@@ -837,7 +837,7 @@ export function DashboardView() {
         description={t('dash_operations_sync')}
         actions={
           <div className="flex min-h-10 items-center justify-center gap-2 rounded-lg border border-line bg-surface px-3 shadow-xs">
-            <CalendarBlank className="h-4 w-4 text-brand" aria-hidden="true" />
+            <CalendarBlank className="h-4 w-4 text-brand-ink" aria-hidden="true" />
             <span className="font-mono text-[11px] font-bold uppercase tracking-wider">
               {mounted ? currentLocalTime.toLocaleDateString(state.language === 'en' ? 'en-US' : state.language === 'zh' ? 'zh-CN' : 'km-KH', { weekday: 'short', month: 'short', day: 'numeric' }) : '---'}
             </span>
@@ -847,7 +847,7 @@ export function DashboardView() {
 
       <SegmentedTabs label="Dashboard views" value={dashboardTab} onChange={setDashboardTab} items={[
         { id: 'overview', label: t('dash_tab_roster_ops'), icon: <ChartBar /> },
-        { id: 'intelligence', label: t('dash_tab_intelligence'), icon: <SparkleIcon className="text-brand" /> },
+        { id: 'intelligence', label: t('dash_tab_intelligence'), icon: <SparkleIcon className="text-brand-ink" /> },
       ]} />
 
       {dashboardTab === 'overview' ? (
@@ -913,7 +913,7 @@ export function DashboardView() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-neutral-200 dark:border-[#262626] pb-3 mb-4 gap-3">
               <div>
                 <h2 className="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#EF2F38] animate-pulse"></span>
+                  <span className="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
                   Live Session & Attendance Hub
                 </h2>
                 <p className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
@@ -930,7 +930,7 @@ export function DashboardView() {
                   <select
                     aria-label="Dashboard class" value={selectedClassId || ''}
                     onChange={(e) => setSelectedClassId(Number(e.target.value))}
-                    className="w-full sm:w-auto bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[8px] px-2.5 py-1.5 text-xs sm:text-[11px] min-h-[38px] sm:min-h-0 font-bold focus:outline-none focus:border-[#EF2F38]/50 shadow-sm cursor-pointer pointer-coarse:min-h-11"
+                    className="w-full sm:w-auto bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[8px] px-2.5 py-1.5 text-xs sm:text-[11px] min-h-[38px] sm:min-h-0 font-bold focus:outline-none focus:border-brand/50 shadow-sm cursor-pointer pointer-coarse:min-h-11"
                   >
                     {todayClasses.map(c => {
                       const enrolled = activeEnrollmentCounts.get(c.id) ?? 0;
@@ -982,12 +982,12 @@ export function DashboardView() {
                         className={cn(
                           "p-3 rounded-[8px] border transition-all cursor-pointer text-left relative overflow-hidden group",
                           isSelected
-                            ? "bg-white dark:bg-[#1A1A1A] border-[#EF2F38] shadow-sm ring-1 ring-[#EF2F38]/30"
+                            ? "bg-white dark:bg-[#1A1A1A] border-brand shadow-sm ring-1 ring-brand/30"
                             : "bg-white dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] hover:border-neutral-300 dark:hover:border-[#383838]"
                         )}
                       >
                         {isSelected && (
-                          <div className="absolute top-0 right-0 w-1.5 h-full bg-[#EF2F38]" />
+                          <div className="absolute top-0 right-0 w-1.5 h-full bg-brand" />
                         )}
                         <div className="flex items-start justify-between gap-2 mb-1.5">
                           <div className="min-w-0 flex-1">
@@ -998,7 +998,7 @@ export function DashboardView() {
                               {cls.name}
                             </h4>
                             <span className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 flex items-center gap-1">
-                              <Clock className="w-2.5 h-2.5 shrink-0 text-[#EF2F38]" />
+                              <Clock className="w-2.5 h-2.5 shrink-0 text-brand-ink" />
                               {cls.startTime} - {cls.endTime}
                               {cls.classType && <span>• {cls.classType}</span>}
                             </span>
@@ -1006,7 +1006,7 @@ export function DashboardView() {
                           <span className={cn(
                             "text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full shrink-0 uppercase tracking-wider",
                             isSelected
-                              ? "bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20"
+                              ? "bg-brand/10 text-brand-ink border border-brand/20"
                               : "bg-neutral-100 dark:bg-[#1E1E1E] text-neutral-600 dark:text-neutral-400"
                           )}>
                             {isSelected ? 'Active' : 'Select'}
@@ -1020,14 +1020,14 @@ export function DashboardView() {
                               Enrolled: <strong className="text-neutral-800 dark:text-neutral-200">{enrolled}/{cls.capacity || '—'}</strong>
                             </span>
                             <span className="text-neutral-500 dark:text-neutral-400">
-                              Turnout: <strong className={clsTurnoutPct >= 80 ? "text-green-600 dark:text-green-400" : "text-[#EF2F38]"}>{clsTurnoutPct}%</strong>
+                              Turnout: <strong className={clsTurnoutPct >= 80 ? "text-green-600 dark:text-green-400" : "text-brand-ink"}>{clsTurnoutPct}%</strong>
                             </span>
                           </div>
                           <div className="w-full h-1 bg-neutral-100 dark:bg-[#262626] rounded-full overflow-hidden flex">
                             <div
                               className={cn(
                                 "h-full transition-all duration-300",
-                                clsTurnoutPct >= 80 ? "bg-green-500" : clsTurnoutPct >= 50 ? "bg-amber-500" : "bg-[#EF2F38]"
+                                clsTurnoutPct >= 80 ? "bg-green-500" : clsTurnoutPct >= 50 ? "bg-amber-500" : "bg-brand"
                               )}
                               style={{ width: `${clsTurnoutPct}%` }}
                             />
@@ -1093,7 +1093,7 @@ export function DashboardView() {
                         <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
                         <h2 className="text-xs font-bold uppercase tracking-widest">{t('dash_intake_queue')}</h2>
                       </div>
-                      <span className="px-1.5 py-0.5 bg-red-500/10 border border-red-500/20 text-[#EF2F38] text-[9px] font-bold rounded-full font-mono">
+                      <span className="px-1.5 py-0.5 bg-red-500/10 border border-red-500/20 text-brand-ink text-[9px] font-bold rounded-full font-mono">
                         {pendingIntake.length} {t('dash_waiting')}
                       </span>
                     </div>
@@ -1138,7 +1138,7 @@ export function DashboardView() {
                     <div className="py-2.5 px-3 border-b border-neutral-200 dark:border-[#262626] flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white dark:bg-[#0F0F0F] rounded-t-[8px]">
                       <div className="flex items-center gap-2">
                         <div className="w-5.5 h-5.5 rounded-full bg-red-500/10 border border-red-500/25 flex items-center justify-center shrink-0">
-                          <Warning className="w-3 h-3 text-[#EF2F38] animate-pulse" />
+                          <Warning className="w-3 h-3 text-brand-ink animate-pulse" />
                         </div>
                         <div>
                           <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white">{t('dash_outstanding_tuition')}</h2>
@@ -1147,7 +1147,7 @@ export function DashboardView() {
                       </div>
 
                       {/* Summary Counter badge */}
-                      <span className="px-1.5 py-0.5 bg-[#EF2F38]/5 border border-[#EF2F38]/15 text-[#EF2F38] text-[9px] font-bold rounded-full font-mono tracking-wide w-fit">
+                      <span className="px-1.5 py-0.5 bg-brand/5 border border-brand/15 text-brand-ink text-[9px] font-bold rounded-full font-mono tracking-wide w-fit">
                         {filteredUnpaidTuition.length} Pending • ${totalOutstandingAmount.toFixed(2)} Outstanding
                       </span>
                     </div>
@@ -1163,7 +1163,7 @@ export function DashboardView() {
                           placeholder="Search name..."
                           value={tuitionSearch}
                           onChange={(e) => setTuitionSearch(e.target.value)}
-                          className="w-full bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[6px] sm:rounded-[8px] pl-7 pr-2.5 h-8 sm:h-8.5 text-[11px] sm:text-xs font-semibold focus:outline-none focus:border-[#EF2F38]/50 placeholder-neutral-400 dark:placeholder-neutral-500 shadow-inner"
+                          className="w-full bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[6px] sm:rounded-[8px] pl-7 pr-2.5 h-8 sm:h-8.5 text-[11px] sm:text-xs font-semibold focus:outline-none focus:border-brand/50 placeholder-neutral-400 dark:placeholder-neutral-500 shadow-inner"
                         />
                       </div>
 
@@ -1172,7 +1172,7 @@ export function DashboardView() {
                         <select
                           value={tuitionGroupFilter}
                           onChange={(e) => setTuitionGroupFilter(e.target.value as any)}
-                          className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[6px] sm:rounded-[8px] px-2.5 h-8 sm:h-8.5 text-[11px] sm:text-xs font-bold focus:outline-none focus:border-[#EF2F38]/50 shadow-sm cursor-pointer"
+                          className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[6px] sm:rounded-[8px] px-2.5 h-8 sm:h-8.5 text-[11px] sm:text-xs font-bold focus:outline-none focus:border-brand/50 shadow-sm cursor-pointer"
                         >
                           <option value="all">{t('dash_all_groups')}</option>
                           <option value="Standard Class">Standard Class</option>
@@ -1199,7 +1199,7 @@ export function DashboardView() {
                       if (lower.includes('green')) return 'text-green-500';
                       if (lower.includes('blue')) return 'text-blue-500';
                       if (lower.includes('brown')) return 'text-amber-700';
-                      if (lower.includes('red')) return 'text-[#EF2F38]';
+                      if (lower.includes('red')) return 'text-brand-ink';
                       if (lower.includes('poom') || lower.includes('dan')) return 'text-neutral-900 dark:text-white';
                       return 'text-neutral-400';
                     };
@@ -1210,7 +1210,7 @@ export function DashboardView() {
                     return (
                       <div
                         key={student.id}
-                        className="group relative p-2 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] hover:border-red-500/30 dark:hover:border-red-500/25 transition-all duration-150 flex flex-col md:flex-row md:items-center justify-between gap-2.5 border-l-3 border-l-[#EF2F38] dark:border-l-red-500/70"
+                        className="group relative p-2 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] hover:border-red-500/30 dark:hover:border-red-500/25 transition-all duration-150 flex flex-col md:flex-row md:items-center justify-between gap-2.5 border-l-3 border-l-brand dark:border-l-red-500/70"
                       >
                         {/* Student Identity and Information */}
                         <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -1222,7 +1222,7 @@ export function DashboardView() {
                               fallback={<span className="font-bold text-neutral-500 dark:text-neutral-400 text-[10px]">{student.englishName.charAt(0)}</span>}
                             />
                             {/* Alert dot on avatar */}
-                            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#EF2F38] border-2 border-white dark:border-[#0F0F0F] rounded-full animate-pulse" />
+                            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-brand border-2 border-white dark:border-[#0F0F0F] rounded-full animate-pulse" />
                           </div>
                           <div className="space-y-0.5 min-w-0 flex-1">
                             <h4 className="text-[11px] font-bold text-neutral-800 dark:text-neutral-300 leading-none truncate">{student.englishName}</h4>
@@ -1230,11 +1230,11 @@ export function DashboardView() {
                             <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[9px] text-neutral-500 font-mono font-medium">
                               {/* Belt Rank with dot indicator */}
                               <span className="flex items-center gap-0.5">
-                                <span className={cn("text-[9px] leading-none", getBeltColor(student.currentBelt))}>●</span>
+                                <span aria-hidden="true" className={cn("text-[9px] leading-none", getBeltColor(student.currentBelt))}>●</span>
                                 <span>{translateBeltFormatted(student.currentBelt, student.dob)}</span>
                               </span>
 
-                              <span className="text-neutral-300 dark:text-neutral-800">•</span>
+                              <span aria-hidden="true" className="text-neutral-300 dark:text-neutral-800">•</span>
 
                               {/* Billing Group */}
                               <span>
@@ -1244,11 +1244,11 @@ export function DashboardView() {
                               {/* Outreach Reminder Quick buttons */}
                               {student.emergencyContactPhone && (
                                 <>
-                                  <span className="text-neutral-300 dark:text-neutral-800">•</span>
+                                  <span aria-hidden="true" className="text-neutral-300 dark:text-neutral-800">•</span>
                                   <div className="flex items-center gap-1 pl-0.5">
                                     <a
                                       href={`tel:${student.emergencyContactPhone}`}
-                                      className="hover:text-[#EF2F38] transition-colors flex items-center gap-0.5"
+                                      className="hover:text-brand-ink transition-colors flex items-center gap-0.5"
                                       title={`Call Guardian: ${student.emergencyContactName} (${student.emergencyContactPhone})`}
                                     >
                                       <Phone className="w-2 h-2" />
@@ -1276,10 +1276,10 @@ export function DashboardView() {
                         <div className="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto border-t md:border-t-0 border-neutral-200 dark:border-[#262626] pt-1.5 md:pt-0 shrink-0">
                           <div className="text-left md:text-right">
                             <div className="flex items-center gap-1 md:justify-end">
-                              <span className="text-[#EF2F38] font-bold text-xs font-mono tracking-tight leading-none">
+                              <span className="text-brand-ink font-bold text-xs font-mono tracking-tight leading-none">
                                 ${studentOwed.toFixed(2)}
                               </span>
-                              <span className="px-1 py-0.2 rounded bg-red-500/10 text-[#EF2F38] border border-red-500/20 text-[9px] font-bold uppercase tracking-wider font-mono">
+                              <span className="px-1 py-0.2 rounded bg-red-500/10 text-brand-ink border border-red-500/20 text-[9px] font-bold uppercase tracking-wider font-mono">
                                 {t('dash_overdue')}
                               </span>
                             </div>
@@ -1366,7 +1366,7 @@ export function DashboardView() {
                               {t(`dash_${candidate.rank.toLowerCase()}_candidate` as any)} ({candidate.pri}%)
                             </span>
                           </div>
-                          <span className="px-1 py-0.2 bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 rounded-[3px] text-[9px] font-bold uppercase font-mono">
+                          <span className="px-1 py-0.2 bg-brand/10 text-brand-ink border border-brand/20 rounded-[3px] text-[9px] font-bold uppercase font-mono">
                             {translateBeltFormatted(candidate.student.currentBelt, candidate.student.dob)}
                           </span>
                         </div>

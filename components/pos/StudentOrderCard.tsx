@@ -46,7 +46,7 @@ export const StudentOrderCard = memo(function StudentOrderCard({ order, busy, ca
       </div>
       {!terminal && <ol aria-label="Fulfillment progress" className="grid grid-cols-5 gap-1">
         {steps.map((status, index) => <li key={status} aria-current={index === currentStep ? 'step' : undefined} className="min-w-0">
-          <div className={cn('mb-1 h-1 rounded-full', index <= currentStep ? 'bg-[#EF2F38]' : 'bg-neutral-200 dark:bg-neutral-800')} />
+          <div className={cn('mb-1 h-1 rounded-full', index <= currentStep ? 'bg-brand' : 'bg-neutral-200 dark:bg-neutral-800')} />
           <span className={cn('text-[9px] leading-tight', index === currentStep ? 'font-semibold text-neutral-900 dark:text-neutral-100' : 'text-neutral-500')}>{['Received', 'Accepted', 'Preparing', 'Ready', 'Collected'][index]}</span>
         </li>)}
       </ol>}
@@ -78,7 +78,7 @@ export const StudentOrderCard = memo(function StudentOrderCard({ order, busy, ca
         <button type="button" onClick={() => onPrint(order)} className={`${button} flex items-center gap-1.5 border-neutral-200 text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800`}><Printer size={14} /> Packing slip</button>
         {!terminal && canCancel && <button type="button" disabled={busy} onClick={() => onDecision(order, 'cancel')} className={`${button} border-rose-200 text-rose-700 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-300 dark:hover:bg-rose-950`}>Cancel order</button>}
         {!terminal && order.order_status !== 'PENDING_CONFIRMATION' && order.payment_status === 'PENDING' && canManage && <button type="button" disabled={busy} onClick={() => onDecision(order, 'payment')} className={`${button} border-neutral-300 text-neutral-800 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800`}>Record payment</button>}
-        {next && allowed.includes(next) && canManage && <button type="button" disabled={busy || (next === 'COMPLETED' && !paid)} onClick={() => next === 'COMPLETED' ? onDecision(order, 'handover') : onAdvance(order, next)} className={`${button} ml-auto flex items-center justify-center gap-1.5 border-[#EF2F38] bg-[#EF2F38] text-white hover:bg-[#d6242c]`}><CheckCircle size={15} />{busy ? 'Saving…' : actionLabel}</button>}
+        {next && allowed.includes(next) && canManage && <button type="button" disabled={busy || (next === 'COMPLETED' && !paid)} onClick={() => next === 'COMPLETED' ? onDecision(order, 'handover') : onAdvance(order, next)} className={`${button} ml-auto flex items-center justify-center gap-1.5 border-brand bg-brand text-white hover:bg-brand-strong`}><CheckCircle size={15} />{busy ? 'Saving…' : actionLabel}</button>}
         {next === 'COMPLETED' && !paid && <p className="w-full text-[11px] text-amber-700 dark:text-amber-300">Record verified payment before completing the handover.</p>}
       </div>
     </article>

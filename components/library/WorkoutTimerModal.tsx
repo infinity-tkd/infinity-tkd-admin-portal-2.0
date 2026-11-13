@@ -91,7 +91,7 @@ export function WorkoutTimerModal({ workout, onClose }: { workout: any, onClose:
               <button 
                 type="button" 
                 onClick={prevRound} 
-                className="hover:text-[#EF2F38] disabled:opacity-30 disabled:pointer-events-none p-1 cursor-pointer transition-colors"
+                className="hover:text-brand-ink disabled:opacity-30 disabled:pointer-events-none p-1 cursor-pointer transition-colors"
                 disabled={currentRound <= 1}
                 title="Previous Interval"
               >
@@ -101,7 +101,7 @@ export function WorkoutTimerModal({ workout, onClose }: { workout: any, onClose:
               <button 
                 type="button" 
                 onClick={nextRound} 
-                className="hover:text-[#EF2F38] disabled:opacity-30 disabled:pointer-events-none p-1 cursor-pointer transition-colors"
+                className="hover:text-brand-ink disabled:opacity-30 disabled:pointer-events-none p-1 cursor-pointer transition-colors"
                 disabled={mode === 'Completed'}
                 title="Next Interval"
               >

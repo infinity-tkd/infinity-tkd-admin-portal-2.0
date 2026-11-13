@@ -23,7 +23,7 @@ export default function GlobalError({
   return (
     <div role="alert" className="flex min-h-[60dvh] items-center justify-center p-4 font-sans text-ink sm:p-6">
       <div className="flex w-full max-w-md flex-col items-center space-y-6 rounded-lg border border-line bg-surface p-6 text-center shadow-2xl sm:p-8">
-        <div aria-hidden="true" className="flex size-16 items-center justify-center rounded-full border border-brand/20 bg-brand/10 text-brand">
+        <div aria-hidden="true" className="flex size-16 items-center justify-center rounded-full border border-brand/20 bg-brand/10 text-brand-ink">
           <Warning className="size-8" />
         </div>
 

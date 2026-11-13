@@ -486,7 +486,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
           {/* Header */}
           <div className="p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#0F0F0F] shrink-0">
             <div className="flex items-center gap-2">
-              <UploadSimple className="w-5 h-5 text-[#EF2F38]" weight="bold" />
+              <UploadSimple className="w-5 h-5 text-brand-ink" weight="bold" />
               <h2 className="text-xs sm:text-sm font-black uppercase tracking-widest text-neutral-900 dark:text-white font-mono">Bulk Account Importer</h2>
             </div>
             <button
@@ -506,7 +506,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
               <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 space-y-4 shadow-xs">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2 text-neutral-900 dark:text-white">
-                    <Info className="w-4 h-4 text-[#EF2F38]" weight="bold" />
+                    <Info className="w-4 h-4 text-brand-ink" weight="bold" />
                     <span className="text-xs font-bold uppercase tracking-wider font-mono">How to import from Excel</span>
                   </div>
                   <button
@@ -531,7 +531,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
                   </button>
                   <button
                     onClick={handleAddManualRow}
-                    className="flex-1 bg-[#EF2F38] hover:bg-[#D9222B] text-white rounded-[8px] py-2.5 text-xs font-bold font-mono uppercase tracking-widest transition-all shadow-md shadow-[#EF2F38]/20 cursor-pointer active:scale-95 touch-manipulation"
+                    className="flex-1 bg-brand hover:bg-brand-strong text-white rounded-[8px] py-2.5 text-xs font-bold font-mono uppercase tracking-widest transition-all shadow-md shadow-brand/20 cursor-pointer active:scale-95 touch-manipulation"
                   >
                     + Add row manually
                   </button>
@@ -574,7 +574,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
                     className="hidden"
                   />
                   <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center border border-neutral-200 dark:border-[#262626] mb-3 group-hover:scale-105 transition-transform text-neutral-800 dark:text-white shadow-xs">
-                    <UploadSimple className={cn("w-5 h-5 text-[#EF2F38]", isDragging && "animate-bounce")} />
+                    <UploadSimple className={cn("w-5 h-5 text-brand-ink", isDragging && "animate-bounce")} />
                   </div>
                   {fileName ? (
                     <div>
@@ -610,7 +610,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
                       setCsvText(e.target.value);
                       parseClipboard(e.target.value);
                     }}
-                    className="w-full h-full min-h-[154px] bg-white dark:bg-[#141414] border border-neutral-300 dark:border-[#262626] rounded-[8px] p-4 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-[#EF2F38] transition-all resize-none shadow-inner placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+                    className="w-full h-full min-h-[154px] bg-white dark:bg-[#141414] border border-neutral-300 dark:border-[#262626] rounded-[8px] p-4 text-xs font-mono text-neutral-900 dark:text-white focus:outline-none focus:border-brand transition-all resize-none shadow-inner placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                     placeholder="Click here and PASTE (Ctrl+V) your Excel column data...
 Example:
 Display Name   Username    Email                  Role    Phone
@@ -637,7 +637,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                     </button>
                     <button
                       onClick={() => setParsedRows([])}
-                      className="flex-1 sm:flex-none px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-600 dark:text-red-500 rounded-[8px] text-[10px] font-bold font-mono uppercase tracking-wider transition-colors cursor-pointer active:scale-95"
+                      className="flex-1 sm:flex-none px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-600 dark:text-red-400 rounded-[8px] text-[10px] font-bold font-mono uppercase tracking-wider transition-colors cursor-pointer active:scale-95"
                     >
                       Reset Grid
                     </button>
@@ -682,7 +682,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                               data-column-field="displayName"
                               className={cn(
                                 "w-full bg-neutral-50 dark:bg-[#0F0F0F] border text-xs px-2 py-1 rounded-[6px] focus:outline-none text-neutral-900 dark:text-white font-medium",
-                                !row.data.displayName.trim() ? "border-red-500 focus:border-red-500" : "border-neutral-200 dark:border-[#262626] focus:border-[#EF2F38]"
+                                !row.data.displayName.trim() ? "border-red-500 focus:border-red-500" : "border-neutral-200 dark:border-[#262626] focus:border-brand"
                               )}
                             />
                           </td>
@@ -695,7 +695,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                               data-column-field="username"
                               className={cn(
                                 "w-full bg-neutral-50 dark:bg-[#0F0F0F] border text-xs px-2 py-1 rounded-[6px] focus:outline-none font-mono text-neutral-900 dark:text-white",
-                                !row.data.username.trim() || row.data.username.length < 3 ? "border-red-500 focus:border-red-500" : "border-neutral-200 dark:border-[#262626] focus:border-[#EF2F38]"
+                                !row.data.username.trim() || row.data.username.length < 3 ? "border-red-500 focus:border-red-500" : "border-neutral-200 dark:border-[#262626] focus:border-brand"
                               )}
                             />
                           </td>
@@ -708,7 +708,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                               data-column-field="email"
                               className={cn(
                                 "w-full bg-neutral-50 dark:bg-[#0F0F0F] border text-xs px-2 py-1 rounded-[6px] focus:outline-none font-mono text-neutral-900 dark:text-white",
-                                !isValidEmail(row.data.email) ? "border-red-500 focus:border-red-500" : "border-neutral-200 dark:border-[#262626] focus:border-[#EF2F38]"
+                                !isValidEmail(row.data.email) ? "border-red-500 focus:border-red-500" : "border-neutral-200 dark:border-[#262626] focus:border-brand"
                               )}
                             />
                           </td>
@@ -718,7 +718,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                               onChange={(e) => handleUpdateCell(row.index, 'role', e.target.value)}
                               data-row-index={row.index}
                               data-column-field="role"
-                              className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs px-2 py-1 rounded-[6px] focus:outline-none focus:border-[#EF2F38] text-neutral-900 dark:text-white font-mono cursor-pointer"
+                              className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs px-2 py-1 rounded-[6px] focus:outline-none focus:border-brand text-neutral-900 dark:text-white font-mono cursor-pointer"
                             >
                               <option value="Admin">Admin</option>
                               <option value="Head Coach">Head Coach</option>
@@ -733,7 +733,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                               onChange={(e) => handleUpdateCell(row.index, 'gender', e.target.value)}
                               data-row-index={row.index}
                               data-column-field="gender"
-                              className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs px-2 py-1 rounded-[6px] focus:outline-none focus:border-[#EF2F38] text-neutral-900 dark:text-white font-mono cursor-pointer"
+                              className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs px-2 py-1 rounded-[6px] focus:outline-none focus:border-brand text-neutral-900 dark:text-white font-mono cursor-pointer"
                             >
                               <option value="Male">Male</option>
                               <option value="Female">Female</option>
@@ -746,7 +746,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                               onChange={(e) => handleUpdateCell(row.index, 'dob', e.target.value)}
                               data-row-index={row.index}
                               data-column-field="dob"
-                              className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs px-2 py-1 rounded-[6px] focus:outline-none focus:border-[#EF2F38] text-neutral-900 dark:text-white [color-scheme:light] dark:[color-scheme:dark] font-mono"
+                              className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs px-2 py-1 rounded-[6px] focus:outline-none focus:border-brand text-neutral-900 dark:text-white [color-scheme:light] dark:[color-scheme:dark] font-mono"
                             />
                           </td>
                           <td className="px-4 py-2.5 text-center">
@@ -780,7 +780,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
               <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-8 sm:p-12 text-center flex flex-col items-center gap-5 justify-center flex-grow shadow-xs">
                 <div className="w-14 h-14 relative flex items-center justify-center">
                   <div className="absolute inset-0 rounded-full border-2 border-red-500/20 border-t-red-500 animate-spin" />
-                  <UploadSimple className="w-6 h-6 text-[#EF2F38]" />
+                  <UploadSimple className="w-6 h-6 text-brand-ink" />
                 </div>
                 <div className="space-y-1.5">
                   <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-white font-mono">Importing Staff Roster</h3>
@@ -790,7 +790,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                 </div>
                 {/* Progress bar */}
                 <div className="w-48 bg-neutral-100 dark:bg-[#0F0F0F] h-2 rounded-full overflow-hidden border border-neutral-200 dark:border-[#262626]">
-                  <div className="h-full bg-[#EF2F38] rounded-full transition-all duration-300" style={{ width: `${(currentIndex / parsedRows.filter(r => r.isValid).length) * 100}%` }} />
+                  <div className="h-full bg-brand rounded-full transition-all duration-300" style={{ width: `${(currentIndex / parsedRows.filter(r => r.isValid).length) * 100}%` }} />
                 </div>
               </div>
             )}
@@ -849,7 +849,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                 <button
                   onClick={handleImportAll}
                   disabled={parsedRows.filter(r => r.isValid).length === 0}
-                  className="px-5 py-2 bg-[#EF2F38] hover:bg-[#D9222B] text-white rounded-[8px] font-bold font-mono uppercase tracking-widest disabled:opacity-50 transition-all shadow-md shadow-[#EF2F38]/20 flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
+                  className="px-5 py-2 bg-brand hover:bg-brand-strong text-white rounded-[8px] font-bold font-mono uppercase tracking-widest disabled:opacity-50 transition-all shadow-md shadow-brand/20 flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation"
                 >
                   <Play className="w-4 h-4" weight="fill" /> Run Import
                 </button>

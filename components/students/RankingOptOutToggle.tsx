@@ -23,7 +23,7 @@ export function RankingOptOutToggle({ student }: { student: Student }) {
   return (
     <section aria-labelledby={`ranking-${student.id}`} className={cn(cardClass, 'space-y-3 p-4 md:p-5')}>
       <div className="flex items-center gap-2 border-b border-line pb-2.5">
-        {hidden ? <EyeSlash aria-hidden="true" className="size-4 text-ink-muted" /> : <Trophy aria-hidden="true" className="size-4 text-brand" />}
+        {hidden ? <EyeSlash aria-hidden="true" className="size-4 text-ink-muted" /> : <Trophy aria-hidden="true" className="size-4 text-brand-ink" />}
         <h3 id={`ranking-${student.id}`} className={sectionLabelClass}>Student rankings</h3>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-3">

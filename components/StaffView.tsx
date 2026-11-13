@@ -345,7 +345,7 @@ export function StaffView() {
               <div
                 key={staff.id}
                 onClick={() => openEditor(staff)}
-                className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 flex flex-col justify-between group cursor-pointer hover:border-[#EF2F38]/50 hover:shadow-md transition-all duration-200 shadow-sm"
+                className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 flex flex-col justify-between group cursor-pointer hover:border-brand/50 hover:shadow-md transition-all duration-200 shadow-sm"
               >
                 <div>
                   {/* Card Header with Status Badge */}
@@ -354,12 +354,12 @@ export function StaffView() {
                       <SafeImage
                         src={staff.profilePicturePath}
                         alt={staff.displayName}
-                        containerClassName="w-11 h-11 rounded-[8px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center text-neutral-500 dark:text-[#999] group-hover:border-[#EF2F38]/30 transition-colors overflow-hidden shrink-0 shadow-inner"
+                        containerClassName="w-11 h-11 rounded-[8px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center text-neutral-500 dark:text-[#999] group-hover:border-brand/30 transition-colors overflow-hidden shrink-0 shadow-inner"
                         fallback={<UserCircle className="w-7 h-7 text-neutral-400" weight="fill"/>}
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <h3 className="text-sm font-bold text-neutral-900 dark:text-white tracking-tight group-hover:text-[#EF2F38] transition-colors truncate">{staff.displayName}</h3>
+                          <h3 className="text-sm font-bold text-neutral-900 dark:text-white tracking-tight group-hover:text-brand-ink transition-colors truncate">{staff.displayName}</h3>
                         </div>
                         <p className="text-[10px] text-neutral-500 dark:text-[#777] font-mono truncate">@{staff.username}</p>
                       </div>
@@ -402,7 +402,7 @@ export function StaffView() {
                         <div className="mb-3 p-2.5 rounded-[8px] bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] space-y-1.5 font-mono">
                           <div className="flex items-center justify-between text-[10px]">
                             <span className="font-bold text-neutral-900 dark:text-white flex items-center gap-1.5">
-                              <Medal className="w-3.5 h-3.5 text-[#EF2F38]" weight="bold" />
+                              <Medal className="w-3.5 h-3.5 text-brand-ink" weight="bold" />
                               <span>{formatDanRank(staff.currentDan)} ({getDanStripes(staff.currentDan)})</span>
                             </span>
                             {el.status === 'ELIGIBLE' ? (
@@ -448,7 +448,7 @@ export function StaffView() {
                   ) : (staff.role === 'Coach' || staff.role === 'Assistant Coach' || staff.role === 'Head Coach') ? (
                     <div className="mb-3 px-2.5 py-1.5 rounded-[8px] border border-dashed border-neutral-200 dark:border-[#262626] flex items-center justify-between text-[10px] font-mono text-neutral-400 dark:text-[#777]">
                       <span>No Kukkiwon ID</span>
-                      <span className="text-[9px] text-[#EF2F38] hover:underline cursor-pointer" onClick={() => openEditor(staff)}>
+                      <span className="text-[9px] text-brand-ink hover:underline cursor-pointer" onClick={() => openEditor(staff)}>
                         + Add Dan
                       </span>
                     </div>
@@ -463,7 +463,7 @@ export function StaffView() {
                         <a
                           href={`mailto:${staff.email}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="truncate hover:text-[#EF2F38] hover:underline transition-colors"
+                          className="truncate hover:text-brand-ink hover:underline transition-colors"
                           title={staff.email}
                         >
                           {staff.email || 'N/A'}
@@ -477,7 +477,7 @@ export function StaffView() {
                             handleCopy(staff.email, `grid-email-${staff.id}`, 'Email');
                           }}
                           title="Copy Email"
-                          className="p-1 hover:text-[#EF2F38] text-neutral-400 dark:text-[#666] cursor-pointer"
+                          className="p-1 hover:text-brand-ink text-neutral-400 dark:text-[#666] cursor-pointer"
                         >
                           {copiedId === `grid-email-${staff.id}` ? (
                             <Check className="w-3 h-3 text-emerald-500" />
@@ -494,7 +494,7 @@ export function StaffView() {
                           <a
                             href={`tel:${staff.phone}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="hover:text-[#EF2F38] hover:underline transition-colors truncate"
+                            className="hover:text-brand-ink hover:underline transition-colors truncate"
                           >
                             {staff.phone}
                           </a>
@@ -510,7 +510,7 @@ export function StaffView() {
                             handleCopy(staff.phone!, `grid-phone-${staff.id}`, 'Phone');
                           }}
                           title="Copy Phone"
-                          className="p-1 hover:text-[#EF2F38] text-neutral-400 dark:text-[#666] cursor-pointer"
+                          className="p-1 hover:text-brand-ink text-neutral-400 dark:text-[#666] cursor-pointer"
                         >
                           {copiedId === `grid-phone-${staff.id}` ? (
                             <Check className="w-3 h-3 text-emerald-500" />
@@ -532,7 +532,7 @@ export function StaffView() {
                         onClick={(e) => e.stopPropagation()}
                         title="Call Staff Member"
                         aria-label="Call staff member"
-                        className="w-8 h-8 sm:w-8.5 sm:h-8.5 flex items-center justify-center rounded-[6px] sm:rounded-[8px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-[#AAA] hover:text-[#EF2F38] dark:hover:text-white active:scale-95 touch-manipulation transition-all"
+                        className="w-8 h-8 sm:w-8.5 sm:h-8.5 flex items-center justify-center rounded-[6px] sm:rounded-[8px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-[#AAA] hover:text-brand-ink dark:hover:text-white active:scale-95 touch-manipulation transition-all"
                       >
                         <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </a>
@@ -546,9 +546,9 @@ export function StaffView() {
                         setStaffNewPassword('');
                         setPasswordTargetStaff(staff);
                       }}
-                      className="w-8 h-8 sm:w-8.5 sm:h-8.5 flex items-center justify-center rounded-[6px] sm:rounded-[8px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-[#AAA] hover:text-[#EF2F38] dark:hover:text-white active:scale-95 touch-manipulation transition-all cursor-pointer"
+                      className="w-8 h-8 sm:w-8.5 sm:h-8.5 flex items-center justify-center rounded-[6px] sm:rounded-[8px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-[#AAA] hover:text-brand-ink dark:hover:text-white active:scale-95 touch-manipulation transition-all cursor-pointer"
                     >
-                      <Key className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#EF2F38]" />
+                      <Key className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-ink" />
                     </button>
                     <button
                       type="button"
@@ -626,7 +626,7 @@ export function StaffView() {
                             return (
                               <div className="flex flex-col gap-1 min-w-[130px]">
                                 <div className="flex items-center gap-1.5">
-                                  <Medal className="w-3.5 h-3.5 text-[#EF2F38] shrink-0" weight="bold" />
+                                  <Medal className="w-3.5 h-3.5 text-brand-ink shrink-0" weight="bold" />
                                   <span className="text-xs font-bold text-neutral-900 dark:text-white">
                                     {formatDanRank(staff.currentDan)}
                                   </span>
@@ -682,7 +682,7 @@ export function StaffView() {
                         <div className="space-y-1">
                           <div className="flex items-center gap-1.5">
                             <span className="truncate max-w-[200px]" title={staff.email}>
-                              <a href={`mailto:${staff.email}`} onClick={(e) => e.stopPropagation()} className="hover:text-[#EF2F38] hover:underline">
+                              <a href={`mailto:${staff.email}`} onClick={(e) => e.stopPropagation()} className="hover:text-brand-ink hover:underline">
                                 {staff.email || 'N/A'}
                               </a>
                             </span>
@@ -694,7 +694,7 @@ export function StaffView() {
                                   handleCopy(staff.email, `tbl-email-${staff.id}`, 'Email');
                                 }}
                                 title="Copy Email"
-                                className="p-0.5 hover:text-[#EF2F38] text-neutral-400 dark:text-[#666] cursor-pointer"
+                                className="p-0.5 hover:text-brand-ink text-neutral-400 dark:text-[#666] cursor-pointer"
                               >
                                 {copiedId === `tbl-email-${staff.id}` ? (
                                   <Check className="w-3 h-3 text-emerald-500" />
@@ -706,7 +706,7 @@ export function StaffView() {
                           </div>
                           {staff.phone && (
                             <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 dark:text-[#777]">
-                              <a href={`tel:${staff.phone}`} onClick={(e) => e.stopPropagation()} className="hover:text-[#EF2F38]">
+                              <a href={`tel:${staff.phone}`} onClick={(e) => e.stopPropagation()} className="hover:text-brand-ink">
                                 {staff.phone}
                               </a>
                               <button
@@ -716,7 +716,7 @@ export function StaffView() {
                                   handleCopy(staff.phone!, `tbl-phone-${staff.id}`, 'Phone');
                                 }}
                                 title="Copy Phone"
-                                className="p-0.5 hover:text-[#EF2F38] text-neutral-400 dark:text-[#666] cursor-pointer"
+                                className="p-0.5 hover:text-brand-ink text-neutral-400 dark:text-[#666] cursor-pointer"
                               >
                                 {copiedId === `tbl-phone-${staff.id}` ? (
                                   <Check className="w-3 h-3 text-emerald-500" />
@@ -749,9 +749,9 @@ export function StaffView() {
                               setStaffNewPassword('');
                               setPasswordTargetStaff(staff);
                             }}
-                            className="p-1.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#888] hover:text-[#EF2F38] dark:hover:text-white transition-colors cursor-pointer"
+                            className="p-1.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#888] hover:text-brand-ink dark:hover:text-white transition-colors cursor-pointer"
                           >
-                            <Key className="w-3.5 h-3.5 text-[#EF2F38]"/>
+                            <Key className="w-3.5 h-3.5 text-brand-ink"/>
                           </button>
                           <button
                             type="button"
@@ -840,7 +840,7 @@ export function StaffView() {
                     </span>
 
                     {staff.currentDan && (
-                      <span className="px-2 py-0.5 rounded-[6px] text-[9px] font-bold font-mono bg-[#EF2F38]/10 text-[#EF2F38] border border-[#EF2F38]/20 flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded-[6px] text-[9px] font-bold font-mono bg-brand/10 text-brand-ink border border-brand/20 flex items-center gap-1">
                         <Medal className="w-3 h-3 shrink-0" weight="bold" />
                         <span>{formatDanRank(staff.currentDan)}</span>
                         {el?.status === 'ELIGIBLE' && (
@@ -865,7 +865,7 @@ export function StaffView() {
                           <a
                             href={`mailto:${staff.email}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="hover:text-[#EF2F38] hover:underline truncate"
+                            className="hover:text-brand-ink hover:underline truncate"
                           >
                             {staff.email}
                           </a>
@@ -876,7 +876,7 @@ export function StaffView() {
                               handleCopy(staff.email, `m-email-${staff.id}`, 'Email');
                             }}
                             title="Copy Email"
-                            className="p-1 hover:text-[#EF2F38] text-neutral-400 dark:text-[#666] cursor-pointer"
+                            className="p-1 hover:text-brand-ink text-neutral-400 dark:text-[#666] cursor-pointer"
                           >
                             {copiedId === `m-email-${staff.id}` ? (
                               <Check className="w-3 h-3 text-emerald-500" />
@@ -891,7 +891,7 @@ export function StaffView() {
                           <a
                             href={`tel:${staff.phone}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="hover:text-[#EF2F38] hover:underline"
+                            className="hover:text-brand-ink hover:underline"
                           >
                             {staff.phone}
                           </a>
@@ -902,7 +902,7 @@ export function StaffView() {
                               handleCopy(staff.phone!, `m-phone-${staff.id}`, 'Phone');
                             }}
                             title="Copy Phone"
-                            className="p-1 hover:text-[#EF2F38] text-neutral-400 dark:text-[#666] cursor-pointer"
+                            className="p-1 hover:text-brand-ink text-neutral-400 dark:text-[#666] cursor-pointer"
                           >
                             {copiedId === `m-phone-${staff.id}` ? (
                               <Check className="w-3 h-3 text-emerald-500" />
@@ -923,7 +923,7 @@ export function StaffView() {
                           href={`tel:${staff.phone}`}
                           onClick={(e) => e.stopPropagation()}
                           title="Call Staff Member"
-                          className="h-8 px-2.5 flex items-center justify-center gap-1 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-[#AAA] hover:text-[#EF2F38] dark:hover:text-white text-[10px] font-bold uppercase tracking-wider font-mono active:scale-95 touch-manipulation transition-all"
+                          className="h-8 px-2.5 flex items-center justify-center gap-1 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-[#AAA] hover:text-brand-ink dark:hover:text-white text-[10px] font-bold uppercase tracking-wider font-mono active:scale-95 touch-manipulation transition-all"
                         >
                           <Phone className="w-3.5 h-3.5" />
                           <span>Call</span>
@@ -937,9 +937,9 @@ export function StaffView() {
                           setStaffNewPassword('');
                           setPasswordTargetStaff(staff);
                         }}
-                        className="h-8 px-2.5 flex items-center justify-center gap-1 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-[#AAA] hover:text-[#EF2F38] dark:hover:text-white text-[10px] font-bold uppercase tracking-wider font-mono active:scale-95 touch-manipulation transition-all cursor-pointer"
+                        className="h-8 px-2.5 flex items-center justify-center gap-1 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-[#AAA] hover:text-brand-ink dark:hover:text-white text-[10px] font-bold uppercase tracking-wider font-mono active:scale-95 touch-manipulation transition-all cursor-pointer"
                       >
-                        <Key className="w-3.5 h-3.5 text-[#EF2F38]" />
+                        <Key className="w-3.5 h-3.5 text-brand-ink" />
                         <span>Pass</span>
                       </button>
                       <button
@@ -975,7 +975,7 @@ export function StaffView() {
               >
                 <div className="p-5 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#141414] shrink-0">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-[8px] bg-[#EF2F38]/10 flex items-center justify-center text-[#EF2F38]">
+                    <div className="w-8 h-8 rounded-[8px] bg-brand/10 flex items-center justify-center text-brand-ink">
                       <Key className="w-4 h-4" />
                     </div>
                     <div>
@@ -1004,7 +1004,7 @@ export function StaffView() {
                         value={staffNewPassword}
                         onChange={e => setStaffNewPassword(e.target.value)}
                         placeholder="Min 6 characters (e.g. Coach1234!)"
-                        className="w-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-[#EF2F38] transition-colors pr-10"
+                        className="w-full bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-brand transition-colors pr-10"
                         autoFocus
                       />
                       <button
@@ -1021,7 +1021,7 @@ export function StaffView() {
                     <button
                       type="button"
                       onClick={() => setStaffNewPassword(`Tkd${passwordTargetStaff.username.replace(/[^a-zA-Z0-9]/g, '').slice(0, 5)}!2026`)}
-                      className="text-[10px] text-[#EF2F38] hover:underline font-mono cursor-pointer"
+                      className="text-[10px] text-brand-ink hover:underline font-mono cursor-pointer"
                     >
                       Suggest: Tkd{passwordTargetStaff.username.replace(/[^a-zA-Z0-9]/g, '').slice(0, 5)}!2026
                     </button>
@@ -1040,7 +1040,7 @@ export function StaffView() {
                     type="button"
                     onClick={handleResetStaffPassword}
                     disabled={isResettingPassword || !staffNewPassword}
-                    className="h-9 pointer-coarse:h-11 px-3.5 sm:px-4 bg-[#EF2F38] text-white font-bold uppercase tracking-wider text-[11px] sm:text-xs rounded-[6px] sm:rounded-[8px] hover:bg-[#D0252D] disabled:opacity-50 active:scale-95 touch-manipulation cursor-pointer shadow-sm shadow-[#EF2F38]/20 flex items-center gap-1.5 transition-all"
+                    className="h-9 pointer-coarse:h-11 px-3.5 sm:px-4 bg-brand text-white font-bold uppercase tracking-wider text-[11px] sm:text-xs rounded-[6px] sm:rounded-[8px] hover:bg-brand-strong disabled:opacity-50 active:scale-95 touch-manipulation cursor-pointer shadow-sm shadow-brand/20 flex items-center gap-1.5 transition-all"
                   >
                     {isResettingPassword ? (
                       <>

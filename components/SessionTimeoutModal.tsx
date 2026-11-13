@@ -113,7 +113,7 @@ export function SessionTimeoutModal() {
         </div>
 
         <div className="py-3 bg-neutral-100 dark:bg-[#1C1C1C] rounded-[8px] border border-neutral-200 dark:border-[#262626]">
-          <span className="text-2xl font-black font-mono text-[#EF2F38]">{formattedTime}</span>
+          <span className="text-2xl font-black font-mono text-brand-ink">{formattedTime}</span>
           <span className="block text-[9px] uppercase font-bold tracking-widest text-neutral-400 mt-0.5">
             Time Remaining
           </span>
@@ -128,7 +128,7 @@ export function SessionTimeoutModal() {
           </button>
           <button
             onClick={resetTimer}
-            className="flex-1 px-4 py-2.5 bg-[#EF2F38] text-white font-bold text-xs rounded-[8px] hover:opacity-90 transition-all shadow-lg shadow-[#EF2F38]/20 cursor-pointer"
+            className="flex-1 px-4 py-2.5 bg-brand text-white font-bold text-xs rounded-[8px] hover:opacity-90 transition-all shadow-lg shadow-brand/20 cursor-pointer"
           >
             Stay Signed In
           </button>

@@ -580,7 +580,7 @@ export function AttendanceView() {
         ]} />}
       >
         <div className="mt-1 flex flex-wrap items-center gap-x-3">
-          <Link href="/operations?view=sessions" className="inline-flex min-h-11 items-center text-xs font-semibold text-brand hover:underline">Dated sessions, rescheduling and holidays</Link>
+          <Link href="/operations?view=sessions" className="inline-flex min-h-11 items-center text-xs font-semibold text-brand-ink hover:underline">Dated sessions, rescheduling and holidays</Link>
           {isReadOnlyAttendance && (
             <span className="inline-flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">
               Read-Only Mode
