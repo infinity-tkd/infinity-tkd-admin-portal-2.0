@@ -7,6 +7,7 @@ import { buttonClass, cardClass, fieldClass } from '@/components/ui/styles';
 import { EmptyState, ErrorBanner } from '@/components/ui/States';
 import { CHALLENGE_GOALS, challengeInput, type LmsAudience } from '@/lib/lms-contract';
 import { cn } from '@/lib/utils';
+import { useAppStore } from '@/lib/store';
 import { AudiencePicker, audienceSummary, Labeled, LessonSelect, lmsPost, Pill, StatusLine, today, TranslationFields, useLmsView, useSaving, type Overview } from './coaching-shared';
 
 type Goal = typeof CHALLENGE_GOALS[number];
@@ -85,6 +86,7 @@ export function ChallengesPanel({ overview, canEdit }: { overview: Overview; can
   const { data, error, reload } = useLmsView<{ challenges: Challenge[] }>('challenges');
   const [editing, setEditing] = useState<Challenge | null | 'new'>(null);
   const { saving, message, run } = useSaving(() => void reload());
+  const { showConfirm } = useAppStore();
   if (error) return <ErrorBanner title="Challenges unavailable">{error}</ErrorBanner>;
   if (!data) return <EmptyState busy title="Loading…" />;
   const act = (c: Challenge, action: 'challenge.publish' | 'challenge.close' | 'challenge.delete', done: string) => run(() => lmsPost({ action, id: c.id, expectedRevision: c.revision }), done);
@@ -101,7 +103,7 @@ export function ChallengesPanel({ overview, canEdit }: { overview: Overview; can
           <button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} onClick={() => setEditing(c)}>Edit</button>
           {c.status === 'draft' && <button type="button" className={buttonClass({ size: 'sm', variant: 'primary' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void act(c, 'challenge.publish', 'Published.')}>Publish</button>}
           {c.status === 'published' && <button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void act(c, 'challenge.close', 'Closed.')}>Close</button>}
-          <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => { if (window.confirm(`Delete "${c.title}"? This cannot be undone.`)) void act(c, 'challenge.delete', 'Deleted.'); }}>Delete</button>
+          <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => showConfirm(`Delete "${c.title}"? This cannot be undone.`, () => void act(c, 'challenge.delete', 'Deleted.'), 'Delete challenge')}>Delete</button>
         </div>}
       </li>)}</ul>}
     {editing && <ChallengeEditor overview={overview} editing={editing === 'new' ? null : editing} onClose={() => setEditing(null)} onSaved={() => void reload()} />}

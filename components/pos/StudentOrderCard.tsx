@@ -40,31 +40,31 @@ export const StudentOrderCard = memo(function StudentOrderCard({ order, busy, ca
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <h3 className="break-all font-mono text-sm font-bold text-neutral-900 dark:text-neutral-100">{order.order_number}</h3>
-          <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">{new Date(order.created_at).toLocaleString()} {order.branches?.branch_name ? `· ${order.branches.branch_name}` : ''}</p>
+          <p className="mt-1 text-micro text-neutral-500 dark:text-neutral-400">{new Date(order.created_at).toLocaleString()} {order.branches?.branch_name ? `· ${order.branches.branch_name}` : ''}</p>
         </div>
-        <span className={cn('rounded-full border px-2.5 py-1 text-[10px] font-semibold', order.order_status === 'CANCELLED' ? 'border-rose-200 text-rose-700 dark:border-rose-900 dark:text-rose-300' : order.order_status === 'COMPLETED' ? 'border-emerald-200 text-emerald-700 dark:border-emerald-900 dark:text-emerald-300' : 'border-neutral-200 text-neutral-700 dark:border-neutral-700 dark:text-neutral-300')}>{statusLabels[order.order_status]}</span>
+        <span className={cn('rounded-full border px-2.5 py-1 text-micro font-semibold', order.order_status === 'CANCELLED' ? 'border-rose-200 text-rose-700 dark:border-rose-900 dark:text-rose-300' : order.order_status === 'COMPLETED' ? 'border-emerald-200 text-emerald-700 dark:border-emerald-900 dark:text-emerald-300' : 'border-neutral-200 text-neutral-700 dark:border-neutral-700 dark:text-neutral-300')}>{statusLabels[order.order_status]}</span>
       </div>
       {!terminal && <ol aria-label="Fulfillment progress" className="grid grid-cols-5 gap-1">
         {steps.map((status, index) => <li key={status} aria-current={index === currentStep ? 'step' : undefined} className="min-w-0">
           <div className={cn('mb-1 h-1 rounded-full', index <= currentStep ? 'bg-brand' : 'bg-neutral-200 dark:bg-neutral-800')} />
-          <span className={cn('text-[9px] leading-tight', index === currentStep ? 'font-semibold text-neutral-900 dark:text-neutral-100' : 'text-neutral-500')}>{['Received', 'Accepted', 'Preparing', 'Ready', 'Collected'][index]}</span>
+          <span className={cn('text-micro leading-tight', index === currentStep ? 'font-semibold text-neutral-900 dark:text-neutral-100' : 'text-neutral-500')}>{['Received', 'Accepted', 'Preparing', 'Ready', 'Collected'][index]}</span>
         </li>)}
       </ol>}
       <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-lg bg-neutral-50 p-3 dark:bg-[#0F0F0F]">
         <div className="min-w-0">
           <p className="break-words text-sm font-semibold text-neutral-900 dark:text-neutral-100">{order.students?.english_name || order.customer_name}</p>
-          {order.students?.current_belt && <p className="mt-1 text-[11px] text-neutral-500">{order.students.current_belt} belt</p>}
+          {order.students?.current_belt && <p className="mt-1 text-micro text-neutral-500">{order.students.current_belt} belt</p>}
           {order.customer_phone && <a href={`tel:${order.customer_phone}`} className="mt-1 inline-block break-all text-xs text-neutral-600 underline-offset-2 hover:underline dark:text-neutral-400">{order.customer_phone}</a>}
         </div>
         <div className="text-right">
           <p className="font-mono text-base font-bold text-neutral-900 dark:text-neutral-100">${Number(order.total_usd).toFixed(2)}</p>
-          <p className={cn('mt-1 text-[10px] font-semibold', paid ? 'text-emerald-700 dark:text-emerald-300' : order.payment_status === 'PENDING' ? 'text-amber-700 dark:text-amber-300' : 'text-neutral-500')}>{order.payment_status.replace(/_/g, ' ')}</p>
-          <p className="mt-1 max-w-32 text-[10px] text-neutral-500">{order.payment_method}</p>
+          <p className={cn('mt-1 text-micro font-semibold', paid ? 'text-emerald-700 dark:text-emerald-300' : order.payment_status === 'PENDING' ? 'text-amber-700 dark:text-amber-300' : 'text-neutral-500')}>{order.payment_status.replace(/_/g, ' ')}</p>
+          <p className="mt-1 max-w-32 text-micro text-neutral-500">{order.payment_method}</p>
         </div>
       </div>
       <ul aria-label="Order items" className="space-y-2 text-xs">
         {order.items?.map(item => <li key={item.id} className="flex items-start justify-between gap-3">
-          <span className="min-w-0 break-words text-neutral-700 dark:text-neutral-300"><span className="mr-1 font-mono font-semibold">{item.quantity}×</span> {item.product_name}<span className="mt-0.5 block text-[10px] text-neutral-500">{[item.color, item.size, item.sku].filter(Boolean).join(' · ')}</span></span>
+          <span className="min-w-0 break-words text-neutral-700 dark:text-neutral-300"><span className="mr-1 font-mono font-semibold">{item.quantity}×</span> {item.product_name}<span className="mt-0.5 block text-micro text-neutral-500">{[item.color, item.size, item.sku].filter(Boolean).join(' · ')}</span></span>
           <span className="shrink-0 font-mono font-semibold">${Number(item.total_price_usd).toFixed(2)}</span>
         </li>)}
       </ul>
@@ -79,7 +79,7 @@ export const StudentOrderCard = memo(function StudentOrderCard({ order, busy, ca
         {!terminal && canCancel && <button type="button" disabled={busy} onClick={() => onDecision(order, 'cancel')} className={`${button} border-rose-200 text-rose-700 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-300 dark:hover:bg-rose-950`}>Cancel order</button>}
         {!terminal && order.order_status !== 'PENDING_CONFIRMATION' && order.payment_status === 'PENDING' && canManage && <button type="button" disabled={busy} onClick={() => onDecision(order, 'payment')} className={`${button} border-neutral-300 text-neutral-800 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800`}>Record payment</button>}
         {next && allowed.includes(next) && canManage && <button type="button" disabled={busy || (next === 'COMPLETED' && !paid)} onClick={() => next === 'COMPLETED' ? onDecision(order, 'handover') : onAdvance(order, next)} className={`${button} ml-auto flex items-center justify-center gap-1.5 border-brand bg-brand text-white hover:bg-brand-strong`}><CheckCircle size={15} />{busy ? 'Saving…' : actionLabel}</button>}
-        {next === 'COMPLETED' && !paid && <p className="w-full text-[11px] text-amber-700 dark:text-amber-300">Record verified payment before completing the handover.</p>}
+        {next === 'COMPLETED' && !paid && <p className="w-full text-micro text-amber-700 dark:text-amber-300">Record verified payment before completing the handover.</p>}
       </div>
     </article>
   );

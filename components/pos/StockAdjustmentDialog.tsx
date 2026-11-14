@@ -23,21 +23,20 @@ interface StockAdjustmentDialogProps {
 }
 
 export function StockAdjustmentDialog({ handleAdjustStock, adjustingProduct, setAdjustingProduct, setAdjustingVariant, adjustingVariant, adjustReason, setAdjustReason, adjustQty, setAdjustQty, adjustNotes, setAdjustNotes, isAdjustSubmitting }: StockAdjustmentDialogProps) {
-  const dialog = useRef<HTMLFormElement>(null);
+  const dialog = useRef<HTMLDivElement>(null);
   useModalFocus(dialog, () => { if (!isAdjustSubmitting) { setAdjustingProduct(null); setAdjustingVariant(null); } });
   return <>{(
         <Portal>
           <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-            <form
-              onSubmit={handleAdjustStock}
-              className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[10px] max-w-md w-full p-4 sm:p-5 space-y-4 shadow-2xl font-mono text-neutral-900 dark:text-[#E4E4E4] my-auto max-h-[92dvh] overflow-y-auto" ref={dialog} role="dialog" aria-modal="true" aria-label="Adjust stock" tabIndex={-1} aria-busy={isAdjustSubmitting}
-            ><fieldset disabled={isAdjustSubmitting} className="contents space-y-4">
+            <div
+              className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[10px] max-w-md w-full p-4 sm:p-5 shadow-2xl font-mono text-neutral-900 dark:text-[#E4E4E4] my-auto max-h-[92dvh] overflow-y-auto" ref={dialog} role="dialog" aria-modal="true" aria-label="Adjust stock" tabIndex={-1} aria-busy={isAdjustSubmitting}
+            ><form onSubmit={handleAdjustStock} className="contents"><fieldset disabled={isAdjustSubmitting} className="contents space-y-4">
               <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3">
                 <div>
                   <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
                     ADJUST INVENTORY STOCK
                   </h3>
-                  <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate max-w-[260px]">{adjustingProduct.name}</p>
+                  <p className="text-micro text-neutral-500 dark:text-neutral-400 truncate max-w-[260px]">{adjustingProduct.name}</p>
                 </div>
                 <button
                   type="button"
@@ -55,10 +54,10 @@ export function StockAdjustmentDialog({ handleAdjustStock, adjustingProduct, set
               <div className="space-y-3 text-xs">
                 {adjustingProduct.hasVariants && adjustingProduct.variants && adjustingProduct.variants.length > 0 && (
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">
+                    <label htmlFor="stock-adjustment-dialog-select-specific-variation-size" className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">
                       SELECT SPECIFIC VARIATION / SIZE
                     </label>
-                    <select required aria-label="Stock variation"
+                    <select id="stock-adjustment-dialog-select-specific-variation-size" required aria-label="Stock variation"
                       value={adjustingVariant?.id || ''}
                       onChange={(e) => {
                         const vId = e.target.value;
@@ -87,8 +86,8 @@ export function StockAdjustmentDialog({ handleAdjustStock, adjustingProduct, set
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">REASON FOR ADJUSTMENT</label>
-                  <select
+                  <label htmlFor="stock-adjustment-dialog-reason-for-adjustment" className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">REASON FOR ADJUSTMENT</label>
+                  <select id="stock-adjustment-dialog-reason-for-adjustment"
                     aria-label="Stock adjustment reason"
                     value={adjustReason}
                     onChange={(e) => setAdjustReason(e.target.value as any)}
@@ -101,10 +100,10 @@ export function StockAdjustmentDialog({ handleAdjustStock, adjustingProduct, set
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">
+                  <label htmlFor="stock-adjustment-dialog-quantity" className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">
                     QUANTITY ({adjustReason === 'DAMAGE_WRITE_OFF' ? 'TO DEDUCT' : adjustReason === 'AUDIT_ADJUSTMENT' ? 'SIGNED CHANGE' : 'TO ADD'})
                   </label>
-                  <input
+                  <input id="stock-adjustment-dialog-quantity"
                     aria-label="Stock change quantity"
                     type="number"
                     min={adjustReason === 'AUDIT_ADJUSTMENT' ? undefined : 1}
@@ -116,8 +115,8 @@ export function StockAdjustmentDialog({ handleAdjustStock, adjustingProduct, set
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">NOTES (OPTIONAL)</label>
-                  <input
+                  <label htmlFor="stock-adjustment-dialog-notes-optional" className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">NOTES (OPTIONAL)</label>
+                  <input id="stock-adjustment-dialog-notes-optional"
                     aria-label="Stock adjustment notes"
                     maxLength={500}
                     type="text"
@@ -148,7 +147,7 @@ export function StockAdjustmentDialog({ handleAdjustStock, adjustingProduct, set
                   {isAdjustSubmitting ? 'Updating...' : 'Save Stock Adjustment'}
                 </button>
               </div>
-            </fieldset></form>
+            </fieldset></form></div>
           </div>
         </Portal>
       )}</>;

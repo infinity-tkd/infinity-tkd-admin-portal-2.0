@@ -68,15 +68,14 @@ interface ProductCreateDialogProps {
 }
 
 export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAddItemOpen, newItem, handleNewItemNameChange, handleNewItemCategoryChange, dynamicCategories, handleGenerateNewItemSku, setIsNewItemSkuManual, setNewItem, newItemSkuConflict, newItemSkuFormatValid, hasNewItemVariants, setHasNewItemVariants, variantSizes, variantStyles, applyUniformQuickTemplate, handleNewItemSizeChange, totalMatrixStock, matrixVariants, applySparringGearQuickTemplate, setVariantStyles, setMatrixVariants, regenerateMatrix, toggleStyle, customStyleInput, setCustomStyleInput, addCustomStyle, removeStyle, clearAllSizes, addSizePreset, toggleSize, customSizeInput, setCustomSizeInput, addCustomSize, removeSize, batchStockValue, setBatchStockValue, applyBatchStockToAll, updateMatrixVariant, removeMatrixVariant }: ProductCreateDialogProps) {
-  const dialog = useRef<HTMLFormElement>(null);
+  const dialog = useRef<HTMLDivElement>(null);
   useModalFocus(dialog, () => { if (!isAddSubmitting) setIsAddItemOpen(false); });
   return <>{(
         <Portal>
           <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-            <form
-              onSubmit={handleAddNewItem}
-              className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] w-full max-w-2xl sm:max-w-3xl rounded-[10px] p-4 sm:p-6 font-mono space-y-4 shadow-2xl my-auto max-h-[92dvh] overflow-y-auto" ref={dialog} role="dialog" aria-modal="true" aria-label="Create product" tabIndex={-1} aria-busy={isAddSubmitting}
-            ><fieldset disabled={isAddSubmitting} className="contents">
+            <div
+              className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] w-full max-w-2xl sm:max-w-3xl rounded-[10px] p-4 sm:p-6 font-mono shadow-2xl my-auto max-h-[92dvh] overflow-y-auto" ref={dialog} role="dialog" aria-modal="true" aria-label="Create product" tabIndex={-1} aria-busy={isAddSubmitting}
+            ><form onSubmit={handleAddNewItem} className="contents"><fieldset disabled={isAddSubmitting} className="contents">
               {/* Header */}
               <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3">
                 <div className="flex items-center gap-2">
@@ -97,10 +96,10 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                 {/* Basic Product Info */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="sm:col-span-2">
-                    <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">
+                    <label htmlFor="product-create-dialog-product-uniform-name" className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">
                       PRODUCT / UNIFORM NAME <span className="text-brand-ink">*</span>
                     </label>
-                    <input
+                    <input id="product-create-dialog-product-uniform-name"
                       type="text"
                       required
                       placeholder="e.g. Infinity TKD Grandmaster Uniform"
@@ -111,8 +110,8 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">CATEGORY</label>
-                    <select
+                    <label htmlFor="product-create-dialog-category" className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">CATEGORY</label>
+                    <select id="product-create-dialog-category"
                       aria-label="Product category" value={newItem.category}
                       onChange={e => handleNewItemCategoryChange(e.target.value)}
                       className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand cursor-pointer pointer-coarse:min-h-11"
@@ -125,23 +124,24 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
 
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400">
+                      <label htmlFor="product-create-dialog-sku" className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400">
                         BASE SKU CODE <span className="text-brand-ink">*</span>
                       </label>
                       <button
                         type="button"
                         onClick={handleGenerateNewItemSku}
-                        className="text-[10px] font-mono font-bold text-brand-ink hover:underline flex items-center gap-1 cursor-pointer py-0.5 active:scale-95 touch-manipulation"
+                        className="text-micro font-mono font-bold text-brand-ink hover:underline flex items-center gap-1 cursor-pointer py-0.5 active:scale-95 touch-manipulation"
                         title="Auto-detect item and generate unique barcode-compatible SKU"
                       >
                         <Barcode size={13} /> Auto Gen
                       </button>
                     </div>
                     <input
+                      id="product-create-dialog-sku"
                       type="text"
                       required
                       placeholder="e.g. ITKD-UNI-01"
-                      aria-label="Product SKU" value={newItem.sku}
+                      value={newItem.sku}
                       onChange={e => {
                         setIsNewItemSkuManual(true);
                         setNewItem({ ...newItem, sku: e.target.value.toUpperCase().replace(/\s+/g, '-') });
@@ -156,7 +156,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                       )}
                     />
                     {newItem.sku && (
-                      <div className="mt-1 text-[9px] font-mono flex items-center gap-1">
+                      <div className="mt-1 text-micro font-mono flex items-center gap-1">
                         {newItemSkuConflict ? (
                           <span className="text-rose-600 dark:text-rose-400 flex items-center gap-1 font-bold">
                             <Warning size={10} weight="fill" /> Duplicate: Used by &quot;{newItemSkuConflict.name}&quot;
@@ -181,7 +181,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                     <span className="text-xs font-bold text-neutral-900 dark:text-white flex items-center gap-1.5">
                       <Tag size={15} className="text-brand-ink" /> Multi-Size & Collar Matrix Variations
                     </span>
-                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                    <p className="text-micro text-neutral-500 dark:text-neutral-400">
                       Enable for uniforms, sparring gear, or apparel with sizes (100–200, S–XL) & collar styles (White, Poom, Dan)
                     </p>
                   </div>
@@ -200,6 +200,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                     )}
                     role="switch"
                     aria-checked={hasNewItemVariants}
+                    aria-label="Multi-size and collar matrix variations"
                   >
                     <span
                       className={cn(
@@ -215,8 +216,8 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                   <div className="space-y-3">
                     <div className="grid grid-cols-3 gap-2 sm:gap-3">
                       <div>
-                        <label className="block text-[9px] sm:text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1 truncate">PRICE ($)</label>
-                        <input
+                        <label htmlFor="product-create-dialog-price" className="block text-micro sm:text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1 truncate">PRICE ($)</label>
+                        <input id="product-create-dialog-price"
                           type="number"
                           step="0.01"
                           min="0"
@@ -227,8 +228,8 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                         />
                       </div>
                       <div>
-                        <label className="block text-[9px] sm:text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1 truncate">STOCK QTY</label>
-                        <input
+                        <label htmlFor="product-create-dialog-stock-qty" className="block text-micro sm:text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1 truncate">STOCK QTY</label>
+                        <input id="product-create-dialog-stock-qty"
                           type="number"
                           min="0"
                           required
@@ -238,8 +239,8 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                         />
                       </div>
                       <div>
-                        <label className="block text-[9px] sm:text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1 truncate">MIN THRESHOLD</label>
-                        <input
+                        <label htmlFor="product-create-dialog-min-threshold" className="block text-micro sm:text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1 truncate">MIN THRESHOLD</label>
+                        <input id="product-create-dialog-min-threshold"
                           type="number"
                           min="0"
                           required
@@ -251,8 +252,8 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">SIZE / VARIATION (OPTIONAL)</label>
-                      <input
+                      <label htmlFor="product-create-dialog-size-variation-optional" className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">SIZE / VARIATION (OPTIONAL)</label>
+                      <input id="product-create-dialog-size-variation-optional"
                         type="text"
                         placeholder="e.g. One Size / Free Size"
                         aria-label="Product size" value={newItem.size}
@@ -270,10 +271,10 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                     <div className="space-y-2">
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                          <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">
+                          <label htmlFor="product-create-dialog-base-price" className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">
                             BASE PRICE ($)
                           </label>
-                          <input
+                          <input id="product-create-dialog-base-price"
                             type="number"
                             step="0.01"
                             min="0"
@@ -284,10 +285,10 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                           />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">
+                          <label htmlFor="product-create-dialog-min-threshold-2" className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">
                             MIN THRESHOLD
                           </label>
-                          <input
+                          <input id="product-create-dialog-min-threshold-2"
                             type="number"
                             min="0"
                             required
@@ -297,7 +298,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                           />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">
+                          <label className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">
                             TOTAL MATRIX STOCK
                           </label>
                           <div className="w-full min-h-[40px] flex items-center px-3 bg-neutral-100 dark:bg-[#181818] border border-neutral-300 dark:border-[#262626] rounded-[8px] font-bold text-neutral-900 dark:text-white">
@@ -308,18 +309,18 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
 
                       {/* Quick 1-Click Templates */}
                       <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                        <span className="text-[10px] uppercase font-bold text-neutral-500">1-Click Presets:</span>
+                        <span className="text-micro uppercase font-bold text-neutral-500">1-Click Presets:</span>
                         <button
                           type="button"
                           onClick={applyUniformQuickTemplate}
-                          className="text-[10px] px-2.5 py-1 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 rounded-[6px] border border-neutral-300 dark:border-neutral-700 flex items-center gap-1 transition-colors active:scale-95 touch-manipulation cursor-pointer"
+                          className="text-micro px-2.5 py-1 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 rounded-[6px] border border-neutral-300 dark:border-neutral-700 flex items-center gap-1 transition-colors active:scale-95 touch-manipulation cursor-pointer"
                         >
                           <Sparkle size={12} className="text-brand-ink" /> TKD Uniform (Poom, Dan, White • 110-180)
                         </button>
                         <button
                           type="button"
                           onClick={applySparringGearQuickTemplate}
-                          className="text-[10px] px-2.5 py-1 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 rounded-[6px] border border-neutral-300 dark:border-neutral-700 flex items-center gap-1 transition-colors active:scale-95 touch-manipulation cursor-pointer"
+                          className="text-micro px-2.5 py-1 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 rounded-[6px] border border-neutral-300 dark:border-neutral-700 flex items-center gap-1 transition-colors active:scale-95 touch-manipulation cursor-pointer"
                         >
                           <Sparkle size={12} className="text-blue-500" /> Sparring Gear (Red, Blue • S-XL)
                         </button>
@@ -329,7 +330,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                     {/* Step 1: Collar Styles / Colors */}
                     <div className="p-3 bg-neutral-50 dark:bg-[#181818] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-2.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold uppercase text-neutral-700 dark:text-neutral-300">
+                        <span className="text-micro font-bold uppercase text-neutral-700 dark:text-neutral-300">
                           1. Collar Styles / Colors (Optional)
                         </span>
                         {variantStyles.length > 0 && (
@@ -339,7 +340,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                               setVariantStyles([]);
                               setMatrixVariants(prev => regenerateMatrix([], variantSizes, newItem.name, newItem.category, prev));
                             }}
-                            className="text-[10px] text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 underline cursor-pointer"
+                            className="text-micro text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 underline cursor-pointer"
                           >
                             Clear Styles
                           </button>
@@ -356,7 +357,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                               type="button"
                               onClick={() => toggleStyle(style)}
                               className={cn(
-                                "px-2.5 py-1 rounded-[6px] text-[10px] font-bold border transition-colors cursor-pointer active:scale-95 touch-manipulation",
+                                "px-2.5 py-1 rounded-[6px] text-micro font-bold border transition-colors cursor-pointer active:scale-95 touch-manipulation",
                                 isSelected
                                   ? "bg-brand text-white border-brand"
                                   : "bg-white dark:bg-[#141414] text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-[#262626] hover:border-neutral-400"
@@ -399,13 +400,13 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                           {variantStyles.map(st => (
                             <span
                               key={st}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-800 text-[10px] text-neutral-800 dark:text-neutral-200"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-800 text-micro text-neutral-800 dark:text-neutral-200"
                             >
                               {st}
-                              <button
+                              <button aria-label={`Remove ${st}`}
                                 type="button"
                                 onClick={() => removeStyle(st)}
-                                className="hover:text-rose-500 cursor-pointer"
+                                className="hover:text-rose-500 cursor-pointer min-h-6 min-w-6 inline-flex items-center justify-center"
                               >
                                 <X size={10} />
                               </button>
@@ -418,14 +419,14 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                     {/* Step 2: Sizes */}
                     <div className="p-3 bg-neutral-50 dark:bg-[#181818] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-2.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold uppercase text-neutral-700 dark:text-neutral-300">
+                        <span className="text-micro font-bold uppercase text-neutral-700 dark:text-neutral-300">
                           2. Sizes (Multi-Select)
                         </span>
                         {variantSizes.length > 0 && (
                           <button
                             type="button"
                             onClick={clearAllSizes}
-                            className="text-[10px] text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 underline cursor-pointer"
+                            className="text-micro text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 underline cursor-pointer"
                           >
                             Clear Sizes
                           </button>
@@ -437,21 +438,21 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                         <button
                           type="button"
                           onClick={() => addSizePreset(TKD_KIDS_SIZES)}
-                          className="px-2 py-1 bg-white dark:bg-[#141414] hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-300 dark:border-[#262626] rounded-[6px] text-[10px] font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer active:scale-95 touch-manipulation"
+                          className="px-2 py-1 bg-white dark:bg-[#141414] hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-300 dark:border-[#262626] rounded-[6px] text-micro font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer active:scale-95 touch-manipulation"
                         >
                           + TKD Kids (100–150)
                         </button>
                         <button
                           type="button"
                           onClick={() => addSizePreset(TKD_ADULT_SIZES)}
-                          className="px-2 py-1 bg-white dark:bg-[#141414] hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-300 dark:border-[#262626] rounded-[6px] text-[10px] font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer active:scale-95 touch-manipulation"
+                          className="px-2 py-1 bg-white dark:bg-[#141414] hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-300 dark:border-[#262626] rounded-[6px] text-micro font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer active:scale-95 touch-manipulation"
                         >
                           + TKD Adult (160–200)
                         </button>
                         <button
                           type="button"
                           onClick={() => addSizePreset(APPAREL_SIZES)}
-                          className="px-2 py-1 bg-white dark:bg-[#141414] hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-300 dark:border-[#262626] rounded-[6px] text-[10px] font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer active:scale-95 touch-manipulation"
+                          className="px-2 py-1 bg-white dark:bg-[#141414] hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-300 dark:border-[#262626] rounded-[6px] text-micro font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer active:scale-95 touch-manipulation"
                         >
                           + Apparel (XS–XXL)
                         </button>
@@ -467,7 +468,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                               type="button"
                               onClick={() => toggleSize(sz)}
                               className={cn(
-                                "w-9 h-7 rounded-[4px] text-[10px] font-bold border transition-colors flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation",
+                                "w-9 h-7 rounded-[4px] text-micro font-bold border transition-colors flex items-center justify-center cursor-pointer active:scale-95 touch-manipulation",
                                 isSelected
                                   ? "bg-brand text-white border-brand"
                                   : "bg-white dark:bg-[#141414] text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-[#262626]"
@@ -510,13 +511,13 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                           {variantSizes.map(sz => (
                             <span
                               key={sz}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-800 text-[10px] text-neutral-800 dark:text-neutral-200"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-800 text-micro text-neutral-800 dark:text-neutral-200"
                             >
                               {sz}
-                              <button
+                              <button aria-label={`Remove size ${sz}`}
                                 type="button"
                                 onClick={() => removeSize(sz)}
-                                className="hover:text-rose-500 cursor-pointer"
+                                className="hover:text-rose-500 cursor-pointer min-h-6 min-w-6 inline-flex items-center justify-center"
                               >
                                 <X size={10} />
                               </button>
@@ -529,17 +530,17 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                     {/* Step 3: Matrix Combinations Table & Stock Batch Setting */}
                     <div className="space-y-2">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-200 dark:border-[#262626] pb-2">
-                        <span className="text-[11px] font-bold uppercase text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
+                        <span className="text-micro font-bold uppercase text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
                           <span>3. Matrix Combinations</span>
-                          <span className="px-2 py-0.5 bg-brand/10 text-brand-ink rounded-full text-[10px] font-bold">
+                          <span className="px-2 py-0.5 bg-brand/10 text-brand-ink rounded-full text-micro font-bold">
                             {matrixVariants.length} Combinations
                           </span>
                         </span>
 
                         {matrixVariants.length > 0 && (
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-neutral-500">Batch Stock:</span>
-                            <input
+                            <span className="text-micro text-neutral-500">Batch Stock:</span>
+                            <input aria-label="Batch stock"
                               type="number"
                               min="0"
                               value={batchStockValue}
@@ -549,7 +550,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                             <button
                               type="button"
                               onClick={() => applyBatchStockToAll(batchStockValue)}
-                              className="px-2.5 py-1 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 text-neutral-900 dark:text-white text-[10px] font-bold rounded cursor-pointer active:scale-95 touch-manipulation"
+                              className="px-2.5 py-1 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 text-neutral-900 dark:text-white text-micro font-bold rounded cursor-pointer active:scale-95 touch-manipulation"
                             >
                               Apply to All
                             </button>
@@ -563,8 +564,8 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                         </div>
                       ) : (
                         <div className="border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden max-h-[260px] overflow-y-auto">
-                          <table className="w-full text-left text-[11px]">
-                            <thead className="bg-neutral-100 dark:bg-[#181818] sticky top-0 text-[10px] text-neutral-500 uppercase border-b border-neutral-200 dark:border-[#262626]">
+                          <table className="w-full text-left text-micro">
+                            <thead className="bg-neutral-100 dark:bg-[#181818] sticky top-0 text-micro text-neutral-500 uppercase border-b border-neutral-200 dark:border-[#262626]">
                               <tr>
                                 <th className="px-3 py-2">Collar / Style</th>
                                 <th className="px-3 py-2">Size</th>
@@ -584,24 +585,24 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                                     {v.size || <span className="text-neutral-400 italic">Free</span>}
                                   </td>
                                   <td className="px-3 py-2">
-                                    <input
+                                    <input aria-label={`Variant SKU, row ${idx + 1}`}
                                       type="text"
                                       value={v.sku}
                                       onChange={e => updateMatrixVariant(idx, { sku: e.target.value.toUpperCase().replace(/\s+/g, '-') })}
-                                      className="w-full bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded px-2 py-1 text-[10px] font-mono text-neutral-900 dark:text-[#E4E4E4]"
+                                      className="w-full bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded px-2 py-1 text-micro font-mono text-neutral-900 dark:text-[#E4E4E4]"
                                     />
                                   </td>
                                   <td className="px-3 py-2">
-                                    <input
+                                    <input aria-label={`Variant stock, row ${idx + 1}`}
                                       type="number"
                                       min="0"
                                       value={v.stock}
                                       onChange={e => updateMatrixVariant(idx, { stock: Math.max(0, parseInt(e.target.value) || 0) })}
-                                      className="w-full bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded px-2 py-1 text-[11px] font-bold text-neutral-900 dark:text-[#E4E4E4]"
+                                      className="w-full bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded px-2 py-1 text-micro font-bold text-neutral-900 dark:text-[#E4E4E4]"
                                     />
                                   </td>
                                   <td className="px-3 py-2">
-                                    <input
+                                    <input aria-label={`Variant price, row ${idx + 1}`}
                                       type="number"
                                       step="0.01"
                                       min="0"
@@ -611,7 +612,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                                         const val = e.target.value === '' ? null : parseFloat(e.target.value);
                                         updateMatrixVariant(idx, { price_override: isNaN(val as number) ? null : val });
                                       }}
-                                      className="w-full bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded px-2 py-1 text-[11px] text-neutral-900 dark:text-[#E4E4E4]"
+                                      className="w-full bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded px-2 py-1 text-micro text-neutral-900 dark:text-[#E4E4E4]"
                                     />
                                   </td>
                                   <td className="px-2 py-2 text-center">
@@ -665,7 +666,7 @@ export function ProductCreateDialog({ isAddSubmitting, handleAddNewItem, setIsAd
                   </span>
                 </button>
               </div>
-            </fieldset></form>
+            </fieldset></form></div>
           </div>
         </Portal>
       )}</>;

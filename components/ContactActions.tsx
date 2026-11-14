@@ -23,9 +23,9 @@ export function ContactActions({ contact, name, compact = false, emailSubject }:
 
 export function TelegramContactField({ value, onChange, id }: { value: string; onChange: (value: string) => void; id: string }) {
   return <div>
-    <label htmlFor={id} className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Telegram username</label>
+    <label htmlFor={id} className="mb-1 block text-micro font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Telegram username</label>
     <input id={id} type="text" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={120} value={value} onChange={event => onChange(event.target.value)} placeholder="@username or https://t.me/username"
       aria-describedby={`${id}-hint`} className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand dark:border-neutral-700 dark:bg-[#1A1A1A] dark:text-white" />
-    <p id={`${id}-hint`} className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">Optional. Use the person’s public Telegram username.</p>
+    <p id={`${id}-hint`} className="mt-1 text-micro text-neutral-500 dark:text-neutral-400">Optional. Use the person’s public Telegram username.</p>
   </div>;
 }

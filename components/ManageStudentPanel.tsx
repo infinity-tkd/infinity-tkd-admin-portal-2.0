@@ -876,20 +876,20 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                 <button
                   type="button"
                   onClick={() => handleCopy(student.id, 'Student ID')}
-                  className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] text-brand-ink border border-neutral-200 dark:border-[#262626] transition-colors cursor-pointer flex items-center gap-1"
+                  className="px-1.5 py-0.5 rounded text-micro font-mono font-bold uppercase tracking-wider bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] text-brand-ink border border-neutral-200 dark:border-[#262626] transition-colors cursor-pointer flex items-center gap-1"
                   title="Click to copy ID"
                 >
                   <span>{student.id}</span>
                   {copiedField === 'Student ID' ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3 opacity-60" />}
                 </button>
 
-                <span className="text-[10px] font-bold text-neutral-700 dark:text-neutral-300 font-sans">
+                <span className="text-micro font-bold text-neutral-700 dark:text-neutral-300 font-sans">
                   {formatBeltLocalized(student.currentBelt, student.dob, t)}
                 </span>
 
-                <span className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500">•</span>
+                <span className="text-micro font-medium text-neutral-400 dark:text-neutral-500">•</span>
 
-                <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400">
+                <span className="text-micro font-bold text-blue-600 dark:text-blue-400">
                   {getAgeDivision()}
                 </span>
               </div>
@@ -904,7 +904,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                 disabled={!canEdit || isUpdatingStatus}
                 onChange={e => handleQuickStatusChange(e.target.value)}
                 className={cn(
-                  "text-[10px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-[6px] border outline-none cursor-pointer transition-all shadow-xs disabled:opacity-50",
+                  "text-micro font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-[6px] border outline-none cursor-pointer transition-all shadow-xs disabled:opacity-50",
                   student.studentStatus === 'Active' ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20" :
                   student.studentStatus === 'Paused' ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 hover:bg-amber-500/20" :
                   student.studentStatus === 'Inactive' ? "bg-neutral-100 text-neutral-600 dark:bg-[#1A1A1A] dark:text-neutral-400 border-neutral-300 dark:border-neutral-700" :
@@ -912,6 +912,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                   "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20"
                 )}
                 title="Change student status"
+                aria-label="Change student status"
               >
                 <option value="Active">{t('act_active')}</option>
                 <option value="Paused">Paused</option>
@@ -978,13 +979,13 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
               <div className="flex items-center gap-2">
                 <Warning className="w-4 h-4 shrink-0 animate-pulse" />
                 <div>
-                  <span className="font-bold uppercase tracking-wider block text-[10px]">
+                  <span className="font-bold uppercase tracking-wider block text-micro">
                     {billing.status === 'Overdue' ? 'Membership Overdue'
                       : billing.status === 'Within grace' ? 'Membership Due · Grace Period'
                       : billing.status === 'Due today' ? 'Membership Due Today'
                       : 'Membership Renewal Due'}
                   </span>
-                  <span className="text-[9px] font-mono text-neutral-500 dark:text-neutral-400">
+                  <span className="text-micro font-mono text-neutral-500 dark:text-neutral-400">
                     {`Due on ${billing.nextRenewalDate} (${membershipDueText(billing)})`}
                   </span>
                 </div>
@@ -1005,7 +1006,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                     showNotification(`Payment logging failed: ${e.message}`, 'error');
                   }
                 }}
-                className="px-2.5 py-1 bg-white dark:bg-[#1A1A1A] hover:bg-neutral-100 dark:hover:bg-[#262626] border border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-white rounded-[8px] text-[9.5px] font-bold uppercase tracking-wider transition-all duration-150 flex items-center gap-1 shadow-sm shrink-0 cursor-pointer"
+                className="px-2.5 py-1 bg-white dark:bg-[#1A1A1A] hover:bg-neutral-100 dark:hover:bg-[#262626] border border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-white rounded-[8px] text-micro font-bold uppercase tracking-wider transition-all duration-150 flex items-center gap-1 shadow-sm shrink-0 cursor-pointer"
               >
                 <Coins className="w-3.5 h-3.5" />
                 Collect ${billing.amountOwed.toFixed(0)}
@@ -1038,7 +1039,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
             <Certificate className="w-3.5 h-3.5" />
             <span>{t('panel_tab_belts')}</span>
             {beltHistory.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-neutral-200 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300 font-mono font-bold">
+              <span className="px-1.5 py-0.2 rounded-full text-micro bg-neutral-200 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300 font-mono font-bold">
                 {beltHistory.length}
               </span>
             )}
@@ -1055,7 +1056,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
             <Trophy className="w-3.5 h-3.5" />
             <span>{t('panel_tab_skills')}</span>
             {achievements.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-neutral-200 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300 font-mono font-bold">
+              <span className="px-1.5 py-0.2 rounded-full text-micro bg-neutral-200 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300 font-mono font-bold">
                 {achievements.length}
               </span>
             )}
@@ -1072,7 +1073,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
             <Heart className="w-3.5 h-3.5" />
             <span>{t('panel_tab_biometrics')}</span>
             {studentCompositions.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-neutral-200 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300 font-mono font-bold">
+              <span className="px-1.5 py-0.2 rounded-full text-micro bg-neutral-200 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300 font-mono font-bold">
                 {studentCompositions.length}
               </span>
             )}
@@ -1172,13 +1173,13 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                <div className="w-full max-w-md bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl flex flex-col max-h-[90dvh] overflow-hidden text-neutral-900 dark:text-white">
                   <div className="p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#0F0F0F] shrink-0">
                      <h2 className="text-sm font-bold uppercase tracking-widest">{editingBeltHistoryId !== null ? "Edit Belt Promotion" : t('panel_log_belt_promotion')}</h2>
-                     <button onClick={() => { setShowBeltModal(false); setEditingBeltHistoryId(null); }} className="p-1 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+                     <button aria-label="Close" onClick={() => { setShowBeltModal(false); setEditingBeltHistoryId(null); }} className="p-1 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors min-h-6 min-w-6 inline-flex items-center justify-center"><X className="w-5 h-5" /></button>
                   </div>
                   <div className="p-6 space-y-4 overflow-y-auto">
                      <div className="grid grid-cols-2 gap-4">
                        <div>
-                         <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_pass_level_next')}</label>
-                         <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500"
+                         <label htmlFor="manage-student-panel-panel_pass_level_next" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_pass_level_next')}</label>
+                         <select id="manage-student-panel-panel_pass_level_next" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500"
                             value={beltForm.beltLevel} onChange={e => {
                                const newLevel = e.target.value;
                                setBeltForm(prev => {
@@ -1193,8 +1194,8 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                         </select>
                       </div>
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_promotion_date')}</label>
-                        <input type="date" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 [color-scheme:light] dark:[color-scheme:dark]"
+                        <label htmlFor="manage-student-panel-panel_promotion_date" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_promotion_date')}</label>
+                        <input id="manage-student-panel-panel_promotion_date" type="date" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 [color-scheme:light] dark:[color-scheme:dark]"
                            value={beltForm.promotionDate} onChange={e => {
                              const newDate = e.target.value;
                              setBeltForm(prev => {
@@ -1209,13 +1210,13 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_col_score_opt')}</label>
-                        <input type="number" min="0" max="100" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500"
+                        <label htmlFor="manage-student-panel-panel_col_score_opt" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_col_score_opt')}</label>
+                        <input id="manage-student-panel-panel_col_score_opt" type="number" min="0" max="100" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500"
                            value={beltForm.testScore} onChange={e => setBeltForm({...beltForm, testScore: e.target.value})} placeholder={t('panel_placeholder_score')} />
                       </div>
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_program')}</label>
-                        <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500"
+                        <label htmlFor="manage-student-panel-panel_program" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_program')}</label>
+                        <select id="manage-student-panel-panel_program" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500"
                            value={beltForm.program} onChange={e => setBeltForm({...beltForm, program: e.target.value})}>
                            <option value="Standard Class">{t('panel_program_standard')}</option>
                            <option value="Elite Team">{t('panel_program_elite')}</option>
@@ -1224,8 +1225,8 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                       </div>
                     </div>
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_certificate_ref')} (Optional)</label>
-                      <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 font-mono"
+                      <label htmlFor="manage-student-panel-panel_certificate_ref" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_certificate_ref')} (Optional)</label>
+                      <input id="manage-student-panel-panel_certificate_ref" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 font-mono"
                          value={beltForm.certificateRef} onChange={e => {
                            const val = e.target.value.toUpperCase();
                            setIsCertManual(true);
@@ -1233,8 +1234,8 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                          }} placeholder={t('panel_placeholder_cert_ref')} />
                     </div>
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_cert_link_or_kukkiwon')}</label>
-                      <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 font-mono"
+                      <label htmlFor="manage-student-panel-panel_cert_link_or_kukkiwon" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_cert_link_or_kukkiwon')}</label>
+                      <input id="manage-student-panel-panel_cert_link_or_kukkiwon" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 font-mono"
                          value={beltForm.kukkiwonDanCardId} onChange={e => {
                            const val = e.target.value;
                            setBeltForm({...beltForm, kukkiwonDanCardId: val});
@@ -1257,33 +1258,33 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                       <h2 className="text-sm font-bold uppercase tracking-widest">
                          {editingAchievementId !== null ? "Edit Tournament Achievement" : t('panel_log_tournament_achievement')}
                       </h2>
-                      <button disabled={isSavingAchievement} onClick={handleCloseAchievementModal} className="p-1 text-neutral-400 hover:text-neutral-950 dark:hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+                      <button aria-label="Close" disabled={isSavingAchievement} onClick={handleCloseAchievementModal} className="p-1 text-neutral-400 hover:text-neutral-950 dark:hover:text-white transition-colors min-h-6 min-w-6 inline-flex items-center justify-center"><X className="w-5 h-5" /></button>
                    </div>
                    <fieldset disabled={isSavingAchievement} className="p-6 overflow-y-auto space-y-6 min-w-0">
                      <CompetitionEventPicker eventId={achvForm.eventId} eventName={achvForm.eventName} disabled={isSavingAchievement} onChange={(eventId,eventName)=>setAchvForm(current=>({...current,eventId,eventName}))}/>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                        <div>
-                         <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-500 mb-1">{t('panel_event_name')} *</label>
-                         <input aria-label="Achievement event name" readOnly={Boolean(achvForm.eventId)} disabled={isSavingAchievement} type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-neutral-700"
+                         <label htmlFor="manage-student-panel-panel_event_name" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-500 mb-1">{t('panel_event_name')} *</label>
+                         <input id="manage-student-panel-panel_event_name" aria-label="Achievement event name" readOnly={Boolean(achvForm.eventId)} disabled={isSavingAchievement} type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-neutral-700"
                             value={achvForm.eventName} onChange={e => setAchvForm({...achvForm, eventName: e.target.value})} placeholder="e.g. Korean Ambassador's Cup" />
                        </div>
                        <div>
-                         <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-500 mb-1">{t('att_date')} *</label>
-                         <input type="date" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-neutral-700 [color-scheme:light] dark:[color-scheme:dark]"
+                         <label htmlFor="manage-student-panel-att_date" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-500 mb-1">{t('att_date')} *</label>
+                         <input id="manage-student-panel-att_date" type="date" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-neutral-700 [color-scheme:light] dark:[color-scheme:dark]"
                             value={achvForm.date} onChange={e => setAchvForm({...achvForm, date: e.target.value})} />
                        </div>
                      </div>
 
                      <div className="space-y-4">
                        <div className="flex justify-between items-center border-b border-neutral-100 dark:border-[#262626] pb-2">
-                         <h3 className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider">
+                         <h3 className="text-micro uppercase font-bold text-neutral-400 tracking-wider">
                             {editingAchievementId !== null ? "Event Details" : "Events & Sub-categories"}
                          </h3>
                          {editingAchievementId === null && (
                            <button
                              type="button"
                              onClick={() => setAchvEvents([...achvEvents, { category: 'Recognized Poomsae', division: 'Male Division', medalRank: 'Gold', notes: '', ageDivision: 'No Age Requirement', beltDivision: 'No Belt Requirement' }])}
-                             className="text-[9px] text-brand-ink border border-brand/20 bg-brand/5 hover:bg-brand/10 px-2.5 py-1.5 rounded-[8px] font-bold uppercase tracking-wider transition-colors"
+                             className="text-micro text-brand-ink border border-brand/20 bg-brand/5 hover:bg-brand/10 px-2.5 py-1.5 rounded-[8px] font-bold uppercase tracking-wider transition-colors"
                            >
                              + Add Another Event
                            </button>
@@ -1296,21 +1297,22 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                              {achvEvents.length > 1 && (
                                <button
                                  type="button"
+                                 aria-label={`Remove achievement ${idx + 1}`}
                                  onClick={() => {
                                    if (event.id) {
                                      setDeletedAchvIds(prev => [...prev, event.id!]);
                                    }
                                    setAchvEvents(achvEvents.filter((_, i) => i !== idx));
                                  }}
-                                 className="absolute top-2 right-2 text-neutral-400 hover:text-red-500 p-1 rounded hover:bg-neutral-200 dark:hover:bg-[#262626] transition-colors"
+                                 className="absolute top-2 right-2 text-neutral-400 hover:text-red-500 p-1 rounded hover:bg-neutral-200 dark:hover:bg-[#262626] transition-colors min-h-6 min-w-6 inline-flex items-center justify-center"
                                >
                                  <Trash className="w-3.5 h-3.5" />
                                </button>
                              )}
                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                <div>
-                                 <label className="block text-[9px] uppercase font-bold text-neutral-400 mb-1">Category</label>
-                                 <select
+                                 <label htmlFor={`manage-student-panel-category-${idx}`} className="block text-micro uppercase font-bold text-neutral-400 mb-1">Category</label>
+                                 <select id={`manage-student-panel-category-${idx}`}
                                    className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-red-500"
                                    value={event.category}
                                    onChange={e => {
@@ -1333,8 +1335,8 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                                </div>
 
                                <div>
-                                 <label className="block text-[9px] uppercase font-bold text-neutral-400 mb-1">Division</label>
-                                 <select
+                                 <label htmlFor={`manage-student-panel-division-${idx}`} className="block text-micro uppercase font-bold text-neutral-400 mb-1">Division</label>
+                                 <select id={`manage-student-panel-division-${idx}`}
                                    className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-red-500"
                                    value={event.division}
                                    onChange={e => {
@@ -1352,8 +1354,8 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                                </div>
 
                                <div>
-                                 <label className="block text-[9px] uppercase font-bold text-neutral-400 mb-1">Medal / Rank</label>
-                                 <select
+                                 <label htmlFor={`manage-student-panel-medal-rank-${idx}`} className="block text-micro uppercase font-bold text-neutral-400 mb-1">Medal / Rank</label>
+                                 <select id={`manage-student-panel-medal-rank-${idx}`}
                                    className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-red-500"
                                    value={event.medalRank}
                                    onChange={e => {
@@ -1372,8 +1374,8 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
 
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
                                <div>
-                                 <label className="block text-[9px] uppercase font-bold text-neutral-400 mb-1">Age Division</label>
-                                 <select
+                                 <label htmlFor={`manage-student-panel-age-division-${idx}`} className="block text-micro uppercase font-bold text-neutral-400 mb-1">Age Division</label>
+                                 <select id={`manage-student-panel-age-division-${idx}`}
                                    className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-red-500"
                                    value={event.ageDivision || 'No Age Requirement'}
                                    onChange={e => {
@@ -1394,8 +1396,8 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                                </div>
 
                                <div>
-                                 <label className="block text-[9px] uppercase font-bold text-neutral-400 mb-1">Belt Division</label>
-                                 <select
+                                 <label htmlFor={`manage-student-panel-belt-division-${idx}`} className="block text-micro uppercase font-bold text-neutral-400 mb-1">Belt Division</label>
+                                 <select id={`manage-student-panel-belt-division-${idx}`}
                                    className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-red-500"
                                    value={event.beltDivision || 'No Belt Requirement'}
                                    onChange={e => {
@@ -1420,8 +1422,8 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                              </div>
 
                              <div className="mt-2.5">
-                               <label className="block text-[9px] uppercase font-bold text-neutral-400 mb-1">Notes / Remarks</label>
-                               <input
+                               <label htmlFor={`manage-student-panel-notes-remarks-${idx}`} className="block text-micro uppercase font-bold text-neutral-400 mb-1">Notes / Remarks</label>
+                               <input id={`manage-student-panel-notes-remarks-${idx}`}
                                  type="text"
                                  className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-red-500"
                                  value={event.notes}
@@ -1464,12 +1466,12 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                         </div>
                         <div>
                           <h3 className="text-sm font-black text-neutral-900 dark:text-white uppercase tracking-wider">Set Student Password</h3>
-                          <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono">{student.englishName} ({student.id})</p>
+                          <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono">{student.englishName} ({student.id})</p>
                         </div>
                       </div>
-                      <button
+                      <button aria-label="Close"
                         onClick={() => setShowPasswordModal(false)}
-                        className="p-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-white rounded-[8px] transition-colors"
+                        className="p-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-white rounded-[8px] transition-colors min-h-6 min-w-6 inline-flex items-center justify-center"
                       >
                         <X className="w-5 h-5" />
                       </button>
@@ -1481,9 +1483,9 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider">New Password</label>
+                        <label htmlFor="manage-student-panel-new-password" className="text-micro uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider">New Password</label>
                         <div className="relative">
-                          <input
+                          <input id="manage-student-panel-new-password"
                             type={showPasswordText ? "text" : "password"}
                             value={newPassword}
                             onChange={e => setNewPassword(e.target.value)}
@@ -1505,7 +1507,7 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                         <button
                           type="button"
                           onClick={() => setNewPassword(`TKD${student.id.replace(/[^a-zA-Z0-9]/g, '')}!`)}
-                          className="text-[10px] text-neutral-500 hover:text-brand-ink dark:text-neutral-400 font-mono underline cursor-pointer"
+                          className="text-micro text-neutral-500 hover:text-brand-ink dark:text-neutral-400 font-mono underline cursor-pointer"
                         >
                           Use default: TKD{student.id.replace(/[^a-zA-Z0-9]/g, '')}!
                         </button>
@@ -1566,12 +1568,12 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                         </div>
                         <div>
                           <h3 className="text-sm font-black text-neutral-900 dark:text-white uppercase tracking-wider">Activate Student Portal Account</h3>
-                          <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono">{student.englishName} • {student.id}</p>
+                          <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono">{student.englishName} • {student.id}</p>
                         </div>
                       </div>
-                      <button
+                      <button aria-label="Close"
                         onClick={() => setShowProvisionModal(false)}
-                        className="p-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-white rounded-[8px] transition-colors"
+                        className="p-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-white rounded-[8px] transition-colors min-h-6 min-w-6 inline-flex items-center justify-center"
                       >
                         <X className="w-5 h-5" />
                       </button>
@@ -1586,34 +1588,34 @@ export function ManageStudentPanel({ studentId, onClose }: { studentId: string, 
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider">Login Username / ID</label>
+                        <label htmlFor="manage-student-panel-login-username-id" className="text-micro uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider">Login Username / ID</label>
                         <div className="relative">
-                          <input
+                          <input id="manage-student-panel-login-username-id"
                             type="text"
                             value={provisionUsername}
                             onChange={e => setProvisionUsername(e.target.value)}
                             className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#333] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-brand transition-colors"
                           />
                         </div>
-                        <p className="text-[9px] text-neutral-400 dark:text-[#666]">Student can log in using either this username or <span className="font-mono font-bold text-neutral-700 dark:text-neutral-300">{student.id}</span>.</p>
+                        <p className="text-micro text-neutral-400 dark:text-[#666]">Student can log in using either this username or <span className="font-mono font-bold text-neutral-700 dark:text-neutral-300">{student.id}</span>.</p>
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider">Portal Email Address</label>
-                        <input
+                        <label htmlFor="manage-student-panel-portal-email-address" className="text-micro uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider">Portal Email Address</label>
+                        <input id="manage-student-panel-portal-email-address"
                           type="email"
                           value={provisionEmail}
                           onChange={e => setProvisionEmail(e.target.value)}
                           placeholder="e.g. name@portal.infinitytkd.com"
                           className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#333] rounded-[8px] px-3 py-2.5 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:border-brand transition-colors"
                         />
-                        <p className="text-[9px] text-neutral-400 dark:text-[#666]">Used for auth identification. If student has no personal email, a dedicated portal address is auto-generated.</p>
+                        <p className="text-micro text-neutral-400 dark:text-[#666]">Used for auth identification. If student has no personal email, a dedicated portal address is auto-generated.</p>
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider">Initial Password</label>
+                        <label htmlFor="manage-student-panel-initial-password" className="text-micro uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider">Initial Password</label>
                         <div className="relative">
-                          <input
+                          <input id="manage-student-panel-initial-password"
                             type={showProvisionPasswordText ? "text" : "password"}
                             value={provisionPassword}
                             onChange={e => setProvisionPassword(e.target.value)}

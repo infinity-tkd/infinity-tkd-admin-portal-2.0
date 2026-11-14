@@ -121,7 +121,7 @@ export function AnatomyAtlasExplorer({ muscleLoads = {}, maxLoad = 1, initialSel
           <select aria-label="Anatomy detail quality" className="min-h-11 max-w-[106px] rounded-lg bg-transparent px-1 text-xs" value={detailed ? 'detailed' : 'compact'} onChange={event => setDetailed(event.target.value === 'detailed')}><option value="compact">Compact</option><option value="detailed">Detailed</option></select>
         </div>
       </div>
-      {(!compact || selectedName) && <aside className="min-h-0 overflow-y-auto border-t border-neutral-200 p-3 lg:border-l lg:border-t-0 dark:border-neutral-800" aria-label="Muscle and learning details">
+      {(!compact || selectedName) && <div role="group" className="min-h-0 overflow-y-auto border-t border-neutral-200 p-3 lg:border-l lg:border-t-0 dark:border-neutral-800" aria-label="Muscle and learning details">
         <label className="flex min-h-11 items-center gap-2 rounded-lg border border-neutral-200 px-3 dark:border-neutral-700"><Search size={16} aria-hidden="true" /><input aria-label="Find a muscle" className="min-w-0 flex-1 bg-transparent text-sm outline-none" placeholder="Find a muscle" value={query} onChange={event => setQuery(event.target.value)} /></label>
         {(query || !selectedName) && <div className="my-2 flex flex-wrap gap-1">{choices.map(name => <button type="button" key={name} className="min-h-11 rounded-lg bg-neutral-100 px-2 text-left text-xs hover:bg-red-50 hover:text-red-700 dark:bg-neutral-800 dark:hover:bg-red-950 dark:hover:text-red-300" onClick={() => { select(name); setQuery(''); }}>{name}</button>)}</div>}
         {selectedName ? <div className="mt-3 space-y-3">
@@ -131,11 +131,11 @@ export function AnatomyAtlasExplorer({ muscleLoads = {}, maxLoad = 1, initialSel
           {(record?.tkdRelevance || knowledge?.tkdRelevance) && <p className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">{record?.tkdRelevance || knowledge?.tkdRelevance}</p>}
           {!!normalizedLoads[group ?? ''] && <p className="rounded-lg bg-red-50 p-2 text-xs font-medium text-red-700 dark:bg-red-950 dark:text-red-300">{context?.kind === 'student' ? 'Included in completed learning materials' : 'Included in this material’s teaching focus'}</p>}
           <h4 className="border-t border-neutral-200 pt-3 text-xs font-semibold dark:border-neutral-800">Related learning materials · {related.length}</h4>
-          {related.slice(0, 8).map(({ asset, role, completed }) => <button key={asset.id} type="button" disabled={!context?.onOpenMaterial} onClick={() => context?.onOpenMaterial?.(asset.id)} className="block min-h-11 w-full rounded-lg border border-neutral-200 p-2 text-left disabled:cursor-default dark:border-neutral-800"><span className="block text-xs font-medium">{asset.title}</span><span className="text-[11px] text-neutral-500 dark:text-neutral-400">{role}{context?.studentId ? completed ? ' · Completed' : ' · Not completed' : ''}</span></button>)}
+          {related.slice(0, 8).map(({ asset, role, completed }) => <button key={asset.id} type="button" disabled={!context?.onOpenMaterial} onClick={() => context?.onOpenMaterial?.(asset.id)} className="block min-h-11 w-full rounded-lg border border-neutral-200 p-2 text-left disabled:cursor-default dark:border-neutral-800"><span className="block text-xs font-medium">{asset.title}</span><span className="text-micro text-neutral-500 dark:text-neutral-400">{role}{context?.studentId ? completed ? ' · Completed' : ' · Not completed' : ''}</span></button>)}
           {!related.length && <p className="text-xs text-neutral-500 dark:text-neutral-400">No saved material links for this muscle.</p>}
         </div> : <div className="mt-3 space-y-2 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400"><p>Tap a muscle to see its role in Taekwondo and linked learning materials.</p><p>Drag to rotate. Pinch or scroll over the model to zoom.</p></div>}
-        <p className="mt-4 border-t border-neutral-200 pt-3 text-[11px] leading-relaxed text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">{context?.sourceLabel || 'Saved material mappings and anatomy reference'}{!Object.values(normalizedLoads).some(value => value > 0) ? ' · No mapped training highlights.' : ''}</p>
-      </aside>}
+        <p className="mt-4 border-t border-neutral-200 pt-3 text-micro leading-relaxed text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">{context?.sourceLabel || 'Saved material mappings and anatomy reference'}{!Object.values(normalizedLoads).some(value => value > 0) ? ' · No mapped training highlights.' : ''}</p>
+      </div>}
     </div>
   </section>;
 }

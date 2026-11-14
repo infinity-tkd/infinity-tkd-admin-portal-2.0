@@ -616,20 +616,22 @@ export function DirectoryView() {
     <div className="bg-white dark:bg-[#141414] rounded-[8px] flex flex-col min-h-[60dvh] shadow-sm border border-neutral-200 dark:border-[#262626] relative overflow-hidden">
 
       {/* Top Navigation Tabs */}
-      <div className="bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626] flex px-3 sm:px-4 gap-3 sm:gap-6 shrink-0 z-20 overflow-x-auto no-scrollbar">
+      <div role="group" aria-label="Student directory views" className="bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626] flex px-3 sm:px-4 gap-3 sm:gap-6 shrink-0 z-20 overflow-x-auto no-scrollbar">
         <button
+          aria-pressed={activeViewTab === 'roster'}
           onClick={() => setActiveViewTab('roster')}
           className={cn(
-            "py-2.5 sm:py-3 text-[11px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0",
+            "py-2.5 sm:py-3 text-micro sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0",
             activeViewTab === 'roster' ? "border-brand text-neutral-900 dark:text-white font-black" : "border-transparent text-neutral-500 dark:text-[#666] hover:text-neutral-900 dark:hover:text-white"
           )}
         >
           Student Roster
         </button>
         <button
+          aria-pressed={activeViewTab === 'beltCenter'}
           onClick={() => setActiveViewTab('beltCenter')}
           className={cn(
-            "py-2.5 sm:py-3 text-[11px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest border-b-2 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0",
+            "py-2.5 sm:py-3 text-micro sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest border-b-2 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0",
             activeViewTab === 'beltCenter' ? "border-brand text-neutral-900 dark:text-white font-black" : "border-transparent text-neutral-500 dark:text-[#666] hover:text-neutral-900 dark:hover:text-white"
           )}
         >
@@ -677,7 +679,7 @@ export function DirectoryView() {
                   <button
                     type="button"
                     onClick={() => setIsAdding(true)}
-                    className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3.5 bg-brand hover:bg-brand-strong active:scale-95 touch-manipulation text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider shadow-sm shadow-brand/20 whitespace-nowrap flex items-center justify-center gap-1 shrink-0 cursor-pointer"
+                    className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3.5 bg-brand hover:bg-brand-strong active:scale-95 touch-manipulation text-white rounded-[7px] sm:rounded-[8px] text-micro sm:text-xs font-bold transition-all uppercase tracking-wider shadow-sm shadow-brand/20 whitespace-nowrap flex items-center justify-center gap-1 shrink-0 cursor-pointer"
                   >
                     <Plus size={13} weight="bold" />
                     <span>Add</span>
@@ -689,7 +691,7 @@ export function DirectoryView() {
                   type="button"
                   onClick={() => setShowFilters(!showFilters)}
                   className={cn(
-                    "h-9 pointer-coarse:h-11 px-2.5 sm:px-3 rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation border",
+                    "h-9 pointer-coarse:h-11 px-2.5 sm:px-3 rounded-[7px] sm:rounded-[8px] text-micro sm:text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation border",
                     showFilters
                       ? "bg-brand text-white border-brand"
                       : "bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white"
@@ -705,7 +707,7 @@ export function DirectoryView() {
                 <button
                   type="button"
                   onClick={handleExportCsv}
-                  className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation"
+                  className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[7px] sm:rounded-[8px] text-micro sm:text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation"
                   title="Export filtered student roster to CSV"
                 >
                   <DownloadSimple size={12} weight="bold" />
@@ -717,7 +719,7 @@ export function DirectoryView() {
                     <button
                       type="button"
                       onClick={() => setIsHouseholdModalOpen(true)}
-                      className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-brand-ink rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation"
+                      className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-brand-ink rounded-[7px] sm:rounded-[8px] text-micro sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95 touch-manipulation"
                     >
                       <House size={12} weight="bold" />
                       <span>Household</span>
@@ -725,7 +727,7 @@ export function DirectoryView() {
                     <button
                       type="button"
                       onClick={() => setIsBulkImporting(true)}
-                      className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap flex items-center justify-center cursor-pointer shrink-0 active:scale-95 touch-manipulation"
+                      className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[7px] sm:rounded-[8px] text-micro sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap flex items-center justify-center cursor-pointer shrink-0 active:scale-95 touch-manipulation"
                     >
                       <span className="xs:hidden">Import</span>
                       <span className="hidden xs:inline">{t('dir_bulk_import')}</span>
@@ -744,7 +746,7 @@ export function DirectoryView() {
                         }
                       }}
                       disabled={isReconciling}
-                      className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-700 dark:text-amber-500 rounded-[7px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap disabled:opacity-50 flex items-center justify-center cursor-pointer shrink-0 active:scale-95 touch-manipulation"
+                      className="h-9 pointer-coarse:h-11 px-2.5 sm:px-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-700 dark:text-amber-500 rounded-[7px] sm:rounded-[8px] text-micro sm:text-xs font-bold transition-all uppercase tracking-wider whitespace-nowrap disabled:opacity-50 flex items-center justify-center cursor-pointer shrink-0 active:scale-95 touch-manipulation"
                     >
                       <span className="xs:hidden">{isReconciling ? 'Syncing...' : 'Reconcile'}</span>
                       <span className="hidden xs:inline">{isReconciling ? t('dir_reconciling') : t('dir_reconcile_ranks')}</span>
@@ -773,14 +775,14 @@ export function DirectoryView() {
                     setCurrentPage(1);
                   }}
                   className={cn(
-                    "min-h-8 pointer-coarse:min-h-9 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-[6px] sm:rounded-[8px] text-[9.5px] sm:text-[10px] font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 border cursor-pointer select-none shrink-0 active:scale-95 touch-manipulation",
+                    "min-h-8 pointer-coarse:min-h-9 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-[6px] sm:rounded-[8px] text-micro sm:text-micro font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 border cursor-pointer select-none shrink-0 active:scale-95 touch-manipulation",
                     filterStatus === pill.id
                       ? pill.color
                       : "border-neutral-200 dark:border-transparent text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A]"
                   )}
                 >
                   <span>{pill.label}</span>
-                  <span className="px-1.5 py-0.2 text-[9px] rounded font-mono bg-neutral-200 dark:bg-black/50 text-neutral-800 dark:text-white font-bold">{pill.count}</span>
+                  <span className="px-1.5 py-0.2 text-micro rounded font-mono bg-neutral-200 dark:bg-black/50 text-neutral-800 dark:text-white font-bold">{pill.count}</span>
                 </button>
               ))}
             </div>
@@ -795,29 +797,29 @@ export function DirectoryView() {
                   <button
                     type="button"
                     onClick={handleResetFilters}
-                    className="text-[10px] text-brand-ink hover:underline font-bold uppercase tracking-wider cursor-pointer active:scale-95"
+                    className="text-micro text-brand-ink hover:underline font-bold uppercase tracking-wider cursor-pointer active:scale-95"
                   >
                     Reset All Filters
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
-                  <select value={filterBranch} onChange={(e) => {
+                  <select aria-label="Filter by branch" value={filterBranch} onChange={(e) => {
                     setFilterBranch(e.target.value === 'all' ? 'all' : Number(e.target.value));
                     setFilterClass('all');
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand font-mono cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-micro sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand font-mono cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_branches')}</option>
                     {state.branches.map(b => (
                       <option key={b.id} value={b.id}>{b.name}</option>
                     ))}
                   </select>
-                  <select value={filterClass} onChange={(e) => {
+                  <select aria-label="Filter by class" value={filterClass} onChange={(e) => {
                     setFilterClass(e.target.value === 'all' ? 'all' : Number(e.target.value));
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand font-mono cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-micro sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand font-mono cursor-pointer truncate"
                     disabled={filterBranch === 'all'}
                   >
                     <option value="all">{t('dir_all_classes')}</option>
@@ -825,41 +827,41 @@ export function DirectoryView() {
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
-                  <select value={filterBelt} onChange={(e) => {
+                  <select aria-label="Filter by belt" value={filterBelt} onChange={(e) => {
                     setFilterBelt(e.target.value);
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-micro sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_belts')}</option>
                     {BELT_RANK_ORDER.map(belt => <option key={belt} value={belt}>{belt}</option>)}
                   </select>
-                  <select value={filterGender} onChange={(e) => {
+                  <select aria-label="Filter by gender" value={filterGender} onChange={(e) => {
                     setFilterGender(e.target.value);
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-micro sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_genders')}</option>
                     <option value="Male">{t('stu_male')}</option>
                     <option value="Female">{t('stu_female')}</option>
                   </select>
-                  <select value={filterScholarship} onChange={(e) => {
+                  <select aria-label="Filter by scholarship tier" value={filterScholarship} onChange={(e) => {
                     setFilterScholarship(Number(e.target.value === 'all' ? 'all' : e.target.value));
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-micro sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_scholarships')}</option>
                     {state.scholarships.map(s => (
                       <option key={s.id} value={s.id}>{s.typeName}</option>
                     ))}
                   </select>
-                  <select value={filterDivision} onChange={(e) => {
+                  <select aria-label="Filter by division" value={filterDivision} onChange={(e) => {
                     setFilterDivision(e.target.value);
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-micro sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none focus:border-brand cursor-pointer truncate"
                   >
                     <option value="all">{t('dir_all_divisions')}</option>
                     <option value="Kid">Kid (6-11)</option>
@@ -867,11 +869,11 @@ export function DirectoryView() {
                     <option value="Junior">Junior (15-17)</option>
                     <option value="Senior">Senior (18+)</option>
                   </select>
-                  <select value={filterStatus} onChange={(e) => {
+                  <select aria-label="Filter by status" value={filterStatus} onChange={(e) => {
                     setFilterStatus(e.target.value);
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-red-600 dark:text-red-400 border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none font-bold cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-red-600 dark:text-red-400 border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-micro sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none font-bold cursor-pointer truncate"
                   >
                     <option value="all">All Statuses</option>
                     <option value="Active">Active</option>
@@ -880,13 +882,13 @@ export function DirectoryView() {
                     <option value="Suspended">Suspended</option>
                     <option value="Graduated">Graduated</option>
                   </select>
-                  <select value={`${sortBy}-${sortOrder}`} onChange={(e) => {
+                  <select aria-label="Sort students" value={`${sortBy}-${sortOrder}`} onChange={(e) => {
                     const [field, order] = e.target.value.split('-');
                     setSortBy(field as any);
                     setSortOrder(order as any);
                     setCurrentPage(1);
                   }}
-                    className="bg-white dark:bg-[#141414] text-amber-600 dark:text-amber-500 border border-amber-500/30 rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none font-bold cursor-pointer truncate"
+                    className="bg-white dark:bg-[#141414] text-amber-600 dark:text-amber-500 border border-amber-500/30 rounded-[6px] sm:rounded-[8px] text-micro sm:text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 h-9 pointer-coarse:h-11 focus:outline-none font-bold cursor-pointer truncate"
                   >
                     <option value="id-asc">Sort: ID (Oldest)</option>
                     <option value="id-desc">Sort: ID (Newest)</option>
@@ -971,7 +973,7 @@ export function DirectoryView() {
                           <div className="flex items-center gap-1.5">
                             <span>{t('stu_id')}</span>
                             {sortBy === 'id' && (
-                              <span className="text-[10px] text-brand-ink font-bold">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+                              <span className="text-micro text-brand-ink font-bold">{sortOrder === 'asc' ? '▲' : '▼'}</span>
                             )}
                           </div>
                         </th>
@@ -979,7 +981,7 @@ export function DirectoryView() {
                           <div className="flex items-center gap-1.5">
                             <span>{t('stu_english_name')} / {t('stu_khmer_name')}</span>
                             {(sortBy === 'name' || sortBy === 'khmerName') && (
-                              <span className="text-[10px] text-brand-ink font-bold">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+                              <span className="text-micro text-brand-ink font-bold">{sortOrder === 'asc' ? '▲' : '▼'}</span>
                             )}
                           </div>
                         </th>
@@ -987,7 +989,7 @@ export function DirectoryView() {
                           <div className="flex items-center gap-1.5">
                             <span>{t('stu_belt')}</span>
                             {sortBy === 'belt' && (
-                              <span className="text-[10px] text-brand-ink font-bold">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+                              <span className="text-micro text-brand-ink font-bold">{sortOrder === 'asc' ? '▲' : '▼'}</span>
                             )}
                           </div>
                         </th>
@@ -1025,7 +1027,7 @@ export function DirectoryView() {
                                   {student.englishName}
                                 </div>
                                 {student.khmerName && (
-                                  <div className="text-neutral-500 dark:text-[#888] text-[10px] font-khmer truncate">
+                                  <div className="text-neutral-500 dark:text-[#888] text-micro font-khmer truncate">
                                     {student.khmerName}
                                   </div>
                                 )}
@@ -1036,7 +1038,7 @@ export function DirectoryView() {
                           {/* 3. Belt Rank Badge */}
                           <td className="px-5 py-3.5">
                             <span className={cn(
-                              "px-2.5 py-1 rounded-full text-[10px] font-bold border tracking-wider uppercase inline-flex items-center gap-1 shadow-xs",
+                              "px-2.5 py-1 rounded-full text-micro font-bold border tracking-wider uppercase inline-flex items-center gap-1 shadow-xs",
                               student.currentBelt.toLowerCase().includes('poom') || student.currentBelt.toLowerCase().includes('dan') || student.currentBelt.toLowerCase() === 'black'
                                 ? "bg-neutral-900 text-white border-neutral-700 dark:bg-black dark:text-neutral-100 dark:border-neutral-700"
                                 : student.currentBelt === 'Red'
@@ -1062,7 +1064,7 @@ export function DirectoryView() {
                                 <span className="w-1.5 h-1.5 rounded-full bg-brand shrink-0" />
                                 <span className="truncate max-w-[130px]">{state.branches.find(b => b.id === student.homeBranchId)?.name || 'Main Branch'}</span>
                               </div>
-                              <div className="text-neutral-500 dark:text-[#888] text-[10px] font-mono truncate max-w-[140px]">
+                              <div className="text-neutral-500 dark:text-[#888] text-micro font-mono truncate max-w-[140px]">
                                 {(() => {
                                   const enroll = state.classEnrollments.find(e => e.studentId === student.id);
                                   if (!enroll) return <span className="italic text-neutral-400">Unenrolled</span>;
@@ -1080,31 +1082,31 @@ export function DirectoryView() {
                                 <button
                                   type="button"
                                   onClick={(e) => handleCopyContact(student.phone!, e)}
-                                  className="group/btn flex items-center gap-1.5 text-neutral-700 dark:text-neutral-300 hover:text-brand-ink text-[11px] font-mono transition-colors cursor-pointer"
+                                  className="group/btn flex min-h-6 items-center gap-1.5 text-neutral-700 dark:text-neutral-300 hover:text-brand-ink text-micro font-mono transition-colors cursor-pointer"
                                   title="Click to copy phone number"
                                 >
                                   <Phone size={11} className="text-neutral-400 group-hover/btn:text-brand-ink" />
                                   <span>{student.phone}</span>
                                   {copiedContact === student.phone ? (
-                                    <span className="text-[9px] text-emerald-500 font-bold ml-1">Copied!</span>
+                                    <span className="text-micro text-emerald-500 font-bold ml-1">Copied!</span>
                                   ) : (
                                     <Copy size={10} className="opacity-0 group-hover/btn:opacity-100 text-neutral-400" />
                                   )}
                                 </button>
                               ) : (
-                                <span className="text-[10px] text-neutral-400 dark:text-neutral-600 italic">No phone</span>
+                                <span className="text-micro text-neutral-400 dark:text-neutral-600 italic">No phone</span>
                               )}
                               {student.email ? (
                                 <button
                                   type="button"
                                   onClick={(e) => handleCopyContact(student.email!, e)}
-                                  className="group/btn flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400 hover:text-brand-ink text-[10px] font-mono transition-colors cursor-pointer max-w-[170px] truncate"
+                                  className="group/btn flex min-h-6 items-center gap-1.5 text-neutral-600 dark:text-neutral-400 hover:text-brand-ink text-micro font-mono transition-colors cursor-pointer max-w-[170px] truncate"
                                   title="Click to copy email address"
                                 >
                                   <Envelope size={11} className="text-neutral-400 group-hover/btn:text-brand-ink shrink-0" />
                                   <span className="truncate">{student.email}</span>
                                   {copiedContact === student.email && (
-                                    <span className="text-[9px] text-emerald-500 font-bold ml-1 shrink-0">Copied!</span>
+                                    <span className="text-micro text-emerald-500 font-bold ml-1 shrink-0">Copied!</span>
                                   )}
                                 </button>
                               ) : null}
@@ -1116,7 +1118,7 @@ export function DirectoryView() {
                             <div className="space-y-0.5">
                               <div className="flex items-center gap-1.5">
                                 <span className={cn(
-                                  "px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase",
+                                  "px-1.5 py-0.2 rounded text-micro font-mono font-bold uppercase",
                                   student.gender === 'Male' ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20" :
                                   student.gender === 'Female' ? "bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20" :
                                   "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border border-neutral-300 dark:border-neutral-700"
@@ -1127,7 +1129,7 @@ export function DirectoryView() {
                                   {getStudentAge(student.dob) !== null ? `${getStudentAge(student.dob)} yrs` : '—'}
                                 </span>
                               </div>
-                              <div className="text-[9px] font-mono text-neutral-500 dark:text-[#888]">
+                              <div className="text-micro font-mono text-neutral-500 dark:text-[#888]">
                                 {getStudentDivisionLabel(getStudentAge(student.dob))}
                               </div>
                             </div>
@@ -1149,7 +1151,7 @@ export function DirectoryView() {
                                 }}
                                 aria-label={`${student.studentStatus || 'Active'}: change status`}
                                 className={cn(
-                                  "min-h-6 pointer-coarse:min-h-8 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border cursor-pointer hover:scale-105 transition-all flex items-center gap-1",
+                                  "min-h-6 pointer-coarse:min-h-8 px-2 py-0.5 rounded text-micro font-black uppercase tracking-wider border cursor-pointer hover:scale-105 transition-all flex items-center gap-1",
                                   student.studentStatus === 'Active' ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" :
                                   student.studentStatus === 'Paused' ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/40" :
                                   student.studentStatus === 'Inactive' ? "bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-700" :
@@ -1168,7 +1170,7 @@ export function DirectoryView() {
                                 if (billing.status === 'Current') return null;
                                 return (
                                   <span className={cn(
-                                    "px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider animate-pulse",
+                                    "px-1.5 py-0.5 rounded text-micro font-bold uppercase tracking-wider animate-pulse",
                                     billing.status === 'Overdue'
                                       ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30"
                                       : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30"
@@ -1205,7 +1207,7 @@ export function DirectoryView() {
                       className="bg-white dark:bg-[#141414] hover:bg-neutral-50/80 dark:hover:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[10px] p-3 space-y-2.5 transition-all cursor-pointer shadow-xs active:scale-[0.99] touch-manipulation"
                     >
                       <div className="flex items-center justify-between gap-2 border-b border-neutral-100 dark:border-[#222] pb-2">
-                        <span className="font-mono text-[11px] font-bold text-brand-ink bg-red-500/10 px-2 py-0.5 rounded-[5px] border border-red-500/20">{student.id}</span>
+                        <span className="font-mono text-micro font-bold text-brand-ink bg-red-500/10 px-2 py-0.5 rounded-[5px] border border-red-500/20">{student.id}</span>
                         <div className="flex items-center gap-1.5">
                           <button
                             type="button"
@@ -1220,7 +1222,7 @@ export function DirectoryView() {
                             }}
                             aria-label={`${student.studentStatus || 'Active'}: change status`}
                             className={cn(
-                              "min-h-6 pointer-coarse:min-h-8 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border cursor-pointer flex items-center gap-1 active:scale-95",
+                              "min-h-6 pointer-coarse:min-h-8 px-2 py-0.5 rounded text-micro font-black uppercase tracking-wider border cursor-pointer flex items-center gap-1 active:scale-95",
                               student.studentStatus === 'Active' ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" :
                               student.studentStatus === 'Paused' ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/40" :
                               student.studentStatus === 'Inactive' ? "bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-700" :
@@ -1237,7 +1239,7 @@ export function DirectoryView() {
                             if (billing.status === 'Current') return null;
                             return (
                               <span className={cn(
-                                "px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider animate-pulse",
+                                "px-1.5 py-0.5 rounded text-micro font-bold uppercase tracking-wider animate-pulse",
                                 billing.status === 'Overdue'
                                   ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30"
                                   : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30"
@@ -1256,15 +1258,15 @@ export function DirectoryView() {
                           containerClassName="w-10 h-10 rounded-full overflow-hidden bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center shrink-0 shadow-xs"
                         />
                         <div className="min-w-0 flex-1">
-                          <h4 className="text-neutral-900 dark:text-white font-bold text-xs truncate leading-snug">{student.englishName}</h4>
+                          <h2 className="text-neutral-900 dark:text-white font-bold text-xs truncate leading-snug">{student.englishName}</h2>
                           {student.khmerName && (
-                            <p className="text-neutral-500 dark:text-[#888] text-[11px] font-khmer truncate mt-0.5">{student.khmerName}</p>
+                            <p className="text-neutral-500 dark:text-[#888] text-micro font-khmer truncate mt-0.5">{student.khmerName}</p>
                           )}
                           <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                            <span className={cn("px-2 py-0.5 rounded-full text-[9px] font-bold border tracking-wider uppercase inline-block", student.currentBelt.toLowerCase().includes('poom') || student.currentBelt.toLowerCase().includes('dan') || student.currentBelt.toLowerCase() === 'black' ? "bg-neutral-900 text-white border-neutral-700 dark:bg-black dark:text-neutral-100 dark:border-neutral-700" : student.currentBelt === 'Red' ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30" : student.currentBelt === 'Brown' ? "bg-amber-900/10 text-amber-800 dark:text-amber-500 border-amber-800/30" : student.currentBelt === 'Blue' ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30" : student.currentBelt === 'Green' ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : student.currentBelt === 'White' ? "bg-neutral-100 text-neutral-800 dark:bg-white/10 dark:text-neutral-200 border-neutral-300 dark:border-white/20" : "bg-yellow-500/15 text-yellow-800 dark:text-yellow-400 border-yellow-500/40" )}>
+                            <span className={cn("px-2 py-0.5 rounded-full text-micro font-bold border tracking-wider uppercase inline-block", student.currentBelt.toLowerCase().includes('poom') || student.currentBelt.toLowerCase().includes('dan') || student.currentBelt.toLowerCase() === 'black' ? "bg-neutral-900 text-white border-neutral-700 dark:bg-black dark:text-neutral-100 dark:border-neutral-700" : student.currentBelt === 'Red' ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30" : student.currentBelt === 'Brown' ? "bg-amber-900/10 text-amber-800 dark:text-amber-500 border-amber-800/30" : student.currentBelt === 'Blue' ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30" : student.currentBelt === 'Green' ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : student.currentBelt === 'White' ? "bg-neutral-100 text-neutral-800 dark:bg-white/10 dark:text-neutral-200 border-neutral-300 dark:border-white/20" : "bg-yellow-500/15 text-yellow-800 dark:text-yellow-400 border-yellow-500/40" )}>
                               {formatBelt(student.currentBelt, student.dob)}
                             </span>
-                            <span className="text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono truncate">
+                            <span className="text-micro text-neutral-500 dark:text-neutral-400 font-mono truncate">
                               {state.branches.find(b => b.id === student.homeBranchId)?.name || 'Main Branch'}
                             </span>
                           </div>
@@ -1278,30 +1280,30 @@ export function DirectoryView() {
                             <button
                               type="button"
                               onClick={(e) => handleCopyContact(student.phone!, e)}
-                              className="flex items-center gap-1 text-[10px] font-mono text-neutral-700 dark:text-neutral-300 hover:text-brand-ink bg-neutral-100 dark:bg-[#1A1A1A] px-2 py-1 rounded-[6px] border border-neutral-200/60 dark:border-[#262626] active:scale-95 transition-all truncate"
+                              className="flex items-center gap-1 text-micro font-mono text-neutral-700 dark:text-neutral-300 hover:text-brand-ink bg-neutral-100 dark:bg-[#1A1A1A] px-2 py-1 rounded-[6px] border border-neutral-200/60 dark:border-[#262626] active:scale-95 transition-all truncate"
                             >
                               <Phone size={10} className="text-emerald-500 shrink-0" />
                               <span className="truncate">{student.phone}</span>
-                              {copiedContact === student.phone && <span className="text-[9px] text-emerald-500 font-bold ml-0.5 shrink-0">Copied!</span>}
+                              {copiedContact === student.phone && <span className="text-micro text-emerald-500 font-bold ml-0.5 shrink-0">Copied!</span>}
                             </button>
                           ) : student.email ? (
                             <button
                               type="button"
                               onClick={(e) => handleCopyContact(student.email!, e)}
-                              className="flex items-center gap-1 text-[10px] font-mono text-neutral-500 dark:text-neutral-400 hover:text-brand-ink bg-neutral-100 dark:bg-[#1A1A1A] px-2 py-1 rounded-[6px] border border-neutral-200/60 dark:border-[#262626] active:scale-95 transition-all truncate max-w-[170px]"
+                              className="flex items-center gap-1 text-micro font-mono text-neutral-500 dark:text-neutral-400 hover:text-brand-ink bg-neutral-100 dark:bg-[#1A1A1A] px-2 py-1 rounded-[6px] border border-neutral-200/60 dark:border-[#262626] active:scale-95 transition-all truncate max-w-[170px]"
                             >
                               <Envelope size={10} className="shrink-0" />
                               <span className="truncate">{student.email}</span>
                             </button>
                           ) : (
-                            <span className="text-[10px] font-mono text-neutral-400 dark:text-[#666]">No contact info</span>
+                            <span className="text-micro font-mono text-neutral-400 dark:text-[#666]">No contact info</span>
                           )}
                         </div>
 
                         <button
                           type="button"
                           onClick={() => setSelectedStudentId(student.id)}
-                          className="h-7.5 px-3 bg-red-500/10 hover:bg-brand text-brand-ink hover:text-white border border-red-500/25 rounded-[6px] text-[10.5px] font-bold uppercase tracking-wider flex items-center gap-1 transition-all active:scale-95 shrink-0 cursor-pointer shadow-xs"
+                          className="h-7.5 px-3 bg-red-500/10 hover:bg-brand text-brand-ink hover:text-white border border-red-500/25 rounded-[6px] text-micro font-bold uppercase tracking-wider flex items-center gap-1 transition-all active:scale-95 shrink-0 cursor-pointer shadow-xs"
                         >
                           <span>{t('act_details')}</span>
                           <CaretRight className="w-3 h-3" />
@@ -1318,8 +1320,8 @@ export function DirectoryView() {
                       Showing <span className="font-bold text-neutral-900 dark:text-white">{sortedStudents.length > 0 ? (safeCurrentPage - 1) * pageSize + 1 : 0}</span> to <span className="font-bold text-neutral-900 dark:text-white">{Math.min(safeCurrentPage * pageSize, sortedStudents.length)}</span> of <span className="font-bold text-neutral-900 dark:text-white">{sortedStudents.length}</span> students
                     </span>
                     <div className="flex items-center gap-1.5 pl-2 border-l border-neutral-200 dark:border-[#262626]">
-                      <span className="text-[11px]">Rows:</span>
-                      <select
+                      <span className="text-micro">Rows:</span>
+                      <select aria-label="Rows per page"
                         value={pageSize}
                         onChange={(e) => {
                           setPageSize(Number(e.target.value));
@@ -1396,7 +1398,7 @@ export function DirectoryView() {
             <button
               onClick={() => setBeltCenterSubTab('readiness')}
               className={cn(
-                "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation",
+                "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-micro sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation",
                 beltCenterSubTab === 'readiness' ? "bg-brand text-white shadow-md font-black" : "text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
               )}
             >
@@ -1407,7 +1409,7 @@ export function DirectoryView() {
             <button
               onClick={() => setBeltCenterSubTab('history')}
               className={cn(
-                "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation",
+                "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-micro sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation",
                 beltCenterSubTab === 'history' ? "bg-brand text-white shadow-md font-black" : "text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
               )}
             >
@@ -1418,7 +1420,7 @@ export function DirectoryView() {
             <button
               onClick={() => setBeltCenterSubTab('curriculum')}
               className={cn(
-                "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-[10px] sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation",
+                "flex-grow py-1.5 sm:py-2 px-1 sm:px-2 text-micro sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest rounded-[6px] sm:rounded-[8px] transition-all flex items-center justify-center gap-1 sm:gap-2 cursor-pointer active:scale-95 touch-manipulation",
                 beltCenterSubTab === 'curriculum' ? "bg-brand text-white shadow-md font-black" : "text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
               )}
             >
@@ -1433,13 +1435,13 @@ export function DirectoryView() {
             <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2.5 sm:p-3 shrink-0 space-y-1.5 sm:space-y-2 shadow-sm animate-in slide-in-from-top-1 fade-in">
               <div className="flex justify-between items-center">
                 <div className="flex items-baseline gap-2">
-                  <h4 className="text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-black tracking-widest">Rank Pipeline</h4>
-                  <p className="text-[9px] text-neutral-400 dark:text-[#666] font-mono hidden xs:block">Filter candidates by clicking capsules</p>
+                  <h4 className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-black tracking-widest">Rank Pipeline</h4>
+                  <p className="text-micro text-neutral-400 dark:text-[#666] font-mono hidden xs:block">Filter candidates by clicking capsules</p>
                 </div>
                 {selectedBeltPipelineFilter && (
                   <button
                     onClick={() => setSelectedBeltPipelineFilter(null)}
-                    className="text-[9px] text-brand-ink uppercase font-bold tracking-widest hover:underline flex items-center gap-1 cursor-pointer active:scale-95"
+                    className="text-micro text-brand-ink uppercase font-bold tracking-widest hover:underline flex items-center gap-1 cursor-pointer active:scale-95"
                   >
                     Clear Filter
                   </button>
@@ -1475,7 +1477,7 @@ export function DirectoryView() {
                       <div className="flex items-center gap-1.5 truncate">
                         <div className={cn("w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 shadow-xs", beltColorClass)} />
                         <span className={cn(
-                          "text-[9px] font-black tracking-wider uppercase truncate",
+                          "text-micro font-black tracking-wider uppercase truncate",
                           isSelected ? "text-brand-ink dark:text-white" : "text-neutral-700 dark:text-[#999] group-hover:text-black dark:group-hover:text-white"
                         )}>
                           {belt === '1st Poom/Dan' ? '1st Dan' :
@@ -1486,7 +1488,7 @@ export function DirectoryView() {
                       </div>
                       <div className="flex items-center gap-1 shrink-0 ml-1">
                         <span className={cn(
-                          "text-[9px] font-mono font-black",
+                          "text-micro font-mono font-black",
                           isSelected ? "text-brand-ink" : "text-neutral-500 dark:text-neutral-400 group-hover:text-brand-ink"
                         )}>
                           {count}
@@ -1564,7 +1566,7 @@ export function DirectoryView() {
                 <div className="p-4 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0A0A0A] flex justify-between items-center shrink-0">
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
-                    <h3 className="text-xs font-black uppercase tracking-widest text-neutral-900 dark:text-white">{t('dir_diagnostics_title')}</h3>
+                    <h2 className="text-xs font-black uppercase tracking-widest text-neutral-900 dark:text-white">{t('dir_diagnostics_title')}</h2>
                   </div>
                   <button
                     onClick={() => setReconcileResult(null)}
@@ -1576,17 +1578,17 @@ export function DirectoryView() {
                 <div className="p-6 space-y-6 overflow-y-auto flex-1 bg-white dark:bg-[#0A0A0A]">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] p-4 rounded-[8px] text-center shadow-sm">
-                      <p className="text-[9px] text-neutral-500 dark:text-[#666] uppercase font-bold tracking-wider">{t('dir_scanned')}</p>
+                      <p className="text-micro text-neutral-500 dark:text-[#666] uppercase font-bold tracking-wider">{t('dir_scanned')}</p>
                       <p className="text-2xl font-black text-neutral-900 dark:text-white font-mono mt-1">{reconcileResult.scanned}</p>
                     </div>
                     <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] p-4 rounded-[8px] text-center shadow-sm">
-                      <p className="text-[9px] text-neutral-500 dark:text-[#666] uppercase font-bold tracking-wider">{t('dir_corrected')}</p>
+                      <p className="text-micro text-neutral-500 dark:text-[#666] uppercase font-bold tracking-wider">{t('dir_corrected')}</p>
                       <p className="text-2xl font-black text-amber-600 dark:text-amber-500 font-mono mt-1">{reconcileResult.corrected}</p>
                     </div>
                   </div>
 
                   <div className="space-y-2.5">
-                    <h4 className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-black tracking-widest border-b border-neutral-200 dark:border-[#262626] pb-2">{t('dir_audit_logs')}</h4>
+                    <h3 className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-black tracking-widest border-b border-neutral-200 dark:border-[#262626] pb-2">{t('dir_audit_logs')}</h3>
                     {reconcileResult.details.length === 0 ? (
                       <div className="p-4 rounded-[8px] bg-green-500/10 border border-green-500/20 text-center text-xs text-green-700 dark:text-green-400 font-bold uppercase tracking-widest">
                         {t('dir_diagnostics_success')}
@@ -1595,8 +1597,8 @@ export function DirectoryView() {
                       <div className="space-y-2 max-h-[35dvh] overflow-y-auto pr-1">
                         {reconcileResult.details.map((log, i) => (
                           <div key={i} className="p-3 bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs font-mono flex items-center justify-between gap-4 shadow-sm">
-                            <span className="text-neutral-900 dark:text-white text-[11px] font-medium leading-relaxed">{log}</span>
-                            <span className="shrink-0 text-[9px] font-black tracking-widest text-amber-700 dark:text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 uppercase font-bold">{t('dir_healed')}</span>
+                            <span className="text-neutral-900 dark:text-white text-micro font-medium leading-relaxed">{log}</span>
+                            <span className="shrink-0 text-micro font-black tracking-widest text-amber-700 dark:text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 uppercase font-bold">{t('dir_healed')}</span>
                           </div>
                         ))}
                       </div>

@@ -118,23 +118,23 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
 
                     <div className="p-6 space-y-4 overflow-y-auto flex-1 bg-white dark:bg-[#0A0A0A] text-neutral-900 dark:text-white">
                       <div>
-                        <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_asset_title')}</label>
-                        <input type="text" value={editAsset.title} onChange={(e) => setEditAsset({ ...editAsset, title: e.target.value })} required
+                        <label htmlFor="library-asset-detail-dialog-lib_asset_title" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_asset_title')}</label>
+                        <input id="library-asset-detail-dialog-lib_asset_title" type="text" value={editAsset.title} onChange={(e) => setEditAsset({ ...editAsset, title: e.target.value })} required
                           className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-xs focus:outline-none focus:border-brand dark:focus:border-brand text-neutral-900 dark:text-white font-medium"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_desc_guidelines')}</label>
-                        <textarea value={editAsset.description} onChange={(e) => setEditAsset({ ...editAsset, description: e.target.value })} required rows={2} maxLength={20000}
+                        <label htmlFor="library-asset-detail-dialog-lib_desc_guidelines" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_desc_guidelines')}</label>
+                        <textarea id="library-asset-detail-dialog-lib_desc_guidelines" value={editAsset.description} onChange={(e) => setEditAsset({ ...editAsset, description: e.target.value })} required rows={2} maxLength={20000}
                           className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-xs focus:outline-none focus:border-brand dark:focus:border-brand text-neutral-900 dark:text-white font-medium"
                         />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_bulk_category_col')}</label>
-                          <select value={editAsset.category} onChange={(e) => setEditAsset({ ...editAsset, category: e.target.value })}
+                          <label htmlFor="library-asset-detail-dialog-lib_bulk_category_col" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_bulk_category_col')}</label>
+                          <select id="library-asset-detail-dialog-lib_bulk_category_col" value={editAsset.category} onChange={(e) => setEditAsset({ ...editAsset, category: e.target.value })}
                             className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-xs focus:outline-none focus:border-brand shadow-sm font-semibold text-black dark:text-white"
                           >
                             {activeTab === 'tkd' ? (
@@ -148,16 +148,16 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                         </div>
 
                         <div>
-                          <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{activeTab === 'tkd' ? t('lib_bulk_belt_col') : t('lib_routine_diff_label')}</label>
+                          <label htmlFor="library-asset-detail-dialog-lib_bulk_belt_col" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{activeTab === 'tkd' ? t('lib_bulk_belt_col') : t('lib_routine_diff_label')}</label>
                           {activeTab === 'tkd' ? (
-                            <select value={editAsset.minBeltLevel} onChange={(e) => setEditAsset({ ...editAsset, minBeltLevel: e.target.value })}
+                            <select id="library-asset-detail-dialog-lib_bulk_belt_col" value={editAsset.minBeltLevel} onChange={(e) => setEditAsset({ ...editAsset, minBeltLevel: e.target.value })}
                               className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-xs focus:outline-none focus:border-brand shadow-sm font-semibold text-black dark:text-white"
                             >
                               {editAsset.minBeltLevel === 'Unassigned' && <option value="Unassigned" className="text-black dark:text-white dark:bg-neutral-900">No belt yet (choose one to publish)</option>}
                               {BELTS.slice(1).map(b => <option key={b} value={b} className="text-black dark:text-white dark:bg-neutral-900">{t(getBeltTranslationKey(b))}</option>)}
                             </select>
                           ) : (
-                            <select value={editAsset.difficulty} onChange={(e) => setEditAsset({ ...editAsset, difficulty: e.target.value })}
+                            <select id="library-asset-detail-dialog-lib_bulk_belt_col" value={editAsset.difficulty} onChange={(e) => setEditAsset({ ...editAsset, difficulty: e.target.value })}
                               className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-xs focus:outline-none focus:border-brand shadow-sm font-semibold text-black dark:text-white"
                             >
                               <option value="Beginner" className="text-black dark:text-white dark:bg-neutral-900">{t('lib_diff_beginner')}</option>
@@ -172,8 +172,8 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                     {activeTab === 'tkd' && editAsset.category !== 'Theory & Terminology' && (
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_diff_label')}</label>
-                          <select value={editAsset.difficulty} onChange={(e) => setEditAsset({ ...editAsset, difficulty: e.target.value })}
+                          <label htmlFor="library-asset-detail-dialog-lib_routine_diff_label" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_diff_label')}</label>
+                          <select id="library-asset-detail-dialog-lib_routine_diff_label" value={editAsset.difficulty} onChange={(e) => setEditAsset({ ...editAsset, difficulty: e.target.value })}
                             className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-xs focus:outline-none focus:border-brand shadow-sm font-semibold text-black dark:text-white"
                           >
                             <option value="Beginner" className="text-black dark:text-white dark:bg-neutral-900">{t('lib_diff_beginner')}</option>
@@ -183,8 +183,8 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                           </select>
                         </div>
                         <div>
-                          <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_form_reps_sets')}</label>
-                          <input type="text" value={editAsset.repsSets} onChange={(e) => setEditAsset({ ...editAsset, repsSets: e.target.value })}
+                          <label htmlFor="library-asset-detail-dialog-lib_form_reps_sets" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_form_reps_sets')}</label>
+                          <input id="library-asset-detail-dialog-lib_form_reps_sets" type="text" value={editAsset.repsSets} onChange={(e) => setEditAsset({ ...editAsset, repsSets: e.target.value })}
                             className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-xs focus:outline-none focus:border-brand text-neutral-900 dark:text-white font-medium"
                             placeholder="e.g. 3 sets x 12 reps"
                           />
@@ -195,9 +195,9 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                       <div className="grid grid-cols-2 gap-4">
                         {editAsset.category !== 'Theory & Terminology' && (
                           <div className="relative" ref={editMuscleDropdownRef}>
-                            <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_form_focus_zones')} / Muscles</label>
+                            <label htmlFor="library-asset-detail-dialog-lib_form_focus_zones" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_form_focus_zones')} / Muscles</label>
                             <div className="relative flex items-center">
-                              <input
+                              <input id="library-asset-detail-dialog-lib_form_focus_zones"
                                 type="text"
                                 placeholder="Search or select muscles..."
                                 value={editMuscleSearch}
@@ -252,8 +252,9 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                               />
                               <button
                                 type="button"
+                                aria-label="Muscle suggestions" aria-expanded={showEditMuscleDropdown}
                                 onClick={() => setShowEditMuscleDropdown(!showEditMuscleDropdown)}
-                                className="absolute right-2 text-neutral-400 hover:text-neutral-600 dark:hover:text-white cursor-pointer border-0 bg-transparent flex items-center justify-center"
+                                className="absolute right-2 min-h-6 min-w-6 text-neutral-400 hover:text-neutral-600 dark:hover:text-white cursor-pointer border-0 bg-transparent flex items-center justify-center"
                               >
                                 {showEditMuscleDropdown ? <CaretUp className="w-4 h-4" /> : <CaretDown className="w-4 h-4" />}
                               </button>
@@ -296,7 +297,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                       >
                                         <span>
                                           {state.language === 'kh' && m.nameKh ? m.nameKh : (state.language === 'zh' && m.nameZh ? m.nameZh : m.name)}
-                                          <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-normal ml-1">({m.muscleGroup})</span>
+                                          <span className="text-micro text-neutral-400 dark:text-neutral-500 font-normal ml-1">({m.muscleGroup})</span>
                                         </span>
                                         {isSelected && <Check className="w-3.5 h-3.5 text-brand-ink" />}
                                       </button>
@@ -313,7 +314,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                   <span
                                     key={sm.muscleId}
                                     className={cn(
-                                      "px-2 py-0.5 text-[9px] font-bold rounded-full flex items-center gap-1 cursor-pointer select-none transition-all shadow-sm",
+                                      "px-2 py-0.5 text-micro font-bold rounded-full flex items-center gap-1 cursor-pointer select-none transition-all shadow-sm",
                                       sm.role === 'Primary'
                                         ? "bg-red-500/10 text-red-500 border border-red-500/30"
                                         : "bg-blue-500/10 text-blue-500 border border-dashed border-blue-500/30"
@@ -341,8 +342,8 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                           </div>
                         )}
                         <div className={cn(editAsset.category === 'Theory & Terminology' ? "col-span-2" : "")}>
-                          <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_form_cover_url')}</label>
-                          <input type="text" value={editAsset.thumbnailUrl} onChange={(e) => setEditAsset({ ...editAsset, thumbnailUrl: e.target.value })}
+                          <label htmlFor="library-asset-detail-dialog-lib_form_cover_url" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_form_cover_url')}</label>
+                          <input id="library-asset-detail-dialog-lib_form_cover_url" type="text" value={editAsset.thumbnailUrl} onChange={(e) => setEditAsset({ ...editAsset, thumbnailUrl: e.target.value })}
                             className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium"
                           />
                           {(() => {
@@ -360,8 +361,8 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
 
                       {editAsset.category !== 'Theory & Terminology' && (
                         <div>
-                          <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-2">{t('lib_form_instructions')}</label>
-                          <div className="space-y-2 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 bg-neutral-50/50 dark:bg-[#0c0c0c] max-h-80 overflow-y-auto">
+                          <span id="step-input-edit-group" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-2">{t('lib_form_instructions')}</span>
+                          <div role="group" aria-labelledby="step-input-edit-group" className="space-y-2 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 bg-neutral-50/50 dark:bg-[#0c0c0c] max-h-80 overflow-y-auto">
                             {editInstructionSteps.map((step, idx) => (
                               <div
                                 key={idx}
@@ -392,13 +393,13 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                 </div>
 
                                 {/* Step Badge */}
-                                <span className="text-[10px] font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[50px] text-center">
+                                <span className="text-micro font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[50px] text-center">
                                   Step {idx + 1}
                                 </span>
 
                                 {/* Input Box */}
                                 <input
-                                  id={`step-input-edit-${idx}`}
+                                  id={`step-input-edit-${idx}`} aria-label={`Instruction step ${idx + 1}`}
                                   type="text"
                                   value={step}
                                   placeholder="Enter instruction detail..."
@@ -431,13 +432,13 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
 
                                 {/* Remove button */}
                                 {editInstructionSteps.length > 1 && (
-                                  <button
+                                  <button aria-label={`Remove instruction step ${idx + 1}`}
                                     type="button"
                                     onClick={() => {
                                       const updated = editInstructionSteps.filter((_, i) => i !== idx);
                                       setEditInstructionSteps(updated);
                                     }}
-                                    className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent"
+                                    className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent min-h-6 min-w-6 inline-flex items-center justify-center"
                                   >
                                     <Trash className="w-3.5 h-3.5" />
                                   </button>
@@ -462,9 +463,9 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
 
                       {activeTab === 'tkd' && (
                         <div className="relative" ref={editFitnessSolutionsDropdownRef}>
-                          <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">Linked Physical Training Solutions</label>
+                          <label htmlFor="library-asset-detail-dialog-linked-physical-training-solutions" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">Linked Physical Training Solutions</label>
                           <div className="relative flex items-center">
-                            <input
+                            <input id="library-asset-detail-dialog-linked-physical-training-solutions"
                               type="text"
                               placeholder="Search physical training solutions..."
                               value={editFitnessSearch}
@@ -477,8 +478,9 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                             />
                             <button
                               type="button"
+                              aria-label="Physical training suggestions" aria-expanded={showEditFitnessDropdown}
                               onClick={() => setShowEditFitnessDropdown(!showEditFitnessDropdown)}
-                              className="absolute right-2 text-neutral-400 hover:text-neutral-600 dark:hover:text-white cursor-pointer border-0 bg-transparent flex items-center justify-center"
+                              className="absolute right-2 min-h-6 min-w-6 text-neutral-400 hover:text-neutral-600 dark:hover:text-white cursor-pointer border-0 bg-transparent flex items-center justify-center"
                             >
                               {showEditFitnessDropdown ? <CaretUp className="w-4 h-4" /> : <CaretDown className="w-4 h-4" />}
                             </button>
@@ -519,7 +521,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                     >
                                       <span>
                                         {f.title}
-                                        <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-normal ml-1">({f.category.replace('Fitness: ', '')})</span>
+                                        <span className="text-micro text-neutral-400 dark:text-neutral-500 font-normal ml-1">({f.category.replace('Fitness: ', '')})</span>
                                       </span>
                                       {isSelected && <Check className="w-3.5 h-3.5 text-brand-ink" />}
                                     </button>
@@ -535,7 +537,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                               return (
                                 <span
                                   key={id}
-                                  className="bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 px-2 py-0.5 text-[9px] font-bold rounded-full border border-neutral-300 dark:border-neutral-700 flex items-center gap-1 select-none"
+                                  className="bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 px-2 py-0.5 text-micro font-bold rounded-full border border-neutral-300 dark:border-neutral-700 flex items-center gap-1 select-none"
                                 >
                                   <span>{fSkill.title}</span>
                                   <button
@@ -558,14 +560,14 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                         <>
                           {/* Skill Prerequisites Step Builder */}
                           <div>
-                            <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-2">Skill Prerequisites</label>
-                            <div className="space-y-2 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 bg-neutral-50/50 dark:bg-[#0c0c0c] max-h-60 overflow-y-auto">
+                            <span id="prereq-step-edit-group" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-2">Skill Prerequisites</span>
+                            <div role="group" aria-labelledby="prereq-step-edit-group" className="space-y-2 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 bg-neutral-50/50 dark:bg-[#0c0c0c] max-h-60 overflow-y-auto">
                               {editPrerequisiteSteps.map((step, idx) => (
                                 <div key={idx} draggable onDragStart={(e) => { setDraggedIndex(idx); e.dataTransfer.effectAllowed = 'move'; }} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (draggedIndex === null || draggedIndex === idx) return; const updated = [...editPrerequisiteSteps]; const [d] = updated.splice(draggedIndex, 1); updated.splice(idx, 0, d); setEditPrerequisiteSteps(updated); setDraggedIndex(null); }} onDragEnd={() => setDraggedIndex(null)} className={cn("flex items-center gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-brand" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}>
                                   <div className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-neutral-600 dark:hover:text-white shrink-0 p-1"><ListChecks className="w-4 h-4" /></div>
-                                  <span className="text-[10px] font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
-                                  <input id={`prereq-step-edit-${idx}`} type="text" value={step} placeholder="e.g. Ap Chagi (Front Kick)" onChange={(e) => { const u = [...editPrerequisiteSteps]; u[idx] = e.target.value; setEditPrerequisiteSteps(u); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const u = [...editPrerequisiteSteps]; u.splice(idx + 1, 0, ''); setEditPrerequisiteSteps(u); setTimeout(() => document.getElementById(`prereq-step-edit-${idx + 1}`)?.focus(), 30); } else if (e.key === 'Backspace' && !step && idx > 0) { e.preventDefault(); const u = [...editPrerequisiteSteps]; u.splice(idx, 1); setEditPrerequisiteSteps(u); setTimeout(() => document.getElementById(`prereq-step-edit-${idx - 1}`)?.focus(), 30); } }} className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium" />
-                                  {editPrerequisiteSteps.length > 1 && (<button type="button" onClick={() => setEditPrerequisiteSteps(editPrerequisiteSteps.filter((_, i) => i !== idx))} className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent"><Trash className="w-3.5 h-3.5" /></button>)}
+                                  <span className="text-micro font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
+                                  <input id={`prereq-step-edit-${idx}`} aria-label={`Prerequisite step ${idx + 1}`} type="text" value={step} placeholder="e.g. Ap Chagi (Front Kick)" onChange={(e) => { const u = [...editPrerequisiteSteps]; u[idx] = e.target.value; setEditPrerequisiteSteps(u); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const u = [...editPrerequisiteSteps]; u.splice(idx + 1, 0, ''); setEditPrerequisiteSteps(u); setTimeout(() => document.getElementById(`prereq-step-edit-${idx + 1}`)?.focus(), 30); } else if (e.key === 'Backspace' && !step && idx > 0) { e.preventDefault(); const u = [...editPrerequisiteSteps]; u.splice(idx, 1); setEditPrerequisiteSteps(u); setTimeout(() => document.getElementById(`prereq-step-edit-${idx - 1}`)?.focus(), 30); } }} className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium" />
+                                  {editPrerequisiteSteps.length > 1 && (<button aria-label={`Remove prerequisite step ${idx + 1}`} type="button" onClick={() => setEditPrerequisiteSteps(editPrerequisiteSteps.filter((_, i) => i !== idx))} className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent min-h-6 min-w-6 inline-flex items-center justify-center"><Trash className="w-3.5 h-3.5" /></button>)}
                                 </div>
                               ))}
                             </div>
@@ -574,14 +576,14 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
 
                           {/* Principle of the Skill Step Builder */}
                           <div>
-                            <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-2">Principle of the Skill</label>
-                            <div className="space-y-2 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 bg-neutral-50/50 dark:bg-[#0c0c0c] max-h-60 overflow-y-auto">
+                            <span id="principle-step-edit-group" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-2">Principle of the Skill</span>
+                            <div role="group" aria-labelledby="principle-step-edit-group" className="space-y-2 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 bg-neutral-50/50 dark:bg-[#0c0c0c] max-h-60 overflow-y-auto">
                               {editPrincipleSteps.map((step, idx) => (
                                 <div key={idx} draggable onDragStart={(e) => { setDraggedIndex(idx); e.dataTransfer.effectAllowed = 'move'; }} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (draggedIndex === null || draggedIndex === idx) return; const updated = [...editPrincipleSteps]; const [d] = updated.splice(draggedIndex, 1); updated.splice(idx, 0, d); setEditPrincipleSteps(updated); setDraggedIndex(null); }} onDragEnd={() => setDraggedIndex(null)} className={cn("flex items-center gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-brand" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}>
                                   <div className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-neutral-600 dark:hover:text-white shrink-0 p-1"><ListChecks className="w-4 h-4" /></div>
-                                  <span className="text-[10px] font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
-                                  <input id={`principle-step-edit-${idx}`} type="text" value={step} placeholder="e.g. Dynamic snap at knee joint" onChange={(e) => { const u = [...editPrincipleSteps]; u[idx] = e.target.value; setEditPrincipleSteps(u); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const u = [...editPrincipleSteps]; u.splice(idx + 1, 0, ''); setEditPrincipleSteps(u); setTimeout(() => document.getElementById(`principle-step-edit-${idx + 1}`)?.focus(), 30); } else if (e.key === 'Backspace' && !step && idx > 0) { e.preventDefault(); const u = [...editPrincipleSteps]; u.splice(idx, 1); setEditPrincipleSteps(u); setTimeout(() => document.getElementById(`principle-step-edit-${idx - 1}`)?.focus(), 30); } }} className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium" />
-                                  {editPrincipleSteps.length > 1 && (<button type="button" onClick={() => setEditPrincipleSteps(editPrincipleSteps.filter((_, i) => i !== idx))} className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent"><Trash className="w-3.5 h-3.5" /></button>)}
+                                  <span className="text-micro font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
+                                  <input id={`principle-step-edit-${idx}`} aria-label={`Principle step ${idx + 1}`} type="text" value={step} placeholder="e.g. Dynamic snap at knee joint" onChange={(e) => { const u = [...editPrincipleSteps]; u[idx] = e.target.value; setEditPrincipleSteps(u); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const u = [...editPrincipleSteps]; u.splice(idx + 1, 0, ''); setEditPrincipleSteps(u); setTimeout(() => document.getElementById(`principle-step-edit-${idx + 1}`)?.focus(), 30); } else if (e.key === 'Backspace' && !step && idx > 0) { e.preventDefault(); const u = [...editPrincipleSteps]; u.splice(idx, 1); setEditPrincipleSteps(u); setTimeout(() => document.getElementById(`principle-step-edit-${idx - 1}`)?.focus(), 30); } }} className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium" />
+                                  {editPrincipleSteps.length > 1 && (<button aria-label={`Remove principle step ${idx + 1}`} type="button" onClick={() => setEditPrincipleSteps(editPrincipleSteps.filter((_, i) => i !== idx))} className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent min-h-6 min-w-6 inline-flex items-center justify-center"><Trash className="w-3.5 h-3.5" /></button>)}
                                 </div>
                               ))}
                             </div>
@@ -590,14 +592,14 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
 
                           {/* Drilling Methods Step Builder */}
                           <div>
-                            <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-2">Drilling Methods</label>
-                            <div className="space-y-2 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 bg-neutral-50/50 dark:bg-[#0c0c0c] max-h-60 overflow-y-auto">
+                            <span id="drilling-step-edit-group" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-2">Drilling Methods</span>
+                            <div role="group" aria-labelledby="drilling-step-edit-group" className="space-y-2 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 bg-neutral-50/50 dark:bg-[#0c0c0c] max-h-60 overflow-y-auto">
                               {editDrillingSteps.map((step, idx) => (
                                 <div key={idx} draggable onDragStart={(e) => { setDraggedIndex(idx); e.dataTransfer.effectAllowed = 'move'; }} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (draggedIndex === null || draggedIndex === idx) return; const updated = [...editDrillingSteps]; const [d] = updated.splice(draggedIndex, 1); updated.splice(idx, 0, d); setEditDrillingSteps(updated); setDraggedIndex(null); }} onDragEnd={() => setDraggedIndex(null)} className={cn("flex items-center gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-brand" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}>
                                   <div className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-neutral-600 dark:hover:text-white shrink-0 p-1"><ListChecks className="w-4 h-4" /></div>
-                                  <span className="text-[10px] font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
-                                  <input id={`drilling-step-edit-${idx}`} type="text" value={step} placeholder="e.g. 3 rounds of 10 rapid repetitions per leg..." onChange={(e) => { const u = [...editDrillingSteps]; u[idx] = e.target.value; setEditDrillingSteps(u); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const u = [...editDrillingSteps]; u.splice(idx + 1, 0, ''); setEditDrillingSteps(u); setTimeout(() => document.getElementById(`drilling-step-edit-${idx + 1}`)?.focus(), 30); } else if (e.key === 'Backspace' && !step && idx > 0) { e.preventDefault(); const u = [...editDrillingSteps]; u.splice(idx, 1); setEditDrillingSteps(u); setTimeout(() => document.getElementById(`drilling-step-edit-${idx - 1}`)?.focus(), 30); } }} className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium" />
-                                  {editDrillingSteps.length > 1 && (<button type="button" onClick={() => setEditDrillingSteps(editDrillingSteps.filter((_, i) => i !== idx))} className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent"><Trash className="w-3.5 h-3.5" /></button>)}
+                                  <span className="text-micro font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
+                                  <input id={`drilling-step-edit-${idx}`} aria-label={`Drilling step ${idx + 1}`} type="text" value={step} placeholder="e.g. 3 rounds of 10 rapid repetitions per leg..." onChange={(e) => { const u = [...editDrillingSteps]; u[idx] = e.target.value; setEditDrillingSteps(u); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const u = [...editDrillingSteps]; u.splice(idx + 1, 0, ''); setEditDrillingSteps(u); setTimeout(() => document.getElementById(`drilling-step-edit-${idx + 1}`)?.focus(), 30); } else if (e.key === 'Backspace' && !step && idx > 0) { e.preventDefault(); const u = [...editDrillingSteps]; u.splice(idx, 1); setEditDrillingSteps(u); setTimeout(() => document.getElementById(`drilling-step-edit-${idx - 1}`)?.focus(), 30); } }} className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium" />
+                                  {editDrillingSteps.length > 1 && (<button aria-label={`Remove drilling step ${idx + 1}`} type="button" onClick={() => setEditDrillingSteps(editDrillingSteps.filter((_, i) => i !== idx))} className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent min-h-6 min-w-6 inline-flex items-center justify-center"><Trash className="w-3.5 h-3.5" /></button>)}
                                 </div>
                               ))}
                             </div>
@@ -606,8 +608,8 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
 
                           {/* Common Mistakes & Corrections Step Builder */}
                           <div>
-                            <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-2">Common Mistakes & Corrections</label>
-                            <div className="space-y-2 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 bg-neutral-50/50 dark:bg-[#0c0c0c] max-h-60 overflow-y-auto">
+                            <span id="mistake-step-edit-group" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-2">Common Mistakes & Corrections</span>
+                            <div role="group" aria-labelledby="mistake-step-edit-group" className="space-y-2 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 bg-neutral-50/50 dark:bg-[#0c0c0c] max-h-60 overflow-y-auto">
                               {editMistakeSteps.map((step, idx) => (
                                 <div key={idx} draggable
                                   onDragStart={(e) => { setDraggedIndex(idx); e.dataTransfer.effectAllowed = 'move'; }}
@@ -617,9 +619,9 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                   className={cn("flex items-start gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-brand" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}
                                 >
                                   <div className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-neutral-600 dark:hover:text-white shrink-0 p-1 mt-1"><ListChecks className="w-4 h-4" /></div>
-                                  <span className="text-[10px] font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center mt-1">#{idx + 1}</span>
+                                  <span className="text-micro font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center mt-1">#{idx + 1}</span>
                                   <div className="flex-1 grid grid-cols-2 gap-2">
-                                    <input id={`mistake-input-edit-${idx}`} type="text" value={step.mistake} placeholder="Mistake (e.g. Dropping hands)"
+                                    <input id={`mistake-input-edit-${idx}`} aria-label={`Common mistake ${idx + 1}`} type="text" value={step.mistake} placeholder="Mistake (e.g. Dropping hands)"
                                       onChange={(e) => { const u = [...editMistakeSteps]; u[idx] = { ...u[idx], mistake: e.target.value }; setEditMistakeSteps(u); }}
                                       onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
@@ -635,7 +637,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                       }}
                                       className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-red-500/20 dark:border-red-500/10 rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/10 font-medium"
                                     />
-                                    <input id={`correction-input-edit-${idx}`} type="text" value={step.correction} placeholder="Correction (e.g. Keep guard up)"
+                                    <input id={`correction-input-edit-${idx}`} aria-label={`Correction ${idx + 1}`} type="text" value={step.correction} placeholder="Correction (e.g. Keep guard up)"
                                       onChange={(e) => { const u = [...editMistakeSteps]; u[idx] = { ...u[idx], correction: e.target.value }; setEditMistakeSteps(u); }}
                                       onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
@@ -653,7 +655,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                     />
                                   </div>
                                   {editMistakeSteps.length > 1 && (
-                                    <button type="button" onClick={() => setEditMistakeSteps(editMistakeSteps.filter((_, i) => i !== idx))} className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent mt-1"><Trash className="w-3.5 h-3.5" /></button>
+                                    <button aria-label={`Remove common mistake ${idx + 1}`} type="button" onClick={() => setEditMistakeSteps(editMistakeSteps.filter((_, i) => i !== idx))} className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent mt-1 min-h-6 min-w-6 inline-flex items-center justify-center"><Trash className="w-3.5 h-3.5" /></button>
                                   )}
                                 </div>
                               ))}
@@ -663,14 +665,14 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
 
                           {/* Performance & Application Step Builder */}
                           <div>
-                            <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-2">Performance & Application</label>
-                            <div className="space-y-2 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 bg-neutral-50/50 dark:bg-[#0c0c0c] max-h-60 overflow-y-auto">
+                            <span id="performance-step-edit-group" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-2">Performance & Application</span>
+                            <div role="group" aria-labelledby="performance-step-edit-group" className="space-y-2 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 bg-neutral-50/50 dark:bg-[#0c0c0c] max-h-60 overflow-y-auto">
                               {editPerformanceSteps.map((step, idx) => (
                                 <div key={idx} draggable onDragStart={(e) => { setDraggedIndex(idx); e.dataTransfer.effectAllowed = 'move'; }} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (draggedIndex === null || draggedIndex === idx) return; const updated = [...editPerformanceSteps]; const [d] = updated.splice(draggedIndex, 1); updated.splice(idx, 0, d); setEditPerformanceSteps(updated); setDraggedIndex(null); }} onDragEnd={() => setDraggedIndex(null)} className={cn("flex items-center gap-2 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2 shadow-sm transition-all", draggedIndex === idx ? "opacity-40 scale-95 border-dashed border-brand" : "hover:border-neutral-300 dark:hover:border-[#3a3a3a]")}>
                                   <div className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-neutral-600 dark:hover:text-white shrink-0 p-1"><ListChecks className="w-4 h-4" /></div>
-                                  <span className="text-[10px] font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
-                                  <input id={`performance-step-edit-${idx}`} type="text" value={step} placeholder="e.g. Used for counter attacks in sparring..." onChange={(e) => { const u = [...editPerformanceSteps]; u[idx] = e.target.value; setEditPerformanceSteps(u); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const u = [...editPerformanceSteps]; u.splice(idx + 1, 0, ''); setEditPerformanceSteps(u); setTimeout(() => document.getElementById(`performance-step-edit-${idx + 1}`)?.focus(), 30); } else if (e.key === 'Backspace' && !step && idx > 0) { e.preventDefault(); const u = [...editPerformanceSteps]; u.splice(idx, 1); setEditPerformanceSteps(u); setTimeout(() => document.getElementById(`performance-step-edit-${idx - 1}`)?.focus(), 30); } }} className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium" />
-                                  {editPerformanceSteps.length > 1 && (<button type="button" onClick={() => setEditPerformanceSteps(editPerformanceSteps.filter((_, i) => i !== idx))} className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent"><Trash className="w-3.5 h-3.5" /></button>)}
+                                  <span className="text-micro font-mono font-bold bg-brand/10 text-brand-ink border border-brand/20 px-2 py-1 rounded-[8px] shrink-0 min-w-[32px] text-center">#{idx + 1}</span>
+                                  <input id={`performance-step-edit-${idx}`} aria-label={`Performance step ${idx + 1}`} type="text" value={step} placeholder="e.g. Used for counter attacks in sparring..." onChange={(e) => { const u = [...editPerformanceSteps]; u[idx] = e.target.value; setEditPerformanceSteps(u); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const u = [...editPerformanceSteps]; u.splice(idx + 1, 0, ''); setEditPerformanceSteps(u); setTimeout(() => document.getElementById(`performance-step-edit-${idx + 1}`)?.focus(), 30); } else if (e.key === 'Backspace' && !step && idx > 0) { e.preventDefault(); const u = [...editPerformanceSteps]; u.splice(idx, 1); setEditPerformanceSteps(u); setTimeout(() => document.getElementById(`performance-step-edit-${idx - 1}`)?.focus(), 30); } }} className="flex-1 min-w-0 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-medium" />
+                                  {editPerformanceSteps.length > 1 && (<button aria-label={`Remove performance step ${idx + 1}`} type="button" onClick={() => setEditPerformanceSteps(editPerformanceSteps.filter((_, i) => i !== idx))} className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer border-0 bg-transparent min-h-6 min-w-6 inline-flex items-center justify-center"><Trash className="w-3.5 h-3.5" /></button>)}
                                 </div>
                               ))}
                             </div>
@@ -684,7 +686,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                         <div className="space-y-5 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 bg-neutral-50/20 dark:bg-neutral-900/10">
                           {/* Terminology List Builder */}
                           <div className="space-y-2">
-                            <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500">Korean Vocabulary Glossary</label>
+                            <label className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500">Korean Vocabulary Glossary</label>
                             <div className="space-y-2 max-h-60 overflow-y-auto">
                               {editTerminologyList.map((item, idx) => (
                                 <div key={idx} className="flex gap-2 items-center bg-white dark:bg-[#141414] border border-neutral-250 dark:border-[#262626] rounded-[8px] p-2.5 shadow-sm relative group">
@@ -724,10 +726,10 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                     />
                                   </div>
                                   {editTerminologyList.length > 1 && (
-                                    <button
+                                    <button aria-label={`Remove term ${idx + 1}`}
                                       type="button"
                                       onClick={() => setEditTerminologyList(editTerminologyList.filter((_, i) => i !== idx))}
-                                      className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors border-0 bg-transparent"
+                                      className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors border-0 bg-transparent min-h-6 min-w-6 inline-flex items-center justify-center"
                                     >
                                       <Trash className="w-3.5 h-3.5" />
                                     </button>
@@ -746,7 +748,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
 
                           {/* Study Guide Q&A Builder */}
                           <div className="space-y-2 border-t border-neutral-200 dark:border-[#262626] pt-4">
-                            <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500">Theoretical Q&A / Study Guide</label>
+                            <label className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500">Theoretical Q&A / Study Guide</label>
                             <div className="space-y-3 max-h-60 overflow-y-auto">
                               {editStudyGuideList.map((item, idx) => (
                                 <div key={idx} className="flex gap-2 items-start bg-white dark:bg-[#141414] border border-neutral-250 dark:border-[#262626] rounded-[8px] p-2.5 shadow-sm relative group">
@@ -775,10 +777,10 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                     />
                                   </div>
                                   {editStudyGuideList.length > 1 && (
-                                    <button
+                                    <button aria-label={`Remove study guide item ${idx + 1}`}
                                       type="button"
                                       onClick={() => setEditStudyGuideList(editStudyGuideList.filter((_, i) => i !== idx))}
-                                      className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors border-0 bg-transparent mt-1"
+                                      className="text-neutral-400 hover:text-red-500 shrink-0 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors border-0 bg-transparent mt-1 min-h-6 min-w-6 inline-flex items-center justify-center"
                                     >
                                       <Trash className="w-3.5 h-3.5" />
                                     </button>
@@ -798,8 +800,8 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                       )}
 
                       <div>
-                        <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_bulk_link_col')}</label>
-                        <input type="text" value={editAsset.videoUrl} onChange={(e) => setEditAsset({ ...editAsset, videoUrl: e.target.value })}
+                        <label htmlFor="library-asset-detail-dialog-lib_bulk_link_col" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_bulk_link_col')}</label>
+                        <input id="library-asset-detail-dialog-lib_bulk_link_col" type="text" value={editAsset.videoUrl} onChange={(e) => setEditAsset({ ...editAsset, videoUrl: e.target.value })}
                           className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-xs focus:outline-none focus:border-brand text-neutral-900 dark:text-white font-medium"
                         />
                       </div>
@@ -825,18 +827,18 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                     <div className="p-4 md:p-5 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex justify-between items-center shrink-0">
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 bg-neutral-100 dark:bg-[#1a1a1a] border border-neutral-200 dark:border-[#262626]/40 text-neutral-600 dark:text-neutral-400 rounded-[6px] shadow-sm">
+                          <span className="text-micro font-bold uppercase tracking-wider px-2 py-0.5 bg-neutral-100 dark:bg-[#1a1a1a] border border-neutral-200 dark:border-[#262626]/40 text-neutral-600 dark:text-neutral-400 rounded-[6px] shadow-sm">
                             {selectedDetailAsset.category.startsWith('Fitness:') || selectedDetailAsset.category.startsWith('Dance:')
                               ? (t(getCategoryTranslationKey(selectedDetailAsset.category)) || selectedDetailAsset.category.replace('Fitness: ', '').replace('Dance: ', ''))
                               : (t(getCategoryTranslationKey(normalizeCategory(selectedDetailAsset.category))) || selectedDetailAsset.category)}
                           </span>
                           {selectedDetailAsset.minBeltLevel !== 'Fitness' && selectedDetailAsset.minBeltLevel !== 'Dance' && (
-                            <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 bg-red-500/10 border border-red-500/20 text-brand-ink rounded-[6px] shadow-sm">
+                            <span className="text-micro font-bold uppercase tracking-wider px-2 py-0.5 bg-red-500/10 border border-red-500/20 text-brand-ink rounded-[6px] shadow-sm">
                               {t(getBeltTranslationKey(selectedDetailAsset.minBeltLevel))} {t('lms_belt_req_suffix')}
                             </span>
                           )}
                           {parseAssetDescription(selectedDetailAsset.description).difficulty && (
-                            <span className={cn("text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 border rounded-[6px] shadow-sm",
+                            <span className={cn("text-micro font-bold uppercase tracking-wider px-2 py-0.5 border rounded-[6px] shadow-sm",
                               parseAssetDescription(selectedDetailAsset.description).difficulty === 'Elite' ? 'bg-purple-500/10 border-purple-500/20 text-purple-600 dark:text-purple-400' :
                               parseAssetDescription(selectedDetailAsset.description).difficulty === 'Advanced' ? 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400' :
                               parseAssetDescription(selectedDetailAsset.description).difficulty === 'Intermediate' ? 'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
@@ -882,17 +884,17 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                       {selectedDetailAsset.category !== 'Theory & Terminology' && (
                         <div className="grid grid-cols-2 gap-4">
                           <div className="p-4 bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                            <span className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-1">{t('lib_target_reps_sets')}</span>
+                            <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-1">{t('lib_target_reps_sets')}</span>
                             <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200 font-mono">
                               {parseAssetDescription(selectedDetailAsset.description).repsSets || t('lib_self_paced')}
                             </span>
                           </div>
                           <div className="p-4 bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                            <span className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-1">{t('lib_focus_areas')}</span>
+                            <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-1">{t('lib_focus_areas')}</span>
                             <div className="flex flex-wrap gap-1 mt-0.5">
                               {parseAssetDescription(selectedDetailAsset.description).focusZones && parseAssetDescription(selectedDetailAsset.description).focusZones!.length > 0 ? (
                                 parseAssetDescription(selectedDetailAsset.description).focusZones!.map((zone, i) => (
-                                  <span key={i} className="px-1.5 py-0.5 bg-neutral-200/50 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 text-[9px] font-bold rounded uppercase tracking-wider font-sans">
+                                  <span key={i} className="px-1.5 py-0.5 bg-neutral-200/50 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 text-micro font-bold rounded uppercase tracking-wider font-sans">
                                     {zone}
                                   </span>
                                 ))
@@ -923,19 +925,19 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
 
                         return (
                           <div className="space-y-3 p-4 bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                            <span className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Material muscle focus</span>
+                            <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Material muscle focus</span>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {/* Left side: List of Target Muscles */}
                               <div className="space-y-4 flex flex-col justify-center">
                                 {primaryMuscles.length > 0 && (
                                   <div className="space-y-1.5">
-                                    <span className="block text-[9px] uppercase font-black text-red-500 tracking-wide flex items-center gap-1">
+                                    <span className="block text-micro uppercase font-black text-red-500 tracking-wide flex items-center gap-1">
                                       <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
                                       Primary Target
                                     </span>
                                     <div className="flex flex-wrap gap-1.5">
                                       {primaryMuscles.map((m: any) => (
-                                        <span key={m.id} className="px-2.5 py-1 bg-red-500/10 text-red-500 border border-red-500/25 text-[9px] font-bold rounded-[8px] transition-all hover:bg-red-500/15">
+                                        <span key={m.id} className="px-2.5 py-1 bg-red-500/10 text-red-500 border border-red-500/25 text-micro font-bold rounded-[8px] transition-all hover:bg-red-500/15">
                                           {state.language === 'kh' && m.nameKh ? m.nameKh : (state.language === 'zh' && m.nameZh ? m.nameZh : m.name)}
                                         </span>
                                       ))}
@@ -944,13 +946,13 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                 )}
                                 {secondaryMuscles.length > 0 && (
                                   <div className="space-y-1.5">
-                                    <span className="block text-[9px] uppercase font-black text-sky-500 dark:text-sky-400 tracking-wide flex items-center gap-1">
+                                    <span className="block text-micro uppercase font-black text-sky-500 dark:text-sky-400 tracking-wide flex items-center gap-1">
                                       <span className="w-1.5 h-1.5 bg-sky-500 rounded-full" />
                                       Secondary / Stabilizers
                                     </span>
                                     <div className="flex flex-wrap gap-1.5">
                                       {secondaryMuscles.map((m: any) => (
-                                        <span key={m.id} className="px-2.5 py-1 bg-blue-500/10 text-blue-500 border border-dashed border-blue-500/25 text-[9px] font-bold rounded-[8px] transition-all hover:bg-blue-500/15">
+                                        <span key={m.id} className="px-2.5 py-1 bg-blue-500/10 text-blue-500 border border-dashed border-blue-500/25 text-micro font-bold rounded-[8px] transition-all hover:bg-blue-500/15">
                                           {state.language === 'kh' && m.nameKh ? m.nameKh : (state.language === 'zh' && m.nameZh ? m.nameZh : m.name)}
                                         </span>
                                       ))}
@@ -962,7 +964,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                               {/* Right side: 3D Holographic Model viewport */}
                               <div className="relative border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden bg-neutral-100/40 dark:bg-[#0A0A0A] flex flex-col justify-between min-h-[420px] h-[420px]">
                                 <div className="flex justify-between items-center p-3 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50/50 dark:bg-[#111111]/50 z-10">
-                                  <span className="text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Muscle reference</span>
+                                  <span className="text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Muscle reference</span>
                                   <div className="flex items-center gap-2">
                                     {/* Fullscreen toggle button */}
                                     <button
@@ -986,7 +988,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
 
                       {/* Description & Guidelines */}
                       <div className="space-y-2">
-                        <span className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">{t('lib_guidelines_mechanics')}</span>
+                        <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">{t('lib_guidelines_mechanics')}</span>
                         <p className="text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed font-sans">
                           {parseAssetDescription(selectedDetailAsset.description).text || t('lib_no_guidelines')}
                         </p>
@@ -995,13 +997,13 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                       {/* Step-by-Step Instructions */}
                       {selectedDetailAsset.category !== 'Theory & Terminology' && parseAssetDescription(selectedDetailAsset.description).instructions && parseAssetDescription(selectedDetailAsset.description).instructions!.length > 0 && (
                         <div className="space-y-3">
-                          <span className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">{t('lib_execution_steps')}</span>
+                          <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">{t('lib_execution_steps')}</span>
                           <ol className="space-y-2">
                             {parseAssetDescription(selectedDetailAsset.description).instructions!.map((step, idx) => {
                               const cleanStep = step.replace(/^Step\s+\d+:\s*/i, '');
                               return (
                                 <li key={idx} className="flex items-start gap-3 text-xs text-neutral-600 dark:text-neutral-300 font-sans">
-                                  <span className="w-5 h-5 rounded-full bg-red-500/10 border border-red-500/20 text-brand-ink text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">
+                                  <span className="w-5 h-5 rounded-full bg-red-500/10 border border-red-500/20 text-brand-ink text-micro font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">
                                     {idx + 1}
                                   </span>
                                   <span className="leading-relaxed">{cleanStep}</span>
@@ -1032,11 +1034,11 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {hasPrereqs && (
                                   <div className="p-4 bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-sm">
-                                    <span className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-3">Skill Prerequisites</span>
+                                    <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-3">Skill Prerequisites</span>
                                     <ul className="space-y-2">
                                       {parsed.prerequisites!.map((item, idx) => (
                                         <li key={idx} className="flex items-start gap-2.5 text-xs text-neutral-600 dark:text-neutral-300">
-                                          <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-brand-ink text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                          <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-brand-ink text-micro font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                                           <span className="leading-relaxed font-sans">{item}</span>
                                         </li>
                                       ))}
@@ -1045,11 +1047,11 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                 )}
                                 {hasPrinciples && (
                                   <div className="p-4 bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-sm">
-                                    <span className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-3">Principle of the Skill</span>
+                                    <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider mb-3">Principle of the Skill</span>
                                     <ul className="space-y-2">
                                       {parsed.principles!.map((item, idx) => (
                                         <li key={idx} className="flex items-start gap-2.5 text-xs text-neutral-600 dark:text-neutral-300">
-                                          <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-brand-ink text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                          <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-brand-ink text-micro font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                                           <span className="leading-relaxed font-sans">{item}</span>
                                         </li>
                                       ))}
@@ -1062,12 +1064,12 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                             {/* Drilling Methods */}
                             {hasDrilling && (
                               <div className="space-y-2">
-                                <span className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Drilling Methods for Effective Training</span>
+                                <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Drilling Methods for Effective Training</span>
                                 <div className="p-4 bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-sm">
                                   <ul className="space-y-2.5">
                                     {parsed.drillingMethods!.map((item, idx) => (
                                       <li key={idx} className="flex items-start gap-2.5 text-xs text-neutral-600 dark:text-neutral-300">
-                                        <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-brand-ink text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                        <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-brand-ink text-micro font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                                         <span className="leading-relaxed font-sans">{item}</span>
                                       </li>
                                     ))}
@@ -1079,7 +1081,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                             {/* Common Mistakes & Corrections */}
                             {hasMistakes && (
                               <div className="space-y-2">
-                                <span className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Common Mistakes & Corrections</span>
+                                <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Common Mistakes & Corrections</span>
                                 <div className="space-y-3">
                                   {parsed.mistakes!.map((item, idx) => (
                                     <div key={idx} className="border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden shadow-sm bg-neutral-50/50 dark:bg-[#111111]/30">
@@ -1087,8 +1089,8 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                         {/* Mistake Side */}
                                         <div className="bg-red-500/[0.015] dark:bg-red-500/[0.005] p-3.5 flex flex-col">
                                           <div className="flex items-center gap-1.5 mb-1.5">
-                                            <span className="px-2 py-0.5 rounded-[8px] bg-red-500/10 text-red-500 border border-red-500/20 text-[9px] font-black uppercase tracking-wider">Mistake</span>
-                                            <span className="text-[10px] font-mono font-bold text-neutral-400 dark:text-neutral-500">#{idx + 1}</span>
+                                            <span className="px-2 py-0.5 rounded-[8px] bg-red-500/10 text-red-500 border border-red-500/20 text-micro font-black uppercase tracking-wider">Mistake</span>
+                                            <span className="text-micro font-mono font-bold text-neutral-400 dark:text-neutral-500">#{idx + 1}</span>
                                           </div>
                                           <p className="text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed font-sans font-medium">
                                             {item.mistake || "—"}
@@ -1097,7 +1099,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                         {/* Correction Side */}
                                         <div className="bg-emerald-500/[0.015] dark:bg-emerald-500/[0.005] p-3.5 flex flex-col font-medium">
                                           <div className="flex items-center gap-1.5 mb-1.5">
-                                            <span className="px-2 py-0.5 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[9px] font-black uppercase tracking-wider">Correction</span>
+                                            <span className="px-2 py-0.5 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-micro font-black uppercase tracking-wider">Correction</span>
                                           </div>
                                           <p className="text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed font-sans font-medium">
                                             {item.correction || "—"}
@@ -1113,12 +1115,12 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                             {/* Performance & Application */}
                             {hasPerformance && (
                               <div className="space-y-2">
-                                <span className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Performance & Application</span>
+                                <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Performance & Application</span>
                                 <div className="p-4 bg-red-500/[0.02] dark:bg-red-500/[0.01] border border-red-500/10 dark:border-red-500/5 rounded-[8px] shadow-sm">
                                   <ul className="space-y-2.5">
                                     {parsed.performance!.map((item, idx) => (
                                       <li key={idx} className="flex items-start gap-2.5 text-xs text-neutral-600 dark:text-neutral-300">
-                                        <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-brand-ink text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                        <span className="w-4 h-4 rounded-full bg-red-500/10 border border-red-500/20 text-brand-ink text-micro font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                                         <span className="leading-relaxed font-sans">{item}</span>
                                       </li>
                                     ))}
@@ -1130,7 +1132,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                             {/* Linked Physical Solutions (Fitness Skills) */}
                             {parsed.fitnessSolutions && parsed.fitnessSolutions.length > 0 && (
                               <div className="space-y-2">
-                                <span className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Physical Training Solutions for Skill Performance</span>
+                                <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Physical Training Solutions for Skill Performance</span>
                                 <div className="p-4 bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-sm">
                                   <div className="flex flex-wrap gap-2">
                                     {parsed.fitnessSolutions.map(fsId => {
@@ -1147,7 +1149,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                         >
                                           <Barbell className="w-3.5 h-3.5 text-brand-ink" />
                                           <span>{solution.title}</span>
-                                          <span className="text-[9px] text-neutral-400 dark:text-neutral-500 font-normal">({solution.category.replace('Fitness: ', '')})</span>
+                                          <span className="text-micro text-neutral-400 dark:text-neutral-500 font-normal">({solution.category.replace('Fitness: ', '')})</span>
                                         </button>
                                       );
                                     })}
@@ -1172,7 +1174,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                             {/* Terminology Glossary */}
                             {hasTerminology && (
                               <div className="space-y-2">
-                                <span className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Korean Vocabulary Glossary</span>
+                                <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Korean Vocabulary Glossary</span>
                                 <div className="border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden shadow-sm">
                                   <table className="w-full text-left border-collapse text-xs">
                                     <thead>
@@ -1199,7 +1201,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                             {/* Study Guide Q&A */}
                             {hasStudyGuide && (
                               <div className="space-y-3">
-                                <span className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Theoretical Q&A / Study Guide</span>
+                                <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">Theoretical Q&A / Study Guide</span>
                                 <div className="space-y-2">
                                   {parsed.studyGuide!.map((item, idx) => {
                                     const isExpanded = !!expandedStudyGuides[idx];
@@ -1211,7 +1213,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                           className="w-full p-4 text-left flex justify-between items-center gap-3 hover:bg-neutral-50 dark:hover:bg-[#141414]/40 transition-colors border-0 bg-transparent cursor-pointer"
                                         >
                                           <div className="flex items-start gap-2.5">
-                                            <span className="w-5 h-5 rounded-full bg-red-500/10 border border-red-500/20 text-brand-ink text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">
+                                            <span className="w-5 h-5 rounded-full bg-red-500/10 border border-red-500/20 text-brand-ink text-micro font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">
                                               Q
                                             </span>
                                             <span className="text-xs font-bold text-neutral-850 dark:text-neutral-100 mt-0.5">{item.question || "—"}</span>
@@ -1225,7 +1227,7 @@ export function LibraryAssetDetailDialog({ isSaving, editAsset, handleSaveEditAs
                                         {isExpanded && (
                                           <div className="px-4 pb-4 pt-1 text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed font-medium border-t border-neutral-100 dark:border-[#262626] bg-white dark:bg-[#141414]/20 animate-in fade-in slide-in-from-top-1 duration-150">
                                             <div className="flex items-start gap-2.5">
-                                              <span className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">
+                                              <span className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-micro font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">
                                                 A
                                               </span>
                                               <p className="mt-0.5 whitespace-pre-line">{item.answer || "—"}</p>

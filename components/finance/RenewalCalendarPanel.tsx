@@ -1,4 +1,5 @@
 'use client';
+import { pressable } from '@/components/ui/pressable';
 import { ContactActions } from '@/components/ContactActions';
 import React from 'react';
 import { useAppStore, Student } from '@/lib/store';
@@ -76,7 +77,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                     <span>{calendarMonth}</span>
                     <span className="text-brand-ink font-mono font-black">{calendarYear}</span>
                   </div>
-                  <span className="text-[9px] text-neutral-500 dark:text-[#888] font-mono uppercase tracking-widest block font-semibold">
+                  <span className="text-micro text-neutral-500 dark:text-[#888] font-mono uppercase tracking-widest block font-semibold">
                     Renewal Schedule
                   </span>
                 </div>
@@ -105,20 +106,21 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                     setCalendarYear(currentActualYear);
                     setCalendarMonth(months[currentActualMonthIndex]);
                   }}
-                  className="px-3 h-9 bg-brand hover:bg-brand-strong text-white rounded-[8px] text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm shadow-brand/20 flex items-center gap-1.5 active:scale-95 touch-manipulation shrink-0"
+                  className="px-3 h-9 bg-brand hover:bg-brand-strong text-white rounded-[8px] text-micro sm:text-micro font-mono font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm shadow-brand/20 flex items-center gap-1.5 active:scale-95 touch-manipulation shrink-0"
                   title="Jump to Current Month"
                 >
                   <CalendarCheck className="w-3.5 h-3.5" /> TODAY
                 </button>
 
                 {/* View Mode Toggle: Grid vs Agenda List */}
-                <div className="flex bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-0.5 shrink-0 h-9 items-center">
+                <div role="group" aria-label="Renewal calendar layout" className="flex bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-0.5 shrink-0 h-9 items-center">
                   <button
                     type="button"
+                    aria-pressed={calendarViewMode === 'grid'}
                     onClick={() => setCalendarViewMode('grid')}
                     title="Month Grid View"
                     className={cn(
-                      "px-2.5 h-7.5 rounded-[6px] text-[10px] font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation",
+                      "px-2.5 h-7.5 rounded-[6px] text-micro font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation",
                       calendarViewMode === 'grid'
                         ? "bg-white dark:bg-[#262626] text-brand-ink dark:text-white shadow-xs font-black"
                         : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white"
@@ -129,10 +131,11 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                   </button>
                   <button
                     type="button"
+                    aria-pressed={calendarViewMode === 'agenda'}
                     onClick={() => setCalendarViewMode('agenda')}
                     title="Agenda Cohort Stream"
                     className={cn(
-                      "px-2.5 h-7.5 rounded-[6px] text-[10px] font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation",
+                      "px-2.5 h-7.5 rounded-[6px] text-micro font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer active:scale-95 touch-manipulation",
                       calendarViewMode === 'agenda'
                         ? "bg-white dark:bg-[#262626] text-brand-ink dark:text-white shadow-xs font-black"
                         : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white"
@@ -156,7 +159,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                     placeholder="Filter student..."
                     value={calendarSearch}
                     onChange={(e) => setCalendarSearch(e.target.value)}
-                    className="w-full pl-8 pr-7 h-9 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-[11px] sm:text-xs focus:outline-none focus:border-brand transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666] font-mono"
+                    className="w-full pl-8 pr-7 h-9 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] text-micro sm:text-xs focus:outline-none focus:border-brand transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666] font-mono"
                   />
                   {calendarSearch && (
                     <button
@@ -170,10 +173,10 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                 </div>
 
                 {/* Branch Filter */}
-                <select
+                <select aria-label="Filter renewal calendar by branch"
                   value={calendarFilterBranch}
                   onChange={(e) => setCalendarFilterBranch(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                  className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-[11px] sm:text-xs h-9 px-2.5 focus:outline-none focus:border-brand font-mono cursor-pointer shrink-0 max-w-[125px] sm:max-w-none"
+                  className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-micro sm:text-xs h-9 px-2.5 focus:outline-none focus:border-brand font-mono cursor-pointer shrink-0 max-w-[125px] sm:max-w-none"
                 >
                   <option value="all">All Branches</option>
                   {state.branches.map(b => (
@@ -183,7 +186,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
               </div>
 
               {/* Status Segment Rail - Clean, perfectly sized, no overflow, with counts & semantic colors */}
-              <div className="flex items-center gap-1 bg-neutral-100 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] p-0.5 h-9 overflow-x-auto no-scrollbar touch-pan-x max-w-full">
+              <div role="group" aria-label="Filter renewals by payment status" className="flex items-center gap-1 bg-neutral-100 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] p-0.5 h-9 overflow-x-auto no-scrollbar touch-pan-x max-w-full">
                 {([
                   { key: 'all', label: 'All', count: calendarData.stats.total, dot: 'bg-neutral-400' },
                   { key: 'overdue', label: 'Overdue', count: calendarData.stats.overdue, dot: 'bg-red-500' },
@@ -196,9 +199,10 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                     <button
                       key={st.key}
                       type="button"
+                      aria-pressed={isActive}
                       onClick={() => setCalendarFilterStatus(st.key)}
                       className={cn(
-                        "h-7.5 px-2.5 rounded-[6px] text-[10px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 shrink-0 active:scale-95 touch-manipulation whitespace-nowrap",
+                        "h-7.5 px-2.5 rounded-[6px] text-micro font-mono font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 shrink-0 active:scale-95 touch-manipulation whitespace-nowrap",
                         isActive
                           ? st.key === 'overdue'
                             ? "bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30 shadow-xs font-black"
@@ -215,7 +219,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                       <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", st.dot)} />
                       <span>{st.label}</span>
                       <span className={cn(
-                        "px-1 py-0.2 rounded-full text-[9px] font-mono font-bold transition-colors",
+                        "px-1 py-0.2 rounded-full text-micro font-mono font-bold transition-colors",
                         isActive
                           ? st.key === 'overdue'
                             ? "bg-red-500/20 text-red-700 dark:text-red-300"
@@ -240,32 +244,32 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
           {/* Metrics Counter Dashboard */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 shadow-xs">
-              <span className="text-[9px] uppercase font-mono tracking-widest text-neutral-500 dark:text-[#888] block font-bold truncate">Total Renewals</span>
+              <span className="text-micro uppercase font-mono tracking-widest text-neutral-500 dark:text-[#888] block font-bold truncate">Total Renewals</span>
               <div className="text-lg sm:text-xl font-bold text-neutral-900 dark:text-white mt-0.5 flex items-baseline gap-1.5">
                 <span>{calendarData.stats.total}</span>
-                <span className="text-[10px] font-mono text-neutral-500 dark:text-[#666]">Students</span>
+                <span className="text-micro font-mono text-neutral-500 dark:text-[#666]">Students</span>
               </div>
             </div>
 
             <div className="bg-white dark:bg-[#141414] border border-green-500/30 dark:border-green-500/20 rounded-[8px] p-3 shadow-xs bg-gradient-to-br from-green-500/5 to-transparent">
-              <span className="text-[9px] uppercase font-mono tracking-widest text-green-600 dark:text-green-400 block font-bold truncate">Tuition allocated</span>
+              <span className="text-micro uppercase font-mono tracking-widest text-green-600 dark:text-green-400 block font-bold truncate">Tuition allocated</span>
               <div className="text-lg sm:text-xl font-bold text-green-600 dark:text-green-400 mt-0.5 font-mono truncate">
                 ${calendarData.stats.collected.toFixed(2)}
               </div>
             </div>
 
             <div className="bg-white dark:bg-[#141414] border border-red-500/30 dark:border-red-500/20 rounded-[8px] p-3 shadow-xs bg-gradient-to-br from-red-500/5 to-transparent">
-              <span className="text-[9px] uppercase font-mono tracking-widest text-red-600 dark:text-red-400 block font-bold truncate">Outstanding Dues</span>
+              <span className="text-micro uppercase font-mono tracking-widest text-red-600 dark:text-red-400 block font-bold truncate">Outstanding Dues</span>
               <div className="text-lg sm:text-xl font-bold text-red-600 dark:text-red-400 mt-0.5 font-mono truncate">
                 ${calendarData.stats.outstanding.toFixed(2)}
               </div>
             </div>
 
             <div className="bg-white dark:bg-[#141414] border border-purple-500/30 dark:border-purple-500/20 rounded-[8px] p-3 shadow-xs bg-gradient-to-br from-purple-500/5 to-transparent">
-              <span className="text-[9px] uppercase font-mono tracking-widest text-purple-600 dark:text-purple-400 block font-bold truncate">Scholarship Waived</span>
+              <span className="text-micro uppercase font-mono tracking-widest text-purple-600 dark:text-purple-400 block font-bold truncate">Scholarship Waived</span>
               <div className="text-lg sm:text-xl font-bold text-purple-600 dark:text-purple-400 mt-0.5 flex items-baseline gap-1.5 font-mono">
                 <span>{calendarData.stats.waived}</span>
-                <span className="text-[10px] font-mono text-neutral-500 dark:text-[#666]">100% Free</span>
+                <span className="text-micro font-mono text-neutral-500 dark:text-[#666]">100% Free</span>
               </div>
             </div>
           </div>
@@ -274,7 +278,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
           {calendarViewMode === 'grid' ? (
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden shadow-sm p-2 sm:p-3 md:p-4 transition-colors">
               {/* Weekday Headers (Monday Start) */}
-              <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-[9px] sm:text-[10px] font-bold font-mono text-neutral-500 dark:text-[#888] uppercase tracking-wider pb-2 sm:pb-3 border-b border-neutral-200 dark:border-[#262626]">
+              <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-micro sm:text-micro font-bold font-mono text-neutral-500 dark:text-[#888] uppercase tracking-wider pb-2 sm:pb-3 border-b border-neutral-200 dark:border-[#262626]">
                 <div><span className="hidden xs:inline">MON</span><span className="xs:hidden">M</span></div>
                 <div><span className="hidden xs:inline">TUE</span><span className="xs:hidden">T</span></div>
                 <div><span className="hidden xs:inline">WED</span><span className="xs:hidden">W</span></div>
@@ -308,11 +312,8 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                   return (
                     <div
                       key={`day-${dayNum}`}
-                      onClick={() => {
-                        if (dueStudents.length > 0) {
-                          setSelectedCalendarDay({ year: calendarYear, month: calendarMonth, day: dayNum });
-                        }
-                      }}
+                      // A day with renewals opens its list; days without any are not interactive.
+                      {...(dueStudents.length > 0 ? pressable(() => setSelectedCalendarDay({ year: calendarYear, month: calendarMonth, day: dayNum }), isSelected) : {})}
                       className={cn(
                         "min-h-[56px] sm:min-h-[90px] md:min-h-[110px] p-1 sm:p-2 rounded-[6px] sm:rounded-[8px] border transition-all flex flex-col justify-between group active:scale-95 touch-manipulation",
                         dueStudents.length > 0
@@ -325,7 +326,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                       {/* Day Header */}
                       <div className="flex items-center justify-between">
                         <span className={cn(
-                          "w-5 h-5 sm:w-6 sm:h-6 rounded-full text-[10px] sm:text-xs font-bold font-mono flex items-center justify-center transition-colors",
+                          "w-5 h-5 sm:w-6 sm:h-6 rounded-full text-micro sm:text-xs font-bold font-mono flex items-center justify-center transition-colors",
                           isToday
                             ? "bg-brand text-white font-black shadow-xs shadow-brand/30"
                             : "text-neutral-800 dark:text-[#AAA] group-hover:text-neutral-900 dark:group-hover:text-white"
@@ -334,7 +335,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                         </span>
 
                         {dueStudents.length > 0 && (
-                          <span className="text-[9px] font-bold font-mono px-1 sm:px-1.5 py-0.2 sm:py-0.5 rounded-[4px] sm:rounded-[6px] bg-neutral-100 dark:bg-[#1A1A1A] text-neutral-700 dark:text-[#CCC] border border-neutral-200 dark:border-[#262626]">
+                          <span className="text-micro font-bold font-mono px-1 sm:px-1.5 py-0.2 sm:py-0.5 rounded-[4px] sm:rounded-[6px] bg-neutral-100 dark:bg-[#1A1A1A] text-neutral-700 dark:text-[#CCC] border border-neutral-200 dark:border-[#262626]">
                             <span className="hidden sm:inline">{dueStudents.length} {dueStudents.length === 1 ? 'due' : 'dues'}</span>
                             <span className="sm:hidden">{dueStudents.length}</span>
                           </span>
@@ -373,7 +374,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                                 />
                               ))}
                               {dueStudents.length > 3 && (
-                                <div className="w-5 h-5 rounded-full bg-neutral-200 dark:bg-[#262626] text-[9px] font-mono font-bold text-neutral-800 dark:text-white flex items-center justify-center border border-white dark:border-[#141414] shrink-0">
+                                <div className="w-5 h-5 rounded-full bg-neutral-200 dark:bg-[#262626] text-micro font-mono font-bold text-neutral-800 dark:text-white flex items-center justify-center border border-white dark:border-[#141414] shrink-0">
                                   +{dueStudents.length - 3}
                                 </div>
                               )}
@@ -382,22 +383,22 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                             {/* Status Pills */}
                             <div className="flex items-center gap-1 flex-wrap">
                               {overdueCount > 0 && (
-                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-red-500/10 text-red-600 dark:text-red-400 text-[9px] font-mono font-bold border border-red-500/20">
+                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-red-500/10 text-red-600 dark:text-red-400 text-micro font-mono font-bold border border-red-500/20">
                                   <span className="w-1 h-1 rounded-full bg-red-500"></span> {overdueCount}
                                 </span>
                               )}
                               {pendingCount > 0 && (
-                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[9px] font-mono font-bold border border-amber-500/20">
+                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-amber-500/10 text-amber-600 dark:text-amber-400 text-micro font-mono font-bold border border-amber-500/20">
                                   <span className="w-1 h-1 rounded-full bg-amber-500"></span> {pendingCount}
                                 </span>
                               )}
                               {paidCount > 0 && (
-                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-green-500/10 text-green-600 dark:text-green-400 text-[9px] font-mono font-bold border border-green-500/20">
+                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-green-500/10 text-green-600 dark:text-green-400 text-micro font-mono font-bold border border-green-500/20">
                                   <span className="w-1 h-1 rounded-full bg-green-500"></span> {paidCount}
                                 </span>
                               )}
                               {waivedCount > 0 && (
-                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[9px] font-mono font-bold border border-purple-500/20">
+                                <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded-[3px] bg-purple-500/10 text-purple-600 dark:text-purple-400 text-micro font-mono font-bold border border-purple-500/20">
                                   <span className="w-1 h-1 rounded-full bg-purple-500"></span> {waivedCount}
                                 </span>
                               )}
@@ -406,13 +407,13 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                         </>
                       ) : (
                         <div className="my-auto text-center hidden sm:block">
-                          <span className="text-[9px] text-neutral-400 dark:text-[#444] font-mono block select-none">No Dues</span>
+                          <span className="text-micro text-neutral-400 dark:text-[#444] font-mono block select-none">No Dues</span>
                         </div>
                       )}
 
                       {/* Footer Amount */}
                       {dueStudents.length > 0 && (
-                        <div className="text-[9px] font-mono text-center sm:text-right text-neutral-600 dark:text-[#888] pt-0.5 sm:pt-1 border-t border-neutral-200/80 dark:border-[#1F1F1F] truncate">
+                        <div className="text-micro font-mono text-center sm:text-right text-neutral-600 dark:text-[#888] pt-0.5 sm:pt-1 border-t border-neutral-200/80 dark:border-[#1F1F1F] truncate">
                           {dayExpectedSum > 0 ? (
                             <span className="text-neutral-900 dark:text-white font-bold">${dayExpectedSum >= 1000 ? `${(dayExpectedSum/1000).toFixed(1)}k` : dayExpectedSum.toFixed(0)}</span>
                           ) : (
@@ -474,7 +475,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                               : "bg-neutral-100 dark:bg-[#1C1C1C] text-neutral-900 dark:text-white border border-neutral-200 dark:border-[#2A2A2A]"
                           )}>
                             <span className="text-xs font-black leading-none">{dayNum}</span>
-                            <span className="text-[9px] uppercase tracking-wider font-bold opacity-80">{calendarMonth.slice(0, 3)}</span>
+                            <span className="text-micro uppercase tracking-wider font-bold opacity-80">{calendarMonth.slice(0, 3)}</span>
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
@@ -482,12 +483,12 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                                 Day {dayNum} Cohort • {cohort.length} {cohort.length === 1 ? 'Student' : 'Students'}
                               </h3>
                               {isToday && (
-                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-brand text-white">
+                                <span className="px-1.5 py-0.2 rounded text-micro font-bold uppercase tracking-wider bg-brand text-white">
                                   Today
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 mt-0.5 text-[10px] font-mono text-neutral-500 dark:text-[#888]">
+                            <div className="flex items-center gap-2 mt-0.5 text-micro font-mono text-neutral-500 dark:text-[#888]">
                               <span>Expected: <b className="text-neutral-900 dark:text-white">${totalAmount.toFixed(2)}</b></span>
                             </div>
                           </div>
@@ -497,22 +498,22 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                         <div className="flex items-center justify-between sm:justify-end gap-2">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {overdueCount > 0 && (
-                              <span className="px-2 py-0.5 rounded-[6px] bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-mono font-bold border border-red-500/20">
+                              <span className="px-2 py-0.5 rounded-[6px] bg-red-500/10 text-red-600 dark:text-red-400 text-micro font-mono font-bold border border-red-500/20">
                                 {overdueCount} Overdue
                               </span>
                             )}
                             {pendingCount > 0 && (
-                              <span className="px-2 py-0.5 rounded-[6px] bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-mono font-bold border border-amber-500/20">
+                              <span className="px-2 py-0.5 rounded-[6px] bg-amber-500/10 text-amber-600 dark:text-amber-400 text-micro font-mono font-bold border border-amber-500/20">
                                 {pendingCount} Pending
                               </span>
                             )}
                             {paidCount > 0 && (
-                              <span className="px-2 py-0.5 rounded-[6px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono font-bold border border-emerald-500/20">
+                              <span className="px-2 py-0.5 rounded-[6px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-micro font-mono font-bold border border-emerald-500/20">
                                 {paidCount} Paid
                               </span>
                             )}
                             {waivedCount > 0 && (
-                              <span className="px-2 py-0.5 rounded-[6px] bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-mono font-bold border border-purple-500/20">
+                              <span className="px-2 py-0.5 rounded-[6px] bg-purple-500/10 text-purple-600 dark:text-purple-400 text-micro font-mono font-bold border border-purple-500/20">
                                 {waivedCount} Waived
                               </span>
                             )}
@@ -544,9 +545,9 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                                 <div className="min-w-0">
                                   <div className="flex items-center gap-1.5">
                                     <button type="button" onClick={() => {setStudentDetailsId(student.id);setPaymentAmounts({});}} className="font-bold text-neutral-900 hover:text-brand-ink dark:text-white truncate text-left">{student.englishName}</button>
-                                    <span className="text-[10px] font-mono text-neutral-400">({student.id})</span>
+                                    <span className="text-micro font-mono text-neutral-400">({student.id})</span>
                                   </div>
-                                  <p className="text-[10px] font-mono text-neutral-500 dark:text-[#777] truncate">
+                                  <p className="text-micro font-mono text-neutral-500 dark:text-[#777] truncate">
                                     {branchName} • {scholarshipName}
                                   </p>
                                   <ContactActions contact={student} name={student.englishName} compact emailSubject="Tuition renewal" />
@@ -559,7 +560,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                                     ${amountOwed.toFixed(2)}
                                   </span>
                                   <span className={cn(
-                                    "text-[9px] font-mono font-bold uppercase",
+                                    "text-micro font-mono font-bold uppercase",
                                     billingStatus === 'Paid' ? "text-emerald-600 dark:text-emerald-400" :
                                     billingStatus === 'Overdue' ? "text-red-600 dark:text-red-400" :
                                     ['Due Soon','Due today','Within grace'].includes(billingStatus) ? "text-amber-600 dark:text-amber-400" :
@@ -582,7 +583,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                                           showNotification("Failed to record payment.", 'error');
                                         }
                                       }}
-                                      className="px-2.5 py-1 bg-brand hover:bg-brand-strong text-white font-bold uppercase tracking-wider text-[10px] rounded-[6px] transition-colors cursor-pointer active:scale-95 touch-manipulation" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
+                                      className="px-2.5 py-1 bg-brand hover:bg-brand-strong text-white font-bold uppercase tracking-wider text-micro rounded-[6px] transition-colors cursor-pointer active:scale-95 touch-manipulation" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
                                     >
                                       Pay
                                     </button>
@@ -596,7 +597,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                                       year: calendarYear,
                                       amount: amountOwed
                                     })}
-                                    className="px-2 py-1 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1F1F1F] text-neutral-700 dark:text-[#AAA] font-mono text-[10px] rounded-[6px] transition-colors cursor-pointer active:scale-95 touch-manipulation"
+                                    className="px-2 py-1 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1F1F1F] text-neutral-700 dark:text-[#AAA] font-mono text-micro rounded-[6px] transition-colors cursor-pointer active:scale-95 touch-manipulation"
                                   >
                                     Receipt
                                   </button>
@@ -611,7 +612,7 @@ export function RenewalCalendarPanel({ calendarMonth, setCalendarMonth, setCalen
                             <button
                               type="button"
                               onClick={() => setSelectedCalendarDay({ year: calendarYear, month: calendarMonth, day: dayNum })}
-                              className="text-[11px] font-mono text-brand-ink hover:underline font-bold cursor-pointer"
+                              className="text-micro font-mono text-brand-ink hover:underline font-bold cursor-pointer"
                             >
                               + {cohort.length - 4} more students in Day {dayNum} cohort →
                             </button>

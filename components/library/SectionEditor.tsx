@@ -106,7 +106,7 @@ export function SectionEditor({ sections, onChange }: { sections: LibrarySection
     {sections.map((section, index) => (
       <section key={section.id} aria-label={`Section ${index + 1}: ${section.title || SECTION_TYPE_LABEL[section.type]}`} className="space-y-2 rounded-lg border border-line bg-surface-muted p-3">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-md bg-control px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-muted">{SECTION_TYPE_LABEL[section.type]}</span>
+          <span className="rounded-md bg-control px-2 py-1 text-micro font-bold uppercase tracking-wider text-ink-muted">{SECTION_TYPE_LABEL[section.type]}</span>
           <input aria-label={`Section ${index + 1} title`} placeholder="Section title (optional)" maxLength={200} className={cn(fieldClass, 'min-w-[12rem] flex-1')} value={section.title} onChange={event => setAt(index, { ...section, title: event.target.value })} />
           <span className="flex gap-1">
             <button type="button" aria-label={`Move section ${index + 1} up`} disabled={index === 0} onClick={() => onChange(move(sections, index, index - 1))} className={buttonClass({ size: 'icon' })}><ArrowUp className="size-4" /></button>

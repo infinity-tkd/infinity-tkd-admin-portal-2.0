@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 
 
 import { dialogMotion } from '@/lib/motion';
+import { ModalA11y } from '@/components/ui/ModalA11y';
 import { academyDate, isCalendarDate } from '@/lib/dates';
 import { rosterAttendance } from '@/lib/attendance';
 
@@ -582,7 +583,7 @@ export function AttendanceView() {
         <div className="mt-1 flex flex-wrap items-center gap-x-3">
           <Link href="/operations?view=sessions" className="inline-flex min-h-11 items-center text-xs font-semibold text-brand-ink hover:underline">Dated sessions, rescheduling and holidays</Link>
           {isReadOnlyAttendance && (
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">
+            <span className="inline-flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-micro font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">
               Read-Only Mode
             </span>
           )}
@@ -600,6 +601,7 @@ export function AttendanceView() {
       <AnimatePresence>
         {confirmModal && confirmModal.isOpen && (
           <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            <ModalA11y label={confirmModal.title} onClose={() => setConfirmModal(null)} />
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -627,9 +629,9 @@ export function AttendanceView() {
                 )}
               />
 
-              <button
+              <button aria-label="Close"
                 onClick={() => setConfirmModal(null)}
-                className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center pointer-coarse:min-h-11 pointer-coarse:min-w-11"
+                className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center pointer-coarse:min-h-11 pointer-coarse:min-w-11 min-h-6 min-w-6"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -647,9 +649,9 @@ export function AttendanceView() {
                 </div>
               </div>
 
-              <h3 className="text-base font-bold text-neutral-900 dark:text-white tracking-wide mb-2 px-6">
+              <h2 className="text-base font-bold text-neutral-900 dark:text-white tracking-wide mb-2 px-6">
                 {confirmModal.title}
-              </h3>
+              </h2>
 
               <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed mb-6 px-2">
                 {confirmModal.message}
@@ -658,12 +660,12 @@ export function AttendanceView() {
               {/* Quick stats grid inside confirmation modal */}
               <div className="bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 mb-6 flex items-center justify-around text-xs font-mono shadow-inner">
                 <div>
-                  <span className="text-neutral-600 dark:text-neutral-400 block text-[9px] uppercase tracking-wider">{t('att_affected_cohort')}</span>
+                  <span className="text-neutral-600 dark:text-neutral-400 block text-micro uppercase tracking-wider">{t('att_affected_cohort')}</span>
                   <span className="text-neutral-900 dark:text-white font-bold">{confirmModal.actionType==='Commit'?'Saved session rosters':confirmModal.affectedCount+' '+t('att_students_suffix')}</span>
                 </div>
                 <div className="border-l border-neutral-200 dark:border-[#262626] h-6" />
                 <div>
-                  <span className="text-neutral-600 dark:text-neutral-400 block text-[9px] uppercase tracking-wider">{t('att_session_date')}</span>
+                  <span className="text-neutral-600 dark:text-neutral-400 block text-micro uppercase tracking-wider">{t('att_session_date')}</span>
                   <span className="text-neutral-900 dark:text-white font-bold">{selectedDate}</span>
                 </div>
               </div>

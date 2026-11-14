@@ -1,6 +1,7 @@
 'use client';
 
 import { ModalA11y } from '@/components/ui/ModalA11y';
+import { pressable } from '@/components/ui/pressable';
 import { academyDate } from '@/lib/dates';
 import { TelegramContactField } from './ContactActions';
 
@@ -225,51 +226,51 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
              )}
 
              <div className="space-y-4">
-                <h3 className="text-[10px] text-red-500 uppercase font-bold tracking-widest border-b border-neutral-200 dark:border-[#262626] pb-2">{t('usr_account_details')}</h3>
+                <h3 className="text-micro text-red-500 uppercase font-bold tracking-widest border-b border-neutral-200 dark:border-[#262626] pb-2">{t('usr_account_details')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_english_name')} *</label>
-                    <input className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" value={form.englishName} onChange={(e) => setForm({...form, englishName: e.target.value})} placeholder={t('panel_english_name_placeholder')} />
+                    <label htmlFor="add-student-modal-stu_english_name" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_english_name')} *</label>
+                    <input id="add-student-modal-stu_english_name" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" value={form.englishName} onChange={(e) => setForm({...form, englishName: e.target.value})} placeholder={t('panel_english_name_placeholder')} />
                   </div>
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_khmer_name')} *</label>
-                    <input className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 font-khmer" value={form.khmerName} onChange={(e) => setForm({...form, khmerName: e.target.value})} placeholder="កែវ មុនី" />
+                    <label htmlFor="add-student-modal-stu_khmer_name" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_khmer_name')} *</label>
+                    <input id="add-student-modal-stu_khmer_name" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 font-khmer" value={form.khmerName} onChange={(e) => setForm({...form, khmerName: e.target.value})} placeholder="កែវ មុនី" />
                   </div>
                 </div>
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                    <div>
-                    <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_gender')}</label>
-                    <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" value={form.gender} onChange={(e) => setForm({...form, gender: e.target.value as 'Male' | 'Female'})}>
+                    <label htmlFor="add-student-modal-stu_gender" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_gender')}</label>
+                    <select id="add-student-modal-stu_gender" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" value={form.gender} onChange={(e) => setForm({...form, gender: e.target.value as 'Male' | 'Female'})}>
                       <option value="Male">{t('stu_male')}</option>
                       <option value="Female">{t('stu_female')}</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_nationality')}</label>
-                    <input list="nationalities" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" value={form.nationality} onChange={(e) => setForm({...form, nationality: e.target.value})} placeholder={t('panel_nationality_placeholder')} />
+                    <label htmlFor="add-student-modal-stu_nationality" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_nationality')}</label>
+                    <input id="add-student-modal-stu_nationality" list="nationalities" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" value={form.nationality} onChange={(e) => setForm({...form, nationality: e.target.value})} placeholder={t('panel_nationality_placeholder')} />
                   </div>
                 </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_dob')} *</label>
-                      <input type="date" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 [color-scheme:light] dark:[color-scheme:dark]" value={form.dob} onChange={(e) => setForm({...form, dob: e.target.value})} />
+                      <label htmlFor="add-student-modal-stu_dob" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_dob')} *</label>
+                      <input id="add-student-modal-stu_dob" type="date" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 [color-scheme:light] dark:[color-scheme:dark]" value={form.dob} onChange={(e) => setForm({...form, dob: e.target.value})} />
                     </div>
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">Registration Date</label>
-                      <input type="date" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 [color-scheme:light] dark:[color-scheme:dark]" value={form.registrationDate} onChange={(e) => setForm({...form, registrationDate: e.target.value})} />
+                      <label htmlFor="add-student-modal-registration-date" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">Registration Date</label>
+                      <input id="add-student-modal-registration-date" type="date" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 [color-scheme:light] dark:[color-scheme:dark]" value={form.registrationDate} onChange={(e) => setForm({...form, registrationDate: e.target.value})} />
                     </div>
                   </div>
                  <div>
-                   <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_profile_pic_link')}</label>
+                   <label htmlFor="add-student-modal-panel_profile_pic_link" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_profile_pic_link')}</label>
                    <div className="flex gap-4 items-center">
-                     <input className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 flex-1" value={form.profilePicturePath} onChange={(e) => setForm({...form, profilePicturePath: e.target.value})} placeholder={t('panel_profile_pic_placeholder')} />
+                     <input id="add-student-modal-panel_profile_pic_link" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 flex-1" value={form.profilePicturePath} onChange={(e) => setForm({...form, profilePicturePath: e.target.value})} placeholder={t('panel_profile_pic_placeholder')} />
                      {form.profilePicturePath && (
                        <div className="flex flex-col items-center shrink-0">
                          <SafeImage
                            src={form.profilePicturePath}
                            alt="Preview"
                            containerClassName="w-10 h-10 rounded-[8px] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] overflow-hidden flex items-center justify-center shadow-md dark:shadow-black/40"
-                           fallback={<span className="text-[9px] text-red-500 uppercase font-black tracking-tighter bg-red-500/10 border border-red-500/20 px-1 py-0.5 rounded">Err / Private</span>}
+                           fallback={<span className="text-micro text-red-500 uppercase font-black tracking-tighter bg-red-500/10 border border-red-500/20 px-1 py-0.5 rounded">Err / Private</span>}
                          />
                        </div>
                      )}
@@ -282,13 +283,13 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_phone')}</label>
-                    <input type="tel" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                    <label htmlFor="add-student-modal-stu_phone" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_phone')}</label>
+                    <input id="add-student-modal-stu_phone" type="tel" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                        value={form.phone || ''} onChange={e => setForm({...form, phone: e.target.value})} placeholder="012 345 678" />
                   </div>
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_email')}</label>
-                    <input type="email" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                    <label htmlFor="add-student-modal-stu_email" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_email')}</label>
+                    <input id="add-student-modal-stu_email" type="email" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                        value={form.email || ''} onChange={e => setForm({...form, email: e.target.value})} placeholder="student@example.com" />
                   </div>
                   <TelegramContactField id="new-student-telegram" value={form.telegramUsername} onChange={telegramUsername => setForm({...form, telegramUsername})} />
@@ -303,21 +304,21 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_address_line_1')} *</label>
-                    <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                    <label htmlFor="add-student-modal-panel_address_line_1" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_address_line_1')} *</label>
+                    <input id="add-student-modal-panel_address_line_1" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                        value={form.addressLine1} onChange={e => setForm({...form, addressLine1: e.target.value})} placeholder={t('panel_address_line_1_placeholder')} required />
                   </div>
                   <div>
-                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_address_line_2_opt')}</label>
-                     <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                     <label htmlFor="add-student-modal-panel_address_line_2_opt" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_address_line_2_opt')}</label>
+                     <input id="add-student-modal-panel_address_line_2_opt" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                         value={form.addressLine2} onChange={e => setForm({...form, addressLine2: e.target.value})} placeholder={t('panel_address_line_2_placeholder')} />
                    </div>
                    <div className="grid grid-cols-2 gap-4">
                      <div>
-                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_state_province')} *</label>
+                       <label htmlFor="add-student-modal-panel_state_province" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_state_province')} *</label>
                        {form.stateProvince && !CAMBODIA_LOCATIONS[form.stateProvince] ? (
                          <div className="flex gap-2">
-                           <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                           <input id="add-student-modal-panel_state_province" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                              value={form.stateProvince === 'Other Custom' ? '' : form.stateProvince}
                              onChange={e => setForm({...form, stateProvince: e.target.value})}
                              placeholder={t('panel_custom_address')}
@@ -326,7 +327,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                            <button type="button" onClick={() => setForm({...form, stateProvince: '', city: ''})} className="px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333] text-xs text-neutral-700 dark:text-white rounded-[8px] font-bold uppercase transition-colors shrink-0">{t('panel_address_list')}</button>
                          </div>
                        ) : (
-                         <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                         <select id="add-student-modal-panel_state_province" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                            value={form.stateProvince}
                            onChange={e => {
                              const newProv = e.target.value;
@@ -348,10 +349,10 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                        )}
                      </div>
                      <div>
-                       <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_district_commune')} *</label>
+                       <label htmlFor="add-student-modal-panel_district_commune" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_district_commune')} *</label>
                        {form.stateProvince && CAMBODIA_LOCATIONS[form.stateProvince] && (form.city === 'Other Custom' || (form.city !== '' && !CAMBODIA_LOCATIONS[form.stateProvince].includes(form.city))) ? (
                          <div className="flex gap-2">
-                           <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                           <input id="add-student-modal-panel_district_commune" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                              value={form.city === 'Other Custom' ? '' : form.city}
                              onChange={e => setForm({...form, city: e.target.value})}
                              placeholder={t('panel_custom_district')}
@@ -360,7 +361,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                            <button type="button" onClick={() => setForm({...form, city: CAMBODIA_LOCATIONS[form.stateProvince][0] || ''})} className="px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333] text-xs text-neutral-700 dark:text-white rounded-[8px] font-bold uppercase transition-colors shrink-0">{t('panel_address_list')}</button>
                          </div>
                        ) : form.stateProvince && CAMBODIA_LOCATIONS[form.stateProvince] ? (
-                         <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                         <select id="add-student-modal-panel_district_commune" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                            value={form.city}
                            onChange={e => {
                              if (e.target.value === 'Other') {
@@ -378,7 +379,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                            <option value="Other">{t('panel_relation_other')}</option>
                          </select>
                        ) : (
-                         <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                         <input id="add-student-modal-panel_district_commune" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                            value={form.city}
                            onChange={e => setForm({...form, city: e.target.value})}
                            placeholder={t('panel_custom_district')}
@@ -389,13 +390,13 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                    </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_postal_code')}</label>
-                      <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                      <label htmlFor="add-student-modal-panel_postal_code" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_postal_code')}</label>
+                      <input id="add-student-modal-panel_postal_code" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                          value={form.postalCode} onChange={e => setForm({...form, postalCode: e.target.value})} placeholder="e.g. 12000" />
                     </div>
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_country')}</label>
-                      <input list="countries" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                      <label htmlFor="add-student-modal-panel_country" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_country')}</label>
+                      <input id="add-student-modal-panel_country" list="countries" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                          value={form.country} onChange={e => setForm({...form, country: e.target.value})} />
                     </div>
                   </div>
@@ -403,19 +404,19 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
               </div>
 
               <div className="space-y-4 pt-6 border-t border-neutral-200 dark:border-[#262626]">
-                 <h3 className="text-[10px] text-red-500 uppercase font-bold tracking-widest border-b border-neutral-200 dark:border-[#262626] pb-2">{t('stu_emergency_contact')}</h3>
+                 <h3 className="text-micro text-red-500 uppercase font-bold tracking-widest border-b border-neutral-200 dark:border-[#262626] pb-2">{t('stu_emergency_contact')}</h3>
                  <div>
-                   <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_emergency_contact')}</label>
-                   <input className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" value={form.emergencyContactName} onChange={(e) => setForm({...form, emergencyContactName: e.target.value})} placeholder={t('panel_emergency_contact_placeholder')} />
+                   <label htmlFor="add-student-modal-stu_emergency_contact" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_emergency_contact')}</label>
+                   <input id="add-student-modal-stu_emergency_contact" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" value={form.emergencyContactName} onChange={(e) => setForm({...form, emergencyContactName: e.target.value})} placeholder={t('panel_emergency_contact_placeholder')} />
                  </div>
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                    <div>
-                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_emergency_phone')}</label>
-                     <input className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" value={form.emergencyContactPhone} onChange={(e) => setForm({...form, emergencyContactPhone: e.target.value})} placeholder="+855 ..." />
+                     <label htmlFor="add-student-modal-stu_emergency_phone" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_emergency_phone')}</label>
+                     <input id="add-student-modal-stu_emergency_phone" type="tel" inputMode="tel" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" value={form.emergencyContactPhone} onChange={(e) => setForm({...form, emergencyContactPhone: e.target.value})} placeholder="+855 ..." />
                    </div>
                    <div>
-                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_emergency_relation')}</label>
-                     <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" value={form.emergencyContactRelation} onChange={(e) => setForm({...form, emergencyContactRelation: e.target.value})}>
+                     <label htmlFor="add-student-modal-stu_emergency_relation" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_emergency_relation')}</label>
+                     <select id="add-student-modal-stu_emergency_relation" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" value={form.emergencyContactRelation} onChange={(e) => setForm({...form, emergencyContactRelation: e.target.value})}>
                         <option value="">{t('panel_emergency_relation_placeholder')}</option>
                         <option value="Father">{t('panel_relation_father')}</option>
                         <option value="Mother">{t('panel_relation_mother')}</option>
@@ -427,27 +428,27 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                    </div>
                  </div>
                  <div>
-                   <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_medical_notes')}</label>
-                   <textarea className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 resize-none h-16" value={form.medicalNotes} onChange={(e) => setForm({...form, medicalNotes: e.target.value})} placeholder={t('panel_emergency_medical_notes_placeholder')} />
+                   <label htmlFor="add-student-modal-stu_medical_notes" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_medical_notes')}</label>
+                   <textarea id="add-student-modal-stu_medical_notes" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 resize-none h-16" value={form.medicalNotes} onChange={(e) => setForm({...form, medicalNotes: e.target.value})} placeholder={t('panel_emergency_medical_notes_placeholder')} />
                  </div>
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_allergies')}</label>
-                    <textarea className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 resize-none h-16"
+                    <label htmlFor="add-student-modal-stu_allergies" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_allergies')}</label>
+                    <textarea id="add-student-modal-stu_allergies" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 resize-none h-16"
                        value={form.allergies} onChange={e => setForm({...form, allergies: e.target.value})} placeholder={t('panel_emergency_allergies_placeholder')} />
                   </div>
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">Migration & Administration Notes</label>
-                    <textarea className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 resize-none h-16"
+                    <label htmlFor="add-student-modal-migration-administration-notes" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">Migration & Administration Notes</label>
+                    <textarea id="add-student-modal-migration-administration-notes" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 resize-none h-16"
                        value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder={t('panel_migration_placeholder')} />
                   </div>
                 </div>
 
                 <div className="space-y-4 pt-6 border-t border-neutral-200 dark:border-[#262626]">
-                   <h3 className="text-[10px] text-red-500 uppercase font-bold tracking-widest border-b border-neutral-200 dark:border-[#262626] pb-2">{t('usr_role_snapshot')}</h3>
+                   <h3 className="text-micro text-red-500 uppercase font-bold tracking-widest border-b border-neutral-200 dark:border-[#262626] pb-2">{t('usr_role_snapshot')}</h3>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_branch')}</label>
-                        <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                        <label htmlFor="add-student-modal-stu_branch" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_branch')}</label>
+                        <select id="add-student-modal-stu_branch" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                            value={form.homeBranchId} onChange={e => setForm({...form, homeBranchId: Number(e.target.value), classId: ''})}>
                            {state.branches.map(b => (
                              <option key={b.id} value={b.id}>{b.name}</option>
@@ -455,8 +456,8 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_belt')}</label>
-                        <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                        <label htmlFor="add-student-modal-stu_belt" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_belt')}</label>
+                        <select id="add-student-modal-stu_belt" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                            value={form.currentBelt} onChange={e => setForm({...form, currentBelt: e.target.value})}>
                            {beltOrder.map(belt => <option key={belt} value={belt}>{belt}</option>)}
                         </select>
@@ -465,10 +466,10 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
 
                    {/* Visual Class Session selector */}
                    <div className="space-y-2">
-                     <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('nav_schedule')} / class enrollment</label>
-                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-1">
+                     <span id="add-student-modal-class-enrollment-label" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('nav_schedule')} / class enrollment</span>
+                     <div role="group" aria-labelledby="add-student-modal-class-enrollment-label" className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-1">
                        <div
-                         onClick={() => setForm({...form, classId: ''})}
+                         {...pressable(() => setForm({...form, classId: ''}), form.classId === '')}
                          className={cn(
                            "cursor-pointer p-3 rounded-[8px] border transition-all duration-200 flex flex-col justify-between h-[80px]",
                            form.classId === ''
@@ -477,7 +478,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                          )}
                        >
                          <div className="flex items-center justify-between">
-                           <span className="text-[9px] font-black uppercase tracking-wider">Default</span>
+                           <span className="text-micro font-black uppercase tracking-wider">Default</span>
                            {form.classId === '' && <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0"/>}
                          </div>
                          <div>
@@ -495,7 +496,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                          return (
                            <div
                              key={c.id}
-                             onClick={() => setForm({...form, classId: c.id.toString()})}
+                             {...pressable(() => setForm({...form, classId: c.id.toString()}), isSelected)}
                              className={cn(
                                "cursor-pointer p-3 rounded-[8px] border transition-all duration-200 flex flex-col justify-between h-[80px]",
                                isSelected
@@ -505,7 +506,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                            >
                              <div className="flex items-center justify-between gap-1">
                                <span className={cn(
-                                 "px-1.5 py-0.5 rounded-[8px] text-[9px] font-black uppercase tracking-wider border",
+                                 "px-1.5 py-0.5 rounded-[8px] text-micro font-black uppercase tracking-wider border",
                                  isSelected ? "bg-white/10 border-white/20 text-white dark:bg-neutral-100 dark:border-neutral-200 dark:text-neutral-800" : `${style.bg} ${style.border} ${style.text}`
                                )}>
                                  {c.classType}
@@ -513,7 +514,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
 
                                <div className="flex items-center gap-1.5 shrink-0">
                                  {isFull && (
-                                   <span className="bg-red-500/10 text-red-500 border border-red-500/20 px-1 py-0.5 rounded-[8px] text-[9px] font-black tracking-wider leading-none">FULL</span>
+                                   <span className="bg-red-500/10 text-red-500 border border-red-500/20 px-1 py-0.5 rounded-[8px] text-micro font-black tracking-wider leading-none">FULL</span>
                                  )}
                                  {isSelected && <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0"/>}
                                </div>
@@ -521,7 +522,7 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
 
                              <div className="mt-1">
                                <p className="text-xs font-black truncate">{c.name}</p>
-                               <p className="text-[9px] opacity-75 font-mono truncate">
+                               <p className="text-micro opacity-75 font-mono truncate">
                                  {c.daysOfWeek?.join(', ') || c.dayOfWeek} • {c.startTime} - {c.endTime}
                                </p>
                              </div>
@@ -541,8 +542,8 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                    </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_scholarship')}</label>
-                      <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                      <label htmlFor="add-student-modal-stu_scholarship" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_scholarship')}</label>
+                      <select id="add-student-modal-stu_scholarship" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                          value={form.scholarshipId} onChange={e => setForm({...form, scholarshipId: Number(e.target.value)})}>
                          {state.scholarships.map(s => (
                            <option key={s.id} value={s.id}>{s.typeName} ({s.discountPercentage}%)</option>
@@ -550,21 +551,21 @@ export function AddStudentModal({ onClose }: { onClose: () => void }) {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_height')}</label>
-                      <input type="number" step="0.1" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                      <label htmlFor="add-student-modal-stu_height" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_height')}</label>
+                      <input id="add-student-modal-stu_height" type="number" step="0.1" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                          value={form.heightCm || ''} onChange={e => setForm({...form, heightCm: Number(e.target.value)})} placeholder="0" />
                     </div>
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_weight')}</label>
-                      <input type="number" step="0.1" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                      <label htmlFor="add-student-modal-stu_weight" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_weight')}</label>
+                      <input id="add-student-modal-stu_weight" type="number" step="0.1" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                          value={form.weightKg || ''} onChange={e => setForm({...form, weightKg: Number(e.target.value)})} placeholder="0" />
                     </div>
                     {(form.currentBelt.includes('Poom') || form.currentBelt.includes('Dan')) && (
                       <div>
-                        <label className="block text-[10px] uppercase font-bold mb-1 transition-colors text-red-500">
+                        <label htmlFor="add-student-modal-panel_kukkiwon_global_id" className="block text-micro uppercase font-bold mb-1 transition-colors text-red-500">
                           {t('panel_kukkiwon_global_id')}
                         </label>
-                        <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 font-mono"
+                        <input id="add-student-modal-panel_kukkiwon_global_id" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 font-mono"
                            value={(form as any).kukkiwonId || ''} onChange={e => setForm({...form, kukkiwonId: e.target.value})} placeholder={t('panel_kukkiwon_placeholder')} />
                       </div>
                     )}

@@ -60,10 +60,10 @@ export function ProductVariantDialog({ selectedVariantModalProduct, modalSelecte
                   <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-brand/10 text-brand-ink">
+                        <span className="text-micro uppercase font-bold px-2 py-0.5 rounded bg-brand/10 text-brand-ink">
                           {product.category}
                         </span>
-                        <span className="text-[10px] text-neutral-400 font-mono">
+                        <span className="text-micro text-neutral-400 font-mono">
                           {variants.length} variations
                         </span>
                       </div>
@@ -84,7 +84,7 @@ export function ProductVariantDialog({ selectedVariantModalProduct, modalSelecte
                   {/* Collar Style / Color Selector */}
                   {distinctColors.length > 0 && (
                     <div className="space-y-1.5">
-                      <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400">
+                      <label className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400">
                         1. COLLAR STYLE / COLOR
                       </label>
                       <div className="flex flex-wrap gap-2">
@@ -120,7 +120,7 @@ export function ProductVariantDialog({ selectedVariantModalProduct, modalSelecte
                               <span>{c}</span>
                               <span
                                 className={cn(
-                                  "text-[9px] px-1.5 py-0.5 rounded-full font-mono",
+                                  "text-micro px-1.5 py-0.5 rounded-full font-mono",
                                   isSelected ? "bg-white/20 text-white" : "bg-neutral-200 dark:bg-[#262626] text-neutral-500"
                                 )}
                               >
@@ -136,7 +136,7 @@ export function ProductVariantDialog({ selectedVariantModalProduct, modalSelecte
                   {/* Size Selector */}
                   {distinctSizes.length > 0 && (
                     <div className="space-y-1.5">
-                      <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400">
+                      <label className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400">
                         2. SELECT SIZE
                       </label>
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -169,7 +169,7 @@ export function ProductVariantDialog({ selectedVariantModalProduct, modalSelecte
                               <span className="font-bold text-xs">{sz}</span>
                               <span
                                 className={cn(
-                                  "text-[9px] mt-0.5",
+                                  "text-micro mt-0.5",
                                   isSelected ? "text-white/80" : isOutOfStock ? "text-rose-500" : "text-neutral-500 dark:text-neutral-400"
                                 )}
                               >
@@ -186,18 +186,18 @@ export function ProductVariantDialog({ selectedVariantModalProduct, modalSelecte
                   <div className="p-3 bg-neutral-50 dark:bg-[#181818] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <div>
-                        <span className="text-[10px] text-neutral-500 uppercase font-mono block">Selected Variant SKU</span>
+                        <span className="text-micro text-neutral-500 uppercase font-mono block">Selected Variant SKU</span>
                         <span className="font-mono font-bold text-neutral-900 dark:text-white">
                           {activeVariant?.sku || product.sku}
                         </span>
                       </div>
                       <div className="text-right">
-                        <span className="text-[10px] text-neutral-500 uppercase font-mono block">Unit Price</span>
+                        <span className="text-micro text-neutral-500 uppercase font-mono block">Unit Price</span>
                         <span className="font-bold text-base text-brand-ink">${unitPrice.toFixed(2)}</span>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-1 border-t border-neutral-200 dark:border-[#262626] text-[11px]">
+                    <div className="flex items-center justify-between pt-1 border-t border-neutral-200 dark:border-[#262626] text-micro">
                       <span className="text-neutral-600 dark:text-neutral-400">Inventory Status:</span>
                       <span
                         className={cn(
@@ -215,22 +215,22 @@ export function ProductVariantDialog({ selectedVariantModalProduct, modalSelecte
                   <div className="flex items-center justify-between p-2.5 bg-neutral-50 dark:bg-[#181818] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
                     <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">Quantity to Add:</span>
                     <div className="flex items-center gap-2">
-                      <button
+                      <button aria-label="Decrease quantity"
                         type="button"
                         disabled={modalQuantity <= 1}
                         onClick={() => setModalQuantity(prev => Math.max(1, prev - 1))}
-                        className="w-8 h-8 rounded-[6px] bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 flex items-center justify-center text-neutral-700 dark:text-neutral-200 disabled:opacity-40 cursor-pointer active:scale-90 touch-manipulation"
+                        className="w-8 h-8 rounded-[6px] bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 flex items-center justify-center text-neutral-700 dark:text-neutral-200 disabled:opacity-40 cursor-pointer active:scale-90 touch-manipulation min-h-6 min-w-6"
                       >
                         <Minus size={13} weight="bold" />
                       </button>
                       <span className="w-8 text-center font-bold text-sm text-neutral-900 dark:text-white font-mono">
                         {modalQuantity}
                       </span>
-                      <button
+                      <button aria-label="Increase quantity"
                         type="button"
                         disabled={modalQuantity >= maxAddable || maxAddable <= 0}
                         onClick={() => setModalQuantity(prev => Math.min(maxAddable, prev + 1))}
-                        className="w-8 h-8 rounded-[6px] bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 flex items-center justify-center text-neutral-700 dark:text-neutral-200 disabled:opacity-40 cursor-pointer active:scale-90 touch-manipulation"
+                        className="w-8 h-8 rounded-[6px] bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 flex items-center justify-center text-neutral-700 dark:text-neutral-200 disabled:opacity-40 cursor-pointer active:scale-90 touch-manipulation min-h-6 min-w-6"
                       >
                         <Plus size={13} weight="bold" />
                       </button>

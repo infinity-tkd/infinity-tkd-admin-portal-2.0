@@ -5,7 +5,11 @@ import { physicalGradeScore } from './physical-grades';
 import { academyDate, daysBetween, isCalendarDate } from './dates';
 import { rowsForStudent } from './attendance-index';
 import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { extendTailwindMerge } from "tailwind-merge"
+
+// text-micro is the portal's smallest font size (--text-micro in app/globals.css). Declared here as a font size: otherwise
+// tailwind-merge reads any unknown text-* class as a text colour and drops one of "text-micro" and "text-neutral-500".
+const twMerge = extendTailwindMerge({ extend: { classGroups: { 'font-size': [{ text: ['micro'] }] } } })
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

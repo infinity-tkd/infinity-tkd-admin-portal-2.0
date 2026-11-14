@@ -50,31 +50,31 @@ export function LiveRosterPanel({ absentCount, activeClass, attendanceActions, c
               {activeClass ? activeClass.name : 'No Class Selected'}
             </h3>
             {activeClass && (
-              <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-[#1E1E1E] text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-[#333]">
+              <span className="text-micro font-mono px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-[#1E1E1E] text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-[#333]">
                 {activeClass.startTime} - {activeClass.endTime}
               </span>
             )}
           </div>
-          <p className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
+          <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
             {classStudents.length} total enrolled active students
           </p>
         </div>
 
         {/* Attendance Stats Pills */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20">
+          <span className="text-micro font-mono font-bold px-2 py-0.5 rounded-full bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20">
             Present: {presentCount}
           </span>
-          <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+          <span className="text-micro font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
             Late: {lateCount}
           </span>
-          <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
+          <span className="text-micro font-mono font-bold px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
             Absent: {absentCount}
           </span>
-          <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-[#1F1F1F] text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-[#333]">
+          <span className="text-micro font-mono font-bold px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-[#1F1F1F] text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-[#333]">
             Unmarked: {unmarkedCount}
           </span>
-          <span className="text-[9px] font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand/10 text-brand-ink border border-brand/20">
+          <span className="text-micro font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand/10 text-brand-ink border border-brand/20">
             Turnout: {classTurnoutPct}%
           </span>
         </div>
@@ -93,13 +93,13 @@ export function LiveRosterPanel({ absentCount, activeClass, attendanceActions, c
             placeholder="Search student or belt..."
             value={rosterSearch}
             onChange={(e) => setRosterSearch(e.target.value)}
-            className="w-full bg-white dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[6px] sm:rounded-[8px] pl-8 pr-7 h-8 sm:h-8.5 text-[11px] sm:text-xs font-medium focus:outline-none focus:border-brand/50 placeholder-neutral-400 dark:placeholder-neutral-500"
+            className="w-full bg-white dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[6px] sm:rounded-[8px] pl-8 pr-7 h-8 sm:h-8.5 text-micro sm:text-xs font-medium focus:outline-none focus:border-brand/50 placeholder-neutral-400 dark:placeholder-neutral-500"
           />
           {rosterSearch && (
-            <button
+            <button aria-label="Clear search"
               type="button"
               onClick={() => setRosterSearch('')}
-              className="absolute inset-y-0 right-0 pr-2 flex items-center text-neutral-400 hover:text-neutral-700 dark:hover:text-white cursor-pointer"
+              className="absolute inset-y-0 right-0 pr-2 flex items-center text-neutral-400 hover:text-neutral-700 dark:hover:text-white cursor-pointer min-h-6 min-w-6 justify-center"
             >
               <X className="w-3 h-3" />
             </button>
@@ -115,7 +115,7 @@ export function LiveRosterPanel({ absentCount, activeClass, attendanceActions, c
               aria-pressed={rosterStatusFilter === tab}
               onClick={() => setRosterStatusFilter(tab)}
               className={cn(
-                "min-h-8 pointer-coarse:min-h-9 px-2 py-1 rounded-[6px] text-[9px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer",
+                "min-h-8 pointer-coarse:min-h-9 px-2 py-1 rounded-[6px] text-micro font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer",
                 rosterStatusFilter === tab
                   ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 shadow-sm"
                   : "bg-white dark:bg-[#1A1A1A] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-neutral-200 dark:border-[#2D2D2D]"
@@ -135,7 +135,7 @@ export function LiveRosterPanel({ absentCount, activeClass, attendanceActions, c
         {canMarkAttendance && <button
           onClick={handleMarkAllClassPresent}
           disabled={attendanceActions.busy || (classStudents.length === 0)}
-          className="w-full sm:w-auto px-2.5 h-8 sm:h-auto py-1.5 bg-green-600 hover:bg-green-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-[6px] text-[9px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1 shadow-sm shrink-0 cursor-pointer active:scale-95 touch-manipulation"
+          className="w-full sm:w-auto px-2.5 h-8 sm:h-auto py-1.5 bg-green-600 hover:bg-green-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-[6px] text-micro font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1 shadow-sm shrink-0 cursor-pointer active:scale-95 touch-manipulation"
           title="Mark all eligible enrolled students as Present"
         >
           <CheckCircle className="w-3 h-3" />
@@ -164,20 +164,20 @@ export function LiveRosterPanel({ absentCount, activeClass, attendanceActions, c
                   fallback={<span className="font-bold text-neutral-500 dark:text-neutral-400 text-xs">{student.englishName.charAt(0)}</span>}
                 />
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-[11px] font-bold leading-none flex items-center gap-1.5 truncate text-neutral-900 dark:text-neutral-100">
+                  <h4 className="text-micro font-bold leading-none flex items-center gap-1.5 truncate text-neutral-900 dark:text-neutral-100">
                     <span className="truncate">{student.englishName}</span>
                     {student.khmerName && (
-                      <span className="text-[9px] text-neutral-400 dark:text-neutral-500 font-normal">
+                      <span className="text-micro text-neutral-400 dark:text-neutral-500 font-normal">
                         ({student.khmerName})
                       </span>
                     )}
                     {isNotYetEnrolled && (
-                      <span className="px-1 py-0.2 rounded bg-red-950/40 border border-red-500/30 text-red-400 font-bold uppercase tracking-widest text-[9px] whitespace-nowrap shrink-0">
+                      <span className="px-1 py-0.2 rounded bg-red-950/40 border border-red-500/30 text-red-400 font-bold uppercase tracking-widest text-micro whitespace-nowrap shrink-0">
                         {t('panel_not_enrolled_yet')}
                       </span>
                     )}
                   </h4>
-                  <div className="flex items-center gap-2 mt-1 text-[9px] text-neutral-500 dark:text-neutral-400 font-mono">
+                  <div className="flex items-center gap-2 mt-1 text-micro text-neutral-500 dark:text-neutral-400 font-mono">
                     <span className="uppercase tracking-wider font-semibold text-neutral-700 dark:text-neutral-300">
                       {translateBeltFormatted(student.currentBelt, student.dob)}
                     </span>
@@ -203,7 +203,7 @@ export function LiveRosterPanel({ absentCount, activeClass, attendanceActions, c
                   disabled={attendanceActions.busy || (isNotYetEnrolled)}
                   onClick={() => attendanceActions.mark(student.id, todayDate, 'Present', selectedClassId ?? undefined)}
                   className={cn(
-                    "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[9px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                    "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-micro sm:text-micro font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                     isNotYetEnrolled
                       ? "opacity-25 cursor-not-allowed border-transparent text-neutral-400 bg-neutral-200 dark:bg-[#1A1A1A]"
                       : currentStatus === 'Present'
@@ -217,7 +217,7 @@ export function LiveRosterPanel({ absentCount, activeClass, attendanceActions, c
                   disabled={attendanceActions.busy || (isNotYetEnrolled)}
                   onClick={() => attendanceActions.mark(student.id, todayDate, 'Late', selectedClassId ?? undefined)}
                   className={cn(
-                    "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[9px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                    "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-micro sm:text-micro font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                     isNotYetEnrolled
                       ? "opacity-25 cursor-not-allowed border-transparent text-neutral-400 bg-neutral-200 dark:bg-[#1A1A1A]"
                       : currentStatus === 'Late'
@@ -231,7 +231,7 @@ export function LiveRosterPanel({ absentCount, activeClass, attendanceActions, c
                   disabled={attendanceActions.busy || (isNotYetEnrolled)}
                   onClick={() => attendanceActions.mark(student.id, todayDate, 'Absent', selectedClassId ?? undefined)}
                   className={cn(
-                    "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-[9.5px] sm:text-[9px] font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                    "flex-1 sm:flex-none px-2.5 py-1 min-h-[32px] sm:min-h-[28px] text-micro sm:text-micro font-bold uppercase tracking-wider rounded-[6px] border transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                     isNotYetEnrolled
                       ? "opacity-25 cursor-not-allowed border-transparent text-neutral-400 bg-neutral-200 dark:bg-[#1A1A1A]"
                       : currentStatus === 'Absent'
@@ -244,7 +244,7 @@ export function LiveRosterPanel({ absentCount, activeClass, attendanceActions, c
                 {canDeleteAttendance && currentStatus !== 'Unmarked' && (
                   <button
                     onClick={() => handleUnmarkStudent(student.id)}
-                    className="px-2 py-1 min-h-[32px] sm:min-h-[28px] text-[9px] font-bold uppercase tracking-wider rounded-[6px] border border-neutral-200 dark:border-[#2D2D2D] bg-white dark:bg-[#1A1A1A] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation shrink-0 pointer-coarse:min-h-11"
+                    className="px-2 py-1 min-h-[32px] sm:min-h-[28px] text-micro font-bold uppercase tracking-wider rounded-[6px] border border-neutral-200 dark:border-[#2D2D2D] bg-white dark:bg-[#1A1A1A] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-all cursor-pointer flex items-center justify-center active:scale-95 touch-manipulation shrink-0 pointer-coarse:min-h-11"
                     title="Reset back to Unmarked" disabled={attendanceActions.busy}
                   >
                     <ArrowsCounterClockwise className="w-3.5 h-3.5" />
@@ -266,7 +266,7 @@ export function LiveRosterPanel({ absentCount, activeClass, attendanceActions, c
             {rosterSearch && (
               <button
                 onClick={() => { setRosterSearch(''); setRosterStatusFilter('all'); }}
-                className="mt-2 text-[10px] text-brand-ink hover:underline font-mono uppercase tracking-wider cursor-pointer"
+                className="mt-2 text-micro text-brand-ink hover:underline font-mono uppercase tracking-wider cursor-pointer"
               >
                 Clear search &amp; filters
               </button>

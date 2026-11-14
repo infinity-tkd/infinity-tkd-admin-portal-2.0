@@ -218,7 +218,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
           <div className="p-4 border-b border-neutral-200 dark:border-[#262626] flex justify-between items-center bg-neutral-50 dark:bg-[#141414] shrink-0">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-white">{t('usr_add_account')}</h2>
-              <p className="text-[10px] text-neutral-500 dark:text-[#666] mt-0.5">{t('usr_add_account_desc')}</p>
+              <p className="text-micro text-neutral-500 dark:text-[#666] mt-0.5">{t('usr_add_account_desc')}</p>
             </div>
             <button
               type="button"
@@ -242,8 +242,8 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
               <h3 className="text-xs font-bold uppercase tracking-widest text-brand-ink border-b border-neutral-200 dark:border-[#262626] pb-2">1. {t('usr_account_details')}</h3>
 
               <div>
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_username')} <span className="text-brand-ink">*</span></label>
-                <input type="text" value={form.username} onChange={e => setForm({...form, username: e.target.value})}
+                <label htmlFor="add-staff-modal-usr_username" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_username')} <span className="text-brand-ink">*</span></label>
+                <input id="add-staff-modal-usr_username" type="text" value={form.username} onChange={e => setForm({...form, username: e.target.value})}
                   className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                   placeholder="e.g. coach_moni"
                   required
@@ -251,8 +251,8 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_display_name')} <span className="text-brand-ink">*</span></label>
-                <input type="text" value={form.displayName} onChange={e => setForm({...form, displayName: e.target.value})}
+                <label htmlFor="add-staff-modal-usr_display_name" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_display_name')} <span className="text-brand-ink">*</span></label>
+                <input id="add-staff-modal-usr_display_name" type="text" value={form.displayName} onChange={e => setForm({...form, displayName: e.target.value})}
                   className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                   placeholder={t('panel_english_name_placeholder')}
                   required
@@ -260,8 +260,8 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_email')} <span className="text-brand-ink">*</span></label>
-                <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})}
+                <label htmlFor="add-staff-modal-stu_email" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_email')} <span className="text-brand-ink">*</span></label>
+                <input id="add-staff-modal-stu_email" type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})}
                   className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                   placeholder="e.g. moni@infinitytkd.com"
                   required
@@ -269,9 +269,9 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_profile_pic_link')}</label>
+                <label htmlFor="add-staff-modal-panel_profile_pic_link" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_profile_pic_link')}</label>
                 <div className="flex gap-4 items-center">
-                  <input type="text" value={form.profilePicturePath} onChange={e => setForm({...form, profilePicturePath: e.target.value})}
+                  <input id="add-staff-modal-panel_profile_pic_link" type="text" value={form.profilePicturePath} onChange={e => setForm({...form, profilePicturePath: e.target.value})}
                     className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 flex-1"
                     placeholder={t('panel_profile_pic_placeholder')}
                   />
@@ -281,7 +281,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                         src={form.profilePicturePath}
                         alt="Preview"
                         containerClassName="w-10 h-10 rounded-[8px] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] overflow-hidden flex items-center justify-center shadow-md dark:shadow-black/40"
-                        fallback={<span className="text-[9px] text-red-500 uppercase font-black tracking-tighter bg-red-500/10 border border-red-500/20 px-1 py-0.5 rounded">Err / Private</span>}
+                        fallback={<span className="text-micro text-red-500 uppercase font-black tracking-tighter bg-red-500/10 border border-red-500/20 px-1 py-0.5 rounded">Err / Private</span>}
                       />
                     </div>
                   )}
@@ -289,24 +289,24 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_password_default_hint')}</label>
-                <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})}
+                <label htmlFor="add-staff-modal-usr_password_default_hint" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_password_default_hint')}</label>
+                <input id="add-staff-modal-usr_password_default_hint" type="password" autoComplete="new-password" value={form.password} onChange={e => setForm({...form, password: e.target.value})}
                   className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                   placeholder="••••••••"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_confirm_password')}</label>
-                <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
+                <label htmlFor="add-staff-modal-usr_confirm_password" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_confirm_password')}</label>
+                <input id="add-staff-modal-usr_confirm_password" type="password" autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
                   className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                   placeholder="••••••••"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_role')}</label>
-                <select value={form.role} onChange={e => setForm({...form, role: e.target.value as Role})}
+                <label htmlFor="add-staff-modal-usr_role" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('usr_role')}</label>
+                <select id="add-staff-modal-usr_role" value={form.role} onChange={e => setForm({...form, role: e.target.value as Role})}
                   className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                 >
                   <option value="Admin">Admin</option>
@@ -330,22 +330,22 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_khmer_name')}</label>
-                  <input type="text" value={form.khmerName} onChange={e => setForm({...form, khmerName: e.target.value})}
+                  <label htmlFor="add-staff-modal-stu_khmer_name" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_khmer_name')}</label>
+                  <input id="add-staff-modal-stu_khmer_name" type="text" value={form.khmerName} onChange={e => setForm({...form, khmerName: e.target.value})}
                     className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                     placeholder="កែវ មុនី"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_english_name')}</label>
-                  <input type="text" value={form.englishName} onChange={e => setForm({...form, englishName: e.target.value})}
+                  <label htmlFor="add-staff-modal-stu_english_name" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_english_name')}</label>
+                  <input id="add-staff-modal-stu_english_name" type="text" value={form.englishName} onChange={e => setForm({...form, englishName: e.target.value})}
                     className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                     placeholder={t('panel_english_name_placeholder')}
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_gender')}</label>
-                  <select value={form.gender} onChange={e => setForm({...form, gender: e.target.value as 'Male' | 'Female'})}
+                  <label htmlFor="add-staff-modal-stu_gender" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_gender')}</label>
+                  <select id="add-staff-modal-stu_gender" value={form.gender} onChange={e => setForm({...form, gender: e.target.value as 'Male' | 'Female'})}
                     className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                   >
                     <option value="Male">{t('stu_male')}</option>
@@ -353,8 +353,8 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_nationality')}</label>
-                  <input list="nationalities" type="text" value={(form as any).nationality || ''} onChange={e => setForm({...form, nationality: e.target.value})}
+                  <label htmlFor="add-staff-modal-stu_nationality" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_nationality')}</label>
+                  <input id="add-staff-modal-stu_nationality" list="nationalities" type="text" value={(form as any).nationality || ''} onChange={e => setForm({...form, nationality: e.target.value})}
                     className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                     placeholder={t('panel_nationality_placeholder')}
                   />
@@ -362,14 +362,14 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_dob')}</label>
-                  <input type="date" value={form.dob} onChange={e => setForm({...form, dob: e.target.value})}
+                  <label htmlFor="add-staff-modal-stu_dob" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_dob')}</label>
+                  <input id="add-staff-modal-stu_dob" type="date" value={form.dob} onChange={e => setForm({...form, dob: e.target.value})}
                     className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 [color-scheme:light] dark:[color-scheme:dark]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_phone')}</label>
-                  <input type="tel" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}
+                  <label htmlFor="add-staff-modal-stu_phone" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_phone')}</label>
+                  <input id="add-staff-modal-stu_phone" type="tel" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}
                     className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                     placeholder="+855 ..."
                   />
@@ -381,26 +381,26 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
               <div className="space-y-4 pt-4 border-t border-neutral-200 dark:border-[#262626]">
                 <div className="flex items-center gap-2 border-b border-neutral-200 dark:border-[#262626] pb-2">
                   <MapPin className="w-4 h-4 text-red-500" />
-                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-ink">{t('stf_home_address') || 'Home Address'}</h4>
+                  <h4 className="text-micro font-bold uppercase tracking-widest text-brand-ink">{t('stf_home_address') || 'Home Address'}</h4>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_address_line_1')} *</label>
-                    <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                    <label htmlFor="add-staff-modal-panel_address_line_1" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_address_line_1')} *</label>
+                    <input id="add-staff-modal-panel_address_line_1" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                        value={(form as any).addressLine1} onChange={e => setForm({...form, addressLine1: e.target.value})} placeholder={t('panel_address_line_1_placeholder')} required />
                   </div>
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_address_line_2_opt')}</label>
-                    <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                    <label htmlFor="add-staff-modal-panel_address_line_2_opt" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_address_line_2_opt')}</label>
+                    <input id="add-staff-modal-panel_address_line_2_opt" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                        value={(form as any).addressLine2} onChange={e => setForm({...form, addressLine2: e.target.value})} placeholder={t('panel_address_line_2_placeholder')} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_state_province')} *</label>
+                      <label htmlFor="add-staff-modal-panel_state_province" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_state_province')} *</label>
                       {form.stateProvince && !CAMBODIA_LOCATIONS[form.stateProvince] ? (
                         <div className="flex gap-2">
-                          <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 rounded-[8px] px-3 py-2 text-sm"
+                          <input id="add-staff-modal-panel_state_province" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 rounded-[8px] px-3 py-2 text-sm"
                             value={form.stateProvince === 'Other Custom' ? '' : form.stateProvince}
                             onChange={e => setForm({...form, stateProvince: e.target.value})}
                             placeholder={t('panel_custom_address')}
@@ -409,7 +409,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                           <button type="button" onClick={() => setForm({...form, stateProvince: '', city: ''})} className="px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333] text-xs text-neutral-700 dark:text-white rounded-[8px] font-bold uppercase transition-colors shrink-0">{t('panel_address_list')}</button>
                         </div>
                       ) : (
-                        <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                        <select id="add-staff-modal-panel_state_province" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                           value={form.stateProvince}
                           onChange={e => {
                             const newProv = e.target.value;
@@ -431,10 +431,10 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                       )}
                     </div>
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_district_commune')} *</label>
+                      <label htmlFor="add-staff-modal-panel_district_commune" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_district_commune')} *</label>
                       {form.stateProvince && CAMBODIA_LOCATIONS[form.stateProvince] && (form.city === 'Other Custom' || (form.city !== '' && !CAMBODIA_LOCATIONS[form.stateProvince].includes(form.city))) ? (
                         <div className="flex gap-2">
-                          <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 rounded-[8px] px-3 py-2 text-sm"
+                          <input id="add-staff-modal-panel_district_commune" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 rounded-[8px] px-3 py-2 text-sm"
                             value={form.city === 'Other Custom' ? '' : form.city}
                             onChange={e => setForm({...form, city: e.target.value})}
                             placeholder={t('panel_custom_district')}
@@ -443,7 +443,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                           <button type="button" onClick={() => setForm({...form, city: CAMBODIA_LOCATIONS[form.stateProvince][0] || ''})} className="px-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333] text-xs text-neutral-700 dark:text-white rounded-[8px] font-bold uppercase transition-colors shrink-0">{t('panel_address_list')}</button>
                         </div>
                       ) : form.stateProvince && CAMBODIA_LOCATIONS[form.stateProvince] ? (
-                        <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                        <select id="add-staff-modal-panel_district_commune" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                           value={form.city}
                           onChange={e => {
                             if (e.target.value === 'Other') {
@@ -461,7 +461,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                           <option value="Other">Other...</option>
                         </select>
                       ) : (
-                        <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                        <input id="add-staff-modal-panel_district_commune" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                           value={form.city}
                           onChange={e => setForm({...form, city: e.target.value})}
                           placeholder={t('panel_custom_district')}
@@ -472,31 +472,31 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_postal_code')}</label>
-                      <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                      <label htmlFor="add-staff-modal-panel_postal_code" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_postal_code')}</label>
+                      <input id="add-staff-modal-panel_postal_code" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                          value={(form as any).postalCode} onChange={e => setForm({...form, postalCode: e.target.value})} />
                     </div>
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_country')}</label>
-                      <input type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
+                      <label htmlFor="add-staff-modal-panel_country" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_country')}</label>
+                      <input id="add-staff-modal-panel_country" type="text" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                          value={(form as any).country} onChange={e => setForm({...form, country: e.target.value})} />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-ink pt-2 border-t border-neutral-200 dark:border-[#262626]">{t('stu_emergency_contact')}</h4>
+              <h4 className="text-micro font-bold uppercase tracking-widest text-brand-ink pt-2 border-t border-neutral-200 dark:border-[#262626]">{t('stu_emergency_contact')}</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_emergency_contact')}</label>
-                  <input type="text" value={form.emergencyContactName} onChange={e => setForm({...form, emergencyContactName: e.target.value})}
+                  <label htmlFor="add-staff-modal-stu_emergency_contact" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_emergency_contact')}</label>
+                  <input id="add-staff-modal-stu_emergency_contact" type="text" value={form.emergencyContactName} onChange={e => setForm({...form, emergencyContactName: e.target.value})}
                     className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                     placeholder={t('panel_emergency_contact_placeholder')}
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_emergency_relation')}</label>
-                  <select className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" value={form.emergencyContactRelation} onChange={(e) => setForm({...form, emergencyContactRelation: e.target.value})}>
+                  <label htmlFor="add-staff-modal-stu_emergency_relation" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_emergency_relation')}</label>
+                  <select id="add-staff-modal-stu_emergency_relation" className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600" value={form.emergencyContactRelation} onChange={(e) => setForm({...form, emergencyContactRelation: e.target.value})}>
                      <option value="">{t('panel_emergency_relation_placeholder')}</option>
                      <option value="Father">{t('panel_relation_father')}</option>
                      <option value="Mother">{t('panel_relation_mother')}</option>
@@ -507,8 +507,8 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_emergency_phone')}</label>
-                  <input type="tel" value={form.emergencyContactPhone} onChange={e => setForm({...form, emergencyContactPhone: e.target.value})}
+                  <label htmlFor="add-staff-modal-stu_emergency_phone" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_emergency_phone')}</label>
+                  <input id="add-staff-modal-stu_emergency_phone" type="tel" value={form.emergencyContactPhone} onChange={e => setForm({...form, emergencyContactPhone: e.target.value})}
                     className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600"
                     placeholder="+855 ..."
                   />
@@ -517,15 +517,15 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_medical_notes')}</label>
-                  <textarea value={form.medicalNotes} onChange={e => setForm({...form, medicalNotes: e.target.value})}
+                  <label htmlFor="add-staff-modal-stu_medical_notes" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_medical_notes')}</label>
+                  <textarea id="add-staff-modal-stu_medical_notes" value={form.medicalNotes} onChange={e => setForm({...form, medicalNotes: e.target.value})}
                     className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 resize-none h-16"
                     placeholder={t('panel_emergency_medical_notes_placeholder')}
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_allergies')}</label>
-                  <textarea value={form.allergies} onChange={e => setForm({...form, allergies: e.target.value})}
+                  <label htmlFor="add-staff-modal-stu_allergies" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('stu_allergies')}</label>
+                  <textarea id="add-staff-modal-stu_allergies" value={form.allergies} onChange={e => setForm({...form, allergies: e.target.value})}
                     className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-red-500 dark:focus:border-red-600 focus:ring-1 focus:ring-red-500 dark:focus:ring-red-600 resize-none h-16"
                     placeholder={t('panel_emergency_allergies_placeholder')}
                   />
@@ -535,8 +535,8 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
           </div>
 
           <div className="p-4 border-t border-neutral-200 dark:border-[#262626] flex justify-end gap-3 bg-neutral-50 dark:bg-[#0A0A0A] shrink-0">
-            <button onClick={onClose} className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] text-neutral-700 dark:text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] dark:hover:bg-[#262626] transition-colors">{t('act_cancel')}</button>
-            <button onClick={handleSave} className="px-4 py-2 bg-brand text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] hover:opacity-90 transition-opacity">{t('usr_provision_account')}</button>
+            <button onClick={onClose} className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] text-neutral-700 dark:text-white font-bold uppercase tracking-widest text-micro rounded-[8px] dark:hover:bg-[#262626] transition-colors">{t('act_cancel')}</button>
+            <button onClick={handleSave} className="px-4 py-2 bg-brand text-white font-bold uppercase tracking-widest text-micro rounded-[8px] hover:opacity-90 transition-opacity">{t('usr_provision_account')}</button>
           </div>
          </motion.div>
       </div>
@@ -564,7 +564,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                     type="button"
                     onClick={() => setShowConfirm(false)}
                     disabled={isSaving}
-                    className="flex-1 py-2.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] text-neutral-700 dark:text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] text-neutral-700 dark:text-white font-bold uppercase tracking-widest text-micro rounded-[8px] transition-colors disabled:opacity-50"
                   >
                     {t('act_cancel')}
                   </button>
@@ -572,7 +572,7 @@ export function AddStaffModal({ onClose }: AddStaffModalProps) {
                     type="button"
                     onClick={executeSave}
                     disabled={isSaving}
-                    className="flex-1 py-2.5 bg-brand hover:opacity-90 disabled:opacity-50 text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-opacity flex items-center justify-center gap-1.5"
+                    className="flex-1 py-2.5 bg-brand hover:opacity-90 disabled:opacity-50 text-white font-bold uppercase tracking-widest text-micro rounded-[8px] transition-opacity flex items-center justify-center gap-1.5"
                   >
                     {isSaving ? (
                       <>

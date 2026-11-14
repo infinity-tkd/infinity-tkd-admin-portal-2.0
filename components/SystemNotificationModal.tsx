@@ -1,8 +1,9 @@
 'use client';
 
 import { dialogMotion } from '@/lib/motion';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAppStore, type SystemNotification } from '@/lib/store';
+import { useModalFocus } from '@/hooks/use-modal-focus';
 import { motion, AnimatePresence, useIsPresent } from 'motion/react';
 import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
 import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
@@ -49,17 +50,18 @@ function NotificationContent({ notification }: { notification: SystemNotificatio
     }
   }, [notification, hideNotification]);
 
-  // Keyboard shortcut: Escape to dismiss
+  // Errors and warnings need an answer, so they are a modal alert dialog: focus moves in, Tab stays inside, Escape dismisses, and focus returns
+  // to what had it. Success and info notices vanish by themselves after 4.5 s: they are announced as a status message and never take focus
+  // (a person typing in a form would otherwise lose their keystrokes); Escape still dismisses them.
+  const modal = notification.type === 'error' || notification.type === 'warning';
+  const panel = useRef<HTMLDivElement>(null);
+  useModalFocus(panel, hideNotification, present && modal);
   useEffect(() => {
-    if (!present) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && notification) {
-        hideNotification();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [notification, hideNotification, present]);
+    if (modal || !present) return;
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') hideNotification(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [modal, present, hideNotification]);
 
   const handleCopyDetails = useCallback(async () => {
     if (!notification) return;
@@ -134,22 +136,27 @@ URL: ${typeof window !== 'undefined' ? window.location.href : ''}`;
   const headerTitle = notification.title || theme.headerLabel;
 
   return (
-      <div 
+      <div
+        ref={panel}
         inert={!present}
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200"
-        role="alertdialog"
-        aria-modal="true"
+        tabIndex={modal ? -1 : undefined}
+        className={`fixed inset-0 z-[9999] flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200 outline-none${modal ? '' : ' pointer-events-none'}`}
+        role={modal ? 'alertdialog' : 'status'}
+        aria-modal={modal ? true : undefined}
         aria-labelledby="sys-modal-title"
         aria-describedby="sys-modal-desc"
       >
-        {/* Backdrop blur with overlay */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={hideNotification}
-          className="absolute inset-0 bg-black/80 backdrop-blur-md"
-        />
+        {/* Errors and warnings dim and block the page behind them. A success or info notice is a passing status message: it neither dims nor
+            intercepts pointer input, so the person can keep working (and tap the control they were about to) while it is on screen. */}
+        {modal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={hideNotification}
+            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+          />
+        )}
 
         {/* Modal Card container */}
         <motion.div
@@ -158,7 +165,7 @@ URL: ${typeof window !== 'undefined' ? window.location.href : ''}`;
           style={{
             boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 45px ${theme.glowColor}`,
           }}
-          className={`relative w-full max-w-lg bg-white dark:bg-[#111111] border ${theme.borderColor} rounded-[10px] p-5 sm:p-6 text-neutral-900 dark:text-white shadow-2xl overflow-hidden z-10 max-h-[92dvh] flex flex-col`}
+          className={`pointer-events-auto relative w-full max-w-lg bg-white dark:bg-[#111111] border ${theme.borderColor} rounded-[10px] p-5 sm:p-6 text-neutral-900 dark:text-white shadow-2xl overflow-hidden z-10 max-h-[92dvh] flex flex-col`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Subtle top edge glow */}
@@ -183,17 +190,22 @@ URL: ${typeof window !== 'undefined' ? window.location.href : ''}`;
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                <span className={`text-[9px] font-mono uppercase font-black px-2 py-0.5 rounded-[4px] border tracking-wider ${theme.badgeBg}`}>
-                  {theme.headerLabel}
-                </span>
+              {/* The kind badge is dropped when the title already says the same thing ("Success" over "Success"). */}
+              {(headerTitle !== theme.headerLabel || notification.code) && (
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                  {headerTitle !== theme.headerLabel && (
+                    <span className={`text-micro font-mono uppercase font-black px-2 py-0.5 rounded-[4px] border tracking-wider ${theme.badgeBg}`}>
+                      {theme.headerLabel}
+                    </span>
+                  )}
 
-                {notification.code && (
-                  <span className="text-[9px] font-mono text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] px-1.5 py-0.5 rounded-[4px] truncate max-w-[200px]">
-                    {notification.code}
-                  </span>
-                )}
-              </div>
+                  {notification.code && (
+                    <span className="text-micro font-mono text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] px-1.5 py-0.5 rounded-[4px] truncate max-w-[200px]">
+                      {notification.code}
+                    </span>
+                  )}
+                </div>
+              )}
 
               <h2 id="sys-modal-title" className="text-base font-black tracking-tight text-neutral-900 dark:text-white leading-tight">
                 {headerTitle}
@@ -213,7 +225,7 @@ URL: ${typeof window !== 'undefined' ? window.location.href : ''}`;
                 <button
                   type="button"
                   onClick={() => setShowDetails(!showDetails)}
-                  className="w-full px-3 py-2 flex items-center justify-between text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer font-mono text-[11px]"
+                  className="w-full px-3 py-2 flex items-center justify-between text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer font-mono text-micro"
                 >
                   <span className="flex items-center gap-1.5 font-bold">
                     <Bug className="w-3.5 h-3.5 text-brand-ink" />
@@ -223,7 +235,7 @@ URL: ${typeof window !== 'undefined' ? window.location.href : ''}`;
                 </button>
 
                 {showDetails && (
-                  <div className="p-3 border-t border-neutral-200 dark:border-[#262626] bg-black/40 font-mono text-[11px] text-neutral-300 overflow-x-auto max-h-40 whitespace-pre-wrap break-all leading-tight">
+                  <div className="p-3 border-t border-neutral-200 dark:border-[#262626] bg-black/40 font-mono text-micro text-neutral-300 overflow-x-auto max-h-40 whitespace-pre-wrap break-all leading-tight">
                     {notification.details}
                   </div>
                 )}
@@ -255,6 +267,7 @@ URL: ${typeof window !== 'undefined' ? window.location.href : ''}`;
 
             <button
               type="button"
+              autoFocus={modal}
               onClick={hideNotification}
               className={`w-full sm:w-auto min-w-[110px] px-5 py-2 min-h-[40px] rounded-[8px] font-bold text-xs uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-md flex items-center justify-center cursor-pointer ${theme.btnBg}`}
             >

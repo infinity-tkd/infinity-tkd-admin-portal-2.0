@@ -81,7 +81,7 @@ export function LessonOrderDialog({ onClose }: { onClose: () => void }) {
                   <span aria-hidden="true" className="w-7 shrink-0 text-center font-mono text-xs font-bold text-ink-subtle">{index + 1}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-semibold text-ink">{row.title}</span>
-                    <span className="text-[11px] text-ink-subtle">{row.isPublished ? 'Published to students' : 'Draft (not visible to students yet)'}</span>
+                    <span className="text-micro text-ink-subtle">{row.isPublished ? 'Published to students' : 'Draft (not visible to students yet)'}</span>
                   </span>
                   <label className="sr-only" htmlFor={`length-${assetId}`}>Video length for {row.title}</label>
                   <input id={`length-${assetId}`} inputMode="numeric" placeholder="m:ss" value={lengths[assetId] ?? ''} disabled={saving}

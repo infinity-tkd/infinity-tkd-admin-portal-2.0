@@ -1,7 +1,8 @@
 'use client';
 
+import { useEffect, useSyncExternalStore } from 'react';
 import { useAppStore } from '@/lib/store';
-import { translations, TranslationKey } from '@/lib/i18n';
+import { dictionary, dictionaryVersion, loadDictionary, subscribeToDictionaries, type TranslationKey } from '@/lib/i18n';
 
 // A dynamic translation registry for database items like LMS titles, categories, and descriptions.
 export const curriculumTranslations: Record<string, { kh: string; zh: string }> = {
@@ -228,11 +229,11 @@ export type TranslatorFn = ((key: TranslationKey) => string) & {
 export function useT(): TranslatorFn {
   const { state } = useAppStore();
   const lang = state.language || 'en';
+  // Khmer and Chinese are loaded on demand: re-render once the dictionary for the chosen language has arrived.
+  useSyncExternalStore(subscribeToDictionaries, dictionaryVersion, () => 0);
+  useEffect(() => { void loadDictionary(lang); }, [lang]);
 
-  const translate = (key: TranslationKey): string => {
-    const localeDict = translations[lang] || translations.en;
-    return localeDict[key] || translations.en[key] || String(key);
-  };
+  const translate = (key: TranslationKey): string => dictionary(lang)[key] || dictionary('en')[key] || String(key);
 
   const translateText = (text: string | undefined): string => {
     if (!text) return '';

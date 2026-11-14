@@ -38,7 +38,7 @@ export function TranslationEditor({ lang, english, sections, value, onChange }: 
           const id = `${lang}-${section.id}-${field.path.join('-')}`;
           const current = readPath(t.sections?.[section.id], field.path);
           return <div key={id}>
-            <label htmlFor={id} className="mb-1 block text-[11px] text-ink-subtle"><span className="font-semibold text-ink-muted">English:</span> {field.english.length > 240 ? field.english.slice(0, 240) + '…' : field.english}</label>
+            <label htmlFor={id} className="mb-1 block text-micro text-ink-subtle"><span className="font-semibold text-ink-muted">English:</span> {field.english.length > 240 ? field.english.slice(0, 240) + '…' : field.english}</label>
             {field.multiline
               ? <textarea id={id} rows={2} className={cn(fieldClass, 'py-2')} value={current} placeholder={`${language} (optional)`} onChange={event => setSection(section.id, field.path, event.target.value)} />
               : <input id={id} className={fieldClass} value={current} placeholder={`${language} (optional)`} onChange={event => setSection(section.id, field.path, event.target.value)} />}

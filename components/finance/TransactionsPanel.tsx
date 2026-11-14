@@ -58,10 +58,10 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-5 shadow-sm flex flex-col justify-between group overflow-hidden relative">
               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
               <div>
-                <p className="text-[9px] sm:text-[10px] text-emerald-700 dark:text-emerald-400 uppercase font-bold tracking-widest mb-1 truncate">Realized Income</p>
+                <p className="text-micro sm:text-micro text-emerald-700 dark:text-emerald-400 uppercase font-bold tracking-widest mb-1 truncate">Realized Income</p>
                 <h2 className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">${transactionStats.totalCollected.toFixed(2)}</h2>
               </div>
-              <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
+              <p className="text-micro sm:text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
                 Confirmed collections
               </p>
             </div>
@@ -69,10 +69,10 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-5 shadow-sm flex flex-col justify-between group overflow-hidden relative">
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
               <div>
-                <p className="text-[9px] sm:text-[10px] text-indigo-600 dark:text-indigo-400 uppercase font-bold tracking-widest mb-1 truncate">Transactions</p>
+                <p className="text-micro sm:text-micro text-indigo-600 dark:text-indigo-400 uppercase font-bold tracking-widest mb-1 truncate">Transactions</p>
                 <h2 className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">{transactionStats.count}</h2>
               </div>
-              <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
+              <p className="text-micro sm:text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
                 {transactionStats.paidCount} settlements
               </p>
             </div>
@@ -80,10 +80,10 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-5 shadow-sm flex flex-col justify-between group overflow-hidden relative">
               <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
               <div>
-                <p className="text-[9px] sm:text-[10px] text-blue-600 dark:text-blue-400 uppercase font-bold tracking-widest mb-1 truncate">Avg Ticket</p>
+                <p className="text-micro sm:text-micro text-blue-600 dark:text-blue-400 uppercase font-bold tracking-widest mb-1 truncate">Avg Ticket</p>
                 <h2 className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">${transactionStats.avgVal.toFixed(2)}</h2>
               </div>
-              <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
+              <p className="text-micro sm:text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
                 Avg per receipt
               </p>
             </div>
@@ -91,10 +91,10 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-5 shadow-sm flex flex-col justify-between group overflow-hidden relative">
               <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
               <div>
-                <p className="text-[9px] sm:text-[10px] text-amber-700 dark:text-amber-400 uppercase font-bold tracking-widest mb-1 truncate">Peak Payment</p>
+                <p className="text-micro sm:text-micro text-amber-700 dark:text-amber-400 uppercase font-bold tracking-widest mb-1 truncate">Peak Payment</p>
                 <h2 className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">${transactionStats.maxVal.toFixed(2)}</h2>
               </div>
-              <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
+              <p className="text-micro sm:text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2 truncate">
                 Highest payment
               </p>
             </div>
@@ -116,13 +116,13 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                   className="w-full pl-9 pr-8 h-10 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[6px] text-xs focus:outline-none focus:border-brand transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                 />
                 {searchTransactions && (
-                  <button onClick={() => setSearchTransactions('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-white p-1">
+                  <button aria-label="Clear search" onClick={() => setSearchTransactions('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-white p-1 min-h-6 min-w-6 inline-flex items-center justify-center">
                     <X className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
 
-              <select
+              <select aria-label="Filter transactions by branch"
                 value={filterTransactionBranch}
                 onChange={(e) => {
                   setFilterTransactionBranch(e.target.value === 'all' ? 'all' : Number(e.target.value));
@@ -136,7 +136,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                 ))}
               </select>
 
-              <select
+              <select aria-label="Filter transactions by year"
                 value={filterTransactionYear}
                 onChange={(e) => {
                   setFilterTransactionYear(e.target.value === 'all' ? 'all' : Number(e.target.value));
@@ -150,7 +150,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                 <option value={currentActualYear - 2}>{currentActualYear - 2}</option>
               </select>
 
-              <select
+              <select aria-label="Filter transactions by month"
                 value={filterTransactionMonth}
                 onChange={(e) => {
                   setFilterTransactionMonth(e.target.value);
@@ -199,7 +199,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
               <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-8 text-center text-neutral-500 dark:text-neutral-400">
                 <Receipt className="w-8 h-8 mx-auto mb-2 opacity-40 text-neutral-400" />
                 <p className="font-bold uppercase tracking-widest text-neutral-800 dark:text-[#E4E4E4] text-xs mb-1">No transaction records</p>
-                <p className="font-mono text-[10px]">No payments match the active filter</p>
+                <p className="font-mono text-micro">No payments match the active filter</p>
               </div>
             ) : (
               paginatedTransactions.map(p => {
@@ -218,18 +218,18 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                           src={student.profilePicturePath}
                           alt={student.englishName}
                           containerClassName="w-9 h-9 rounded-full bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0"
-                          fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-[10px]">{student.englishName.charAt(0)}</span>}
+                          fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-micro">{student.englishName.charAt(0)}</span>}
                         />
                         <div className="min-w-0">
                           <div className="font-bold text-xs text-neutral-900 dark:text-white flex items-center gap-1.5 truncate">
                             <span className="truncate">{student.englishName}</span>
                             {student.khmerName && (
-                              <span className="text-[10px] font-khmer text-neutral-500 dark:text-neutral-400 font-normal shrink-0">
+                              <span className="text-micro font-khmer text-neutral-500 dark:text-neutral-400 font-normal shrink-0">
                                 {student.khmerName}
                               </span>
                             )}
                           </div>
-                          <div className="text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 truncate">
+                          <div className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 truncate">
                             ID: {student.id} • {branchName}
                           </div>
                         </div>
@@ -239,7 +239,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                         <span className="font-mono text-emerald-700 dark:text-emerald-400 font-bold text-base block">
                           +${(p.amountUsd || 0).toFixed(2)}
                         </span>
-                        <span className="text-[9px] font-mono text-neutral-500 dark:text-neutral-400">
+                        <span className="text-micro font-mono text-neutral-500 dark:text-neutral-400">
                           {p.month} {p.year}
                         </span>
                       </div>
@@ -247,7 +247,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
 
                     {/* Middle row: Ref ID & Status */}
                     <div className="flex items-center justify-between pt-1 border-t border-neutral-100 dark:border-[#202020] text-xs">
-                      <div className="flex items-center gap-1.5 font-mono text-[10px] text-neutral-600 dark:text-neutral-400">
+                      <div className="flex items-center gap-1.5 font-mono text-micro text-neutral-600 dark:text-neutral-400">
                         <span>{refId}</span>
                         <button
                           onClick={() => handleCopyTxnId(refId)}
@@ -263,7 +263,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                       </div>
 
                       <span className={cn(
-                        "inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] font-mono font-bold text-[9px] uppercase tracking-wider",
+                        "inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] font-mono font-bold text-micro uppercase tracking-wider",
                         p.status === 'Paid'
                           ? "bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30"
                           : "bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30"
@@ -296,7 +296,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
           <div className="hidden md:block bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden shadow-sm">
             <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-left text-xs whitespace-nowrap border-collapse min-w-[750px]">
-                <thead className="bg-neutral-50 dark:bg-[#0F0F0F] text-neutral-600 dark:text-neutral-400 uppercase tracking-widest font-bold border-b border-neutral-200 dark:border-[#262626] text-[10px]">
+                <thead className="bg-neutral-50 dark:bg-[#0F0F0F] text-neutral-600 dark:text-neutral-400 uppercase tracking-widest font-bold border-b border-neutral-200 dark:border-[#262626] text-micro">
                   <tr>
                     <th
                       className="px-5 py-3.5 min-w-[220px] cursor-pointer hover:bg-neutral-100 dark:hover:bg-[#161616] transition-colors group/th select-none"
@@ -373,7 +373,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                       <td colSpan={7} className="px-6 py-16 text-center text-neutral-500 dark:text-neutral-400">
                          <Receipt className="w-8 h-8 mx-auto mb-2 opacity-40 text-neutral-400" />
                          <p className="font-bold uppercase tracking-widest text-neutral-800 dark:text-[#E4E4E4] text-xs mb-1">No transaction records found</p>
-                         <p className="font-mono text-[10px]">No payments match the active filter criteria</p>
+                         <p className="font-mono text-micro">No payments match the active filter criteria</p>
                       </td>
                     </tr>
                   ) : (
@@ -392,23 +392,23 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                                 src={student.profilePicturePath}
                                 alt={student.englishName}
                                 containerClassName="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 group-hover:border-brand transition-colors"
-                                fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-[10px]">{student.englishName.charAt(0)}</span>}
+                                fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-micro">{student.englishName.charAt(0)}</span>}
                               />
                               <div>
                                 <div className="font-bold text-xs text-neutral-900 dark:text-white flex items-center gap-1.5 group-hover:text-brand-ink dark:group-hover:text-white transition-colors">
                                   {student.englishName}
                                   {student.khmerName && (
-                                    <span className="text-[10px] font-khmer text-neutral-500 dark:text-neutral-400 font-normal">
+                                    <span className="text-micro font-khmer text-neutral-500 dark:text-neutral-400 font-normal">
                                       {student.khmerName}
                                     </span>
                                   )}
                                   {scholarship && scholarship.discountPercentage > 0 && (
-                                    <span className="px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-bold uppercase text-[9px] border border-indigo-500/20">
+                                    <span className="px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-bold uppercase text-micro border border-indigo-500/20">
                                       {scholarship.typeName}
                                     </span>
                                   )}
                                 </div>
-                                <div className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
+                                <div className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
                                   ID: {student.id}
                                 </div>
                               </div>
@@ -418,11 +418,11 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                             {branchName}
                           </td>
                           <td className="px-4 py-3.5">
-                            <span className="text-[10px] font-bold text-neutral-800 dark:text-neutral-200 bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] px-2.5 py-1 rounded-[6px] font-mono">
+                            <span className="text-micro font-bold text-neutral-800 dark:text-neutral-200 bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] px-2.5 py-1 rounded-[6px] font-mono">
                               {p.month} {p.year}
                             </span>
                           </td>
-                          <td className="px-4 py-3.5 font-mono text-[10px]">
+                          <td className="px-4 py-3.5 font-mono text-micro">
                             <div className="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400">
                               <span>{refId}</span>
                               <button
@@ -440,7 +440,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                           </td>
                           <td className="px-4 py-3.5 text-center">
                             <span className={cn(
-                              "inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] font-mono font-bold text-[9px] uppercase tracking-wider",
+                              "inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] font-mono font-bold text-micro uppercase tracking-wider",
                               p.status === 'Paid'
                                 ? "bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30"
                                 : "bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30"
@@ -460,7 +460,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                                 year: p.year,
                                 amount: p.amountUsd || 0
                               })}
-                              className="px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#333] hover:border-neutral-300 dark:hover:border-[#444] text-neutral-800 dark:text-[#E4E4E4] hover:text-neutral-900 dark:hover:text-white rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ml-auto cursor-pointer shadow-xs active:scale-95 touch-manipulation"
+                              className="px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-[#333] hover:border-neutral-300 dark:hover:border-[#444] text-neutral-800 dark:text-[#E4E4E4] hover:text-neutral-900 dark:hover:text-white rounded-[6px] text-micro font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ml-auto cursor-pointer shadow-xs active:scale-95 touch-manipulation"
                             >
                               <Receipt className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400"/>
                               <span>Receipt</span>
@@ -478,13 +478,13 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
           {/* Pagination Controls (Responsive) */}
           {filteredTransactionsList.length > 0 && (
             <div className="p-3 border border-neutral-200 dark:border-[#262626] rounded-[8px] bg-white dark:bg-[#141414] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-xs">
-              <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 font-mono text-[10px]">
+              <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 font-mono text-micro">
                 <span>
                   Showing {Math.min((txnPage - 1) * txnPerPage + 1, filteredTransactionsList.length)}–{Math.min(txnPage * txnPerPage, filteredTransactionsList.length)} of {filteredTransactionsList.length} transactions
                 </span>
                 <span className="opacity-40">•</span>
                 <span>Per page:</span>
-                <select
+                <select aria-label="Transactions per page"
                   value={txnPerPage}
                   onChange={(e) => {
                     setTxnPerPage(Number(e.target.value));
@@ -509,7 +509,7 @@ export function TransactionsPanel({ transactionStats, searchTransactions, setSea
                   <span>Prev</span>
                 </button>
 
-                <span className="px-2 font-mono text-[10px] text-neutral-600 dark:text-neutral-400">
+                <span className="px-2 font-mono text-micro text-neutral-600 dark:text-neutral-400">
                   Page <strong className="text-neutral-900 dark:text-white">{txnPage}</strong> of {totalTxnPages}
                 </span>
 

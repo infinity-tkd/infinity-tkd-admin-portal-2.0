@@ -30,9 +30,10 @@ export function KpiCard({ label, value, icon, tone = 'neutral', hint, onClick, a
   const body = (
     <>
       <div className="min-w-0">
-        <p className={cn('truncate font-mono text-[10px] font-bold uppercase tracking-wider', palette.label)}>{label}</p>
+        {/* Up to two lines: "Tuition Collection" must not be cut to an ellipsis in a half-width card on a 320px phone. */}
+        <p className={cn('line-clamp-2 break-words font-mono text-micro font-bold uppercase leading-tight tracking-wider', palette.label)}>{label}</p>
         <p className={cn('mt-0.5 font-mono text-xl font-black tabular-nums sm:text-2xl', palette.text)}>{value}</p>
-        {hint && <div className="mt-1 truncate text-[10px] font-medium text-ink-subtle">{hint}</div>}
+        {hint && <div className="mt-1 truncate text-micro font-medium text-ink-subtle">{hint}</div>}
       </div>
       {/* The icon shows only when the card itself is wide enough, so four cards across an
           iPad in portrait keep their labels ("Tuition collection") whole instead of cut off. */}

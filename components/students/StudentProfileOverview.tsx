@@ -101,14 +101,14 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="bg-neutral-50/70 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] p-3.5 rounded-[8px] flex flex-col justify-between shadow-sm">
                     <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('nav_attendance')}</span>
+                      <span className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('nav_attendance')}</span>
                       <Calendar className="w-4 h-4 text-emerald-500" />
                     </div>
                     <div>
                       <p className="text-xl font-mono font-bold text-neutral-900 dark:text-white">
                         {attendanceRate !== null ? `${attendanceRate}%` : '—'}
                       </p>
-                      <p className="text-[9px] text-neutral-400 dark:text-neutral-500 font-medium truncate mt-0.5">
+                      <p className="text-micro text-neutral-400 dark:text-neutral-500 font-medium truncate mt-0.5">
                         {totalClasses > 0 ? t('panel_classes_count').replace('{attended}', String(attendedClasses)).replace('{total}', String(totalClasses)) : t('panel_no_logs')}
                       </p>
                     </div>
@@ -116,14 +116,14 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
 
                   <div className="bg-neutral-50/70 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] p-3.5 rounded-[8px] flex flex-col justify-between shadow-sm">
                     <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_belt')}</span>
+                      <span className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_belt')}</span>
                       <Certificate className="w-4 h-4 text-brand-ink" />
                     </div>
                     <div>
                       <p className="text-sm font-bold text-neutral-900 dark:text-white truncate">
                         {formatBeltLocalized(student.currentBelt, student.dob, t)}
                       </p>
-                      <p className="text-[9px] text-neutral-400 dark:text-neutral-500 font-medium truncate mt-0.5">
+                      <p className="text-micro text-neutral-400 dark:text-neutral-500 font-medium truncate mt-0.5">
                         {beltPromotionsCount > 0 ? t('panel_promotions_count').replace('{count}', String(beltPromotionsCount)) : t('panel_white_belt_level')}
                       </p>
                     </div>
@@ -131,14 +131,14 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
 
                   <div className="bg-neutral-50/70 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] p-3.5 rounded-[8px] flex flex-col justify-between shadow-sm">
                     <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('panel_medals_label')}</span>
+                      <span className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('panel_medals_label')}</span>
                       <Trophy className="w-4 h-4 text-amber-500" />
                     </div>
                     <div>
                       <p className="text-xl font-mono font-bold text-neutral-900 dark:text-white">
                         {achievementsCount}
                       </p>
-                      <p className="text-[9px] text-neutral-400 dark:text-neutral-500 font-medium truncate mt-0.5">
+                      <p className="text-micro text-neutral-400 dark:text-neutral-500 font-medium truncate mt-0.5">
                         {totalCount > 0 ? `${goldCount}G • ${silverCount}S • ${bronzeCount}B` : t('panel_tournament_awards')}
                       </p>
                     </div>
@@ -146,14 +146,14 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
 
                   <div className="bg-neutral-50/70 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] p-3.5 rounded-[8px] flex flex-col justify-between shadow-sm">
                     <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('nav_schedule')}</span>
+                      <span className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('nav_schedule')}</span>
                       <Clock className="w-4 h-4 text-blue-500" />
                     </div>
                     <div>
                       <p className="text-xl font-mono font-bold text-neutral-900 dark:text-white">
                         {activeEnrollmentsCount}
                       </p>
-                      <p className="text-[9px] text-neutral-400 dark:text-neutral-500 font-medium truncate mt-0.5">
+                      <p className="text-micro text-neutral-400 dark:text-neutral-500 font-medium truncate mt-0.5">
                         {t('panel_enrolled_sessions')}
                       </p>
                     </div>
@@ -174,7 +174,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                       <button
                         type="button"
                         onClick={() => handleCopy(student.id, 'Student ID')}
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] bg-neutral-100 dark:bg-[#1A1A1A] hover:bg-neutral-200 dark:hover:bg-[#262626] text-neutral-600 dark:text-neutral-400 text-[10px] font-mono font-bold transition-colors cursor-pointer border border-neutral-200 dark:border-[#333]"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] bg-neutral-100 dark:bg-[#1A1A1A] hover:bg-neutral-200 dark:hover:bg-[#262626] text-neutral-600 dark:text-neutral-400 text-micro font-mono font-bold transition-colors cursor-pointer border border-neutral-200 dark:border-[#333]"
                         title="Copy Student ID"
                       >
                         {copiedField === 'Student ID' ? (
@@ -188,32 +188,32 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
                       <div className="space-y-0.5">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_english_name')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_english_name')}</p>
                         <p className="text-xs font-bold text-neutral-900 dark:text-white">{student.englishName}</p>
                       </div>
                       <div className="space-y-0.5 font-khmer">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider font-sans">{t('stu_khmer_name')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider font-sans">{t('stu_khmer_name')}</p>
                         <p className="text-xs font-bold text-neutral-900 dark:text-white">{student.khmerName || '—'}</p>
                       </div>
                       <div className="space-y-0.5">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_dob')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_dob')}</p>
                         <p className="text-xs text-neutral-900 dark:text-white font-mono font-bold flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5 text-neutral-400" />
                           <span>{student.dob || '—'}</span>
-                          <span className="text-neutral-500 dark:text-neutral-400 text-[10px] font-normal">
+                          <span className="text-neutral-500 dark:text-neutral-400 text-micro font-normal">
                             ({calculateAge()} yrs, {getAgeDivision()})
                           </span>
                         </p>
                       </div>
                       <div className="space-y-0.5">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_nationality')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_nationality')}</p>
                         <p className="text-xs text-neutral-900 dark:text-white font-bold flex items-center gap-1.5">
                           <Globe className="w-3.5 h-3.5 text-neutral-400" />
                           <span>{student.nationality || 'Cambodian'}</span>
                         </p>
                       </div>
                       <div className="space-y-0.5">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_gender')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_gender')}</p>
                         <p className="text-xs text-neutral-900 dark:text-white font-bold flex items-center gap-1.5">
                           {student.gender === 'Male' ? (
                             <>
@@ -229,7 +229,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                         </p>
                       </div>
                       <div className="space-y-0.5">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_reg_date')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_reg_date')}</p>
                         <p className="text-xs text-neutral-900 dark:text-white font-mono font-bold">{student.registrationDate || '—'}</p>
                       </div>
                     </div>
@@ -248,7 +248,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="p-3 bg-white dark:bg-[#1A1A1A] rounded-[8px] border border-neutral-200 dark:border-[#262626] flex items-center justify-between">
                         <div className="space-y-0.5 min-w-0 pr-2">
-                          <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_phone')}</p>
+                          <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_phone')}</p>
                           {student.phone ? (
                             <a href={`tel:${student.phone}`} className="text-xs font-mono font-bold text-neutral-900 dark:text-white hover:text-brand-ink transition-colors flex items-center gap-1.5 truncate">
                               <Phone className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
@@ -272,7 +272,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
 
                       <div className="p-3 bg-white dark:bg-[#1A1A1A] rounded-[8px] border border-neutral-200 dark:border-[#262626] flex items-center justify-between">
                         <div className="space-y-0.5 min-w-0 pr-2">
-                          <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_email')}</p>
+                          <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_email')}</p>
                           {student.email ? (
                             <a href={`mailto:${student.email}`} className="text-xs font-mono font-bold text-neutral-900 dark:text-white hover:text-brand-ink transition-colors flex items-center gap-1.5 truncate" title={student.email}>
                               <Envelope className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
@@ -298,25 +298,25 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                     {/* Guardian Contact */}
                     <div className="p-3 bg-white dark:bg-[#1A1A1A] rounded-[8px] border border-neutral-200 dark:border-[#262626] space-y-2.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('panel_guardian_contact')}</span>
-                        <span className="text-[9px] bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 font-bold uppercase tracking-wider px-2 py-0.5 rounded-[8px] flex items-center gap-1">
+                        <span className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('panel_guardian_contact')}</span>
+                        <span className="text-micro bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 font-bold uppercase tracking-wider px-2 py-0.5 rounded-[8px] flex items-center gap-1">
                           <ShieldWarning className="w-3 h-3" /> {t('stu_emergency_contact')}
                         </span>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">{t('panel_guardian_name')}</p>
+                          <p className="text-micro text-neutral-400 dark:text-neutral-500 font-medium">{t('panel_guardian_name')}</p>
                           <p className="text-xs text-neutral-900 dark:text-white font-bold mt-0.5">{student.emergencyContactName || '—'}</p>
                           {student.emergencyContactRelation && (
-                            <span className="inline-block mt-1 text-[9px] bg-neutral-100 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300 font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-[8px] border border-neutral-200 dark:border-[#333]">
+                            <span className="inline-block mt-1 text-micro bg-neutral-100 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300 font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-[8px] border border-neutral-200 dark:border-[#333]">
                               {student.emergencyContactRelation}
                             </span>
                           )}
                         </div>
 
                         <div>
-                          <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">{t('panel_guardian_phone')}</p>
+                          <p className="text-micro text-neutral-400 dark:text-neutral-500 font-medium">{t('panel_guardian_phone')}</p>
                           <div className="flex items-center justify-between mt-0.5">
                             {student.emergencyContactPhone ? (
                               <a href={`tel:${student.emergencyContactPhone}`} className="text-xs font-mono font-bold text-neutral-900 dark:text-white hover:text-brand-ink transition-colors flex items-center gap-1.5">
@@ -343,7 +343,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
 
                     {/* Residential Address */}
                     <div>
-                      <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider mb-1.5 flex items-center gap-1">
+                      <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider mb-1.5 flex items-center gap-1">
                         <MapPin className="w-3.5 h-3.5 text-neutral-400" />
                         <span>{t('stf_home_address')}</span>
                       </p>
@@ -352,7 +352,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                           <p className="font-bold text-neutral-900 dark:text-white">{student.address.line1}</p>
                           {student.address.line2 && <p className="text-neutral-500 dark:text-neutral-400">{student.address.line2}</p>}
                           <p>{student.address.city}{student.address.stateProvince ? `, ${student.address.stateProvince}` : ''} {student.address.postalCode}</p>
-                          <p className="text-[9px] uppercase font-bold tracking-wider text-neutral-400 dark:text-neutral-500 mt-1 pt-1 border-t border-neutral-100 dark:border-[#262626]">{student.address.country || 'Cambodia'}</p>
+                          <p className="text-micro uppercase font-bold tracking-wider text-neutral-400 dark:text-neutral-500 mt-1 pt-1 border-t border-neutral-100 dark:border-[#262626]">{student.address.country || 'Cambodia'}</p>
                         </div>
                       ) : (
                         <p className="text-xs text-neutral-400 dark:text-neutral-500 italic">{t('panel_address_not_provided')}</p>
@@ -371,15 +371,15 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
 
                     <div className="grid grid-cols-3 gap-3">
                       <div className="p-3 bg-white dark:bg-[#1A1A1A] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-center">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_height')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_height')}</p>
                         <p className="text-sm font-mono font-bold text-neutral-900 dark:text-white mt-1">{student.heightCm ? `${student.heightCm} cm` : '—'}</p>
                       </div>
                       <div className="p-3 bg-white dark:bg-[#1A1A1A] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-center">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_weight')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_weight')}</p>
                         <p className="text-sm font-mono font-bold text-neutral-900 dark:text-white mt-1">{student.weightKg ? `${student.weightKg} kg` : '—'}</p>
                       </div>
                       <div className="p-3 bg-white dark:bg-[#1A1A1A] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-center">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('panel_bmi')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('panel_bmi')}</p>
                         {(() => {
                           const heightM = student.heightCm ? student.heightCm / 100 : 0;
                           const bmiVal = (heightM > 0 && student.weightKg) ? Number((student.weightKg / (heightM * heightM)).toFixed(1)) : null;
@@ -395,7 +395,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                           return (
                             <div className="mt-1 flex flex-col items-center gap-1">
                               <p className="text-sm font-mono font-bold text-neutral-900 dark:text-white">{bmiVal}</p>
-                              <span className={cn("text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border", info.color)}>
+                              <span className={cn("text-micro font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border", info.color)}>
                                 {info.label}
                               </span>
                             </div>
@@ -406,7 +406,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="p-3 bg-white dark:bg-[#1A1A1A] rounded-[8px] border border-neutral-200 dark:border-[#262626] space-y-1">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider flex items-center gap-1.5">
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-brand"></span>
                           <span>{t('stu_medical_notes')}</span>
                         </p>
@@ -416,7 +416,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                       </div>
 
                       <div className="p-3 bg-white dark:bg-[#1A1A1A] rounded-[8px] border border-neutral-200 dark:border-[#262626] space-y-1">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider flex items-center gap-1.5">
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                           <span>{t('stu_allergies')}</span>
                         </p>
@@ -438,14 +438,14 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
                       <div className="space-y-1">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_branch')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_branch')}</p>
                         <p className="text-xs text-neutral-900 dark:text-white font-bold">
                           {state.branches.find(b => b.id === student.homeBranchId)?.name || t('stu_unassigned_branch')}
                         </p>
                       </div>
 
                       <div className="space-y-1">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_scholarship')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_scholarship')}</p>
                         <p className="text-xs text-neutral-900 dark:text-white font-bold">
                           {(() => {
                             const sch = state.scholarships.find(s => s.id === student.scholarshipId);
@@ -456,10 +456,10 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                       </div>
 
                       <div className="space-y-1">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_status')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('stu_status')}</p>
                         <div>
                           <span className={cn(
-                            "text-[9px] px-2 py-0.5 rounded-[8px] font-bold uppercase tracking-wider border inline-block",
+                            "text-micro px-2 py-0.5 rounded-[8px] font-bold uppercase tracking-wider border inline-block",
                             student.studentStatus === 'Active' ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" :
                             student.studentStatus === 'Paused' ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20" :
                             student.studentStatus === 'Inactive' ? "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-neutral-300 dark:border-neutral-700" :
@@ -470,14 +470,14 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                           </span>
                         </div>
                         {student.statusReason && (
-                          <p className="text-[10px] text-amber-600 dark:text-amber-400 font-mono mt-0.5">
+                          <p className="text-micro text-amber-600 dark:text-amber-400 font-mono mt-0.5">
                             {student.statusReason} {student.pauseEndDate && `(Until ${student.pauseEndDate})`}
                           </p>
                         )}
                       </div>
 
                       <div className="sm:col-span-2 md:col-span-3 pt-2 border-t border-neutral-200 dark:border-[#262626]">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider mb-1.5">{t('panel_kukkiwon_card')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider mb-1.5">{t('panel_kukkiwon_card')}</p>
                         {student.kukkiwonId ? (
                           student.kukkiwonId.startsWith('http://') || student.kukkiwonId.startsWith('https://') || student.kukkiwonId.includes('drive.google.com') ? (
                             <a
@@ -505,9 +505,9 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                             </div>
                           )
                         ) : (student.currentBelt.includes('Poom') || student.currentBelt.includes('Dan')) ? (
-                          <span className="text-[9px] bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 px-2 py-0.5 rounded-[8px] font-bold uppercase tracking-wider inline-block">{t('panel_missing_id')}</span>
+                          <span className="text-micro bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 px-2 py-0.5 rounded-[8px] font-bold uppercase tracking-wider inline-block">{t('panel_missing_id')}</span>
                         ) : (
-                          <span className="text-[9px] bg-neutral-100 dark:bg-[#1A1A1A] text-neutral-400 dark:text-neutral-500 px-2 py-0.5 rounded-[8px] font-bold uppercase tracking-wider inline-block">{t('panel_not_applicable')}</span>
+                          <span className="text-micro bg-neutral-100 dark:bg-[#1A1A1A] text-neutral-400 dark:text-neutral-500 px-2 py-0.5 rounded-[8px] font-bold uppercase tracking-wider inline-block">{t('panel_not_applicable')}</span>
                         )}
                       </div>
                     </div>
@@ -515,12 +515,12 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                     {/* Class Schedules & Manager */}
                     <div className="pt-2 border-t border-neutral-200 dark:border-[#262626] space-y-2">
                       <div className="flex items-center justify-between">
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('panel_active_schedule_coach')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('panel_active_schedule_coach')}</p>
                         {canManageSchedule && (
                           <button
                             type="button"
                             onClick={() => setShowScheduleManager(!showScheduleManager)}
-                            className="text-[10px] font-bold uppercase tracking-wider text-brand-ink hover:opacity-80 cursor-pointer"
+                            className="text-micro font-bold uppercase tracking-wider text-brand-ink hover:opacity-80 cursor-pointer"
                           >
                             {showScheduleManager ? t('panel_close_manager') : t('panel_manage_schedules')}
                           </button>
@@ -540,18 +540,18 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span className="w-1.5 h-1.5 rounded-full bg-brand shrink-0"></span>
                                   <span className="font-bold text-neutral-900 dark:text-white">{cls.name}</span>
-                                  <span className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
+                                  <span className="text-micro font-mono text-neutral-500 dark:text-neutral-400">
                                     ({cls.daysOfWeek?.join(', ') || cls.dayOfWeek} • {cls.startTime} - {cls.endTime})
                                   </span>
                                   {e.enrollmentDate && (
-                                    <span className="text-[9px] font-mono font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-[#333]">
+                                    <span className="text-micro font-mono font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-[#333]">
                                       {t('sch_enrolled')}: {e.enrollmentDate.split('T')[0]}
                                     </span>
                                   )}
                                 </div>
                                 <div className="flex items-center gap-1.5 shrink-0">
-                                  <span className="text-[9px] text-neutral-400 dark:text-neutral-500 uppercase font-bold">{t('panel_coach_label')}</span>
-                                  <span className="text-[10px] font-bold text-brand-ink bg-red-500/10 px-2 py-0.5 rounded-[8px] border border-red-500/10">{coachName}</span>
+                                  <span className="text-micro text-neutral-400 dark:text-neutral-500 uppercase font-bold">{t('panel_coach_label')}</span>
+                                  <span className="text-micro font-bold text-brand-ink bg-red-500/10 px-2 py-0.5 rounded-[8px] border border-red-500/10">{coachName}</span>
                                 </div>
                               </div>
                             );
@@ -567,8 +567,8 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                       {showScheduleManager && canManageSchedule && (
                         <div className="mt-3 p-4 bg-white dark:bg-[#111] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-3">
                           <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">Class Enrollment Manager</span>
-                            <span className="text-[9px] font-mono text-neutral-400">Branch Classes</span>
+                            <span className="text-micro font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">Class Enrollment Manager</span>
+                            <span className="text-micro font-mono text-neutral-400">Branch Classes</span>
                           </div>
 
                           <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
@@ -599,7 +599,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                         <div className="flex items-center gap-2 flex-wrap">
                                           <span className="font-bold text-neutral-900 dark:text-white">{c.name}</span>
                                           <span className={cn(
-                                            "px-1.5 py-0.5 rounded-[8px] text-[9px] font-bold uppercase tracking-wider border",
+                                            "px-1.5 py-0.5 rounded-[8px] text-micro font-bold uppercase tracking-wider border",
                                             c.classType === 'Elite Team' ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' :
                                             c.classType === 'Kid Class' ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20' :
                                             c.classType === 'Private Class' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' :
@@ -608,7 +608,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                             {c.classType}
                                           </span>
                                         </div>
-                                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">
+                                        <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono">
                                           {c.daysOfWeek?.join(', ') || c.dayOfWeek} • {c.startTime} - {c.endTime}
                                         </p>
                                       </div>
@@ -624,7 +624,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                           }
                                         }}
                                         className={cn(
-                                          "px-2.5 py-1 rounded-[8px] text-[9px] font-bold uppercase tracking-wider transition-all select-none border disabled:opacity-40 cursor-pointer",
+                                          "px-2.5 py-1 rounded-[8px] text-micro font-bold uppercase tracking-wider transition-all select-none border disabled:opacity-40 cursor-pointer",
                                           isEnrolled
                                             ? "bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white"
                                             : "bg-neutral-900 dark:bg-white text-white dark:text-black hover:bg-brand hover:text-white border-transparent"
@@ -635,7 +635,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                     </div>
 
                                     <div className="space-y-1">
-                                      <div className="flex justify-between items-center text-[9px] text-neutral-500 dark:text-neutral-400 font-mono">
+                                      <div className="flex justify-between items-center text-micro text-neutral-500 dark:text-neutral-400 font-mono">
                                         <span>Occupancy: {enrolledCount} / {c.capacity}</span>
                                         <span>{capacityPct}%</span>
                                       </div>
@@ -653,7 +653,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                     {conflicts.length > 0 && !isEnrolled && (
                                       <div className="flex flex-col gap-1">
                                         {conflicts.map((conf, idx) => (
-                                          <div key={idx} className="flex items-center gap-1 text-[9px] text-red-600 dark:text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-[8px] font-medium">
+                                          <div key={idx} className="flex items-center gap-1 text-micro text-red-600 dark:text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-[8px] font-medium">
                                             <WarningCircle className="w-3 h-3 shrink-0" />
                                             <span className="truncate">{t('panel_schedule_overlap').replace('{conf}', conf)}</span>
                                           </div>
@@ -691,7 +691,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className={cn(
-                                  "text-[9px] px-2 py-0.5 rounded-[8px] font-bold uppercase tracking-wider border flex items-center gap-1",
+                                  "text-micro px-2 py-0.5 rounded-[8px] font-bold uppercase tracking-wider border flex items-center gap-1",
                                   isLinkedToId
                                     ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                                     : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
@@ -700,7 +700,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                   {isLinkedToId ? "Linked (Student ID)" : "Email Matched"}
                                 </span>
                                 <span className={cn(
-                                  "text-[9px] px-2 py-0.5 rounded-[8px] font-bold uppercase tracking-wider border",
+                                  "text-micro px-2 py-0.5 rounded-[8px] font-bold uppercase tracking-wider border",
                                   studentAccount.isActive
                                     ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                                     : "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20"
@@ -712,20 +712,20 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
 
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                               <div className="space-y-1">
-                                <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('panel_username_id')}</p>
+                                <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('panel_username_id')}</p>
                                 <div className="bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-neutral-800 dark:text-white font-mono text-xs flex items-center justify-between">
                                   <span className="truncate">@{studentAccount.username}</span>
-                                  <span className="text-[9px] font-bold text-neutral-400 dark:text-neutral-500 font-mono shrink-0 ml-1">[{student.id}]</span>
+                                  <span className="text-micro font-bold text-neutral-400 dark:text-neutral-500 font-mono shrink-0 ml-1">[{student.id}]</span>
                                 </div>
                               </div>
                               <div className="space-y-1">
-                                <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">Account Email</p>
+                                <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">Account Email</p>
                                 <div className="bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-neutral-700 dark:text-neutral-300 font-mono text-xs truncate" title={studentAccount.email}>
                                   {studentAccount.email}
                                 </div>
                               </div>
                               <div className="space-y-1">
-                                <p className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('panel_system_role')}</p>
+                                <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">{t('panel_system_role')}</p>
                                 <div className="bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-brand-ink font-mono text-xs font-bold">
                                   {studentAccount.role === 'Admin' ? t('role_admin') :
                                    studentAccount.role === 'Head Coach' ? t('role_head_coach') :
@@ -764,7 +764,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                       setNewPassword('');
                                       setShowPasswordModal(true);
                                     }}
-                                    className="px-3 py-1.5 bg-brand/10 hover:bg-brand/20 border border-brand/30 text-brand-ink text-[10px] font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center gap-1.5 cursor-pointer"
+                                    className="px-3 py-1.5 bg-brand/10 hover:bg-brand/20 border border-brand/30 text-brand-ink text-micro font-bold uppercase tracking-wider rounded-[8px] transition-all flex items-center gap-1.5 cursor-pointer"
                                   >
                                     <Lock className="w-3.5 h-3.5" />
                                     <span>Set / Change Password</span>
@@ -786,7 +786,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                           }
                                         });
                                       }}
-                                      className="px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 text-[10px] font-bold uppercase tracking-wider rounded-[8px] transition-all cursor-pointer"
+                                      className="px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 text-micro font-bold uppercase tracking-wider rounded-[8px] transition-all cursor-pointer"
                                     >
                                       {t('panel_reset_password')}
                                     </button>
@@ -804,7 +804,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                 <Key className="w-4 h-4 text-brand-ink" />
                                 <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider">{t('panel_portal_access')}</h3>
                               </div>
-                              <span className="text-[9px] bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-[8px] font-bold uppercase tracking-wider">{t('panel_no_account')}</span>
+                              <span className="text-micro bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-[8px] font-bold uppercase tracking-wider">{t('panel_no_account')}</span>
                             </div>
                             <div className="text-center py-3 space-y-3">
                               <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-md mx-auto">
@@ -819,7 +819,7 @@ export function StudentProfileOverview({ canDeleteStudent, isMinor, t, calculate
                                     setProvisionPassword(generatePassword());
                                     setShowProvisionModal(true);
                                   }}
-                                  className="px-4 py-2 bg-brand hover:bg-brand/90 text-white text-[10px] font-bold uppercase tracking-wider rounded-[8px] transition-all shadow-md shadow-brand/20 inline-flex items-center gap-2 cursor-pointer"
+                                  className="px-4 py-2 bg-brand hover:bg-brand/90 text-white text-micro font-bold uppercase tracking-wider rounded-[8px] transition-all shadow-md shadow-brand/20 inline-flex items-center gap-2 cursor-pointer"
                                 >
                                   <Key className="w-3.5 h-3.5" />
                                   <span>{t('panel_btn_provision_portal')}</span>

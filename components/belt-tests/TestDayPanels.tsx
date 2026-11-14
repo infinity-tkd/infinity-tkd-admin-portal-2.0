@@ -77,7 +77,7 @@ export function ExaminerPanel({ detail, canManage, actions }: { detail: EventDet
         {staff.map(user => { const checked = chosen.includes(user.id);
           return <label key={user.id} className="flex min-h-11 items-center gap-2 rounded-md border border-neutral-200 px-2 text-sm dark:border-neutral-800">
             <input type="checkbox" checked={checked} disabled={!checked && (chosen.length >= 5 || !user.canScore)} onChange={() => setChosen(current => checked ? current.filter(id => id !== user.id) : [...current, user.id])} />
-            <span className="min-w-0 flex-1 truncate">{user.name}</span><span className="text-[11px] text-neutral-500">{user.role}</span></label>; })}
+            <span className="min-w-0 flex-1 truncate">{user.name}</span><span className="text-micro text-neutral-500">{user.role}</span></label>; })}
       </fieldset>
       <div className="flex flex-wrap gap-2"><button type="button" className={primaryButton} disabled={actions.busy} onClick={() => void save()}>Save panel</button>
         <button type="button" className={secondaryButton} onClick={() => setEditing(false)}>Cancel</button></div>

@@ -7,6 +7,7 @@ import { buttonClass, cardClass, fieldClass, sectionLabelClass } from '@/compone
 import { EmptyState, ErrorBanner } from '@/components/ui/States';
 import { goalInput, planItemInput } from '@/lib/lms-contract';
 import { cn } from '@/lib/utils';
+import { useAppStore } from '@/lib/store';
 import { fmtDate, Labeled, lmsPost, mondayOf, Pill, StatusLine, StudentSelect, today, useLmsView, useSaving, type Overview } from './coaching-shared';
 
 type PlanItem = { type: 'lesson' | 'form' | 'quiz' | 'custom'; ref?: string; title?: string; target?: string; day?: number | null; note?: string };
@@ -32,6 +33,7 @@ function PlanForm({ overview, studentId, week, setWeek, current, canEdit, saver 
   const [items, setItems] = useState<PlanItem[]>(current?.items ?? []);
   const [note, setNote] = useState(current?.note ?? '');
   const { saving, message, setMessage, run } = saver;
+  const { showConfirm } = useAppStore();
   const set = (i: number, change: Partial<PlanItem>) => setItems(items.map((x, at) => at === i ? { ...x, ...change } : x));
   const save = () => {
     const clean = items.map(item => ({ ...item, ref: item.type === 'custom' || item.type === 'quiz' ? item.ref?.trim() || undefined : item.ref, title: item.title?.trim() || undefined, target: item.target?.trim() || undefined, note: item.note?.trim() || undefined }));
@@ -64,7 +66,7 @@ function PlanForm({ overview, studentId, week, setWeek, current, canEdit, saver 
         <button type="button" className={buttonClass()} disabled={saving} onClick={save}>Save</button>
         {current && !current.published_at && <button type="button" className={buttonClass({ variant: 'primary' })} disabled={saving} onClick={() => void publish('plan.publish')}>Publish</button>}
         {current?.published_at && <button type="button" className={buttonClass()} disabled={saving} onClick={() => void publish('plan.unpublish')}>Unpublish</button>}
-        {current && <button type="button" className={buttonClass({ variant: 'danger' })} disabled={saving} onClick={() => { if (window.confirm('Delete this week\'s plan?')) void publish('plan.delete'); }}>Delete</button>}
+        {current && <button type="button" className={buttonClass({ variant: 'danger' })} disabled={saving} onClick={() => showConfirm('Delete this week\'s plan?', () => void publish('plan.delete'), 'Delete plan')}>Delete</button>}
       </div></>}
     <StatusLine message={message} />
   </section>;
@@ -104,12 +106,13 @@ function Consent({ studentId, consent, canEdit, onSaved }: { studentId: string; 
   const [name, setName] = useState('');
   const [relationship, setRelationship] = useState<'parent' | 'guardian' | 'self'>('parent');
   const { saving, message, run } = useSaving(onSaved);
+  const { showConfirm } = useAppStore();
   const active = consent && !consent.revoked_at;
   return <section className={cn(cardClass, 'space-y-2 p-3')}>
     <h3 className={sectionLabelClass}>Video consent</h3>
     <p className="text-sm text-ink">{active ? `Given by ${consent!.guardian_name} (${consent!.relationship}, ${consent!.source === 'portal' ? 'in the portal' : 'recorded by staff'}) on ${fmtDate(consent!.consented_at)}.` : consent?.revoked_at ? `Withdrawn on ${fmtDate(consent.revoked_at)}.` : 'Not given yet. Families agree in the portal before the first upload.'}</p>
     {canEdit && (active
-      ? <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => { if (window.confirm('Withdraw video consent? New uploads stop; videos already sent stay until their deletion date.')) void run(() => lmsPost({ action: 'consent.record', studentId, consent: { revoke: true } }), 'Consent withdrawn.'); }}>Withdraw consent</button>
+      ? <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => showConfirm('Withdraw video consent? New uploads stop; videos already sent stay until their deletion date.', () => void run(() => lmsPost({ action: 'consent.record', studentId, consent: { revoke: true } }), 'Consent withdrawn.'), 'Withdraw consent')}>Withdraw consent</button>
       : <div className="grid gap-2 sm:grid-cols-[1fr_150px_auto] sm:items-end">
         <Labeled label="Guardian's name (consent given on paper)"><input className={fieldClass} maxLength={120} value={name} onChange={e => setName(e.target.value)} /></Labeled>
         <Labeled label="Relationship"><select className={fieldClass} value={relationship} onChange={e => setRelationship(e.target.value as typeof relationship)}><option value="parent">Parent</option><option value="guardian">Guardian</option><option value="self">Adult student</option></select></Labeled>

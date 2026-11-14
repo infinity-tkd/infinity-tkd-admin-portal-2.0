@@ -34,6 +34,7 @@ import { PwaDiagnosticsModal } from '@/components/pwa/PwaDiagnosticsModal';
 import layoutStyles from './PortalLayout.module.css';
 import { PageTransition } from './PageTransition';
 import { DataLoadNotice } from './DataLoadNotice';
+import { RecordsLoading } from './RecordsLoading';
 import { PendingAttendanceBanner } from './attendance/PendingAttendanceBanner';
 import { usePortalScroll } from '@/hooks/use-portal-scroll';
 import { panelTransition } from '@/lib/motion';
@@ -61,6 +62,11 @@ export function PortalLayout({ children }: PortalLayoutProps) {
 
   const { containerRef: scrollContainerRef, progressRef, onScroll: handleScroll, isNavVisible, isCompactNavigation, showScrollTop, revealNavigation, scrollToTop } = usePortalScroll(pathname, sidebarOpen, !state.isLoading && !!state.currentUser);
   const sidebarRef = React.useRef<HTMLElement>(null);
+  // The button that opened the drawer. The page behind an open drawer is inert, which blurs the button, so focus could not be restored from document.activeElement.
+  const drawerOpener = React.useRef<HTMLElement | null>(null);
+  const openDrawer = (event: React.MouseEvent<HTMLElement>) => { drawerOpener.current = event.currentTarget; setSidebarOpen(true); };
+  // On a phone the navigation is an off-canvas drawer that traps focus and inerts the page, so it is announced as a modal dialog while open.
+  const drawerIsModal = sidebarOpen && isCompactNavigation;
   useEffect(() => { setSidebarOpen(false); }, [pathname]);
 
   // Client-side online/offline network event listeners
@@ -113,7 +119,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
     sync();
     media.addEventListener('change', sync);
     if (!sidebarOpen || !media.matches) return () => media.removeEventListener('change', sync);
-    const previousFocus = document.activeElement as HTMLElement | null;
+    const previousFocus = drawerOpener.current ?? (document.activeElement as HTMLElement | null);
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const controls = () => Array.from(sidebar.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), [tabindex="0"]')).filter(element => element.getClientRects().length > 0);
@@ -217,7 +223,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
   if (pathname.startsWith('/operations') && !canViewOperations) isAuthorized = false;
 
   // Calculate current page title
-  const activeTab = pathname === '/profile' ? { label: 'My account' } : tabs.find(tItem => pathname === tItem.href || pathname.startsWith(tItem.href + '/')) || (pathname.startsWith('/pro-shop') ? tabs.find(t => t.id === 'pos') : undefined) || tabs[0];
+  const activeTab = pathname === '/profile' ? { label: 'My account' } : tabs.find(tItem => pathname === tItem.href || pathname.startsWith(tItem.href + '/')) || (pathname.startsWith('/pro-shop') ? tabs.find(t => t.id === 'pos') : undefined) || (pathname === '/' ? tabs[0] : { label: 'Page not found' });
   const permittedHome = visibleTabs.find(tab => tab.id === 'dashboard') || visibleTabs[0];
   const isTabActive = (href: string) => pathname === href || pathname.startsWith(href + '/') || (href === '/pos' && pathname.startsWith('/pro-shop'));
   // Phone tab bar: four daily destinations plus More (iOS tab bar convention).
@@ -230,6 +236,11 @@ export function PortalLayout({ children }: PortalLayoutProps) {
 
   return (
     <div data-portal-shell data-navigation-visible={isNavVisible} className={cn(layoutStyles.shell, "flex h-dvh w-full overflow-hidden bg-white text-neutral-900 dark:bg-[#0A0A0A] dark:text-[#E4E4E4] font-sans selection:bg-red-500/30")}>
+      {/* Keyboard users skip the navigation: the first Tab stop, visible only while focused. */}
+      <a href="#portal-main" onClick={event => { event.preventDefault(); document.getElementById('portal-main')?.focus(); }}
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-[max(0.75rem,env(safe-area-inset-top,0px))] focus:z-[200] focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2.5 focus:text-xs focus:font-bold focus:uppercase focus:tracking-wider focus:text-on-brand focus:shadow-lg">
+        {t('a11y_skip_to_content')}
+      </a>
       {/* Mobile Sidebar Overlay */}
       <div aria-hidden="true" data-open={sidebarOpen} onClick={() => setSidebarOpen(false)}
         className={cn(layoutStyles.drawerOverlay, "fixed inset-0 bg-black/50")}
@@ -237,6 +248,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
 
       {/* Sidebar Drawer */}
       <aside ref={sidebarRef} aria-label="Main navigation" data-open={sidebarOpen} className={cn(layoutStyles.sidebar, "inset-y-0 left-0 w-60 bg-white dark:bg-[#0f0f0f] border-r border-neutral-200 dark:border-[#262626] flex flex-col pt-[env(safe-area-inset-top,0px)] pb-[calc(1rem+env(safe-area-inset-bottom,0px))] pl-[env(safe-area-inset-left,0px)]")}>
+        <div role={drawerIsModal ? 'dialog' : undefined} aria-modal={drawerIsModal ? true : undefined} aria-label={drawerIsModal ? 'Navigation menu' : undefined} className="flex min-h-0 flex-1 flex-col">
         <div className="p-6 border-b border-neutral-200 dark:border-[#262626] flex items-center gap-3">
           <div className="w-10 h-10 bg-transparent flex items-center justify-center shrink-0">
             <NextImage unoptimized width={56} height={56} src="/icons/logo.svg"
@@ -244,7 +256,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
               className="w-full h-full object-contain filter drop-shadow-[0_2px_8px_rgba(239,47,56,0.3)]" />
           </div>
           <div>
-            <h1 className="text-xs font-black tracking-widest text-neutral-900 dark:text-white leading-none">INFINITY</h1>
+            <p className="text-xs font-black tracking-widest text-neutral-900 dark:text-white leading-none">INFINITY</p>
             <p className="text-[10px] font-bold text-red-600 dark:text-brand-ink uppercase tracking-tighter mt-1">{t('nav_admin_portal')}</p>
           </div>
           <button type="button" aria-label="Close Navigation Menu" onClick={() => setSidebarOpen(false)} className={cn(layoutStyles.compactOnly, "ml-auto min-h-11 min-w-11 items-center justify-center rounded-lg text-neutral-600 dark:text-neutral-300")}>×</button>
@@ -290,16 +302,18 @@ export function PortalLayout({ children }: PortalLayoutProps) {
             <span>{t('nav_sign_out')}</span>
           </button>
         </div>
+        </div>
       </aside>
 
       {/* Main Content */}
-      <main className="min-w-0 min-h-0 flex-1 flex flex-col h-full overflow-hidden relative">
+      {/* While the phone navigation drawer is open the page behind it is inert, so neither the keyboard nor a screen reader leaves the drawer. */}
+      <main inert={drawerIsModal} className="min-w-0 min-h-0 flex-1 flex flex-col h-full overflow-hidden relative">
         <header data-portal-header data-portal-navigation data-visible={isNavVisible} inert={!isNavVisible && isCompactNavigation} onFocusCapture={revealNavigation} className={cn(layoutStyles.header,
           "border-b border-neutral-200 dark:border-[#262626] bg-white/95 dark:bg-[#0F0F0F]/95 backdrop-blur-md flex items-center justify-between pl-[max(0.875rem,env(safe-area-inset-left,0px))] pr-[max(0.875rem,env(safe-area-inset-right,0px))] sm:pl-[max(1.5rem,env(safe-area-inset-left,0px))] sm:pr-[max(1.5rem,env(safe-area-inset-right,0px))] shrink-0"
         )}>
           <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
             <button
-              onClick={() => setSidebarOpen(true)}
+              onClick={openDrawer}
               className={cn(layoutStyles.compactOnly, "p-2 rounded-[8px] text-neutral-600 dark:text-[#999] hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors min-h-[44px] min-w-[44px] items-center justify-center cursor-pointer")}
               aria-label="Open Navigation Menu"
             >
@@ -312,7 +326,9 @@ export function PortalLayout({ children }: PortalLayoutProps) {
                   alt=""
                   className={cn(layoutStyles.compactOnly, "w-6 h-6 object-contain drop-shadow-[0_1px_4px_rgba(239,47,56,0.3)]")} />
               </span>
-              <h2 className="truncate text-xs sm:text-sm font-bold uppercase tracking-widest text-ink font-sans">
+              {/* Up to two lines on a phone so "Calendar & Events" is never cut to an ellipsis at 320-375px; one line from 640px. */}
+              {/* Below 360px the title steps down a size and loosens its tracking so a single long word ("Attendance") still fits whole. */}
+              <h2 className="line-clamp-2 break-words text-xs max-[359px]:text-micro leading-tight sm:line-clamp-1 sm:text-sm sm:leading-normal font-bold uppercase tracking-widest max-[359px]:tracking-wide text-ink font-sans">
                 {activeTab ? activeTab.label : t('nav_dashboard')}
               </h2>
             </div>
@@ -350,15 +366,25 @@ export function PortalLayout({ children }: PortalLayoutProps) {
 
         <div
           ref={scrollContainerRef}
+          id="portal-main"
+          tabIndex={-1}
           data-portal-scroll
           onScrollCapture={handleScroll}
-          className={cn(layoutStyles.scrollContainer, "flex-1 overflow-y-auto overscroll-contain pl-[max(0.875rem,env(safe-area-inset-left,0px))] pr-[max(0.875rem,env(safe-area-inset-right,0px))] sm:pl-[max(1.25rem,env(safe-area-inset-left,0px))] sm:pr-[max(1.25rem,env(safe-area-inset-right,0px))] md:pl-[max(1.5rem,env(safe-area-inset-left,0px))] md:pr-[max(1.5rem,env(safe-area-inset-right,0px))] xl:px-8 space-y-6")}
+          className={cn(layoutStyles.scrollContainer, "focus:outline-none flex-1 overflow-y-auto overscroll-contain pl-[max(0.875rem,env(safe-area-inset-left,0px))] pr-[max(0.875rem,env(safe-area-inset-right,0px))] sm:pl-[max(1.25rem,env(safe-area-inset-left,0px))] sm:pr-[max(1.25rem,env(safe-area-inset-right,0px))] md:pl-[max(1.5rem,env(safe-area-inset-left,0px))] md:pr-[max(1.5rem,env(safe-area-inset-right,0px))] xl:px-8 space-y-6")}
         >
           <PageTransition identity={pathname} className="w-full max-w-[1600px] mx-auto min-h-full">
             <DataLoadNotice />
             <PendingAttendanceBanner />
             {state.currentUser?.mustChangePassword ? (<><div role="alert" className="mb-4 rounded-lg border border-amber-500/40 bg-amber-50 p-4 text-sm font-medium text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">Change your temporary password to activate portal access.</div><AccountSecurityPanel /></>) : isAuthorized ? (
-              children
+              <>
+                {/* The first snapshot of records is still loading: show a loader instead of zeros and empty ledgers. The page itself mounts at once, so its
+                    code downloads in parallel with the records, and stays hidden (display: none) until they have arrived. */}
+                {!state.dataReady && <RecordsLoading />}
+                <div className={state.dataReady ? 'contents' : 'hidden'}>{children}</div>
+              </>
+            ) : !state.dataReady ? (
+              // Permissions arrive with the first snapshot: until then "Access restricted" would be a false alarm.
+              <RecordsLoading />
             ) : (
               <div className="flex flex-col items-center justify-center min-h-[60dvh] text-center px-4 relative">
                 <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(239,47,56,0.03)_0%,transparent_70%)] pointer-events-none" />
@@ -407,7 +433,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
           })}
           <button
             type="button"
-            onClick={() => setSidebarOpen(true)}
+            onClick={openDrawer}
             className={cn(
               "relative flex-1 min-w-0 max-w-28 flex flex-col items-center justify-center gap-0.5 py-1 px-1 max-[359px]:px-0 rounded-lg text-[10px] max-[359px]:text-[9.5px] font-bold max-[359px]:tracking-tighter transition-colors min-h-12 touch-manipulation cursor-pointer",
               moreActive ? "text-brand-ink" : "text-ink-subtle hover:text-ink"

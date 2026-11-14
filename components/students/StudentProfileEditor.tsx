@@ -37,8 +37,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_english_name')} *</label>
-                      <input
+                      <label htmlFor="student-profile-editor-stu_english_name" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_english_name')} *</label>
+                      <input id="student-profile-editor-stu_english_name"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
                         value={editForm.englishName || ''}
                         onChange={e => setEditForm({...editForm, englishName: e.target.value})}
@@ -47,8 +47,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_khmer_name')}</label>
-                      <input
+                      <label htmlFor="student-profile-editor-stu_khmer_name" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_khmer_name')}</label>
+                      <input id="student-profile-editor-stu_khmer_name"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand font-khmer"
                         value={editForm.khmerName || ''}
                         onChange={e => setEditForm({...editForm, khmerName: e.target.value})}
@@ -56,8 +56,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_gender')}</label>
-                      <select
+                      <label htmlFor="student-profile-editor-stu_gender" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_gender')}</label>
+                      <select id="student-profile-editor-stu_gender"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
                         value={editForm.gender || 'Male'}
                         onChange={e => setEditForm({...editForm, gender: e.target.value as 'Male' | 'Female'})}
@@ -68,8 +68,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_dob')}</label>
-                      <input
+                      <label htmlFor="student-profile-editor-stu_dob" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_dob')}</label>
+                      <input id="student-profile-editor-stu_dob"
                         type="date"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand [color-scheme:light] dark:[color-scheme:dark]"
                         value={editForm.dob || ''}
@@ -78,8 +78,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_nationality')}</label>
-                      <input
+                      <label htmlFor="student-profile-editor-stu_nationality" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_nationality')}</label>
+                      <input id="student-profile-editor-stu_nationality"
                         type="text"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
                         value={editForm.nationality || ''}
@@ -89,9 +89,9 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_profile_pic_link')}</label>
+                      <label htmlFor="student-profile-editor-panel_profile_pic_link" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_profile_pic_link')}</label>
                       <div className="flex gap-2 items-center">
-                        <input
+                        <input id="student-profile-editor-panel_profile_pic_link"
                           type="text"
                           className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand flex-1"
                           value={editForm.profilePicturePath || ''}
@@ -121,8 +121,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_phone')}</label>
-                      <input
+                      <label htmlFor="student-profile-editor-stu_phone" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_phone')}</label>
+                      <input id="student-profile-editor-stu_phone"
                         type="tel"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand font-mono"
                         value={editForm.phone || ''}
@@ -132,8 +132,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_email')}</label>
-                      <input
+                      <label htmlFor="student-profile-editor-stu_email" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_email')}</label>
+                      <input id="student-profile-editor-stu_email"
                         type="email"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
                         value={editForm.email || ''}
@@ -143,15 +143,15 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div className="sm:col-span-2 pt-2 border-t border-neutral-200 dark:border-[#262626]">
-                      <p className="text-[10px] text-brand-ink uppercase font-bold tracking-wider mb-2 flex items-center gap-1">
+                      <p className="text-micro text-brand-ink uppercase font-bold tracking-wider mb-2 flex items-center gap-1">
                         <ShieldWarning className="w-3.5 h-3.5" />
                         <span>{t('panel_guardian_emergency')}</span>
                       </p>
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_emergency_contact')}</label>
-                      <input
+                      <label htmlFor="student-profile-editor-stu_emergency_contact" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_emergency_contact')}</label>
+                      <input id="student-profile-editor-stu_emergency_contact"
                         type="text"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
                         value={editForm.emergencyContactName || ''}
@@ -161,8 +161,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_emergency_phone')}</label>
-                      <input
+                      <label htmlFor="student-profile-editor-stu_emergency_phone" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_emergency_phone')}</label>
+                      <input id="student-profile-editor-stu_emergency_phone"
                         type="tel"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand font-mono"
                         value={editForm.emergencyContactPhone || ''}
@@ -172,8 +172,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div className="sm:col-span-2">
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_emergency_relation')}</label>
-                      <select
+                      <label htmlFor="student-profile-editor-stu_emergency_relation" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_emergency_relation')}</label>
+                      <select id="student-profile-editor-stu_emergency_relation"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
                         value={editForm.emergencyContactRelation || ''}
                         onChange={e => setEditForm({...editForm, emergencyContactRelation: e.target.value})}
@@ -200,8 +200,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                   <div className="space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_street_address')}</label>
-                        <input
+                        <label htmlFor="student-profile-editor-panel_street_address" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_street_address')}</label>
+                        <input id="student-profile-editor-panel_street_address"
                           type="text"
                           className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
                           value={editForm.address?.line1 || ''}
@@ -210,8 +210,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_apt_suite')}</label>
-                        <input
+                        <label htmlFor="student-profile-editor-panel_apt_suite" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_apt_suite')}</label>
+                        <input id="student-profile-editor-panel_apt_suite"
                           type="text"
                           className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
                           value={editForm.address?.line2 || ''}
@@ -223,10 +223,10 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_state_province')}</label>
+                        <label htmlFor="student-profile-editor-panel_state_province" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_state_province')}</label>
                         {editForm.address?.stateProvince && !CAMBODIA_LOCATIONS[editForm.address.stateProvince] ? (
                           <div className="flex gap-2">
-                            <input
+                            <input id="student-profile-editor-panel_state_province"
                               type="text"
                               className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                               value={editForm.address.stateProvince === 'Other Custom' ? '' : editForm.address.stateProvince}
@@ -236,13 +236,13 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                             <button
                               type="button"
                               onClick={() => setEditForm({...editForm, address: { ...editForm.address, stateProvince: '', city: '' }})}
-                              className="px-2.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333] text-[10px] text-neutral-700 dark:text-white rounded-[8px] font-bold uppercase transition-colors shrink-0"
+                              className="px-2.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333] text-micro text-neutral-700 dark:text-white rounded-[8px] font-bold uppercase transition-colors shrink-0"
                             >
                               List
                             </button>
                           </div>
                         ) : (
-                          <select
+                          <select id="student-profile-editor-panel_state_province"
                             className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             value={editForm.address?.stateProvince || ''}
                             onChange={e => {
@@ -265,10 +265,10 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                       </div>
 
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_district_commune')}</label>
+                        <label htmlFor="student-profile-editor-panel_district_commune" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_district_commune')}</label>
                         {editForm.address?.stateProvince && CAMBODIA_LOCATIONS[editForm.address.stateProvince] && (editForm.address.city === 'Other Custom' || (editForm.address.city !== '' && !CAMBODIA_LOCATIONS[editForm.address.stateProvince].includes(editForm.address.city))) ? (
                           <div className="flex gap-2">
-                            <input
+                            <input id="student-profile-editor-panel_district_commune"
                               type="text"
                               className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                               value={editForm.address.city === 'Other Custom' ? '' : editForm.address.city}
@@ -278,13 +278,13 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                             <button
                               type="button"
                               onClick={() => setEditForm({...editForm, address: { ...editForm.address, city: CAMBODIA_LOCATIONS[editForm.address.stateProvince][0] || '' }})}
-                              className="px-2.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333] text-[10px] text-neutral-700 dark:text-white rounded-[8px] font-bold uppercase transition-colors shrink-0"
+                              className="px-2.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333] text-micro text-neutral-700 dark:text-white rounded-[8px] font-bold uppercase transition-colors shrink-0"
                             >
                               List
                             </button>
                           </div>
                         ) : (editForm.address?.stateProvince && CAMBODIA_LOCATIONS[editForm.address.stateProvince]) ? (
-                          <select
+                          <select id="student-profile-editor-panel_district_commune"
                             className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             value={editForm.address?.city || ''}
                             onChange={e => {
@@ -302,7 +302,7 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                             <option value="Other">{t('panel_relation_other')}</option>
                           </select>
                         ) : (
-                          <input
+                          <input id="student-profile-editor-panel_district_commune"
                             type="text"
                             className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                             value={editForm.address?.city || ''}
@@ -315,8 +315,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_postal_code')}</label>
-                        <input
+                        <label htmlFor="student-profile-editor-panel_postal_code" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_postal_code')}</label>
+                        <input id="student-profile-editor-panel_postal_code"
                           type="text"
                           className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                           value={editForm.address?.postalCode || ''}
@@ -325,8 +325,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_country')}</label>
-                        <input
+                        <label htmlFor="student-profile-editor-panel_country" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_country')}</label>
+                        <input id="student-profile-editor-panel_country"
                           type="text"
                           className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                           value={editForm.address?.country || 'Cambodia'}
@@ -346,8 +346,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_branch')}</label>
-                      <select
+                      <label htmlFor="student-profile-editor-stu_branch" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_branch')}</label>
+                      <select id="student-profile-editor-stu_branch"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                         value={editForm.homeBranchId || 1}
                         onChange={e => setEditForm({...editForm, homeBranchId: Number(e.target.value)})}
@@ -359,8 +359,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_scholarship')}</label>
-                      <select
+                      <label htmlFor="student-profile-editor-stu_scholarship" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_scholarship')}</label>
+                      <select id="student-profile-editor-stu_scholarship"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                         value={editForm.scholarshipId || 1}
                         onChange={e => setEditForm({...editForm, scholarshipId: Number(e.target.value)})}
@@ -372,8 +372,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_status')}</label>
-                      <select
+                      <label htmlFor="student-profile-editor-stu_status" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_status')}</label>
+                      <select id="student-profile-editor-stu_status"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                         value={editForm.studentStatus || 'Active'}
                         onChange={e => setEditForm({...editForm, studentStatus: e.target.value as any})}
@@ -387,8 +387,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_kukkiwon_card')}</label>
-                      <input
+                      <label htmlFor="student-profile-editor-panel_kukkiwon_card" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_kukkiwon_card')}</label>
+                      <input id="student-profile-editor-panel_kukkiwon_card"
                         type="text"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono"
                         value={editForm.kukkiwonId || ''}
@@ -400,8 +400,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     {(editForm.studentStatus === 'Paused' || editForm.studentStatus === 'Inactive' || editForm.studentStatus === 'Suspended') && (
                       <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-white dark:bg-[#1A1A1A] rounded-[8px] border border-neutral-200 dark:border-[#262626]">
                         <div>
-                          <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">Status Reason / Note</label>
-                          <input
+                          <label htmlFor="student-profile-editor-status-reason-note" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">Status Reason / Note</label>
+                          <input id="student-profile-editor-status-reason-note"
                             type="text"
                             placeholder="e.g. Medical leave, Exam break, Vacation"
                             className="w-full bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[8px] px-2.5 py-1.5 text-xs focus:outline-none focus:border-brand"
@@ -411,8 +411,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                         </div>
                         {editForm.studentStatus === 'Paused' && (
                           <div>
-                            <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">Expected Return Date</label>
-                            <input
+                            <label htmlFor="student-profile-editor-expected-return-date" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">Expected Return Date</label>
+                            <input id="student-profile-editor-expected-return-date"
                               type="date"
                               className="w-full bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[8px] px-2.5 py-1.5 text-xs focus:outline-none focus:border-brand [color-scheme:light] dark:[color-scheme:dark]"
                               value={editForm.pauseEndDate || ''}
@@ -424,8 +424,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     )}
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_reg_date_academy')}</label>
-                      <input
+                      <label htmlFor="student-profile-editor-panel_reg_date_academy" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_reg_date_academy')}</label>
+                      <input id="student-profile-editor-panel_reg_date_academy"
                         type="date"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand [color-scheme:light] dark:[color-scheme:dark]"
                         value={editForm.registrationDate || ''}
@@ -434,8 +434,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_class_enroll_date')}</label>
-                      <input
+                      <label htmlFor="student-profile-editor-panel_class_enroll_date" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_class_enroll_date')}</label>
+                      <input id="student-profile-editor-panel_class_enroll_date"
                         type="date"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand [color-scheme:light] dark:[color-scheme:dark] disabled:opacity-50"
                         value={editForm.classEnrollmentDate || ''}
@@ -443,7 +443,7 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                         disabled={!primaryEnrollment}
                       />
                       {!primaryEnrollment && (
-                        <p className="text-[9px] text-amber-600 dark:text-amber-400 mt-1 font-medium">{t('panel_class_enroll_date_hint')}</p>
+                        <p className="text-micro text-amber-600 dark:text-amber-400 mt-1 font-medium">{t('panel_class_enroll_date_hint')}</p>
                       )}
                     </div>
                   </div>
@@ -458,8 +458,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_height')} (cm)</label>
-                      <input
+                      <label htmlFor="student-profile-editor-stu_height" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_height')} (cm)</label>
+                      <input id="student-profile-editor-stu_height"
                         type="number"
                         step="0.1"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono"
@@ -470,8 +470,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_weight')} (kg)</label>
-                      <input
+                      <label htmlFor="student-profile-editor-stu_weight" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_weight')} (kg)</label>
+                      <input id="student-profile-editor-stu_weight"
                         type="number"
                         step="0.1"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-mono"
@@ -482,8 +482,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_medical_notes')}</label>
-                      <textarea
+                      <label htmlFor="student-profile-editor-stu_medical_notes" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_medical_notes')}</label>
+                      <textarea id="student-profile-editor-stu_medical_notes"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand h-20 resize-none"
                         value={editForm.medicalNotes || ''}
                         onChange={e => setEditForm({...editForm, medicalNotes: e.target.value})}
@@ -492,8 +492,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_allergies')}</label>
-                      <textarea
+                      <label htmlFor="student-profile-editor-stu_allergies" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('stu_allergies')}</label>
+                      <textarea id="student-profile-editor-stu_allergies"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand h-20 resize-none"
                         value={editForm.allergies || ''}
                         onChange={e => setEditForm({...editForm, allergies: e.target.value})}
@@ -502,8 +502,8 @@ export function StudentProfileEditor({ t, editForm, setEditForm, state, primaryE
                     </div>
 
                     <div className="sm:col-span-2">
-                      <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_migration_notes')}</label>
-                      <textarea
+                      <label htmlFor="student-profile-editor-panel_migration_notes" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 mb-1">{t('panel_migration_notes')}</label>
+                      <textarea id="student-profile-editor-panel_migration_notes"
                         className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand h-20 resize-none"
                         value={editForm.notes || ''}
                         onChange={e => setEditForm({...editForm, notes: e.target.value})}

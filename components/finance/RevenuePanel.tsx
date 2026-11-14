@@ -60,14 +60,14 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                 <ChartLine className="w-4 h-4 text-brand-ink" />
                 Revenue & Receivable Analytics
               </h2>
-              <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
+              <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
                 Realized tuition yield, facility-level performance, and overdue receivable tracking
               </p>
             </div>
 
             {/* Quick Filter Capsule Controls (Responsive Grid on Mobile) */}
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
-              <select
+              <select aria-label="Revenue year"
                 value={filterYear}
                 onChange={(e) => setFilterYear(Number(e.target.value))}
                 className="h-9 px-3 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs font-mono font-bold focus:outline-none focus:border-brand cursor-pointer"
@@ -77,7 +77,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                 <option value={currentActualYear - 2}>{currentActualYear - 2}</option>
               </select>
 
-              <select
+              <select aria-label="Revenue month"
                 value={filterMonth}
                 onChange={(e) => setFilterMonth(e.target.value)}
                 className="h-9 px-3 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs focus:outline-none focus:border-brand cursor-pointer"
@@ -88,7 +88,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                 ))}
               </select>
 
-              <select
+              <select aria-label="Revenue branch"
                 value={filterBranch}
                 onChange={(e) => setFilterBranch(e.target.value === 'all' ? 'all' : Number(e.target.value))}
                 className="h-9 px-3 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs focus:outline-none focus:border-brand cursor-pointer"
@@ -99,7 +99,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                 ))}
               </select>
 
-              <select
+              <select aria-label="Revenue plan"
                 value={filterScholarship}
                 onChange={(e) => setFilterScholarship(e.target.value === 'all' ? 'all' : Number(e.target.value))}
                 className="h-9 px-3 bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs focus:outline-none focus:border-brand cursor-pointer"
@@ -129,7 +129,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
           {/* 4 KPI Summary Cards (2x2 on Mobile, 4x1 on Desktop) */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
              <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-5 shadow-sm">
-               <p className="text-[9px] sm:text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest mb-1 truncate">Collection Rate</p>
+               <p className="text-micro sm:text-micro text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest mb-1 truncate">Collection Rate</p>
                <h2 className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">{collectionRate}%</h2>
                <div className="h-1.5 w-full bg-neutral-100 dark:bg-[#0F0F0F] rounded-full mt-2.5 sm:mt-3 overflow-hidden border border-neutral-200 dark:border-[#262626]/40">
                   <div
@@ -140,27 +140,27 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                     style={{ width: `${Math.min(collectionRate, 100)}%` }}
                   />
                </div>
-               <p className="text-[9px] text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">
+               <p className="text-micro text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">
                  ${(totalExpected - totalScholarshipDiscounts).toFixed(0)} Net Due
                </p>
              </div>
 
              <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-5 shadow-sm">
-               <p className="text-[9px] sm:text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest mb-1 truncate">Realized Revenue</p>
+               <p className="text-micro sm:text-micro text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest mb-1 truncate">Realized Revenue</p>
                <h2 className="text-xl sm:text-2xl font-mono text-emerald-700 dark:text-emerald-400 font-bold">${totalCollected.toFixed(2)}</h2>
-               <p className="text-[9px] text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">Confirmed tuition yield</p>
+               <p className="text-micro text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">Confirmed tuition yield</p>
              </div>
 
              <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-5 shadow-sm">
-               <p className="text-[9px] sm:text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest mb-1 truncate">Outstanding Dues</p>
+               <p className="text-micro sm:text-micro text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest mb-1 truncate">Outstanding Dues</p>
                <h2 className="text-xl sm:text-2xl font-mono text-rose-700 dark:text-rose-400 font-bold">${outstandingBalance.toFixed(2)}</h2>
-               <p className="text-[9px] text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">{agingReceivables.length} accounts overdue</p>
+               <p className="text-micro text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">{agingReceivables.length} accounts overdue</p>
              </div>
 
              <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-5 shadow-sm">
-               <p className="text-[9px] sm:text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest mb-1 truncate">Subsidies</p>
+               <p className="text-micro sm:text-micro text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest mb-1 truncate">Subsidies</p>
                <h2 className="text-xl sm:text-2xl font-mono text-indigo-600 dark:text-indigo-400 font-bold">${totalScholarshipDiscounts.toFixed(2)}</h2>
-               <p className="text-[9px] text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">Academy waivers</p>
+               <p className="text-micro text-neutral-500 dark:text-neutral-400 mt-2 font-mono uppercase tracking-tight truncate">Academy waivers</p>
              </div>
           </div>
 
@@ -172,13 +172,13 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                   <TrendUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   Monthly Tuition Trajectory & Velocity ({filterYear})
                 </h3>
-                <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
+                <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
                   12-month receipt velocity comparing collected revenue against net billing obligations
                 </p>
               </div>
 
               {peakRevenueMonth && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10px] font-mono font-bold shrink-0 self-start sm:self-auto">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-micro font-mono font-bold shrink-0 self-start sm:self-auto">
                   <Sparkle className="w-3.5 h-3.5 text-amber-500" weight="fill" />
                   Peak: {peakRevenueMonth.month} (${peakRevenueMonth.collected.toFixed(0)})
                 </div>
@@ -204,7 +204,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                         {item.month}
                       </span>
                       <span className={cn(
-                        "text-[9px] font-mono font-bold px-1 py-0.2 rounded",
+                        "text-micro font-mono font-bold px-1 py-0.2 rounded",
                         item.rate >= 80 ? "bg-emerald-500/10 text-emerald-800 dark:text-emerald-300" :
                         item.rate >= 50 ? "bg-amber-500/10 text-amber-800 dark:text-amber-300" :
                         item.expected === 0 ? "text-neutral-400" : "bg-rose-500/10 text-rose-800 dark:text-rose-300"
@@ -224,7 +224,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                       />
                     </div>
 
-                    <div className="space-y-0.5 text-[9px] font-mono">
+                    <div className="space-y-0.5 text-micro font-mono">
                       <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
                         <span>Rec:</span>
                         <span className="font-bold text-emerald-700 dark:text-emerald-400">${item.collected.toFixed(0)}</span>
@@ -250,15 +250,15 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                        <Warning className="w-4 h-4"/>
                        Aging Receivables & Delinquent Dues
                      </h3>
-                     <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
+                     <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
                        Actionable accounts requiring tuition collection follow-up
                      </p>
                    </div>
                    <div className="flex items-center gap-1.5 sm:gap-2">
-                     <span className="text-[9.5px] sm:text-[10px] bg-rose-500/10 border border-rose-500/20 text-rose-800 dark:text-rose-300 font-bold px-2 py-0.5 rounded-[6px] font-mono uppercase tracking-wider">
+                     <span className="text-micro sm:text-micro bg-rose-500/10 border border-rose-500/20 text-rose-800 dark:text-rose-300 font-bold px-2 py-0.5 rounded-[6px] font-mono uppercase tracking-wider">
                        {filteredAgingReceivables.length} Overdue
                      </span>
-                     <span className="text-[9.5px] sm:text-[10px] bg-rose-500/10 border border-rose-500/20 text-rose-800 dark:text-rose-300 font-bold px-2 py-0.5 rounded-[6px] font-mono">
+                     <span className="text-micro sm:text-micro bg-rose-500/10 border border-rose-500/20 text-rose-800 dark:text-rose-300 font-bold px-2 py-0.5 rounded-[6px] font-mono">
                        ${totalAgingOwed.toFixed(2)}
                      </span>
                    </div>
@@ -276,7 +276,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                       className="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-xs text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:border-brand"
                     />
                     {agingSearch && (
-                      <button onClick={() => setAgingSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-white">
+                      <button aria-label="Clear search" onClick={() => setAgingSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-white min-h-6 min-w-6 inline-flex items-center justify-center">
                         <X className="w-3 h-3" />
                       </button>
                     )}
@@ -286,7 +286,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                     <button
                       onClick={() => setAgingSeverityFilter('all')}
                       className={cn(
-                        "px-2.5 py-1 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 min-h-[30px] pointer-coarse:min-h-11",
+                        "px-2.5 py-1 rounded-[6px] text-micro font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 min-h-[30px] pointer-coarse:min-h-11",
                         agingSeverityFilter === 'all'
                           ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 font-black shadow-xs"
                           : "bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
@@ -297,7 +297,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                     <button
                       onClick={() => setAgingSeverityFilter('1m')}
                       className={cn(
-                        "px-2.5 py-1 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 min-h-[30px] pointer-coarse:min-h-11",
+                        "px-2.5 py-1 rounded-[6px] text-micro font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 min-h-[30px] pointer-coarse:min-h-11",
                         agingSeverityFilter === '1m'
                           ? "bg-amber-500 text-white font-black shadow-xs"
                           : "bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-amber-700 dark:text-amber-400 hover:bg-amber-500/10"
@@ -308,7 +308,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                     <button
                       onClick={() => setAgingSeverityFilter('2m_plus')}
                       className={cn(
-                        "px-2.5 py-1 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 min-h-[30px] pointer-coarse:min-h-11",
+                        "px-2.5 py-1 rounded-[6px] text-micro font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0 min-h-[30px] pointer-coarse:min-h-11",
                         agingSeverityFilter === '2m_plus'
                           ? "bg-rose-600 text-white font-black shadow-xs"
                           : "bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-rose-700 dark:text-rose-400 hover:bg-rose-500/10"
@@ -325,7 +325,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                     <div className="p-8 text-center text-neutral-500 dark:text-neutral-400 font-mono">
                       <CheckCircle className="w-8 h-8 text-emerald-500 mx-auto mb-2 opacity-80" />
                       <p className="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-neutral-200">No overdue accounts!</p>
-                      <p className="text-[10px] mt-0.5">All student accounts are currently settled.</p>
+                      <p className="text-micro mt-0.5">All student accounts are currently settled.</p>
                     </div>
                   ) : (
                     filteredAgingReceivables.map(ar => {
@@ -344,12 +344,12 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                                 <div className="font-bold text-xs text-neutral-900 dark:text-white flex items-center gap-1.5 truncate">
                                   <span className="truncate">{ar.student.englishName}</span>
                                   {ar.student.khmerName && (
-                                    <span className="text-[10px] font-khmer text-neutral-500 dark:text-neutral-400 font-normal shrink-0">
+                                    <span className="text-micro font-khmer text-neutral-500 dark:text-neutral-400 font-normal shrink-0">
                                       {ar.student.khmerName}
                                     </span>
                                   )}
                                 </div>
-                                <p className="text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 truncate">
+                                <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 truncate">
                                   {ar.student.id} • {ar.branchName}
                                 </p>
                               </div>
@@ -359,18 +359,18 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                               <span className="font-mono font-bold text-rose-700 dark:text-rose-400 text-sm block">
                                 ${ar.owed.toFixed(2)}
                               </span>
-                              <span className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono">
+                              <span className="text-micro text-neutral-500 dark:text-neutral-400 font-mono">
                                 Total Owed
                               </span>
                             </div>
                           </div>
 
                           <div className="flex flex-wrap items-center gap-1 pt-1">
-                            <span className="text-[9px] uppercase font-mono font-bold text-neutral-500 dark:text-neutral-400 mr-1">
+                            <span className="text-micro uppercase font-mono font-bold text-neutral-500 dark:text-neutral-400 mr-1">
                               Cycles:
                             </span>
                             {ar.overdueMonths.map(om => (
-                              <span key={om} className="px-1.5 py-0.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/25 rounded text-[9px] font-mono font-bold">
+                              <span key={om} className="px-1.5 py-0.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/25 rounded text-micro font-mono font-bold">
                                 {om}
                               </span>
                             ))}
@@ -419,7 +419,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                            <td colSpan={4} className="px-4 py-12 text-center text-neutral-500 dark:text-neutral-400 font-mono">
                              <CheckCircle className="w-8 h-8 text-emerald-500 mx-auto mb-2 opacity-80" />
                              <p className="text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">No matching overdue accounts!</p>
-                             <p className="text-[10px] mt-0.5">All student accounts are currently settled under active criteria.</p>
+                             <p className="text-micro mt-0.5">All student accounts are currently settled under active criteria.</p>
                            </td>
                          </tr>
                        ) : filteredAgingReceivables.map(ar => (
@@ -430,21 +430,21 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                                  src={ar.student.profilePicturePath}
                                  alt={ar.student.englishName}
                                  containerClassName="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 group-hover:border-brand transition-colors"
-                                 fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-[10px]">{ar.student.englishName.charAt(0)}</span>}
+                                 fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-micro">{ar.student.englishName.charAt(0)}</span>}
                                />
                                <div>
                                  <div className="font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5 group-hover:text-brand-ink dark:group-hover:text-white transition-colors">
                                    {ar.student.englishName}
                                    {ar.student.khmerName && (
-                                     <span className="text-[10px] font-khmer text-neutral-500 dark:text-neutral-400 font-normal">
+                                     <span className="text-micro font-khmer text-neutral-500 dark:text-neutral-400 font-normal">
                                        {ar.student.khmerName}
                                      </span>
                                    )}
-                                   <span className="text-[9px] text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] px-1.5 py-0.2 rounded font-mono">
+                                   <span className="text-micro text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] px-1.5 py-0.2 rounded font-mono">
                                      {ar.student.id}
                                    </span>
                                  </div>
-                                 <p className="text-[9px] text-neutral-500 dark:text-neutral-400 mt-0.5">
+                                 <p className="text-micro text-neutral-500 dark:text-neutral-400 mt-0.5">
                                    {ar.branchName} • Belt: {formatBelt(ar.student.currentBelt, ar.student.dob)} • Plan: {ar.scholarshipName}
                                  </p>
                                </div>
@@ -453,7 +453,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                            <td className="px-4 py-3 text-center">
                              <div className="flex items-center justify-center gap-1 flex-wrap">
                                {ar.overdueMonths.map(m => (
-                                 <span key={m} className="px-1.5 py-0.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 rounded font-mono font-bold text-[9px]">
+                                 <span key={m} className="px-1.5 py-0.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 rounded font-mono font-bold text-micro">
                                    {m}
                                  </span>
                                ))}
@@ -475,7 +475,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                                )}
                                <button
                                  onClick={() => { setStudentDetailsId(ar.student.id); setPaymentAmounts({}); }}
-                                 className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-colors shadow-xs cursor-pointer active:scale-95 touch-manipulation"
+                                 className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-[6px] text-micro font-bold uppercase tracking-wider transition-colors shadow-xs cursor-pointer active:scale-95 touch-manipulation"
                                >
                                  Pay Dues
                                </button>
@@ -505,7 +505,7 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                              <span className="font-bold text-neutral-900 dark:text-neutral-100">{branch.name}</span>
                              <span className="font-mono text-emerald-700 dark:text-emerald-400 font-bold">${collected.toFixed(2)}</span>
                           </div>
-                          <div className="flex justify-between text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mb-2">
+                          <div className="flex justify-between text-micro text-neutral-500 dark:text-neutral-400 font-mono mb-2">
                              <span>Due: ${expected.toFixed(0)}</span>
                              <span>Pending: ${outstanding.toFixed(0)} ({rate}%)</span>
                           </div>
@@ -531,13 +531,13 @@ export function RevenuePanel({ filterYear, setFilterYear, currentActualYear, fil
                          <div className="flex justify-between items-center mb-1">
                             <div>
                                <span className="font-bold text-neutral-900 dark:text-neutral-100">{item.scholarship.typeName}</span>
-                               <span className="text-[10px] text-neutral-500 dark:text-neutral-400 ml-1.5">({item.discountPct}% Discount)</span>
+                               <span className="text-micro text-neutral-500 dark:text-neutral-400 ml-1.5">({item.discountPct}% Discount)</span>
                             </div>
-                            <span className="font-mono text-neutral-800 dark:text-neutral-200 bg-neutral-200/60 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#333] px-2 py-0.5 rounded text-[10px] font-bold">
+                            <span className="font-mono text-neutral-800 dark:text-neutral-200 bg-neutral-200/60 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#333] px-2 py-0.5 rounded text-micro font-bold">
                               {item.studentCount} Students
                             </span>
                          </div>
-                         <div className="flex justify-between items-center text-[10px] font-mono text-neutral-600 dark:text-neutral-400 mt-1.5 pt-1.5 border-t border-neutral-200 dark:border-[#262626]">
+                         <div className="flex justify-between items-center text-micro font-mono text-neutral-600 dark:text-neutral-400 mt-1.5 pt-1.5 border-t border-neutral-200 dark:border-[#262626]">
                            <span>Waived Volume:</span>
                            <span className="font-bold text-indigo-600 dark:text-indigo-400">
                              ${item.monthlyTotalWaived.toFixed(2)}/mo (${item.annualProjectedWaived.toFixed(0)}/yr)

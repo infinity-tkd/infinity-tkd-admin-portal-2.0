@@ -7,6 +7,7 @@ import { buttonClass, cardClass, fieldClass, sectionLabelClass } from '@/compone
 import { EmptyState, ErrorBanner } from '@/components/ui/States';
 import { ASSIGNMENT_KINDS, assignmentInput, type LmsAudience } from '@/lib/lms-contract';
 import { cn } from '@/lib/utils';
+import { useAppStore } from '@/lib/store';
 import { AudiencePicker, audienceSummary, fmtDate, Labeled, LessonSelect, lmsPost, Pill, StatusLine, TranslationFields, useLmsView, useSaving, type Overview } from './coaching-shared';
 
 type Target = { target_type: 'student' | 'class' | 'belt' | 'branch' | 'all'; target_ref: string };
@@ -113,6 +114,7 @@ export function AssignmentsPanel({ overview, canEdit, onReview }: { overview: Ov
   const [editing, setEditing] = useState<Assignment | null | 'new'>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const { saving, message, run } = useSaving(() => void reload());
+  const { showConfirm } = useAppStore();
   if (error) return <ErrorBanner title="Assignments unavailable">{error}</ErrorBanner>;
   if (!data) return <EmptyState busy title="Loading…" />;
   const act = (a: Assignment, action: 'assignment.publish' | 'assignment.close' | 'assignment.reopen' | 'assignment.delete', done: string) =>
@@ -137,7 +139,7 @@ export function AssignmentsPanel({ overview, canEdit, onReview }: { overview: Ov
               {a.status === 'draft' && <button type="button" className={buttonClass({ size: 'sm', variant: 'primary' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void act(a, 'assignment.publish', 'Published to students.')}>Publish</button>}
               {a.status === 'published' && <button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void act(a, 'assignment.close', 'Closed.')}>Close</button>}
               {a.status === 'closed' && <button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => void act(a, 'assignment.reopen', 'Reopened.')}>Reopen</button>}
-              <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => { if (window.confirm(`Delete "${a.title}"? This cannot be undone.`)) void act(a, 'assignment.delete', 'Deleted.'); }}>Delete</button>
+              <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => showConfirm(`Delete "${a.title}"? This cannot be undone.`, () => void act(a, 'assignment.delete', 'Deleted.'), 'Delete assignment')}>Delete</button>
             </>}
           </div>
           {expanded === a.id && <div><p className={sectionLabelClass}>Students</p><StudentStatuses assignment={a} canEdit={canEdit} onChanged={() => void reload()} /></div>}

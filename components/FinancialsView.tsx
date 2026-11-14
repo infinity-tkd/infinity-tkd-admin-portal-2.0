@@ -828,7 +828,7 @@ export function FinancialsView() {
         actions={<Link href="/operations?view=reconciliation" className={cn(buttonClass(), 'whitespace-normal py-2 text-center')}>Cash collections and bank reconciliation</Link>}
       >
         {isReadOnlyLedger && (
-          <span className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">
+          <span className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-micro font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">
             Read-Only Mode
           </span>
         )}

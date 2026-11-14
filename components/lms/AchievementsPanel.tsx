@@ -7,6 +7,7 @@ import { buttonClass, cardClass, fieldClass, sectionLabelClass } from '@/compone
 import { EmptyState, ErrorBanner } from '@/components/ui/States';
 import { ACHIEVEMENT_ICONS, ACHIEVEMENT_RULES, achievementDefinitionInput } from '@/lib/lms-contract';
 import { cn } from '@/lib/utils';
+import { useAppStore } from '@/lib/store';
 import { fmtDate, Labeled, lmsPost, Pill, StatusLine, StudentSelect, TranslationFields, useLmsView, useSaving, type Overview } from './coaching-shared';
 
 type RuleKind = typeof ACHIEVEMENT_RULES[number];
@@ -55,7 +56,7 @@ function DefinitionEditor({ overview, editing, onClose, onSaved }: { overview: O
         <Labeled label="Repeats"><select className={fieldClass} value={kind === 'attendance_month' ? 'monthly' : repeats} disabled={kind === 'attendance_month'} onChange={e => setRepeats(e.target.value as Definition['repeats'])}>{Object.entries(REPEATS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Labeled>
         <Labeled label="Points"><input type="number" min={0} max={1000} className={fieldClass} value={points} onChange={e => setPoints(e.target.value)} /></Labeled>
       </div>
-      {kind === 'category_completed' && <fieldset className="rounded-lg border border-line p-2"><legend className="px-1 text-[11px] font-semibold text-ink-muted">Library categories</legend>
+      {kind === 'category_completed' && <fieldset className="rounded-lg border border-line p-2"><legend className="px-1 text-micro font-semibold text-ink-muted">Library categories</legend>
         <div className="flex flex-wrap gap-2">{overview.categories.map(c => <label key={c.slug} className="flex items-center gap-1.5 text-sm"><input type="checkbox" checked={categories.includes(c.slug)} onChange={e => setCategories(e.target.checked ? [...categories, c.slug] : categories.filter(x => x !== c.slug))} />{c.title}</label>)}</div></fieldset>}
       {kind === 'manual' && <p className="text-xs text-ink-muted">A coach awards it from the panel below (for example Belt Exam Ready), or a challenge gives it as its badge.</p>}
       <label className="flex items-center gap-2 text-sm text-ink"><input type="checkbox" checked={active} onChange={e => setActive(e.target.checked)} /> Active (shown to students and awarded)</label>
@@ -73,6 +74,7 @@ export function AchievementsPanel({ overview, canEdit, onChanged }: { overview: 
   const [code, setCode] = useState('belt_exam_ready');
   const [note, setNote] = useState('');
   const { saving, message, run } = useSaving(() => { void reload(); onChanged(); });
+  const { showConfirm } = useAppStore();
   if (error) return <ErrorBanner title="Achievements unavailable">{error}</ErrorBanner>;
   if (!data) return <EmptyState busy title="Loading…" />;
   const title = (c: string) => data.definitions.find(d => d.code === c)?.title ?? c;
@@ -98,12 +100,12 @@ export function AchievementsPanel({ overview, canEdit, onChanged }: { overview: 
         <div className="flex flex-wrap items-center gap-2"><span className="text-sm font-bold text-ink">{d.title}</span>{!d.active && <Pill tone="warn">off</Pill>}<Pill>{RULE_LABEL[d.rule.kind]}{d.rule.min ? ` ${d.rule.min}` : ''}</Pill><Pill>{REPEATS[d.repeats]}</Pill><Pill tone="brand">{d.points} pts</Pill></div>
         <p className="text-xs text-ink-muted">{d.description}</p>
         {canEdit && <div className="flex gap-1.5"><button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} onClick={() => setEditing(d)}>Edit</button>
-          <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => { if (window.confirm(`Delete "${d.title}"?`)) void run(() => lmsPost({ action: 'achievement.delete', code: d.code, expectedRevision: d.revision }), 'Deleted.'); }}>Delete</button></div>}
+          <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => showConfirm(`Delete "${d.title}"?`, () => void run(() => lmsPost({ action: 'achievement.delete', code: d.code, expectedRevision: d.revision }), 'Deleted.'), 'Delete achievement')}>Delete</button></div>}
       </li>)}</ul></section>
     <section className="space-y-2"><h2 className={sectionLabelClass}>Recent awards</h2>
       {data.awards.length === 0 ? <p className="text-xs text-ink-muted">No awards yet.</p> : <ul className="divide-y divide-line rounded-lg border border-line">{data.awards.map(a => <li key={`${a.student_id}:${a.code}:${a.period}`} className="flex flex-wrap items-center gap-2 px-2 py-1.5 text-xs">
         <span className="min-w-[10rem] flex-1 font-semibold text-ink">{a.students?.english_name ?? a.student_id}</span><span>{title(a.code)}{a.period ? ` · ${a.period}` : ''}</span>{a.awarded_by && <Pill>signed off</Pill>}<span className="text-ink-muted">{fmtDate(a.earned_at)}</span>
-        {canEdit && <button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => { if (window.confirm('Remove this award and its points?')) void run(() => lmsPost({ action: 'achievement.revoke', studentId: a.student_id, code: a.code, period: a.period, note: null }), 'Removed.'); }}>Remove</button>}
+        {canEdit && <button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => showConfirm('Remove this award and its points?', () => void run(() => lmsPost({ action: 'achievement.revoke', studentId: a.student_id, code: a.code, period: a.period, note: null }), 'Removed.'), 'Remove award')}>Remove</button>}
       </li>)}</ul>}</section>
     {editing && <DefinitionEditor overview={overview} editing={editing === 'new' ? null : editing} onClose={() => setEditing(null)} onSaved={() => { void reload(); onChanged(); }} />}
   </div>;

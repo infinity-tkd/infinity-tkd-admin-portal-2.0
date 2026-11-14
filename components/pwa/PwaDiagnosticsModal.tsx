@@ -166,10 +166,10 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
                 <Pulse className="w-4 h-4" weight="bold" />
               </div>
               <div>
-                <h3 id="pwa-diag-title" className="text-sm font-bold tracking-tight text-neutral-900 dark:text-white">
+                <h2 id="pwa-diag-title" className="text-sm font-bold tracking-tight text-neutral-900 dark:text-white">
                   PWA Architecture &amp; Cache Diagnostics
-                </h3>
-                <p className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
+                </h2>
+                <p className="text-micro font-mono text-neutral-500 dark:text-neutral-400">
                   Client Runtime &bull; Service Worker v2.0.0
                 </p>
               </div>
@@ -197,7 +197,7 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             {/* Online Status */}
             <div className="p-3 rounded-[8px] bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#2D2D2D] space-y-1">
-              <span className="text-[10px] font-mono uppercase font-bold text-neutral-400 block">
+              <span className="text-micro font-mono uppercase font-bold text-neutral-400 block">
                 Network Status
               </span>
               <div className="flex items-center gap-2">
@@ -217,7 +217,7 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
 
             {/* Standalone Display Mode */}
             <div className="p-3 rounded-[8px] bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#2D2D2D] space-y-1">
-              <span className="text-[10px] font-mono uppercase font-bold text-neutral-400 block">
+              <span className="text-micro font-mono uppercase font-bold text-neutral-400 block">
                 Display Mode
               </span>
               <div className="flex items-center gap-2">
@@ -230,12 +230,12 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
 
             {/* Service Worker Lifecycle */}
             <div className="p-3 rounded-[8px] bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#2D2D2D] space-y-1 sm:col-span-2">
-              <span className="text-[10px] font-mono uppercase font-bold text-neutral-400 block">
+              <span className="text-micro font-mono uppercase font-bold text-neutral-400 block">
                 Service Worker Controller
               </span>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="font-semibold font-mono text-xs">{swStatus}</span>
-                <span className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 truncate max-w-xs">
+                <span className="text-micro font-mono text-neutral-500 dark:text-neutral-400 truncate max-w-xs">
                   Scope: {swScope}
                 </span>
               </div>
@@ -243,7 +243,7 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
 
             {/* Offline Mutation Queue */}
             <div className="p-3 rounded-[8px] bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#2D2D2D] space-y-1">
-              <span className="text-[10px] font-mono uppercase font-bold text-neutral-400 block">
+              <span className="text-micro font-mono uppercase font-bold text-neutral-400 block">
                 Attendance waiting on this device
               </span>
               <div className="flex items-center justify-between">
@@ -253,7 +253,7 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
                     type="button"
                     onClick={() => { void flushQueue(); }}
                     disabled={!isOnline}
-                    className="min-h-8 px-1 text-[10px] font-mono font-bold text-brand-ink hover:underline cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                    className="min-h-8 px-1 text-micro font-mono font-bold text-brand-ink hover:underline cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Send now
                   </button>
@@ -263,7 +263,7 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
 
             {/* Storage Quota */}
             <div className="p-3 rounded-[8px] bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#2D2D2D] space-y-1">
-              <span className="text-[10px] font-mono uppercase font-bold text-neutral-400 block">
+              <span className="text-micro font-mono uppercase font-bold text-neutral-400 block">
                 Estimated Storage Quota
               </span>
               <span className="font-bold text-sm font-mono">
@@ -276,14 +276,14 @@ export function PwaDiagnosticsModal({ isOpen, onClose }: PwaDiagnosticsModalProp
 
           {/* Cache Pools Detail */}
           <div className="space-y-2">
-            <span className="text-[10px] font-mono uppercase font-bold text-neutral-500 dark:text-neutral-400 block">
+            <span className="text-micro font-mono uppercase font-bold text-neutral-500 dark:text-neutral-400 block">
               Active Cache Storage Pools ({cachesList.length})
             </span>
             <div className="divide-y divide-neutral-200 dark:divide-[#262626] border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden max-h-36 overflow-y-auto">
               {cachesList.map((c) => (
                 <div key={c.name} className="px-3 py-2 bg-neutral-50 dark:bg-[#181818] flex items-center justify-between text-xs font-mono">
                   <span className="truncate max-w-[280px]">{c.name}</span>
-                  <span className="px-2 py-0.5 rounded bg-neutral-200 dark:bg-[#282828] text-[10px] font-bold">
+                  <span className="px-2 py-0.5 rounded bg-neutral-200 dark:bg-[#282828] text-micro font-bold">
                     {c.itemCount} items
                   </span>
                 </div>

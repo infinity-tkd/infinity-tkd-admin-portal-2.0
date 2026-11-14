@@ -56,16 +56,16 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
 
                  <form onSubmit={handleSaveRoutine} className="p-6 space-y-4 overflow-y-auto bg-white dark:bg-[#0A0A0A] text-neutral-900 dark:text-white">
                     <div>
-                      <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_title_label')}</label>
-                      <input type="text" value={newRoutine.title} onChange={(e) => setNewRoutine({ ...newRoutine, title: e.target.value })} required
+                      <label htmlFor="workout-routine-editor-lib_routine_title_label" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_title_label')}</label>
+                      <input id="workout-routine-editor-lib_routine_title_label" type="text" value={newRoutine.title} onChange={(e) => setNewRoutine({ ...newRoutine, title: e.target.value })} required
                         className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20"
                         placeholder="e.g. Rapid Footwork & Leg Conditioning"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_desc_label')}</label>
-                      <textarea value={newRoutine.description} onChange={(e) => setNewRoutine({ ...newRoutine, description: e.target.value })} required rows={2}
+                      <label htmlFor="workout-routine-editor-lib_routine_desc_label" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_desc_label')}</label>
+                      <textarea id="workout-routine-editor-lib_routine_desc_label" value={newRoutine.description} onChange={(e) => setNewRoutine({ ...newRoutine, description: e.target.value })} required rows={2}
                         className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20"
                         placeholder={t('lib_placeholder_routine_desc')}
                       />
@@ -73,8 +73,8 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                       <div>
-                        <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">Routine Type</label>
-                        <select value={newRoutine.routineType} onChange={(e) => setNewRoutine({ ...newRoutine, routineType: e.target.value })}
+                        <label htmlFor="workout-routine-editor-routine-type" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">Routine Type</label>
+                        <select id="workout-routine-editor-routine-type" value={newRoutine.routineType} onChange={(e) => setNewRoutine({ ...newRoutine, routineType: e.target.value })}
                           className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 shadow-sm font-semibold"
                         >
                           {ROUTINE_TYPES.map(type => (
@@ -84,8 +84,8 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                       </div>
 
                       <div>
-                        <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_diff_label')}</label>
-                        <select value={newRoutine.difficulty} onChange={(e) => setNewRoutine({ ...newRoutine, difficulty: e.target.value })}
+                        <label htmlFor="workout-routine-editor-lib_routine_diff_label" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_diff_label')}</label>
+                        <select id="workout-routine-editor-lib_routine_diff_label" value={newRoutine.difficulty} onChange={(e) => setNewRoutine({ ...newRoutine, difficulty: e.target.value })}
                           className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 shadow-sm font-semibold"
                         >
                           <option value="Beginner" className="text-black dark:text-white dark:bg-neutral-900">{t('lib_diff_beginner')}</option>
@@ -96,8 +96,8 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                       </div>
 
                       <div>
-                        <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_rounds_label')}</label>
-                        <input type="number" min={1} max={20} step={1} value={newRoutine.rounds} onChange={(e) => setNewRoutine({ ...newRoutine, rounds: Number(e.target.value) })} required
+                        <label htmlFor="workout-routine-editor-lib_routine_rounds_label" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_rounds_label')}</label>
+                        <input id="workout-routine-editor-lib_routine_rounds_label" type="number" min={1} max={20} step={1} value={newRoutine.rounds} onChange={(e) => setNewRoutine({ ...newRoutine, rounds: Number(e.target.value) })} required
                           className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 shadow-sm font-bold"
                         />
                       </div>
@@ -105,22 +105,22 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
 
                     <div className="grid grid-cols-3 gap-2">
                       <div>
-                        <label className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_prep_label')}</label>
-                        <input type="number" min={0} max={300} step={1} value={newRoutine.prepareSeconds} onChange={(e) => setNewRoutine({ ...newRoutine, prepareSeconds: Number(e.target.value) })} required
+                        <label htmlFor="workout-routine-editor-lib_routine_prep_label" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_prep_label')}</label>
+                        <input id="workout-routine-editor-lib_routine_prep_label" type="number" min={0} max={300} step={1} value={newRoutine.prepareSeconds} onChange={(e) => setNewRoutine({ ...newRoutine, prepareSeconds: Number(e.target.value) })} required
                           className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-bold"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_work_label')}</label>
-                        <input type="number" min={1} max={3600} step={1} value={newRoutine.workSeconds} onChange={(e) => setNewRoutine({ ...newRoutine, workSeconds: Number(e.target.value) })} required
+                        <label htmlFor="workout-routine-editor-lib_routine_work_label" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_work_label')}</label>
+                        <input id="workout-routine-editor-lib_routine_work_label" type="number" min={1} max={3600} step={1} value={newRoutine.workSeconds} onChange={(e) => setNewRoutine({ ...newRoutine, workSeconds: Number(e.target.value) })} required
                           className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-bold"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_rest_label')}</label>
-                        <input type="number" min={0} max={1800} step={1} value={newRoutine.restSeconds} onChange={(e) => setNewRoutine({ ...newRoutine, restSeconds: Number(e.target.value) })} required
+                        <label htmlFor="workout-routine-editor-lib_routine_rest_label" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">{t('lib_routine_rest_label')}</label>
+                        <input id="workout-routine-editor-lib_routine_rest_label" type="number" min={0} max={1800} step={1} value={newRoutine.restSeconds} onChange={(e) => setNewRoutine({ ...newRoutine, restSeconds: Number(e.target.value) })} required
                           className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand font-bold"
                         />
                       </div>
@@ -128,7 +128,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
 
                     <div>
                       <div className="relative">
-                        <label className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">
+                        <label htmlFor="workout-routine-editor-exercise-search" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 mb-1.5">
                           {t('lib_routine_sequence_label')}
                         </label>
 
@@ -138,6 +138,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                             <MagnifyingGlass className="w-4 h-4 text-neutral-400 dark:text-neutral-500" />
                           </span>
                           <input
+                            id="workout-routine-editor-exercise-search"
                             type="text"
                             placeholder="Search curriculum exercises or type custom step..."
                             value={exerciseSearch}
@@ -163,13 +164,13 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                             className="w-full pl-10 pr-10 py-2.5 bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[8px] text-xs focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 transition-all font-medium placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                           />
                           {exerciseSearch && (
-                            <button
+                            <button aria-label="Clear search"
                               type="button"
                               onClick={() => {
                                   setExerciseSearch('');
                                   setDropdownOpen(false);
                               }}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors cursor-pointer"
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors cursor-pointer min-h-6 min-w-6 inline-flex items-center justify-center"
                             >
                               <X className="w-3.5 h-3.5" />
                             </button>
@@ -234,7 +235,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
 
                       {/* Selected exercises list container */}
                       <div className="mt-4 space-y-2">
-                        <span className="block text-[10px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">
+                        <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">
                           Routine Exercise Sequence ({newRoutine.selectedExercises.length} items)
                         </span>
 
@@ -267,7 +268,7 @@ export function WorkoutRoutineEditor({ isSaving, editingRoutine, t, setShowRouti
                                   </div>
 
                                   {/* Index badge */}
-                                  <span className="w-5 h-5 flex items-center justify-center bg-neutral-200/60 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-full text-[9px] font-mono font-bold shrink-0">
+                                  <span className="w-5 h-5 flex items-center justify-center bg-neutral-200/60 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-full text-micro font-mono font-bold shrink-0">
                                     {index + 1}
                                   </span>
 

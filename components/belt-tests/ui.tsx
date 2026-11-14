@@ -13,7 +13,7 @@ export function Labeled({ label, children, wide = false, hint }: { label: string
   return <div className={cn('min-w-0 space-y-1', wide && 'sm:col-span-2')}>
     <label htmlFor={id} className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">{label}</label>
     {React.cloneElement(children, { id, ...(hint ? { 'aria-describedby': hintId } : {}) })}
-    {hint && <p id={hintId} className="text-[11px] text-neutral-500">{hint}</p>}
+    {hint && <p id={hintId} className="text-micro text-neutral-500">{hint}</p>}
   </div>;
 }
 
@@ -26,7 +26,7 @@ export function Badge({ tone = 'neutral', children }: { tone?: 'neutral' | 'gree
     blue: 'bg-sky-50 text-sky-800 dark:bg-sky-950 dark:text-sky-300',
     black: 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900',
   };
-  return <span className={cn('inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold', tones[tone])}>{children}</span>;
+  return <span className={cn('inline-flex items-center rounded-md px-2 py-0.5 text-micro font-semibold', tones[tone])}>{children}</span>;
 }
 
 export function ErrorNote({ message }: { message?: string }) {

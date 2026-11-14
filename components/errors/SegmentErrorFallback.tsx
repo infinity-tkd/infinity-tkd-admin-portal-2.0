@@ -34,24 +34,22 @@ export function SegmentErrorFallback({
         </div>
 
         <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
-            Isolated View Error
-          </div>
-          <h2 className="text-base font-bold uppercase tracking-tight text-ink sm:text-lg">
-            {sectionName} Unavailable
+          <h2 className="text-base font-bold tracking-tight text-ink sm:text-lg">
+            {sectionName} is unavailable
           </h2>
           <p className="text-xs leading-relaxed text-ink-muted">
-            A runtime error occurred in this view. The application shell and your authenticated session remain active.
+            This section ran into an unexpected problem. The rest of the portal still works and you are still signed in. Try the section again, or go to the dashboard.
           </p>
         </div>
 
-        {error.message && (
-          <div className="w-full rounded-lg border border-line bg-surface-inset p-3 text-left">
-            <span className="mb-1 block font-mono text-[10px] font-black uppercase tracking-widest text-ink-subtle">Diagnostics</span>
-            <code className="line-clamp-3 break-all font-mono text-[11px] text-red-700 dark:text-red-400">
-              {error.message}
-            </code>
-          </div>
+        {(error.message || error.digest) && (
+          <details className="w-full rounded-lg border border-line bg-surface-inset px-3 text-left">
+            <summary className="flex min-h-11 cursor-pointer items-center font-mono text-micro font-black uppercase tracking-widest text-ink-subtle">Technical details</summary>
+            <div className="max-h-40 space-y-1 overflow-y-auto pb-3">
+              {error.digest && <p className="font-mono text-micro text-ink-muted">Reference: {error.digest}</p>}
+              {error.message && <code className="block break-all font-mono text-micro text-red-700 dark:text-red-400">{error.message}</code>}
+            </div>
+          </details>
         )}
 
         <div className="flex flex-col gap-2.5 pt-2 sm:flex-row">

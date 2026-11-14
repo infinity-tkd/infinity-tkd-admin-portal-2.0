@@ -105,7 +105,7 @@ export function LibraryCategoryManager({ onClose, onChanged }: { onClose: () => 
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-lg" style={{ color: category.accentColor, backgroundColor: category.accentColor + '1A' }}><CategoryIcon name={category.icon} className="size-5" /></span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-semibold text-ink">{category.title}{category.koreanTitle ? <span className="font-normal text-ink-subtle"> · {category.koreanTitle}</span> : null}</span>
-                    <span className="text-[11px] text-ink-subtle">{category.lessonCount ?? 0} lesson{category.lessonCount === 1 ? '' : 's'} · {category.libraryType}{category.isActive ? '' : ' · Hidden from students'}{category.translations?.km?.title || category.translations?.zh?.title ? ' · Translated' : ''}</span>
+                    <span className="text-micro text-ink-subtle">{category.lessonCount ?? 0} lesson{category.lessonCount === 1 ? '' : 's'} · {category.libraryType}{category.isActive ? '' : ' · Hidden from students'}{category.translations?.km?.title || category.translations?.zh?.title ? ' · Translated' : ''}</span>
                   </span>
                   <span className="flex gap-1">
                     <button type="button" aria-label={`Move ${category.title} up`} disabled={saving || index === 0} onClick={() => move(index, index - 1)} className={buttonClass({ size: 'icon' })}><ArrowUp className="size-4" /></button>

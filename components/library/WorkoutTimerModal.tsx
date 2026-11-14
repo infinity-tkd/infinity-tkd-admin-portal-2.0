@@ -59,7 +59,7 @@ export function WorkoutTimerModal({ workout, onClose }: { workout: any, onClose:
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-neutral-400">{t('lib_difficulty_workout').replace('{difficulty}', diffTrans)}</span>
+              <span className="text-micro font-bold uppercase tracking-widest text-neutral-400">{t('lib_difficulty_workout').replace('{difficulty}', diffTrans)}</span>
               <h3 className="text-sm font-bold text-white mt-0.5">{workout.title}</h3>
             </div>
             <button 
@@ -74,7 +74,7 @@ export function WorkoutTimerModal({ workout, onClose }: { workout: any, onClose:
 
           {/* Central Timer Face */}
           <div className={cn("rounded-[8px] p-8 flex flex-col items-center justify-center transition-all relative border border-transparent overflow-hidden", theme.bg)}>
-            <span className="text-[9px] uppercase font-black tracking-[0.25em] text-neutral-400">{t('lib_timer_current_mode')}</span>
+            <span className="text-micro uppercase font-black tracking-[0.25em] text-neutral-400">{t('lib_timer_current_mode')}</span>
 
             {/* Massive mode flash text */}
             <motion.h1 key={mode} initial={{ y: -5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className={cn("text-2xl font-black uppercase tracking-widest mt-1 mb-2 font-mono", theme.text)}>
@@ -87,7 +87,7 @@ export function WorkoutTimerModal({ workout, onClose }: { workout: any, onClose:
             </motion.h2>
 
             {/* Round info bar with interval navigation */}
-            <div className="flex items-center justify-between w-full max-w-[240px] mt-4 px-3 py-1 bg-black/40 rounded-full border border-white/5 text-[10px] text-neutral-300 font-mono">
+            <div className="flex items-center justify-between w-full max-w-[240px] mt-4 px-3 py-1 bg-black/40 rounded-full border border-white/5 text-micro text-neutral-300 font-mono">
               <button 
                 type="button" 
                 onClick={prevRound} 
@@ -112,7 +112,7 @@ export function WorkoutTimerModal({ workout, onClose }: { workout: any, onClose:
 
           {/* Targeted Movement Guidance */}
           <div className="bg-[#141414] border border-[#262626] rounded-[8px] p-4 text-center">
-            <span className="block text-[9px] uppercase font-bold text-neutral-400 tracking-wider mb-1">{t('lib_timer_target_action')}</span>
+            <span className="block text-micro uppercase font-bold text-neutral-400 tracking-wider mb-1">{t('lib_timer_target_action')}</span>
             {mode === 'Prepare' && <p className="text-xs text-neutral-300 font-bold font-mono">{t('lib_timer_prep_desc')}</p>}
             {mode === 'Rest' && <p className="text-xs text-neutral-300 font-bold font-mono">{t('lib_timer_rest_desc')}</p>}
             {mode === 'Completed' && <p className="text-xs text-green-400 font-bold font-mono">{t('lib_timer_completed_desc')}</p>}

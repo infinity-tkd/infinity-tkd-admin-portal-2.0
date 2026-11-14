@@ -578,19 +578,19 @@ export function PartnersView() {
                           </div>
                         )}
                         <div className="min-w-0">
-                          <h3 className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white truncate group-hover:text-brand-ink transition-colors">
+                          <h2 className="break-words text-xs leading-tight sm:text-sm font-bold text-neutral-900 dark:text-white group-hover:text-brand-ink transition-colors">
                             {partner.brandName || partner.name}
-                          </h3>
+                          </h2>
                           {partner.brandName && (
-                            <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono truncate">
+                            <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono truncate">
                               {partner.name}
                             </p>
                           )}
                           <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                            <span className={cn("px-1.5 py-0.5 rounded-[4px] text-[9px] font-mono font-bold uppercase border", getTypeBadge(partner.partnerType))}>
+                            <span className={cn("px-1.5 py-0.5 rounded-[4px] text-micro font-mono font-bold uppercase border", getTypeBadge(partner.partnerType))}>
                               {partner.partnerType}
                             </span>
-                            <span className={cn("px-1.5 py-0.5 rounded-[4px] text-[9px] font-mono font-bold uppercase border", getStatusBadge(partner.status))}>
+                            <span className={cn("px-1.5 py-0.5 rounded-[4px] text-micro font-mono font-bold uppercase border", getStatusBadge(partner.status))}>
                               {partner.status}
                             </span>
                           </div>
@@ -624,16 +624,16 @@ export function PartnersView() {
 
                     {/* Collaboration Scope / Description Preview */}
                     {partner.collaborationScope && (
-                      <p className="text-[11px] text-neutral-600 dark:text-neutral-300 line-clamp-2 leading-relaxed">
+                      <p className="text-micro text-neutral-600 dark:text-neutral-300 line-clamp-2 leading-relaxed">
                         {partner.collaborationScope}
                       </p>
                     )}
 
                     {/* Key Contacts Snapshot */}
-                    <div className="bg-neutral-50 dark:bg-[#0F0F0F] rounded-[8px] p-2.5 border border-neutral-200/80 dark:border-[#262626] space-y-1.5 text-[11px] font-mono">
+                    <div className="bg-neutral-50 dark:bg-[#0F0F0F] rounded-[8px] p-2.5 border border-neutral-200/80 dark:border-[#262626] space-y-1.5 text-micro font-mono">
                       {partner.contactName && (
                         <div className="flex items-center justify-between text-neutral-700 dark:text-neutral-300">
-                          <span className="text-[10px] text-neutral-400 dark:text-neutral-500">Liaison:</span>
+                          <span className="text-micro text-neutral-400 dark:text-neutral-500">Liaison:</span>
                           <span className="font-bold truncate ml-2">
                             {partner.contactName} {partner.contactRole && `(${partner.contactRole})`}
                           </span>
@@ -641,13 +641,13 @@ export function PartnersView() {
                       )}
                       {partner.founderName && (
                         <div className="flex items-center justify-between text-neutral-700 dark:text-neutral-300">
-                          <span className="text-[10px] text-neutral-400 dark:text-neutral-500">Founder:</span>
+                          <span className="text-micro text-neutral-400 dark:text-neutral-500">Founder:</span>
                           <span className="truncate ml-2">{partner.founderName}</span>
                         </div>
                       )}
                       {partner.country && (
                         <div className="flex items-center justify-between text-neutral-700 dark:text-neutral-300">
-                          <span className="text-[10px] text-neutral-400 dark:text-neutral-500">Region:</span>
+                          <span className="text-micro text-neutral-400 dark:text-neutral-500">Region:</span>
                           <span>{partner.country}</span>
                         </div>
                       )}
@@ -663,7 +663,7 @@ export function PartnersView() {
                           href={partner.telegramLink || `https://t.me/${partner.telegramUsername.replace(/^@/, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="min-h-[36px] px-2.5 py-1 bg-[#229ED9]/10 hover:bg-[#229ED9] text-[#17739f] dark:text-[#229ED9] hover:text-white rounded-[6px] text-[11px] font-mono font-bold flex items-center gap-1.5 transition-all active:scale-95 touch-manipulation border border-[#229ED9]/20 pointer-coarse:min-h-11"
+                          className="min-h-[36px] px-2.5 py-1 bg-[#229ED9]/10 hover:bg-[#229ED9] text-[#17739f] dark:text-[#229ED9] hover:text-white rounded-[6px] text-micro font-mono font-bold flex items-center gap-1.5 transition-all active:scale-95 touch-manipulation border border-[#229ED9]/20 pointer-coarse:min-h-11"
                           title={`Open Telegram: @${partner.telegramUsername.replace(/^@/, '')}`}
                         >
                           <PaperPlaneTilt className="w-3.5 h-3.5" weight="fill" />
@@ -750,15 +750,15 @@ export function PartnersView() {
                           {partner.brandName || partner.name}
                         </span>
                         {partner.brandName && (
-                          <span className="text-[10px] text-neutral-500 dark:text-neutral-400 block truncate font-mono">
+                          <span className="text-micro text-neutral-500 dark:text-neutral-400 block truncate font-mono">
                             {partner.name}
                           </span>
                         )}
                         <div className="flex items-center gap-1 mt-1 flex-wrap">
-                          <span className={cn("px-1.5 py-0.5 rounded-[4px] text-[9px] font-mono font-bold uppercase border", getTypeBadge(partner.partnerType))}>
+                          <span className={cn("px-1.5 py-0.5 rounded-[4px] text-micro font-mono font-bold uppercase border", getTypeBadge(partner.partnerType))}>
                             {partner.partnerType}
                           </span>
-                          <span className={cn("px-1.5 py-0.5 rounded-[4px] text-[9px] font-mono font-bold uppercase border", getStatusBadge(partner.status))}>
+                          <span className={cn("px-1.5 py-0.5 rounded-[4px] text-micro font-mono font-bold uppercase border", getStatusBadge(partner.status))}>
                             {partner.status}
                           </span>
                         </div>
@@ -790,22 +790,22 @@ export function PartnersView() {
                   </div>
 
                   {/* Contact Summary */}
-                  <div className="bg-neutral-50 dark:bg-[#0F0F0F] rounded-[6px] p-2 text-[11px] font-mono space-y-1 border border-neutral-100 dark:border-[#262626]">
+                  <div className="bg-neutral-50 dark:bg-[#0F0F0F] rounded-[6px] p-2 text-micro font-mono space-y-1 border border-neutral-100 dark:border-[#262626]">
                     <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
-                      <span className="text-[10px] text-neutral-400 dark:text-neutral-500">Liaison:</span>
+                      <span className="text-micro text-neutral-400 dark:text-neutral-500">Liaison:</span>
                       <span className="font-bold truncate ml-2">
                         {partner.contactName || '—'} {partner.contactRole && `(${partner.contactRole})`}
                       </span>
                     </div>
                     {partner.country && (
                       <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
-                        <span className="text-[10px] text-neutral-400 dark:text-neutral-500">Region:</span>
+                        <span className="text-micro text-neutral-400 dark:text-neutral-500">Region:</span>
                         <span>{partner.country}</span>
                       </div>
                     )}
                     {partner.mouExpiryDate && (
                       <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
-                        <span className="text-[10px] text-neutral-400 dark:text-neutral-500">Expiry:</span>
+                        <span className="text-micro text-neutral-400 dark:text-neutral-500">Expiry:</span>
                         <span className="text-brand-ink font-bold">{partner.mouExpiryDate}</span>
                       </div>
                     )}
@@ -819,7 +819,7 @@ export function PartnersView() {
                           href={partner.telegramLink || `https://t.me/${partner.telegramUsername.replace(/^@/, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="min-h-[34px] px-2 py-1 bg-[#229ED9]/10 text-[#17739f] dark:text-[#229ED9] rounded-[6px] text-[10px] font-mono font-bold flex items-center gap-1 border border-[#229ED9]/20 active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                          className="min-h-[34px] px-2 py-1 bg-[#229ED9]/10 text-[#17739f] dark:text-[#229ED9] rounded-[6px] text-micro font-mono font-bold flex items-center gap-1 border border-[#229ED9]/20 active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                         >
                           <PaperPlaneTilt className="w-3 h-3" weight="fill" />
                           <span>@{partner.telegramUsername.replace(/^@/, '')}</span>
@@ -900,7 +900,7 @@ export function PartnersView() {
                                 {partner.brandName || partner.name}
                               </span>
                               {partner.brandName && (
-                                <span className="text-[10px] text-neutral-500 dark:text-neutral-400 block truncate font-mono">
+                                <span className="text-micro text-neutral-500 dark:text-neutral-400 block truncate font-mono">
                                   {partner.name}
                                 </span>
                               )}
@@ -909,13 +909,13 @@ export function PartnersView() {
                         </td>
 
                         <td className="px-4 py-3">
-                          <span className={cn("px-2 py-0.5 rounded-[4px] text-[9px] font-bold uppercase border", getTypeBadge(partner.partnerType))}>
+                          <span className={cn("px-2 py-0.5 rounded-[4px] text-micro font-bold uppercase border", getTypeBadge(partner.partnerType))}>
                             {partner.partnerType}
                           </span>
                         </td>
 
                         <td className="px-4 py-3">
-                          <span className={cn("px-2 py-0.5 rounded-[4px] text-[9px] font-bold uppercase border", getStatusBadge(partner.status))}>
+                          <span className={cn("px-2 py-0.5 rounded-[4px] text-micro font-bold uppercase border", getStatusBadge(partner.status))}>
                             {partner.status}
                           </span>
                         </td>
@@ -923,7 +923,7 @@ export function PartnersView() {
                         <td className="px-4 py-3 text-neutral-800 dark:text-neutral-200">
                           <div>
                             <span className="font-bold block">{partner.contactName || '—'}</span>
-                            {partner.contactRole && <span className="text-[10px] text-neutral-500 dark:text-neutral-400 block">{partner.contactRole}</span>}
+                            {partner.contactRole && <span className="text-micro text-neutral-500 dark:text-neutral-400 block">{partner.contactRole}</span>}
                           </div>
                         </td>
 
@@ -956,12 +956,12 @@ export function PartnersView() {
                         <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                           <div className="space-y-0.5">
                             {partner.phone && (
-                              <a href={`tel:${partner.phone}`} className="text-neutral-700 dark:text-neutral-300 hover:text-brand-ink block text-[11px]">
+                              <a href={`tel:${partner.phone}`} className="text-neutral-700 dark:text-neutral-300 hover:text-brand-ink block text-micro">
                                 {partner.phone}
                               </a>
                             )}
                             {partner.email && (
-                              <a href={`mailto:${partner.email}`} className="text-neutral-500 dark:text-neutral-400 hover:text-brand-ink block text-[10px] truncate max-w-[160px]">
+                              <a href={`mailto:${partner.email}`} className="text-neutral-500 dark:text-neutral-400 hover:text-brand-ink block text-micro truncate max-w-[160px]">
                                 {partner.email}
                               </a>
                             )}
@@ -1045,10 +1045,10 @@ export function PartnersView() {
                         <p className="text-xs text-neutral-500 dark:text-neutral-400 font-mono truncate">{detailPartner.name}</p>
                       )}
                       <div className="flex items-center gap-1.5 mt-1">
-                        <span className={cn("px-1.5 py-0.5 rounded-[4px] text-[9px] font-mono font-bold uppercase border", getTypeBadge(detailPartner.partnerType))}>
+                        <span className={cn("px-1.5 py-0.5 rounded-[4px] text-micro font-mono font-bold uppercase border", getTypeBadge(detailPartner.partnerType))}>
                           {detailPartner.partnerType}
                         </span>
-                        <span className={cn("px-1.5 py-0.5 rounded-[4px] text-[9px] font-mono font-bold uppercase border", getStatusBadge(detailPartner.status))}>
+                        <span className={cn("px-1.5 py-0.5 rounded-[4px] text-micro font-mono font-bold uppercase border", getStatusBadge(detailPartner.status))}>
                           {detailPartner.status}
                         </span>
                       </div>
@@ -1086,32 +1086,32 @@ export function PartnersView() {
                   {/* Overview / Scope */}
                   {detailPartner.description && (
                     <div>
-                      <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1">Organization Overview</h4>
+                      <h3 className="text-micro font-mono font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1">Organization Overview</h3>
                       <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">{detailPartner.description}</p>
                     </div>
                   )}
 
                   {detailPartner.collaborationScope && (
                     <div className="bg-neutral-50 dark:bg-[#0F0F0F] p-3.5 rounded-[8px] border border-neutral-200 dark:border-[#262626]">
-                      <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-brand-ink mb-1">MOU / Collaboration Scope</h4>
+                      <h3 className="text-micro font-mono font-bold uppercase tracking-wider text-brand-ink mb-1">MOU / Collaboration Scope</h3>
                       <p className="text-neutral-800 dark:text-neutral-200 leading-relaxed font-sans">{detailPartner.collaborationScope}</p>
                     </div>
                   )}
 
                   {detailPartner.benefitsSummary && (
                     <div className="bg-emerald-500/5 dark:bg-emerald-500/10 p-3.5 rounded-[8px] border border-emerald-500/20">
-                      <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-1">Benefits & Mutual Perks</h4>
+                      <h3 className="text-micro font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-1">Benefits & Mutual Perks</h3>
                       <p className="text-neutral-800 dark:text-neutral-200 leading-relaxed">{detailPartner.benefitsSummary}</p>
                     </div>
                   )}
 
                   {/* Key Contacts Grid */}
                   <div>
-                    <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">Key Operational Contacts</h4>
+                    <h3 className="text-micro font-mono font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">Key Operational Contacts</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {/* Liaison Manager */}
                       <div className="p-3.5 bg-neutral-50 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] space-y-1.5 font-mono">
-                        <div className="flex items-center gap-1.5 text-neutral-400 dark:text-neutral-500 text-[10px] uppercase font-bold">
+                        <div className="flex items-center gap-1.5 text-neutral-400 dark:text-neutral-500 text-micro uppercase font-bold">
                           <User className="w-3.5 h-3.5" />
                           <span>Primary Manager / Liaison</span>
                         </div>
@@ -1119,10 +1119,10 @@ export function PartnersView() {
                           {detailPartner.contactName || 'No contact specified'}
                         </p>
                         {detailPartner.contactRole && (
-                          <p className="text-[11px] text-neutral-500 dark:text-neutral-400">{detailPartner.contactRole}</p>
+                          <p className="text-micro text-neutral-500 dark:text-neutral-400">{detailPartner.contactRole}</p>
                         )}
 
-                        <div className="pt-2 border-t border-neutral-200 dark:border-[#262626] space-y-2 text-[11px]">
+                        <div className="pt-2 border-t border-neutral-200 dark:border-[#262626] space-y-2 text-micro">
                           {detailPartner.telegramUsername && (
                             <div className="flex items-center justify-between">
                               <span className="text-neutral-400 dark:text-neutral-500">Telegram:</span>
@@ -1163,7 +1163,7 @@ export function PartnersView() {
 
                       {/* Founder / President */}
                       <div className="p-3.5 bg-neutral-50 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] space-y-1.5 font-mono">
-                        <div className="flex items-center gap-1.5 text-neutral-400 dark:text-neutral-500 text-[10px] uppercase font-bold">
+                        <div className="flex items-center gap-1.5 text-neutral-400 dark:text-neutral-500 text-micro uppercase font-bold">
                           <Buildings className="w-3.5 h-3.5" />
                           <span>Founder & Leadership</span>
                         </div>
@@ -1171,34 +1171,34 @@ export function PartnersView() {
                           {detailPartner.founderName || 'Founder unlisted'}
                         </p>
                         {detailPartner.founderContact && (
-                          <p className="text-[11px] text-neutral-500 dark:text-neutral-400">{detailPartner.founderContact}</p>
+                          <p className="text-micro text-neutral-500 dark:text-neutral-400">{detailPartner.founderContact}</p>
                         )}
                         {detailPartner.country && (
-                          <p className="text-[11px] text-neutral-500 dark:text-neutral-400 pt-1">
+                          <p className="text-micro text-neutral-500 dark:text-neutral-400 pt-1">
                             Headquarters: <span className="text-neutral-800 dark:text-neutral-200 font-bold">{detailPartner.country}</span>
                           </p>
                         )}
                         {detailPartner.address && (
-                          <p className="text-[10px] text-neutral-400 dark:text-neutral-500">{detailPartner.address}</p>
+                          <p className="text-micro text-neutral-400 dark:text-neutral-500">{detailPartner.address}</p>
                         )}
                       </div>
                     </div>
                   </div>
 
                   {/* Contract Dates & Document Links */}
-                  <div className="p-3.5 bg-neutral-50 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] space-y-2 font-mono text-[11px]">
-                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Contract & Document Records</h4>
+                  <div className="p-3.5 bg-neutral-50 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] space-y-2 font-mono text-micro">
+                    <h3 className="text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Contract & Document Records</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       <div>
-                        <span className="text-[10px] text-neutral-400 dark:text-neutral-500 block">Signed Date:</span>
+                        <span className="text-micro text-neutral-400 dark:text-neutral-500 block">Signed Date:</span>
                         <span className="font-bold text-neutral-800 dark:text-neutral-200">{detailPartner.mouSignedDate || 'N/A'}</span>
                       </div>
                       <div>
-                        <span className="text-[10px] text-neutral-400 dark:text-neutral-500 block">Renewal / Expiry:</span>
+                        <span className="text-micro text-neutral-400 dark:text-neutral-500 block">Renewal / Expiry:</span>
                         <span className="font-bold text-neutral-800 dark:text-neutral-200">{detailPartner.mouExpiryDate || 'Ongoing'}</span>
                       </div>
                       <div>
-                        <span className="text-[10px] text-neutral-400 dark:text-neutral-500 block">Official Website:</span>
+                        <span className="text-micro text-neutral-400 dark:text-neutral-500 block">Official Website:</span>
                         {detailPartner.websiteUrl ? (
                           <a
                             href={detailPartner.websiteUrl.startsWith('http') ? detailPartner.websiteUrl : `https://${detailPartner.websiteUrl}`}
@@ -1233,10 +1233,10 @@ export function PartnersView() {
                   {/* Tags */}
                   {detailPartner.tags && detailPartner.tags.length > 0 && (
                     <div>
-                      <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1.5">Tags</h4>
+                      <h3 className="text-micro font-mono font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1.5">Tags</h3>
                       <div className="flex items-center gap-1.5 flex-wrap">
                         {detailPartner.tags.map(t => (
-                          <span key={t} className="px-2.5 py-1 rounded-[6px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] font-mono text-[11px] text-neutral-700 dark:text-neutral-300">
+                          <span key={t} className="px-2.5 py-1 rounded-[6px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] font-mono text-micro text-neutral-700 dark:text-neutral-300">
                             #{t}
                           </span>
                         ))}
@@ -1247,8 +1247,8 @@ export function PartnersView() {
                   {/* Internal Notes */}
                   {detailPartner.notes && (
                     <div>
-                      <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1">Internal Notes</h4>
-                      <p className="text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-[#1C1C1C] p-3 rounded-[8px] border border-neutral-200 dark:border-[#262626] font-mono text-[11px] whitespace-pre-wrap leading-relaxed">
+                      <h3 className="text-micro font-mono font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1">Internal Notes</h3>
+                      <p className="text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-[#1C1C1C] p-3 rounded-[8px] border border-neutral-200 dark:border-[#262626] font-mono text-micro whitespace-pre-wrap leading-relaxed">
                         {detailPartner.notes}
                       </p>
                     </div>
@@ -1275,7 +1275,7 @@ export function PartnersView() {
                 <DialogBody className="space-y-4 text-xs sm:p-5">
                   {/* Section 1: Institution & Brand */}
                   <div className="space-y-3 pb-3 border-b border-neutral-200 dark:border-[#262626]">
-                    <h3 className="text-[10px] uppercase font-bold text-brand-ink tracking-wider">1. Institution & Brand Identity</h3>
+                    <h3 className="text-micro uppercase font-bold text-brand-ink tracking-wider">1. Institution & Brand Identity</h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <label className="block">
@@ -1366,7 +1366,7 @@ export function PartnersView() {
 
                   {/* Section 2: Contact Persons & Telegram */}
                   <div className="space-y-3 pb-3 border-b border-neutral-200 dark:border-[#262626]">
-                    <h3 className="text-[10px] uppercase font-bold text-brand-ink tracking-wider">2. Working Contacts & Telegram (Liaison)</h3>
+                    <h3 className="text-micro uppercase font-bold text-brand-ink tracking-wider">2. Working Contacts & Telegram (Liaison)</h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <label className="block">
@@ -1461,7 +1461,7 @@ export function PartnersView() {
 
                   {/* Section 3: MOU Agreement & Validity */}
                   <div className="space-y-3">
-                    <h3 className="text-[10px] uppercase font-bold text-brand-ink tracking-wider">3. Agreement Dates & Document Ref</h3>
+                    <h3 className="text-micro uppercase font-bold text-brand-ink tracking-wider">3. Agreement Dates & Document Ref</h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <label className="block">
@@ -1501,7 +1501,7 @@ export function PartnersView() {
                       <label htmlFor="partner-tag-input" className={labelClass}>Tags (press Enter to add)</label>
                       <div className="flex items-center gap-1.5 mb-2 flex-wrap">
                         {formData.tags?.map(t => (
-                          <span key={t} className="px-2.5 py-1 rounded-md bg-control border border-line text-ink text-[11px] flex items-center gap-1">
+                          <span key={t} className="px-2.5 py-1 rounded-md bg-control border border-line text-ink text-micro flex items-center gap-1">
                             <span>#{t}</span>
                             <button
                               type="button"

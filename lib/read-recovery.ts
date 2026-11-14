@@ -31,8 +31,11 @@ export function createReadRecovery(
   };
 }
 
-/** Bound database read concurrency while preserving dataset/result order and failures. */
-export async function settleReads<T>(reads: Array<() => PromiseLike<T>>, concurrency = 6): Promise<PromiseSettledResult<T>[]> {
+/**
+ * Bound database read concurrency while preserving dataset/result order and failures. The first load makes about 28 small reads;
+ * on a phone link with a 150 ms round trip, ten at a time finishes in three waves instead of five (about 0.3 s sooner).
+ */
+export async function settleReads<T>(reads: Array<() => PromiseLike<T>>, concurrency = 10): Promise<PromiseSettledResult<T>[]> {
   if (!Number.isInteger(concurrency) || concurrency < 1) throw new Error('Read concurrency must be a positive integer.');
   const results: PromiseSettledResult<T>[] = new Array(reads.length);
   let cursor = 0;

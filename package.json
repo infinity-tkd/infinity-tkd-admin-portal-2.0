@@ -34,7 +34,16 @@
     "test:refactor-browser": "node scripts/check-refactor-browser.mjs",
     "test:component-browser": "node scripts/check-component-refactor-browser.mjs",
     "test:shop-management-browser": "node scripts/check-shop-management-browser.mjs",
-    "test:academy-management-browser": "node scripts/check-academy-management-browser.mjs"
+    "test:academy-management-browser": "node scripts/check-academy-management-browser.mjs",
+    "audit:a11y": "node scripts/check-a11y-browser.mjs",
+    "audit:interactions": "node scripts/check-interactions-browser.mjs",
+    "audit:devices": "node scripts/check-device-matrix-browser.mjs",
+    "audit:vitals": "node scripts/check-vitals-browser.mjs",
+    "audit:pwa": "node scripts/check-pwa-audit-browser.mjs",
+    "audit:stability": "node scripts/check-stability-browser.mjs",
+    "audit:chips": "node scripts/check-chip-contrast-browser.mjs",
+    "audit:census": "node scripts/audit-design-census.mjs",
+    "audit:screenshots": "node scripts/compare-screenshots.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

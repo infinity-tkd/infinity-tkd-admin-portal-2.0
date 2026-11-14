@@ -65,7 +65,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-mono font-bold text-brand-ink">{t('dash_tab_intelligence')}</span>
+                <span className="text-micro sm:text-micro uppercase tracking-widest font-mono font-bold text-brand-ink">{t('dash_tab_intelligence')}</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
               </div>
               <h2 className="text-sm sm:text-base font-bold text-neutral-900 dark:text-white leading-tight">
@@ -80,10 +80,10 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
               <span className={cn("text-2xl font-black font-mono tracking-tight", healthScoreMetrics.statusColor)}>
                 {healthScoreMetrics.overall}
               </span>
-              <span className="text-[10px] sm:text-xs font-mono font-bold text-neutral-400">/100</span>
+              <span className="text-micro sm:text-xs font-mono font-bold text-neutral-400">/100</span>
             </div>
             <div className="h-6 w-px bg-neutral-200 dark:bg-neutral-800" />
-            <span className={cn("px-2 py-0.5 rounded text-[9px] sm:text-[9.5px] font-bold uppercase tracking-wider font-mono border", healthScoreMetrics.badgeBg)}>
+            <span className={cn("px-2 py-0.5 rounded text-micro sm:text-micro font-bold uppercase tracking-wider font-mono border", healthScoreMetrics.badgeBg)}>
               {healthScoreMetrics.statusText}
             </span>
           </div>
@@ -94,7 +94,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
           {/* Pillar 1: Turnout */}
           <div className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-3 sm:p-4 rounded-[8px] flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-[9px] sm:text-[9.5px] uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
+              <span className="text-micro sm:text-micro uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
                 <Users className="w-3.5 h-3.5 text-indigo-500" />
                 {t('dash_health_turnout')}
               </span>
@@ -108,7 +108,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                 style={{ width: `${healthScoreMetrics.turnoutScore}%` }}
               />
             </div>
-            <span className="text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
+            <span className="text-micro sm:text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
               Optimal: <strong className="text-neutral-700 dark:text-neutral-300">{attendanceDensityStats.optimalDay}</strong> ({attendanceDensityStats.optimalRate}%)
             </span>
           </div>
@@ -116,7 +116,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
           {/* Pillar 2: Financial Compliance */}
           <div className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-3 sm:p-4 rounded-[8px] flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-[9px] sm:text-[9.5px] uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
+              <span className="text-micro sm:text-micro uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
                 <Coins className="w-3.5 h-3.5 text-emerald-500" />
                 {t('dash_health_finance')}
               </span>
@@ -130,7 +130,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                 style={{ width: `${healthScoreMetrics.financialScore}%` }}
               />
             </div>
-            <span className="text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
+            <span className="text-micro sm:text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
               Collected: <strong className="text-neutral-700 dark:text-neutral-300">${financialForecast.actual.toFixed(0)}</strong> / ${expectedMonthlyRevenue.toFixed(0)}
             </span>
           </div>
@@ -138,7 +138,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
           {/* Pillar 3: Testing Pipeline */}
           <div className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-3 sm:p-4 rounded-[8px] flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-[9px] sm:text-[9.5px] uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
+              <span className="text-micro sm:text-micro uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
                 <Crown className="w-3.5 h-3.5 text-amber-500" />
                 {t('dash_health_pipeline')}
               </span>
@@ -152,7 +152,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                 style={{ width: `${healthScoreMetrics.testingPipelineScore}%` }}
               />
             </div>
-            <span className="text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
+            <span className="text-micro sm:text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
               Ready: <strong className="text-amber-600 dark:text-amber-400">{healthScoreMetrics.goldCount} Gold</strong>, {healthScoreMetrics.silverCount} Silver
             </span>
           </div>
@@ -160,7 +160,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
           {/* Pillar 4: Retention Guard */}
           <div className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-3 sm:p-4 rounded-[8px] flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-[9px] sm:text-[9.5px] uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
+              <span className="text-micro sm:text-micro uppercase tracking-wider font-mono font-bold text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-brand-ink" />
                 {t('dash_health_retention')}
               </span>
@@ -174,7 +174,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                 style={{ width: `${healthScoreMetrics.retentionScore}%` }}
               />
             </div>
-            <span className="text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
+            <span className="text-micro sm:text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-1.5 truncate">
               Hazards: <strong className={healthScoreMetrics.highRiskCount > 0 ? "text-brand-ink" : "text-neutral-700 dark:text-neutral-300"}>{healthScoreMetrics.highRiskCount} High</strong>, {healthScoreMetrics.mediumRiskCount} Med
             </span>
           </div>
@@ -189,7 +189,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
           <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 shadow-sm space-y-3 relative overflow-hidden flex flex-col justify-between">
             <div className="flex justify-between items-start border-b border-neutral-200 dark:border-[#262626] pb-2">
               <div className="space-y-0.5">
-                <span className="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-brand-ink font-mono font-bold">{t('dash_predictive_analytics')}</span>
+                <span className="text-micro sm:text-micro uppercase tracking-widest text-brand-ink font-mono font-bold">{t('dash_predictive_analytics')}</span>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-[#E4E4E4] flex items-center gap-1.5 leading-none">
                   {t('dash_tuition_cashflow_forecast')}
                 </h3>
@@ -207,18 +207,18 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-2.5 sm:p-3 rounded-[8px] shadow-sm">
-                  <span className="text-[9px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-mono block mb-0.5">{t('dash_expected_revenue')}</span>
+                  <span className="text-micro uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-mono block mb-0.5">{t('dash_expected_revenue')}</span>
                   <span className="text-base sm:text-lg font-bold font-mono tracking-tight text-neutral-900 dark:text-white">${expectedMonthlyRevenue.toFixed(0)}</span>
                 </div>
                 <div className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-2.5 sm:p-3 rounded-[8px] shadow-sm">
-                  <span className="text-[9px] uppercase tracking-widest text-brand-ink font-mono block mb-0.5">{t('dash_simulated_forecast')}</span>
+                  <span className="text-micro uppercase tracking-widest text-brand-ink font-mono block mb-0.5">{t('dash_simulated_forecast')}</span>
                   <span className="text-base sm:text-lg font-bold font-mono tracking-tight text-brand-ink">${predictedRevenueDynamic.toFixed(0)}</span>
                 </div>
               </div>
 
               {/* Scenario Presets */}
               <div className="space-y-1.5">
-                <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono block">Scenario Presets</span>
+                <span className="text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono block">Scenario Presets</span>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                   {[
                     { label: t('dash_scenario_baseline'), rate: 5 },
@@ -231,7 +231,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                       type="button"
                       onClick={() => setForecastChurnRate(sc.rate)}
                       className={cn(
-                        "px-1.5 py-1 rounded text-[9px] font-mono font-bold uppercase tracking-wider border transition-all text-center cursor-pointer",
+                        "px-1.5 py-1 rounded text-micro font-mono font-bold uppercase tracking-wider border transition-all text-center cursor-pointer",
                         forecastChurnRate === sc.rate
                           ? "bg-brand text-white border-brand shadow-sm"
                           : "bg-white dark:bg-[#0F0F0F] text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-[#262626] hover:border-neutral-400 dark:hover:border-neutral-600"
@@ -245,7 +245,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
 
               {/* Manual Churn simulation slider */}
               <div className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-2.5 sm:p-3 rounded-[8px] shadow-sm space-y-1.5">
-                <div className="flex justify-between text-[9px] uppercase font-bold text-neutral-500 font-mono">
+                <div className="flex justify-between text-micro uppercase font-bold text-neutral-500 font-mono">
                   <span>Simulated Churn Stress</span>
                   <span className="text-brand-ink font-bold">{forecastChurnRate}% Loss Multiplier</span>
                 </div>
@@ -303,7 +303,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
         <div className={cn("bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 shadow-sm space-y-3 relative overflow-hidden flex flex-col justify-between", canViewFinancials ? "lg:col-span-2" : "lg:col-span-3")}>
           <div className="flex justify-between items-start border-b border-neutral-200 dark:border-[#262626] pb-2">
             <div className="space-y-0.5">
-              <span className="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-indigo-500 font-mono font-bold">{t('dash_attendance_heatmap_model')}</span>
+              <span className="text-micro sm:text-micro uppercase tracking-widest text-indigo-500 font-mono font-bold">{t('dash_attendance_heatmap_model')}</span>
               <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-[#E4E4E4] leading-none">{t('dash_cohort_turnout_density')}</h3>
             </div>
             <button
@@ -320,7 +320,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="flex justify-between items-center bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-500/20 p-2.5 rounded-[8px]">
               <div>
-                <span className="block text-[9px] text-green-700 dark:text-green-400 font-mono uppercase tracking-wider font-bold leading-none">{t('dash_optimal_training_day')}</span>
+                <span className="block text-micro text-green-700 dark:text-green-400 font-mono uppercase tracking-wider font-bold leading-none">{t('dash_optimal_training_day')}</span>
                 <span className="text-xs font-bold text-neutral-800 dark:text-white leading-none mt-1 block">{attendanceDensityStats.optimalDay}</span>
               </div>
               <span className="text-sm sm:text-base font-bold text-green-600 dark:text-green-400 font-mono leading-none">{attendanceDensityStats.optimalRate}%</span>
@@ -328,7 +328,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
 
             <div className="flex justify-between items-center bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-500/20 p-2.5 rounded-[8px]">
               <div>
-                <span className="block text-[9px] text-red-700 dark:text-red-400 font-mono uppercase tracking-wider font-bold leading-none">{t('dash_at_risk_density_day')}</span>
+                <span className="block text-micro text-red-700 dark:text-red-400 font-mono uppercase tracking-wider font-bold leading-none">{t('dash_at_risk_density_day')}</span>
                 <span className="text-xs font-bold text-neutral-800 dark:text-white leading-none mt-1 block">{attendanceDensityStats.lowDay}</span>
               </div>
               <span className="text-sm sm:text-base font-bold text-red-600 dark:text-red-400 font-mono leading-none">{attendanceDensityStats.lowRate}%</span>
@@ -339,7 +339,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
           {attendanceDensityStats.optimalRate >= 80 && (
             <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-500/25 px-3 py-2 rounded-[8px] flex items-center gap-2">
               <Flame className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-              <span className="text-[9px] sm:text-[10px] text-amber-800 dark:text-amber-300 font-mono">
+              <span className="text-micro sm:text-micro text-amber-800 dark:text-amber-300 font-mono">
                 <strong>{t('dash_mat_congestion_alert')}:</strong> {attendanceDensityStats.optimalDay} reaches {attendanceDensityStats.optimalRate}% mat capacity. Consider splitting sessions or adding coach support.
               </span>
             </div>
@@ -360,11 +360,11 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                       )}
                       style={{ height: `${d.rate || 6}%` }}
                     />
-                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[9px] sm:text-[10px] font-bold font-mono opacity-0 group-hover:opacity-100 transition-opacity bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-1 rounded shadow pointer-events-none">
+                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-micro sm:text-micro font-bold font-mono opacity-0 group-hover:opacity-100 pointer-coarse:opacity-100 transition-opacity bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-1 rounded shadow pointer-events-none">
                       {d.rate}%
                     </span>
                   </div>
-                  <span className="text-[9px] font-bold text-neutral-600 dark:text-neutral-400 font-mono">{d.dayName}</span>
+                  <span className="text-micro font-bold text-neutral-600 dark:text-neutral-400 font-mono">{d.dayName}</span>
                 </div>
               ))}
             </div>
@@ -380,7 +380,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
           <div className="flex flex-col gap-2 border-b border-neutral-200 dark:border-[#262626] pb-2.5">
             <div className="flex justify-between items-start">
               <div className="space-y-0.5">
-                <span className="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-amber-500 font-mono font-bold">{t('dash_promotion_readiness_engine')}</span>
+                <span className="text-micro sm:text-micro uppercase tracking-widest text-amber-500 font-mono font-bold">{t('dash_promotion_readiness_engine')}</span>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-[#E4E4E4] leading-none">{t('dash_testing_eligibility_candidates')}</h3>
               </div>
               <button
@@ -407,7 +407,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                     type="button"
                     onClick={() => setPriRankFilter(tab.key as any)}
                     className={cn(
-                      "px-2 py-0.5 rounded text-[9px] sm:text-[9.5px] font-mono font-bold uppercase tracking-wider border transition-all cursor-pointer whitespace-nowrap",
+                      "px-2 py-0.5 rounded text-micro sm:text-micro font-mono font-bold uppercase tracking-wider border transition-all cursor-pointer whitespace-nowrap",
                       priRankFilter === tab.key
                         ? "bg-amber-500 text-amber-950 font-black border-amber-500 shadow-sm"
                         : "bg-white dark:bg-[#0F0F0F] text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-[#262626] hover:border-neutral-300 dark:hover:border-neutral-700"
@@ -426,13 +426,13 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                   value={priSearch}
                   onChange={(e) => setPriSearch(e.target.value)}
                   placeholder={t('dash_search_candidates')}
-                  className="w-full bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded px-2.5 pl-7 py-1 text-[10px] sm:text-xs font-mono text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 focus:outline-none focus:border-brand"
+                  className="w-full bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded px-2.5 pl-7 py-1 text-micro sm:text-xs font-mono text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 focus:outline-none focus:border-brand"
                 />
                 {priSearch && (
-                  <button
+                  <button aria-label="Clear search"
                     type="button"
                     onClick={() => setPriSearch('')}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 min-h-6 min-w-6 inline-flex items-center justify-center"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -453,20 +453,20 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                       src={candidate.student.profilePicturePath}
                       alt={candidate.student.englishName}
                       containerClassName="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-neutral-100 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 shadow-sm"
-                      fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-[10px] sm:text-xs">{candidate.student.englishName.charAt(0)}</span>}
+                      fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-micro sm:text-xs">{candidate.student.englishName.charAt(0)}</span>}
                     />
                     <div>
                       <div className="flex items-center gap-1.5">
                         <h4 className="text-xs font-bold text-neutral-900 dark:text-white leading-none">{candidate.student.englishName}</h4>
                         {candidate.student.khmerName && (
-                          <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-sans leading-none">{candidate.student.khmerName}</span>
+                          <span className="text-micro text-neutral-500 dark:text-neutral-400 font-sans leading-none">{candidate.student.khmerName}</span>
                         )}
                       </div>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-[9px] text-brand-ink dark:text-red-400 font-mono uppercase tracking-wider font-bold leading-none">
+                        <span className="text-micro text-brand-ink dark:text-red-400 font-mono uppercase tracking-wider font-bold leading-none">
                           {translateBeltFormatted(candidate.student.currentBelt, candidate.student.dob)}
                         </span>
-                        <span className="text-[9px] text-neutral-400 font-mono leading-none">• {candidate.student.id}</span>
+                        <span className="text-micro text-neutral-400 font-mono leading-none">• {candidate.student.id}</span>
                       </div>
                     </div>
                   </div>
@@ -475,19 +475,19 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                   <div className="flex flex-wrap items-center justify-between lg:justify-end gap-2 w-full lg:w-auto border-t lg:border-t-0 border-neutral-100 dark:border-[#1A1A1A] pt-1.5 lg:pt-0">
                     {/* 4 Pillars Explicit Badges */}
                     <div className="flex flex-wrap gap-1 sm:gap-1.5">
-                      <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-[9px] font-mono", report?.daysEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Time in Grade">
+                      <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-micro font-mono", report?.daysEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Time in Grade">
                         <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
                         <span>{report?.daysElapsed}/{report?.daysRequired}d</span>
                       </span>
-                      <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-[9px] font-mono", report?.attendanceEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Attendance Count">
+                      <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-micro font-mono", report?.attendanceEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Attendance Count">
                         <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
                         <span>{report?.attendanceSince}/{report?.attendanceRequired}</span>
                       </span>
-                      <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-[9px] font-mono", report?.syllabusEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Syllabus Progress">
+                      <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-micro font-mono", report?.syllabusEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Syllabus Progress">
                         <Play className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
                         <span>{report?.syllabusCompletedPct}%</span>
                       </span>
-                      <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-[9px] font-mono", report?.physicalEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Physical Skills">
+                      <span className={cn("px-1.5 sm:px-2 py-0.5 rounded bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#252525] flex items-center gap-1 text-micro font-mono", report?.physicalEligible ? "text-green-700 dark:text-green-400 font-bold" : "text-neutral-500 dark:text-neutral-400")} title="Physical Skills">
                         <ShieldCheck className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
                         <span>{report?.skillsGradedCount}/{report?.totalSkillsCount}</span>
                       </span>
@@ -496,7 +496,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                     {/* Candidate Readiness Rank */}
                     <div className="shrink-0">
                       <span className={cn(
-                        "px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border font-mono",
+                        "px-2 py-0.5 rounded text-micro font-bold uppercase tracking-wider border font-mono",
                         candidate.rank === 'Gold' ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30" :
                         candidate.rank === 'Silver' ? "bg-slate-500/10 text-slate-700 dark:text-slate-300 border-slate-500/30" :
                         "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/30"
@@ -516,7 +516,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                   <button
                     type="button"
                     onClick={() => setPriSearch('')}
-                    className="text-[9px] sm:text-xs text-brand-ink hover:underline font-mono font-bold"
+                    className="text-micro sm:text-xs text-brand-ink hover:underline font-mono font-bold"
                   >
                     Clear search filter
                   </button>
@@ -531,7 +531,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
           <div className="flex flex-col gap-2 border-b border-neutral-200 dark:border-[#262626] pb-2.5">
             <div className="flex justify-between items-start">
               <div className="space-y-0.5">
-                <span className="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-brand-ink font-mono font-bold">{t('dash_retentivity_analyzer')}</span>
+                <span className="text-micro sm:text-micro uppercase tracking-widest text-brand-ink font-mono font-bold">{t('dash_retentivity_analyzer')}</span>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-[#E4E4E4] leading-none">{t('dash_student_churn_hazard')}</h3>
               </div>
               <button
@@ -557,7 +557,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                     type="button"
                     onClick={() => setChurnFilter(tab.key as any)}
                     className={cn(
-                      "px-2 py-0.5 rounded text-[9px] sm:text-[9.5px] font-mono font-bold uppercase tracking-wider border transition-all cursor-pointer whitespace-nowrap",
+                      "px-2 py-0.5 rounded text-micro sm:text-micro font-mono font-bold uppercase tracking-wider border transition-all cursor-pointer whitespace-nowrap",
                       churnFilter === tab.key
                         ? "bg-brand text-white border-brand shadow-sm"
                         : "bg-white dark:bg-[#0F0F0F] text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-[#262626] hover:border-neutral-300 dark:hover:border-neutral-700"
@@ -576,13 +576,13 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                   value={churnSearch}
                   onChange={(e) => setChurnSearch(e.target.value)}
                   placeholder={t('dash_search_hazards')}
-                  className="w-full bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded px-2.5 pl-7 py-1 text-[10px] sm:text-xs font-mono text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 focus:outline-none focus:border-brand"
+                  className="w-full bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded px-2.5 pl-7 py-1 text-micro sm:text-xs font-mono text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 focus:outline-none focus:border-brand"
                 />
                 {churnSearch && (
-                  <button
+                  <button aria-label="Clear search"
                     type="button"
                     onClick={() => setChurnSearch('')}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 min-h-6 min-w-6 inline-flex items-center justify-center"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -605,21 +605,21 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                       src={hazard.student.profilePicturePath}
                       alt={hazard.student.englishName}
                       containerClassName="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-neutral-100 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 shadow-sm"
-                      fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-[10px] sm:text-xs">{hazard.student.englishName.charAt(0)}</span>}
+                      fallback={<span className="font-bold text-neutral-600 dark:text-neutral-400 text-micro sm:text-xs">{hazard.student.englishName.charAt(0)}</span>}
                     />
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-1.5">
                         <h4 className="text-xs font-bold text-neutral-900 dark:text-white leading-none">{hazard.student.englishName}</h4>
                         {hazard.student.khmerName && (
-                          <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-sans leading-none">{hazard.student.khmerName}</span>
+                          <span className="text-micro text-neutral-500 dark:text-neutral-400 font-sans leading-none">{hazard.student.khmerName}</span>
                         )}
                       </div>
-                      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono">
+                      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-micro sm:text-micro text-neutral-500 dark:text-neutral-400 font-mono">
                         <span>Last Class: {hazard.lastDate === 'Never' ? 'Never' : hazard.lastDate}</span>
                         <span className="text-neutral-300 dark:text-neutral-700">•</span>
                         <span className="text-brand-ink font-bold">{hazard.daysSinceLastClass}d inactive</span>
                       </div>
-                      <div className="text-[9px] sm:text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono leading-none">
+                      <div className="text-micro sm:text-micro text-neutral-500 dark:text-neutral-400 font-mono leading-none">
                         Missed: <strong className="text-neutral-700 dark:text-neutral-300">{hazard.estimatedMissedClasses} classes</strong> (Expected {hazard.expectedWeeklyFrequency}x/wk)
                       </div>
                     </div>
@@ -629,7 +629,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                   <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto border-t sm:border-t-0 border-neutral-100 dark:border-[#1A1A1A] pt-2 sm:pt-0">
                     <div className="flex flex-col items-start sm:items-end leading-none">
                       <span className={cn(
-                        "px-1.5 py-0.5 rounded text-[9px] sm:text-[9.5px] font-bold uppercase tracking-wider border font-mono",
+                        "px-1.5 py-0.5 rounded text-micro sm:text-micro font-bold uppercase tracking-wider border font-mono",
                         isHigh ? "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/25" :
                         "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/25"
                       )}>
@@ -644,7 +644,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                           href={whatsAppUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-2.5 py-1 min-h-[28px] bg-emerald-500/10 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-400 hover:text-white border border-emerald-500/20 hover:border-transparent rounded-[6px] text-[9px] sm:text-[9.5px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                          className="px-2.5 py-1 min-h-[28px] bg-emerald-500/10 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-400 hover:text-white border border-emerald-500/20 hover:border-transparent rounded-[6px] text-micro sm:text-micro font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                           title="Direct WhatsApp check-in"
                         >
                           <PaperPlaneTilt className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -654,7 +654,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                       {hazard.student.emergencyContactPhone && (
                         <a
                           href={`tel:${hazard.student.emergencyContactPhone}`}
-                          className="px-2.5 py-1 min-h-[28px] bg-brand/10 hover:bg-brand text-brand-ink hover:text-white border border-brand/20 hover:border-transparent rounded-[6px] text-[9px] sm:text-[9.5px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                          className="px-2.5 py-1 min-h-[28px] bg-brand/10 hover:bg-brand text-brand-ink hover:text-white border border-brand/20 hover:border-transparent rounded-[6px] text-micro sm:text-micro font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                           title={`Call: ${hazard.student.emergencyContactPhone}`}
                         >
                           <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -674,7 +674,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                   <button
                     type="button"
                     onClick={() => setChurnSearch('')}
-                    className="text-[9px] sm:text-xs text-brand-ink hover:underline font-mono font-bold"
+                    className="text-micro sm:text-xs text-brand-ink hover:underline font-mono font-bold"
                   >
                     Clear search filter
                   </button>
@@ -690,13 +690,13 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
       <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 lg:p-5 shadow-sm space-y-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-neutral-200 dark:border-[#262626] pb-2.5">
           <div className="space-y-0.5">
-            <span className="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-brand-ink font-mono font-bold">Pipeline Diagnostics</span>
+            <span className="text-micro sm:text-micro uppercase tracking-widest text-brand-ink font-mono font-bold">Pipeline Diagnostics</span>
             <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-[#E4E4E4] flex items-center gap-1.5 leading-none">
               <ChartBar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-ink" />
               {t('dash_belt_demographics')}
             </h3>
           </div>
-          <span className="text-[9px] sm:text-[9.5px] font-mono font-bold text-neutral-500 dark:text-neutral-400">
+          <span className="text-micro sm:text-micro font-mono font-bold text-neutral-500 dark:text-neutral-400">
             {activeCount} Active Students Total
           </span>
         </div>
@@ -706,7 +706,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
           {beltDistribution.map(belt => (
             <div key={belt.key} className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-2.5 sm:p-3 rounded-[8px] space-y-2 flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className={cn("px-1.5 py-0.5 rounded text-[9px] sm:text-[9.5px] font-bold font-mono uppercase tracking-wider", belt.color)}>
+                <span className={cn("px-1.5 py-0.5 rounded text-micro sm:text-micro font-bold font-mono uppercase tracking-wider", belt.color)}>
                   {belt.name}
                 </span>
                 <span className="text-xs sm:text-sm font-bold font-mono text-neutral-900 dark:text-white">
@@ -720,7 +720,7 @@ export function IntelligenceCenter({ activeCount, attendanceDensityStats, beltDi
                     style={{ width: `${belt.pct}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-[9px] text-neutral-500 dark:text-neutral-400 font-mono">
+                <div className="flex justify-between text-micro text-neutral-500 dark:text-neutral-400 font-mono">
                   <span>Roster Share</span>
                   <strong className="text-neutral-700 dark:text-neutral-300">{belt.pct}%</strong>
                 </div>

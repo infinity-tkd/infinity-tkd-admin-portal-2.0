@@ -243,8 +243,8 @@ return <>
 
                     {/* Payment Method Selector */}
                     <div className="space-y-1.5">
-                      <label className="block text-[9px] uppercase font-bold text-[#888] tracking-wider">Payment Gateway</label>
-                      <select 
+                      <label htmlFor="tuition-receipt-dialogs-payment-gateway" className="block text-[9px] uppercase font-bold text-[#888] tracking-wider">Payment Gateway</label>
+                      <select id="tuition-receipt-dialogs-payment-gateway" 
                         disabled
                         value={receiptPaymentMethod}
                         className="w-full bg-[#1A1A1A] border border-[#262626] rounded-[8px] px-3 py-2 text-xs text-[#E4E4E4] focus:outline-none focus:border-[#444]"
@@ -255,8 +255,8 @@ return <>
 
                     {/* Reference ID Input */}
                     <div className="space-y-1.5">
-                      <label className="block text-[9px] uppercase font-bold text-[#888] tracking-wider">Transaction Reference ID</label>
-                      <input 
+                      <label htmlFor="tuition-receipt-dialogs-transaction-reference-id" className="block text-[9px] uppercase font-bold text-[#888] tracking-wider">Transaction Reference ID</label>
+                      <input id="tuition-receipt-dialogs-transaction-reference-id" 
                         type="text" 
                         readOnly
                         value={receiptReferenceNumber}
@@ -300,8 +300,8 @@ return <>
 
                     {/* Custom Notes */}
                     <div className="space-y-1.5 border-t border-[#262626] pt-3 mt-1 flex-1 flex flex-col justify-end">
-                      <label className="block text-[9px] uppercase font-bold text-[#888] tracking-wider">Footnotes / Custom Notes</label>
-                      <textarea 
+                      <label htmlFor="tuition-receipt-dialogs-footnotes-custom-notes" className="block text-[9px] uppercase font-bold text-[#888] tracking-wider">Footnotes / Custom Notes</label>
+                      <textarea id="tuition-receipt-dialogs-footnotes-custom-notes" 
                         value={receiptCustomNotes} 
                         onChange={(e) => setReceiptCustomNotes(e.target.value)}
                         placeholder="Type customized terms, thank you notes, or official staff names here..."

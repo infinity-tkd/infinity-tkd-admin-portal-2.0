@@ -26,7 +26,7 @@ export function StudentQuickStatusDialog({ isSavingStatus, quickStatusForm, sele
           <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3">
             <div>
               <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white">Manage Membership Status</h3>
-              <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono mt-0.5">{selectedStudentForStatus.englishName} ({selectedStudentForStatus.id})</p>
+              <p className="text-micro text-neutral-500 dark:text-[#888] font-mono mt-0.5">{selectedStudentForStatus.englishName} ({selectedStudentForStatus.id})</p>
             </div>
             <button
               type="button"
@@ -40,12 +40,13 @@ export function StudentQuickStatusDialog({ isSavingStatus, quickStatusForm, sele
 
           <div className="space-y-3">
             <div>
-              <label className="block text-[9px] font-bold uppercase tracking-widest text-neutral-500 dark:text-[#888] mb-1.5">Select New Status</label>
-              <div className="grid grid-cols-2 gap-2">
+              <span id="student-quick-status-dialog-status-label" className="block text-micro font-bold uppercase tracking-widest text-neutral-500 dark:text-[#888] mb-1.5">Select New Status</span>
+              <div role="group" aria-labelledby="student-quick-status-dialog-status-label" className="grid grid-cols-2 gap-2">
                 {(['Active', 'Paused', 'Inactive', 'Suspended', 'Graduated'] as const).map(st => (
                   <button
                     key={st}
                     type="button"
+                    aria-pressed={quickStatusForm.studentStatus === st}
                     onClick={() => setQuickStatusForm({ ...quickStatusForm, studentStatus: st })}
                     className={cn(
                       "px-3 py-2 rounded-[8px] text-xs font-bold uppercase tracking-wider border text-center transition-all cursor-pointer select-none",
@@ -67,8 +68,8 @@ export function StudentQuickStatusDialog({ isSavingStatus, quickStatusForm, sele
             {(quickStatusForm.studentStatus === 'Paused' || quickStatusForm.studentStatus === 'Inactive' || quickStatusForm.studentStatus === 'Suspended') && (
               <div className="space-y-3 bg-neutral-50 dark:bg-[#0F0F0F] p-3 rounded-[8px] border border-neutral-200 dark:border-[#262626] animate-in fade-in duration-150">
                 <div>
-                  <label className="block text-[9px] font-bold uppercase tracking-widest text-neutral-500 dark:text-[#888] mb-1">Status Reason / Notes</label>
-                  <input
+                  <label htmlFor="student-quick-status-dialog-status-reason-notes" className="block text-micro font-bold uppercase tracking-widest text-neutral-500 dark:text-[#888] mb-1">Status Reason / Notes</label>
+                  <input id="student-quick-status-dialog-status-reason-notes"
                     type="text"
                     placeholder="e.g. Medical leave (knee injury), School exam break, Moving away"
                     value={quickStatusForm.statusReason}
@@ -79,8 +80,8 @@ export function StudentQuickStatusDialog({ isSavingStatus, quickStatusForm, sele
 
                 {quickStatusForm.studentStatus === 'Paused' && (
                   <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-widest text-neutral-500 dark:text-[#888] mb-1">Expected Return Date</label>
-                    <input
+                    <label htmlFor="student-quick-status-dialog-expected-return-date" className="block text-micro font-bold uppercase tracking-widest text-neutral-500 dark:text-[#888] mb-1">Expected Return Date</label>
+                    <input id="student-quick-status-dialog-expected-return-date"
                       type="date"
                       value={quickStatusForm.pauseEndDate}
                       onChange={e => setQuickStatusForm({ ...quickStatusForm, pauseEndDate: e.target.value })}

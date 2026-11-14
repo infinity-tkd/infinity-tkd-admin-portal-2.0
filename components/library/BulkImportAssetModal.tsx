@@ -1,4 +1,5 @@
 'use client';
+import { pressable } from '@/components/ui/pressable';
 import { copyText } from '@/lib/clipboard';
 import {useModalFocus} from '@/hooks/use-modal-focus';
 import React, { useState, useRef } from 'react';
@@ -361,13 +362,13 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
             <FileCsv className="w-6 h-6 text-brand-ink" />
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-800 dark:text-white">{t('lib_bulk_title')}</h2>
-              <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">{t('lib_bulk_subtitle')}</p>
+              <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">{t('lib_bulk_subtitle')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button 
               onClick={() => setShowHelp(true)} 
-              className="p-2 min-h-[36px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-[8px] text-neutral-600 dark:text-[#999] hover:text-neutral-950 dark:hover:text-white hover:border-neutral-300 dark:hover:border-[#444] transition-all flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider px-3 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+              className="p-2 min-h-[36px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-[8px] text-neutral-600 dark:text-[#999] hover:text-neutral-950 dark:hover:text-white hover:border-neutral-300 dark:hover:border-[#444] transition-all flex items-center gap-1.5 text-micro uppercase font-bold tracking-wider px-3 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
             >
               <Question className="w-3.5 h-3.5" /> {t('bulk_tutorial_btn')}
             </button>
@@ -387,7 +388,8 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Drag and Drop File Selector */}
               <div 
-                onClick={() => fileInputRef.current?.click()} 
+                {...pressable(() => fileInputRef.current?.click())}
+                aria-label="Choose a file to import"
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
@@ -410,12 +412,12 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
                 {fileName ? (
                   <div>
                     <p className="text-sm font-bold text-neutral-900 dark:text-white font-mono truncate max-w-[280px]">{fileName}</p>
-                    <p className="text-[10px] text-green-600 dark:text-green-500 font-mono mt-1 uppercase tracking-widest font-black">{t('lib_bulk_file_loaded')}</p>
+                    <p className="text-micro text-green-600 dark:text-green-500 font-mono mt-1 uppercase tracking-widest font-black">{t('lib_bulk_file_loaded')}</p>
                   </div>
                 ) : (
                   <div>
                     <p className="text-sm font-bold text-neutral-900 dark:text-white mb-1">{t('lib_bulk_drag_drop')}</p>
-                    <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono leading-relaxed">{t('lib_bulk_drag_drop_desc')}</p>
+                    <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono leading-relaxed">{t('lib_bulk_drag_drop_desc')}</p>
                   </div>
                 )}
                 <AnimatePresence>
@@ -434,8 +436,8 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
 
               {/* Paste Area */}
               <div className="flex flex-col space-y-2">
-                <label className="block text-[11px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">{t('lib_bulk_paste_label')}</label>
-                <textarea 
+                <label htmlFor="bulk-import-asset-modal-lib_bulk_paste_label" className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">{t('lib_bulk_paste_label')}</label>
+                <textarea id="bulk-import-asset-modal-lib_bulk_paste_label" 
                   value={csvText} 
                   onChange={handlePasteChange}
                   placeholder={activeTab === 'tkd'
@@ -454,7 +456,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
                   </div>
                   <div className="text-left">
                     <p className="text-sm font-bold text-neutral-900 dark:text-white">{t('lib_bulk_manual_grid')}</p>
-                    <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">{t('lib_bulk_manual_grid_desc')}</p>
+                    <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono">{t('lib_bulk_manual_grid_desc')}</p>
                   </div>
                 </div>
                 <button
@@ -494,24 +496,24 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
                   >
                     <ArrowLeft className="w-3.5 h-3.5"/> Clear & Restart
                   </button>
-                  <span className="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 px-2.5 py-0.5 rounded-[8px]">
+                  <span className="text-micro font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 px-2.5 py-0.5 rounded-[8px]">
                     {totalValid} {t('lib_bulk_ready_to_import')}
                   </span>
                   {totalErrors > 0 && (
-                    <span className="text-[10px] font-mono font-bold bg-red-50 text-red-700 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 px-2.5 py-0.5 rounded-[8px] animate-pulse">
+                    <span className="text-micro font-mono font-bold bg-red-50 text-red-700 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 px-2.5 py-0.5 rounded-[8px] animate-pulse">
                       {totalErrors} {t('lib_bulk_errors_found')}
                     </span>
                   )}
                 </div>
               </div>
 
-              <div className="text-[11px] text-neutral-400 dark:text-neutral-500 flex items-center gap-1 font-mono font-semibold">
+              <div className="text-micro text-neutral-400 dark:text-neutral-500 flex items-center gap-1 font-mono font-semibold">
                 <PencilSimple className="w-3.5 h-3.5 text-brand-ink" /> {t('lib_bulk_verify_desc')}
               </div>
 
               <div className="border border-neutral-200 dark:border-[#262626] rounded-[8px] max-h-[350px] overflow-auto">
                 <table className="w-full text-left text-xs border-collapse min-w-max">
-                  <thead className="bg-neutral-100 dark:bg-[#141414] text-neutral-700 dark:text-neutral-300 uppercase tracking-wider font-mono text-[10px] sticky top-0 z-10">
+                  <thead className="bg-neutral-100 dark:bg-[#141414] text-neutral-700 dark:text-neutral-300 uppercase tracking-wider font-mono text-micro sticky top-0 z-10">
                     <tr className="border-b border-neutral-200 dark:border-[#262626]">
                       <th className="px-4 py-3 w-16 text-center">{t('lib_bulk_row_label')}</th>
                       <th className="px-4 py-3 min-w-[200px]">{t('lib_bulk_title_col')}</th>
@@ -533,7 +535,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
 
                         {/* Title Input */}
                         <td className="px-3 py-2 min-w-[200px]">
-                          <input 
+                          <input aria-label={`Title, row ${row.index + 1}`} 
                             type="text" 
                             value={row.data.title} 
                             onChange={e => handleEditRow(row.index, 'title', e.target.value)}
@@ -543,7 +545,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
 
                         {/* Description Input */}
                         <td className="px-3 py-2 min-w-[300px]">
-                          <input 
+                          <input aria-label={`Description, row ${row.index + 1}`} 
                             type="text" 
                             value={row.data.description} 
                             onChange={e => handleEditRow(row.index, 'description', e.target.value)}
@@ -553,7 +555,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
 
                         {/* Category Select */}
                         <td className="px-3 py-2 min-w-[140px] w-40">
-                          <select 
+                          <select aria-label={`Category, row ${row.index + 1}`} 
                             value={row.data.category} 
                             onChange={e => handleEditRow(row.index, 'category', e.target.value)}
                             className="w-full bulk-table-control rounded px-2 py-1 text-xs focus:outline-none transition-all font-bold"
@@ -571,7 +573,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
                         {/* Target Belt Select */}
                         {activeTab === 'tkd' && (
                           <td className="px-3 py-2 min-w-[140px] w-40">
-                            <select 
+                            <select aria-label={`Minimum belt level, row ${row.index + 1}`} 
                               value={row.data.minBeltLevel} 
                               onChange={e => handleEditRow(row.index, 'minBeltLevel', e.target.value)}
                               className="w-full bulk-table-control rounded px-2 py-1 text-xs focus:outline-none transition-all font-bold"
@@ -583,7 +585,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
 
                         {/* Video URL Input */}
                         <td className="px-3 py-2 min-w-[250px]">
-                          <input 
+                          <input aria-label={`Video link, row ${row.index + 1}`} 
                             type="text" 
                             value={row.data.videoUrl} 
                             onChange={e => handleEditRow(row.index, 'videoUrl', e.target.value)}
@@ -594,11 +596,11 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
                         {/* Errors / Status Column */}
                         <td className="px-4 py-3 min-w-[180px]">
                           {row.isValid ? (
-                            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5"/> {t('lib_bulk_verified')}</span>
+                            <span className="text-micro font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5"/> {t('lib_bulk_verified')}</span>
                           ) : (
                             <div className="space-y-0.5">
                               {row.errors.map((err, idx) => (
-                                <span key={idx} className="text-[9px] font-semibold text-red-500 block leading-tight">• {err}</span>
+                                <span key={idx} className="text-micro font-semibold text-red-500 block leading-tight">• {err}</span>
                               ))}
                             </div>
                           )}
@@ -606,10 +608,10 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
 
                         {/* Delete Row Action */}
                         <td className="px-4 py-3 text-center">
-                          <button 
+                          <button aria-label="Remove this row from the import" 
                             type="button"
                             onClick={() => setParsedRows(prev => revalidate(prev.filter(r => r.index !== row.index)))}
-                            className="text-neutral-400 hover:text-red-500 transition-colors p-1"
+                            className="text-neutral-400 hover:text-red-500 transition-colors p-1 min-h-6 min-w-6 inline-flex items-center justify-center"
                           >
                             <Trash className="w-4 h-4"/>
                           </button>
@@ -651,11 +653,11 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
 
               <div className="grid grid-cols-2 gap-4 max-w-xs mx-auto">
                 <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 text-center">
-                  <span className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">{t('lib_bulk_successful')}</span>
+                  <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">{t('lib_bulk_successful')}</span>
                   <span className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400">{importSummary.success}</span>
                 </div>
                 <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 text-center">
-                  <span className="block text-[9px] uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">{t('lib_bulk_failed')}</span>
+                  <span className="block text-micro uppercase font-black text-neutral-400 dark:text-neutral-500 tracking-wider">{t('lib_bulk_failed')}</span>
                   <span className="text-2xl font-black font-mono text-red-500">{importSummary.failed}</span>
                 </div>
               </div>
@@ -669,7 +671,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
                   setFileName('');
                   onClose();
                 }}
-                className="px-6 py-2.5 bg-neutral-950 dark:bg-white text-white dark:text-black font-bold uppercase tracking-widest text-[10px] rounded-[8px] hover:opacity-90 transition-all shadow-sm"
+                className="px-6 py-2.5 bg-neutral-950 dark:bg-white text-white dark:text-black font-bold uppercase tracking-widest text-micro rounded-[8px] hover:opacity-90 transition-all shadow-sm"
               >
                 {t('lib_bulk_close_wizard')}
               </button>
@@ -683,7 +685,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
             <button 
               type="button" 
               onClick={handleCopyTemplate}
-              className="w-full sm:w-auto px-4 py-2 min-h-[40px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 font-bold uppercase tracking-wider text-[10px] rounded-[8px] hover:bg-neutral-200 dark:hover:bg-[#262626] transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95 touch-manipulation cursor-pointer pointer-coarse:min-h-11"
+              className="w-full sm:w-auto px-4 py-2 min-h-[40px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 font-bold uppercase tracking-wider text-micro rounded-[8px] hover:bg-neutral-200 dark:hover:bg-[#262626] transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95 touch-manipulation cursor-pointer pointer-coarse:min-h-11"
             >
               <Copy className="w-3.5 h-3.5"/> {copied ? "Copied!" : t('lib_bulk_copy_template')}
             </button>
@@ -696,7 +698,7 @@ export function BulkImportAssetModal({ activeTab, onClose }: BulkImportAssetModa
                   setFileName('');
                   onClose();
                 }} 
-                className="flex-1 sm:flex-initial px-5 py-2 min-h-[40px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-white font-bold uppercase tracking-wider text-[10px] rounded-[8px] hover:bg-neutral-200 dark:hover:bg-[#262626] transition-all active:scale-95 touch-manipulation cursor-pointer pointer-coarse:min-h-11"
+                className="flex-1 sm:flex-initial px-5 py-2 min-h-[40px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-white font-bold uppercase tracking-wider text-micro rounded-[8px] hover:bg-neutral-200 dark:hover:bg-[#262626] transition-all active:scale-95 touch-manipulation cursor-pointer pointer-coarse:min-h-11"
               >
                 {t('lib_bulk_cancel')}
               </button>

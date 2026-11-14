@@ -7,6 +7,7 @@ import { EmptyState, ErrorBanner } from '@/components/ui/States';
 import { portalRequest } from '@/lib/portal-api';
 import { announcementInput, type LmsAudience } from '@/lib/lms-contract';
 import { cn } from '@/lib/utils';
+import { useAppStore } from '@/lib/store';
 import { AudiencePicker, audienceSummary, fmtDate, Labeled, StatusLine, TranslationFields, useSaving, type Overview } from './coaching-shared';
 
 interface Sent { id: string; title: string; body: string; audience: LmsAudience; recipients: number; sent_at: string; profiles?: { display_name: string } | null }
@@ -30,15 +31,16 @@ export function AnnouncementsPanel({ overview, canSend }: { overview: Overview; 
     return () => { alive = false; };
   }, [version]);
   const { saving, message, setMessage, run } = useSaving(() => setVersion(v => v + 1));
+  const { showConfirm } = useAppStore();
   const send = () => {
     const parsed = announcementInput.safeParse({ title, body, audience, translations });
     if (!parsed.success) { setMessage({ tone: 'error', text: parsed.error.issues[0]?.message ?? 'Check the announcement.' }); return; }
-    if (!window.confirm(`Send "${parsed.data.title}" to ${audienceSummary(overview, parsed.data.audience)}?`)) return;
-    void run(async () => {
-      const result = await portalRequest<{ recipients: number }>('/api/admin/lms/announcements', { requestKey, announcement: parsed.data });
+    const announcement = parsed.data;
+    showConfirm(`Send "${announcement.title}" to ${audienceSummary(overview, announcement.audience)}?`, () => { void run(async () => {
+      const result = await portalRequest<{ recipients: number }>('/api/admin/lms/announcements', { requestKey, announcement });
       setTitle(''); setBody(''); setTranslations({}); setRequestKey(crypto.randomUUID());
       setMessage({ tone: 'ok', text: `Sent to ${result.recipients} student account${result.recipients === 1 ? '' : 's'}.` });
-    });
+    }); }, 'Send announcement');
   };
   return <div className="space-y-4">
     {canSend && <section className={cn(cardClass, 'space-y-2 p-3')}>

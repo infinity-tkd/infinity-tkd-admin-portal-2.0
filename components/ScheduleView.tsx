@@ -437,15 +437,16 @@ export function ScheduleView() {
          {/* Sidebar Locations - Horizontal scrollable rail on mobile, stacked column on lg */}
          <div className="lg:col-span-1 space-y-2 sm:space-y-3">
             <div className="flex items-center justify-between pl-1">
-              <h2 className="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 uppercase font-black tracking-widest font-mono">{t('sch_branch_locations')}</h2>
-              <span className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 font-bold">{state.branches.length} Dojang(s)</span>
+              <h2 className="text-micro sm:text-xs text-neutral-500 dark:text-neutral-400 uppercase font-black tracking-widest font-mono">{t('sch_branch_locations')}</h2>
+              <span className="text-micro font-mono text-neutral-500 dark:text-neutral-400 font-bold">{state.branches.length} Dojang(s)</span>
             </div>
-            <div className="flex lg:flex-col overflow-x-auto lg:overflow-visible no-scrollbar pb-1 lg:pb-0 gap-2 -mx-1 px-1 sm:mx-0 sm:px-0">
+            <div role="group" aria-label={t('sch_branch_locations')} className="flex lg:flex-col overflow-x-auto lg:overflow-visible no-scrollbar pb-1 lg:pb-0 gap-2 -mx-1 px-1 sm:mx-0 sm:px-0">
                {state.branches.map(b => {
                  const count = branchSessionCounts[b.id] || 0;
                  return (
-                   <button 
-                     key={b.id} 
+                   <button
+                     key={b.id}
+                     aria-pressed={activeBranchId === b.id}
                      onClick={() => setActiveBranchId(b.id)}
                      className={cn(
                        "whitespace-nowrap shrink-0 lg:w-full text-left px-3.5 sm:px-4 py-2.5 sm:py-3 min-h-[44px] rounded-[8px] border transition-all duration-200 flex items-center justify-between gap-3 group shadow-sm cursor-pointer active:scale-95 touch-manipulation",
@@ -456,10 +457,10 @@ export function ScheduleView() {
                    >
                      <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
                        <MapPin className={cn("w-4 h-4 shrink-0 transition-colors duration-200", activeBranchId === b.id ? "text-brand-ink" : "text-neutral-400 group-hover:text-brand-ink")}/>
-                       <span className="text-xs sm:text-sm font-bold tracking-tight truncate">{b.name}</span>
+                       <span className="break-words text-xs leading-tight sm:text-sm font-bold tracking-tight">{b.name}</span>
                      </div>
                      <span className={cn(
-                       "text-[9px] font-mono font-bold px-2 py-0.5 rounded-[6px] shrink-0",
+                       "text-micro font-mono font-bold px-2 py-0.5 rounded-[6px] shrink-0",
                        activeBranchId === b.id ? "bg-brand/10 text-brand-ink dark:bg-brand/20" : "bg-neutral-100 dark:bg-[#202020] text-neutral-500 dark:text-[#888]"
                      )}>
                        {count} {count === 1 ? 'class' : 'classes'}
@@ -483,9 +484,9 @@ export function ScheduleView() {
                           className="flex-1 bg-transparent px-2.5 py-1.5 min-h-[38px] text-xs text-neutral-900 dark:text-white focus:outline-none placeholder:text-neutral-400"
                         />
                         <button 
-                          disabled={isSavingBranch} onClick={handleSaveBranch}
-                          className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center bg-brand hover:bg-brand-strong text-white rounded-[6px] cursor-pointer active:scale-90 touch-manipulation shadow-sm pointer-coarse:min-h-11 pointer-coarse:min-w-11"
-                          title="Save branch"
+                          type="button" disabled={isSavingBranch || !newBranchName.trim()} onClick={handleSaveBranch}
+                          className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center bg-brand hover:bg-brand-strong text-on-brand rounded-[6px] cursor-pointer active:scale-90 touch-manipulation shadow-sm pointer-coarse:min-h-11 pointer-coarse:min-w-11 disabled:cursor-not-allowed disabled:opacity-50"
+                          title="Save branch" aria-label="Save branch"
                         >
                           <Check className="w-4 h-4" />
                         </button>
@@ -562,11 +563,12 @@ export function ScheduleView() {
                  </div>
 
                  {/* Day Filter Pills */}
-                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar flex-nowrap -mx-1 px-1 sm:mx-0 sm:px-0 scroll-smooth">
+                 <div role="group" aria-label="Filter classes by day" className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar flex-nowrap -mx-1 px-1 sm:mx-0 sm:px-0 scroll-smooth">
                     <button
+                      aria-pressed={selectedDayFilter === 'All'}
                       onClick={() => setSelectedDayFilter('All')}
                       className={cn(
-                        "px-3.5 py-1.5 min-h-[40px] rounded-[8px] text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap border shrink-0 cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center gap-2 pointer-coarse:min-h-11",
+                        "px-3.5 py-1.5 min-h-[40px] rounded-[8px] text-micro sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap border shrink-0 cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center gap-2 pointer-coarse:min-h-11",
                         selectedDayFilter === 'All'
                           ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 border-neutral-950 dark:border-white shadow-sm font-black"
                           : "bg-white dark:bg-[#141414] text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-[#262626] hover:text-neutral-900 dark:hover:text-white hover:border-neutral-300 dark:hover:border-neutral-700"
@@ -574,7 +576,7 @@ export function ScheduleView() {
                     >
                       <span>All Days</span>
                       <span className={cn(
-                        "px-1.5 py-0.5 rounded-full text-[9px] font-mono",
+                        "px-1.5 py-0.5 rounded-full text-micro font-mono",
                         selectedDayFilter === 'All' ? "bg-white/20 text-white dark:bg-neutral-950/20 dark:text-neutral-950 font-bold" : "bg-neutral-100 dark:bg-[#262626] text-neutral-600 dark:text-neutral-300"
                       )}>
                         {branchClasses.length}
@@ -585,9 +587,10 @@ export function ScheduleView() {
                       return (
                         <button
                           key={day}
+                          aria-pressed={selectedDayFilter === day}
                           onClick={() => setSelectedDayFilter(day)}
                           className={cn(
-                            "px-3.5 py-1.5 min-h-[40px] rounded-[8px] text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap border shrink-0 flex items-center gap-2 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                            "px-3.5 py-1.5 min-h-[40px] rounded-[8px] text-micro sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap border shrink-0 flex items-center gap-2 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                             selectedDayFilter === day
                               ? "bg-brand text-white border-brand shadow-sm font-black ring-2 ring-brand/20"
                               : count > 0
@@ -597,7 +600,7 @@ export function ScheduleView() {
                         >
                           <span>{day.substring(0, 3)}</span>
                           <span className={cn(
-                            "px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold",
+                            "px-1.5 py-0.5 rounded-full text-micro font-mono font-bold",
                             selectedDayFilter === day ? "bg-white/20 text-white" : "bg-neutral-100 dark:bg-[#262626] text-neutral-600 dark:text-neutral-300"
                           )}>
                             {count}
@@ -621,7 +624,7 @@ export function ScheduleView() {
                                   <Calendar className="w-4 h-4 text-brand-ink"/>
                                   <h3 className="text-xs font-bold text-neutral-800 dark:text-white uppercase tracking-wider">{t(`day_${day.toLowerCase()}` as any)}</h3>
                                 </div>
-                                <span className="text-[10px] text-neutral-600 dark:text-neutral-400 font-mono font-bold tracking-tight">
+                                <span className="text-micro text-neutral-600 dark:text-neutral-400 font-mono font-bold tracking-tight">
                                   {dayClasses.length} {dayClasses.length === 1 ? t('sch_class_count_singular') : t('sch_class_count_plural')}
                                  </span>
                               </div>
@@ -649,14 +652,14 @@ export function ScheduleView() {
                                         <div className="flex-1 min-w-0">
                                            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
                                               <h4 className="text-sm font-bold text-neutral-900 dark:text-white tracking-tight leading-tight group-hover:text-brand-ink dark:group-hover:text-brand-ink transition-colors">{c.name}</h4>
-                                              <span className={cn("px-2 py-0.5 rounded-[6px] text-[9px] font-black uppercase tracking-widest border shadow-sm", styles.text, styles.border, styles.bg)}>
+                                              <span className={cn("px-2 py-0.5 rounded-[6px] text-micro font-black uppercase tracking-widest border shadow-sm", styles.text, styles.border, styles.bg)}>
                                                  {formatCategoryLocalized(c.classType || 'General Class', t)}
                                               </span>
-                                              <span className="text-[9px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 font-mono px-2 py-0.5 rounded-[6px] font-bold uppercase tracking-wider shadow-sm">
+                                              <span className="text-micro bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 font-mono px-2 py-0.5 rounded-[6px] font-bold uppercase tracking-wider shadow-sm">
                                                  {durationText}
                                               </span>
                                               {isFull && (
-                                                <span className={cn("px-2 py-0.5 rounded-[6px] text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 shadow-sm", isOvercrowded ? "bg-red-500/10 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/30" : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30" )}>
+                                                <span className={cn("px-2 py-0.5 rounded-[6px] text-micro font-bold uppercase tracking-widest flex items-center gap-1 shadow-sm", isOvercrowded ? "bg-red-500/10 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/30" : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30" )}>
                                                   {isOvercrowded ? <ShieldWarning className="w-3 h-3"/> : <WarningCircle className="w-3 h-3"/>}
                                                   {isOvercrowded ? t('sch_overcrowded') : t('sch_full')}
                                                 </span>
@@ -665,7 +668,7 @@ export function ScheduleView() {
 
                                            {/* Time Collision Warning Pill */}
                                            {collisions.length > 0 && (
-                                             <div className="mt-2 inline-flex items-center gap-1.5 text-[9px] sm:text-[10px] text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/25 px-2.5 py-1 rounded-[6px] font-semibold">
+                                             <div className="mt-2 inline-flex items-center gap-1.5 text-micro sm:text-micro text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/25 px-2.5 py-1 rounded-[6px] font-semibold">
                                                 <WarningCircle className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
                                                 <span>Mat Conflict: Overlaps with {collisions.join(', ')}</span>
                                              </div>
@@ -689,17 +692,17 @@ export function ScheduleView() {
                                                     style={{ width: `${fillPct}%` }} 
                                                   />
                                                 </div>
-                                                <span className={cn("text-[9px] font-bold", isOvercrowded ? "text-red-600 dark:text-red-400" : isFull ? "text-amber-600 dark:text-amber-400" : "text-neutral-500 dark:text-neutral-400")}>
+                                                <span className={cn("text-micro font-bold", isOvercrowded ? "text-red-600 dark:text-red-400" : isFull ? "text-amber-600 dark:text-amber-400" : "text-neutral-500 dark:text-neutral-400")}>
                                                   {fillPct}%
                                                 </span>
                                               </div>
 
                                               {coachName && (
                                                 <div className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400 font-sans">
-                                                   <span className="w-5 h-5 rounded-full bg-neutral-100 dark:bg-[#202020] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-[9px] font-bold text-neutral-700 dark:text-neutral-300 shrink-0">
+                                                   <span className="w-5 h-5 rounded-full bg-neutral-100 dark:bg-[#202020] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-micro font-bold text-neutral-700 dark:text-neutral-300 shrink-0">
                                                      {coachName.charAt(0)}
                                                    </span>
-                                                   <span className="font-bold text-neutral-500 dark:text-neutral-400 uppercase text-[9px] tracking-wider">{t('sch_coach_prefix')}:</span>
+                                                   <span className="font-bold text-neutral-500 dark:text-neutral-400 uppercase text-micro tracking-wider">{t('sch_coach_prefix')}:</span>
                                                    <span className="text-neutral-800 dark:text-neutral-200 font-bold">{coachName}</span>
                                                 </div>
                                               )}
@@ -708,12 +711,12 @@ export function ScheduleView() {
 
                                         <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-neutral-100 dark:border-[#262626] w-full md:w-auto justify-between sm:justify-start">
                                            <button onClick={() => { setEnrollModalTab('unenrolled'); setShowEnrollModal(c.id); }}
-                                             className="flex-1 sm:flex-initial px-3.5 py-2 min-h-[40px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#262626] rounded-[8px] text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer active:scale-95 touch-manipulation whitespace-nowrap pointer-coarse:min-h-11"
+                                             className="flex-1 sm:flex-initial px-3.5 py-2 min-h-[40px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#262626] rounded-[8px] text-micro sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer active:scale-95 touch-manipulation whitespace-nowrap pointer-coarse:min-h-11"
                                            >
                                              <Users className="w-4 h-4 shrink-0 text-neutral-500 dark:text-neutral-400"/> {t('sch_cohort_roster')}
                                            </button>
                                            <button onClick={() => { setEnrollModalTab('enrolled'); setShowEnrollModal(c.id); }}
-                                             className="flex-1 sm:flex-initial px-3.5 py-2 min-h-[40px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#262626] rounded-[8px] text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer active:scale-95 touch-manipulation whitespace-nowrap pointer-coarse:min-h-11"
+                                             className="flex-1 sm:flex-initial px-3.5 py-2 min-h-[40px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#2C2C2C] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#262626] rounded-[8px] text-micro sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer active:scale-95 touch-manipulation whitespace-nowrap pointer-coarse:min-h-11"
                                            >
                                              <CalendarCheck className="w-4 h-4 text-brand-ink shrink-0"/> Take Attendance
                                            </button>
@@ -769,9 +772,9 @@ export function ScheduleView() {
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                     <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
                       <div className="flex items-center justify-between">
-                        <p className="text-[10px] text-neutral-500 dark:text-[#888] uppercase font-black tracking-widest">{t('sch_branch_occupancy')}</p>
+                        <p className="text-micro text-neutral-500 dark:text-[#888] uppercase font-black tracking-widest">{t('sch_branch_occupancy')}</p>
                         <span className={cn(
-                          "text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-[6px]",
+                          "text-micro font-mono font-bold px-1.5 py-0.5 rounded-[6px]",
                           branchUtilizationRate >= 90 ? "bg-red-500/10 text-red-600 dark:text-red-400" :
                           branchUtilizationRate >= 70 ? "bg-amber-500/10 text-amber-600 dark:text-amber-400" :
                           "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -788,26 +791,26 @@ export function ScheduleView() {
                       </div>
                     </div>
                     <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-                      <p className="text-[10px] text-neutral-500 dark:text-[#888] uppercase font-black tracking-widest">{t('sch_total_allocated')}</p>
+                      <p className="text-micro text-neutral-500 dark:text-[#888] uppercase font-black tracking-widest">{t('sch_total_allocated')}</p>
                       <h2 className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold mt-1">{totalBranchCapacity}</h2>
-                      <p className="text-[9px] text-neutral-500 dark:text-[#888] mt-1 font-mono uppercase tracking-wider font-semibold">
+                      <p className="text-micro text-neutral-500 dark:text-[#888] mt-1 font-mono uppercase tracking-wider font-semibold">
                         {branchClasses.length} {branchClasses.length === 1 ? 'Scheduled Class' : 'Scheduled Classes'}
                       </p>
                     </div>
                     <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-                      <p className="text-[10px] text-neutral-500 dark:text-[#888] uppercase font-black tracking-widest">{t('sch_total_enrolled')}</p>
+                      <p className="text-micro text-neutral-500 dark:text-[#888] uppercase font-black tracking-widest">{t('sch_total_enrolled')}</p>
                       <h2 className="text-xl sm:text-2xl font-mono text-brand-ink font-bold mt-1">{totalBranchEnrollments}</h2>
-                      <p className="text-[9px] text-neutral-500 dark:text-[#888] mt-1 font-mono uppercase tracking-wider font-semibold">{t('sch_active_enrollments')}</p>
+                      <p className="text-micro text-neutral-500 dark:text-[#888] mt-1 font-mono uppercase tracking-wider font-semibold">{t('sch_active_enrollments')}</p>
                     </div>
                     <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
                       <div className="flex items-center justify-between">
-                        <p className="text-[10px] text-neutral-500 dark:text-[#888] uppercase font-black tracking-widest">Capacity Alerts</p>
+                        <p className="text-micro text-neutral-500 dark:text-[#888] uppercase font-black tracking-widest">Capacity Alerts</p>
                         {overcrowdedClasses.length > 0 && <ShieldWarning className="w-4 h-4 text-brand-ink" />}
                       </div>
                       <h2 className={cn("text-xl sm:text-2xl font-mono font-bold mt-1", overcrowdedClasses.length > 0 ? "text-brand-ink" : "text-emerald-600 dark:text-emerald-400")}>
                         {overcrowdedClasses.length}
                       </h2>
-                      <p className="text-[9px] text-neutral-500 dark:text-[#888] mt-1 font-mono uppercase tracking-wider font-semibold">
+                      <p className="text-micro text-neutral-500 dark:text-[#888] mt-1 font-mono uppercase tracking-wider font-semibold">
                         {overcrowdedClasses.length > 0 ? 'Sessions ≥ 90% full' : 'All sessions healthy'}
                       </p>
                     </div>
@@ -816,7 +819,7 @@ export function ScheduleView() {
                   {/* Filter Controls for Capacity Planner */}
                   <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-[#888] flex items-center gap-1">
+                        <span className="text-micro font-bold uppercase tracking-widest text-neutral-500 dark:text-[#888] flex items-center gap-1">
                           <Funnel className="w-3.5 h-3.5 text-brand-ink" /> Filter:
                        </span>
                        <div className="flex items-center bg-neutral-100 dark:bg-[#0F0F0F] p-1 rounded-[8px] border border-neutral-200 dark:border-[#262626] flex-wrap sm:flex-nowrap gap-1">
@@ -830,7 +833,7 @@ export function ScheduleView() {
                                key={status}
                                onClick={() => setCapacityStatusFilter(status)}
                                className={cn(
-                                 "px-3 py-1.5 min-h-[36px] rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation whitespace-nowrap pointer-coarse:min-h-11",
+                                 "px-3 py-1.5 min-h-[36px] rounded-[6px] text-micro font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation whitespace-nowrap pointer-coarse:min-h-11",
                                  capacityStatusFilter === status
                                    ? "bg-white dark:bg-[#1C1C1C] text-neutral-900 dark:text-white shadow-sm font-black"
                                    : "text-neutral-500 hover:text-neutral-900 dark:text-[#888] dark:hover:text-white"
@@ -841,7 +844,7 @@ export function ScheduleView() {
                                {status === 'Low' && <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />}
                                <span>{status}</span>
                                <span className={cn(
-                                 "px-1.5 py-0.5 rounded-full text-[9px] font-mono",
+                                 "px-1.5 py-0.5 rounded-full text-micro font-mono",
                                  capacityStatusFilter === status ? "bg-neutral-100 dark:bg-[#262626] text-neutral-900 dark:text-white font-bold" : "bg-neutral-200/60 dark:bg-[#1C1C1C] text-neutral-600 dark:text-[#888]"
                                )}>
                                  {count}
@@ -871,7 +874,7 @@ export function ScheduleView() {
                       <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden shadow-sm animate-in fade-in">
                         <div className="p-3.5 sm:p-4 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex items-center justify-between">
                           <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-widest">{t('sch_session_utilization')} - {activeBranchName}</h3>
-                          <span className="text-[10px] text-neutral-600 dark:text-neutral-400 font-mono font-medium">{capacityFilteredClasses.length} session(s)</span>
+                          <span className="text-micro text-neutral-600 dark:text-neutral-400 font-mono font-medium">{capacityFilteredClasses.length} session(s)</span>
                         </div>
                         <div className="divide-y divide-neutral-200/80 dark:divide-[#262626]">
                           {capacityFilteredClasses.length === 0 ? (
@@ -884,18 +887,18 @@ export function ScheduleView() {
                                 <div>
                                    <div className="flex items-center gap-2">
                                      <p className="font-bold text-neutral-900 dark:text-white">{c.name}</p>
-                                     <span className="text-[9px] px-1.5 py-0.5 rounded-[6px] bg-neutral-100 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300 font-bold uppercase tracking-wider font-mono">
+                                     <span className="text-micro px-1.5 py-0.5 rounded-[6px] bg-neutral-100 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300 font-bold uppercase tracking-wider font-mono">
                                        {c.classType}
                                      </span>
                                    </div>
-                                   <p className="text-[10px] text-neutral-600 dark:text-neutral-400 font-mono mt-0.5 font-medium">
+                                   <p className="text-micro text-neutral-600 dark:text-neutral-400 font-mono mt-0.5 font-medium">
                                      {c.daysOfWeek?.join(', ') || c.dayOfWeek} • {c.startTime}-{c.endTime}
                                    </p>
                                 </div>
                                 <div className="flex items-center gap-3 sm:gap-4 justify-between sm:justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-neutral-100 dark:border-[#262626]">
                                    <div className="text-left sm:text-right">
                                       <span className={cn("font-mono font-bold text-xs", util >= 90 ? 'text-brand-ink' : 'text-neutral-900 dark:text-white')}>{enrollCount} / {c.capacity} ({util}%)</span>
-                                      <p className="text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-bold">{t('sch_occupancy')}</p>
+                                      <p className="text-micro text-neutral-500 dark:text-neutral-400 uppercase font-bold">{t('sch_occupancy')}</p>
                                    </div>
                                    <div className="w-16 h-1.5 bg-neutral-100 dark:bg-[#0F0F0F] rounded-full overflow-hidden shrink-0 border border-neutral-200/50 dark:border-transparent">
                                       <div className={cn(
@@ -916,7 +919,7 @@ export function ScheduleView() {
                                           >
                                             -5
                                           </button>
-                                          <span className="text-[10px] text-neutral-400 dark:text-neutral-600">|</span>
+                                          <span className="text-micro text-neutral-400 dark:text-neutral-600">|</span>
                                           <button
                                             type="button"
                                             onClick={() => handleQuickAdjustCapacity(c.id, 5)}
@@ -963,18 +966,18 @@ export function ScheduleView() {
                               <ShieldWarning className="w-4.5 h-4.5 text-brand-ink"/>
                               {t('sch_overcrowded_classes')}
                             </span>
-                            <span className="font-mono text-[10px] font-bold">{overcrowdedClasses.length}</span>
+                            <span className="font-mono text-micro font-bold">{overcrowdedClasses.length}</span>
                          </h3>
                          <div className="space-y-3.5">
                             {overcrowdedClasses.length === 0 ? (
-                              <p className="text-[10px] text-neutral-600 dark:text-neutral-400 font-mono text-center py-4">{t('sch_healthy_boundaries')}</p>
+                              <p className="text-micro text-neutral-600 dark:text-neutral-400 font-mono text-center py-4">{t('sch_healthy_boundaries')}</p>
                             ) : overcrowdedClasses.map(oc => (
                               <div key={oc.cls.id} className="text-xs space-y-2 pb-3 border-b border-neutral-100 dark:border-[#262626] last:border-b-0 last:pb-0">
                                 <div className="flex justify-between items-center">
                                   <span className="font-bold text-neutral-800 dark:text-white">{oc.cls.name}</span>
                                   <span className="font-mono text-brand-ink dark:text-brand-ink font-bold">{oc.utilization}%</span>
                                 </div>
-                                <p className="text-[9px] text-neutral-600 dark:text-neutral-400 font-mono font-medium">
+                                <p className="text-micro text-neutral-600 dark:text-neutral-400 font-mono font-medium">
                                   {oc.cls.daysOfWeek?.join(', ') || oc.cls.dayOfWeek} • {oc.cls.startTime}-{oc.cls.endTime}
                                 </p>
                                 <div className="flex items-center gap-2 pt-1">
@@ -982,7 +985,7 @@ export function ScheduleView() {
                                     <button
                                       type="button"
                                       onClick={() => handleQuickAdjustCapacity(oc.cls.id, 5)}
-                                      className="flex-1 sm:flex-initial px-3 py-1.5 min-h-[36px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-[8px] text-[9px] font-bold uppercase tracking-wider hover:bg-emerald-500 hover:text-white transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11"
+                                      className="flex-1 sm:flex-initial px-3 py-1.5 min-h-[36px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-[8px] text-micro font-bold uppercase tracking-wider hover:bg-emerald-500 hover:text-white transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11"
                                     >
                                       +5 Slots
                                     </button>
@@ -990,7 +993,7 @@ export function ScheduleView() {
                                   <button
                                     type="button"
                                     onClick={() => { setEnrollModalTab('enrolled'); setShowEnrollModal(oc.cls.id); }}
-                                    className="flex-1 sm:flex-initial px-3 py-1.5 min-h-[36px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-[9px] font-bold uppercase tracking-wider hover:bg-neutral-200 transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11"
+                                    className="flex-1 sm:flex-initial px-3 py-1.5 min-h-[36px] bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-micro font-bold uppercase tracking-wider hover:bg-neutral-200 transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11"
                                   >
                                     Manage Cohort
                                   </button>
@@ -1007,18 +1010,18 @@ export function ScheduleView() {
                               <Users className="w-4 h-4 text-brand-ink" />
                               Instructor Load
                             </span>
-                            <span className="font-mono text-[10px] text-neutral-600 dark:text-neutral-400 font-bold">{coachWorkloads.length} Coach(es)</span>
+                            <span className="font-mono text-micro text-neutral-600 dark:text-neutral-400 font-bold">{coachWorkloads.length} Coach(es)</span>
                          </h3>
                          <div className="space-y-3">
                             {coachWorkloads.length === 0 ? (
-                              <p className="text-[10px] text-neutral-600 dark:text-neutral-400 font-mono text-center py-2">No instructors assigned to classes in this branch.</p>
+                              <p className="text-micro text-neutral-600 dark:text-neutral-400 font-mono text-center py-2">No instructors assigned to classes in this branch.</p>
                             ) : coachWorkloads.map(cw => (
                               <div key={cw.coach.id} className="space-y-1 text-xs pb-2.5 border-b border-neutral-100 dark:border-[#262626] last:border-b-0 last:pb-0">
                                 <div className="flex items-center justify-between font-bold">
                                   <span className="text-neutral-900 dark:text-white">{cw.coach.displayName}</span>
-                                  <span className="text-[10px] font-mono text-neutral-600 dark:text-neutral-400">{cw.totalEnrolled} / {cw.totalCapacity} ({cw.utilization}%)</span>
+                                  <span className="text-micro font-mono text-neutral-600 dark:text-neutral-400">{cw.totalEnrolled} / {cw.totalCapacity} ({cw.utilization}%)</span>
                                 </div>
-                                <div className="flex items-center justify-between text-[9px] text-neutral-500 dark:text-neutral-400 font-mono">
+                                <div className="flex items-center justify-between text-micro text-neutral-500 dark:text-neutral-400 font-mono">
                                   <span>{cw.classesCount} class session{cw.classesCount === 1 ? '' : 's'}</span>
                                   <span className={cn(cw.utilization >= 90 ? 'text-red-600 dark:text-red-400 font-bold' : 'text-neutral-600 dark:text-neutral-400')}>{cw.utilization}% load</span>
                                 </div>
@@ -1058,23 +1061,24 @@ export function ScheduleView() {
 
                   <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto bg-white dark:bg-[#0A0A0A] text-neutral-900 dark:text-white">
                      <div>
-                       <label className="block text-[10px] uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('sch_session_name')}</label>
-                       <input type="text" value={classForm.name} onChange={(e) => setClassForm({...classForm, name: e.target.value})}
+                       <label htmlFor="schedule-view-sch_session_name" className="block text-micro uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('sch_session_name')}</label>
+                       <input id="schedule-view-sch_session_name" type="text" value={classForm.name} onChange={(e) => setClassForm({...classForm, name: e.target.value})}
                          className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20"
                          placeholder={t('sch_session_placeholder')}
                        />
                      </div>
 
                      <div>
-                       <label className="block text-[10px] uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('lms_category')}</label>
-                       <div className="grid grid-cols-2 gap-2">
+                       <span id="schedule-class-category-label" className="block text-micro uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('lms_category')}</span>
+                       <div role="group" aria-labelledby="schedule-class-category-label" className="grid grid-cols-2 gap-2">
                           {CATEGORIES.map(cat => (
                             <button
                               key={cat}
                               type="button"
+                              aria-pressed={classForm.classType === cat}
                               onClick={() => setClassForm({ ...classForm, classType: cat })}
                               className={cn(
-                                "px-3 py-2.5 min-h-[42px] border rounded-[8px] text-[10px] font-bold uppercase tracking-wider transition-all text-center shadow-sm cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11",
+                                "px-3 py-2.5 min-h-[42px] border rounded-[8px] text-micro font-bold uppercase tracking-wider transition-all text-center shadow-sm cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11",
                                 classForm.classType === cat 
                                   ? "bg-neutral-900 dark:bg-white border-neutral-950 dark:border-white text-white dark:text-black font-extrabold" 
                                   : "bg-white dark:bg-[#141414] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
@@ -1087,14 +1091,15 @@ export function ScheduleView() {
                      </div>
 
                      <div>
-                       <label className="block text-[10px] uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('sch_recurrence_days')}</label>
-                       <div className="flex flex-wrap gap-2">
+                       <span id="schedule-class-days-label" className="block text-micro uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('sch_recurrence_days')}</span>
+                       <div role="group" aria-labelledby="schedule-class-days-label" className="flex flex-wrap gap-2">
                           {DAYS.map(day => {
                             const isSelected = classForm.daysOfWeek.includes(day);
                             return (
                               <button
                                 key={day}
                                 type="button"
+                                aria-pressed={isSelected}
                                 onClick={() => {
                                   const updatedDays = isSelected
                                     ? classForm.daysOfWeek.filter(d => d !== day)
@@ -1102,7 +1107,7 @@ export function ScheduleView() {
                                   setClassForm({ ...classForm, daysOfWeek: updatedDays });
                                 }}
                                 className={cn(
-                                  "px-3 py-1.5 min-h-[38px] rounded-[8px] text-[10px] font-bold uppercase tracking-wider border transition-all shadow-sm cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11",
+                                  "px-3 py-1.5 min-h-[38px] rounded-[8px] text-micro font-bold uppercase tracking-wider border transition-all shadow-sm cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11",
                                   isSelected 
                                     ? "bg-brand border-brand text-white font-extrabold" 
                                     : "bg-neutral-50 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626]"
@@ -1117,8 +1122,8 @@ export function ScheduleView() {
 
                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
-                           <label className="block text-[10px] uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('sch_assign_instructor')}</label>
-                           <select 
+                           <label htmlFor="schedule-view-sch_assign_instructor" className="block text-micro uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('sch_assign_instructor')}</label>
+                           <select id="schedule-view-sch_assign_instructor" 
                              value={classForm.coachId} 
                              onChange={e => setClassForm({...classForm, coachId: e.target.value})}
                              aria-label="Assign instructor"
@@ -1131,8 +1136,8 @@ export function ScheduleView() {
                            </select>
                         </div>
                         <div>
-                           <label className="block text-[10px] uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('sch_capacity_limit')}</label>
-                           <input type="number" min={1} max={500} value={classForm.capacity} onChange={(e) => setClassForm({...classForm, capacity: Number(e.target.value)})}
+                           <label htmlFor="schedule-view-sch_capacity_limit" className="block text-micro uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('sch_capacity_limit')}</label>
+                           <input id="schedule-view-sch_capacity_limit" type="number" min={1} max={500} value={classForm.capacity} onChange={(e) => setClassForm({...classForm, capacity: Number(e.target.value)})}
                              className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 shadow-sm font-bold"
                            />
                         </div>
@@ -1140,14 +1145,14 @@ export function ScheduleView() {
 
                      <div className="grid grid-cols-2 gap-3 sm:gap-4">
                         <div>
-                           <label className="block text-[10px] uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('sch_start_time')}</label>
-                           <input type="time" value={classForm.startTime} onChange={(e) => setClassForm({...classForm, startTime: e.target.value})}
+                           <label htmlFor="schedule-view-sch_start_time" className="block text-micro uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('sch_start_time')}</label>
+                           <input id="schedule-view-sch_start_time" type="time" value={classForm.startTime} onChange={(e) => setClassForm({...classForm, startTime: e.target.value})}
                              className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 shadow-sm font-mono font-bold [color-scheme:light] dark:[color-scheme:dark]"
                            />
                         </div>
                         <div>
-                           <label className="block text-[10px] uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('sch_end_time')}</label>
-                           <input type="time" value={classForm.endTime} onChange={(e) => setClassForm({...classForm, endTime: e.target.value})}
+                           <label htmlFor="schedule-view-sch_end_time" className="block text-micro uppercase font-black text-neutral-600 dark:text-neutral-400 mb-1.5">{t('sch_end_time')}</label>
+                           <input id="schedule-view-sch_end_time" type="time" value={classForm.endTime} onChange={(e) => setClassForm({...classForm, endTime: e.target.value})}
                              className="w-full bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2.5 min-h-[42px] text-xs sm:text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-brand dark:focus:border-brand focus:ring-1 focus:ring-brand/20 shadow-sm font-mono font-bold [color-scheme:light] dark:[color-scheme:dark]"
                            />
                         </div>
@@ -1377,7 +1382,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                  <span className="truncate">{t('sch_cohort_roster')}: {classObj?.name}</span>
                </h2>
                 <div className="mt-2 space-y-1">
-                   <div className="flex items-center justify-between text-[10px] text-neutral-600 dark:text-neutral-400 font-mono font-semibold">
+                   <div className="flex items-center justify-between text-micro text-neutral-600 dark:text-neutral-400 font-mono font-semibold">
                       <span>{t('att_capacity_utilization')}: {enrolledCount} / {classObj?.capacity}</span>
                       <span>{capacityPct}%</span>
                    </div>
@@ -1397,36 +1402,36 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
             <button 
               onClick={() => { setActiveTab('unenrolled'); setSelectedStudentIds(new Set()); }} 
               className={cn(
-                "py-2.5 sm:py-3 px-2.5 sm:px-3 min-h-[44px] text-[10px] sm:text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 cursor-pointer shrink-0 active:scale-95 touch-manipulation whitespace-nowrap", 
+                "py-2.5 sm:py-3 px-2.5 sm:px-3 min-h-[44px] text-micro sm:text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 cursor-pointer shrink-0 active:scale-95 touch-manipulation whitespace-nowrap", 
                 activeTab === 'unenrolled' ? "border-brand text-neutral-900 dark:text-white font-extrabold" : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
               )}
             >
               {t('sch_tab_unenrolled_candidates')}
-              <span className="px-1.5 py-0.5 bg-neutral-200 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-[9px] font-mono font-bold">
+              <span className="px-1.5 py-0.5 bg-neutral-200 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-micro font-mono font-bold">
                 {state.students.filter(s => s.studentStatus === 'Active' && !enrolledStudentIds.has(s.id)).length}
               </span>
             </button>
             <button 
               onClick={() => { setActiveTab('enrolled'); setSelectedStudentIds(new Set()); }} 
               className={cn(
-                "py-2.5 sm:py-3 px-2.5 sm:px-3 min-h-[44px] text-[10px] sm:text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 cursor-pointer shrink-0 active:scale-95 touch-manipulation whitespace-nowrap", 
+                "py-2.5 sm:py-3 px-2.5 sm:px-3 min-h-[44px] text-micro sm:text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 cursor-pointer shrink-0 active:scale-95 touch-manipulation whitespace-nowrap", 
                 activeTab === 'enrolled' ? "border-brand text-neutral-900 dark:text-white font-extrabold" : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
               )}
             >
               {t('sch_tab_enrolled_cohort')}
-              <span className="px-1.5 py-0.5 bg-neutral-200 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-[9px] font-mono font-bold">
+              <span className="px-1.5 py-0.5 bg-neutral-200 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-micro font-mono font-bold">
                 {enrolledCount}
               </span>
             </button>
             <button 
               onClick={() => { setActiveTab('all'); setSelectedStudentIds(new Set()); }} 
               className={cn(
-                "py-2.5 sm:py-3 px-2.5 sm:px-3 min-h-[44px] text-[10px] sm:text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 cursor-pointer shrink-0 active:scale-95 touch-manipulation whitespace-nowrap", 
+                "py-2.5 sm:py-3 px-2.5 sm:px-3 min-h-[44px] text-micro sm:text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 cursor-pointer shrink-0 active:scale-95 touch-manipulation whitespace-nowrap", 
                 activeTab === 'all' ? "border-brand text-neutral-900 dark:text-white font-extrabold" : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
               )}
             >
               {t('sch_tab_all_active')}
-              <span className="px-1.5 py-0.5 bg-neutral-200 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-[9px] font-mono font-bold">
+              <span className="px-1.5 py-0.5 bg-neutral-200 dark:bg-[#1C1C1C] text-neutral-700 dark:text-neutral-300 rounded-[8px] text-micro font-mono font-bold">
                 {state.students.filter(s => s.studentStatus === 'Active').length}
               </span>
             </button>
@@ -1488,7 +1493,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                 )}
              </div>
 
-             <div className="flex flex-wrap items-center justify-between text-[10px] text-neutral-600 dark:text-neutral-400 gap-2 font-medium">
+             <div className="flex flex-wrap items-center justify-between text-micro text-neutral-600 dark:text-neutral-400 gap-2 font-medium">
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                    {/* Multi-Select Select All in Unenrolled tab */}
                    {activeTab === 'unenrolled' && filteredStudents.length > 0 && (
@@ -1510,7 +1515,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                          value={turnoutSort}
                          onChange={e => setTurnoutSort(e.target.value as any)}
                          aria-label="Sort turnout"
-                         className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 text-[10px] rounded-[8px] px-2.5 py-1 min-h-[34px] cursor-pointer focus:outline-none font-semibold pointer-coarse:min-h-11"
+                         className="bg-neutral-50 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 text-micro rounded-[8px] px-2.5 py-1 min-h-[34px] cursor-pointer focus:outline-none font-semibold pointer-coarse:min-h-11"
                        >
                          <option value="default">Sort: Name (A-Z)</option>
                          <option value="turnout-asc">Sort: Lowest Turnout First</option>
@@ -1535,12 +1540,12 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                              'Bulk Attendance Confirmation'
                            );
                         }}
-                        className="text-brand-ink hover:text-brand-ink/80 font-bold uppercase tracking-wider text-[9px] flex items-center gap-1 cursor-pointer bg-brand/5 border border-brand/10 px-2.5 py-1.5 min-h-[34px] rounded-[8px] transition-colors active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                        className="text-brand-ink hover:text-brand-ink/80 font-bold uppercase tracking-wider text-micro flex items-center gap-1 cursor-pointer bg-brand/5 border border-brand/10 px-2.5 py-1.5 min-h-[34px] rounded-[8px] transition-colors active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                       >
                         <Check className="w-3 h-3"/> Mark All Present
                       </button>
                    )}
-                   {classBranch && <span className="font-semibold text-neutral-600 dark:text-neutral-400 text-[10px]">{t('sch_class_branch_prefix').replace('{branch}', classBranch.name)}</span>}
+                   {classBranch && <span className="font-semibold text-neutral-600 dark:text-neutral-400 text-micro">{t('sch_class_branch_prefix').replace('{branch}', classBranch.name)}</span>}
                 </div>
              </div>
          </div>
@@ -1598,19 +1603,19 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                                 <span className="text-xs font-bold text-neutral-900 dark:text-white truncate">{student.englishName}</span>
                                 {student.khmerName && (
-                                   <span className="text-[10px] text-neutral-600 dark:text-neutral-400 font-khmer">{student.khmerName}</span>
+                                   <span className="text-micro text-neutral-600 dark:text-neutral-400 font-khmer">{student.khmerName}</span>
                                 )}
-                                <span className="inline-flex items-center justify-center px-2 py-0.5 bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-[9px] font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-300">
+                                <span className="inline-flex items-center justify-center px-2 py-0.5 bg-neutral-100 dark:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-micro font-bold uppercase tracking-widest text-neutral-700 dark:text-neutral-300">
                                    {formatBelt(student.currentBelt, student.dob)}
                                 </span>
                              </div>
 
-                             <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-[10px] text-neutral-600 dark:text-neutral-400 font-mono">
+                             <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-micro text-neutral-600 dark:text-neutral-400 font-mono">
                                 <span>ID: {student.id}</span>
                                 <span className="flex items-center gap-1">
                                    <MapPin className="w-3 h-3 text-brand-ink shrink-0"/>
                                    {isHomeBranch ? (
-                                     <span className="text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-wider text-[9px] bg-emerald-500/10 border border-emerald-500/20 px-1 py-0.5 rounded-[6px]">{t('sch_badge_home_branch')}</span>
+                                     <span className="text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-wider text-micro bg-emerald-500/10 border border-emerald-500/20 px-1 py-0.5 rounded-[6px]">{t('sch_badge_home_branch')}</span>
                                    ) : (
                                      <span className="truncate">{studentBranch?.name || t('sch_external_branch')}</span>
                                    )}
@@ -1621,7 +1626,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                              {(() => {
                                 const stats = getStudentAttendanceStats(student.id);
                                 return stats ? (
-                                   <div className="text-[10px] text-neutral-600 dark:text-neutral-400 flex items-center gap-1 font-mono">
+                                   <div className="text-micro text-neutral-600 dark:text-neutral-400 flex items-center gap-1 font-mono">
                                       <ChartLine className="w-3.5 h-3.5 text-brand-ink shrink-0" />
                                       <span>Turnout:</span>
                                       <span className={cn("font-bold", stats.pct < 60 ? "text-red-600 dark:text-red-400" : stats.pct >= 80 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400")}>
@@ -1631,7 +1636,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                                       <span>{stats.count}/{stats.total} logged</span>
                                    </div>
                                 ) : (
-                                   <div className="text-[10px] text-neutral-600 dark:text-neutral-400 flex items-center gap-1 font-mono">
+                                   <div className="text-micro text-neutral-600 dark:text-neutral-400 flex items-center gap-1 font-mono">
                                       <ChartLine className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400 shrink-0" />
                                       <span>No attendance logged yet</span>
                                    </div>
@@ -1642,7 +1647,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                              {conflicts.length > 0 && (
                                <div className="mt-1.5 flex flex-col gap-1">
                                  {conflicts.map((conf, idx) => (
-                                   <div key={idx} className="flex items-center gap-1.5 text-[9px] text-red-700 dark:text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded-[8px] font-semibold">
+                                   <div key={idx} className="flex items-center gap-1.5 text-micro text-red-700 dark:text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded-[8px] font-semibold">
                                       <WarningCircle className="w-3.5 h-3.5 shrink-0" />
                                       <span className="truncate">{t('panel_schedule_overlap').replace('{conf}', conf)}</span>
                                    </div>
@@ -1663,7 +1668,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                                      type="button"
                                      onClick={() => handleQuickAttendance(student.id, 'Present')}
                                      className={cn(
-                                       "min-w-[38px] sm:min-w-[36px] min-h-[38px] sm:min-h-[36px] px-2.5 py-1.5 rounded-[6px] text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all duration-150 cursor-pointer border active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11",
+                                       "min-w-[38px] sm:min-w-[36px] min-h-[38px] sm:min-h-[36px] px-2.5 py-1.5 rounded-[6px] text-micro font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all duration-150 cursor-pointer border active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11",
                                        currentStatus === 'Present'
                                          ? "bg-green-500/20 border-green-500/50 text-green-700 dark:text-green-400 font-black shadow-sm"
                                          : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-green-700 dark:hover:text-green-400 hover:bg-green-500/10 font-bold"
@@ -1676,7 +1681,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                                      type="button"
                                      onClick={() => handleQuickAttendance(student.id, 'Late')}
                                      className={cn(
-                                       "min-w-[38px] sm:min-w-[36px] min-h-[38px] sm:min-h-[36px] px-2.5 py-1.5 rounded-[6px] text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all duration-150 cursor-pointer border active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11",
+                                       "min-w-[38px] sm:min-w-[36px] min-h-[38px] sm:min-h-[36px] px-2.5 py-1.5 rounded-[6px] text-micro font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all duration-150 cursor-pointer border active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11",
                                        currentStatus === 'Late'
                                          ? "bg-amber-500/20 border-amber-500/50 text-amber-700 dark:text-amber-400 font-black shadow-sm"
                                          : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-amber-700 dark:hover:text-amber-400 hover:bg-amber-500/10 font-bold"
@@ -1689,7 +1694,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                                      type="button"
                                      onClick={() => handleQuickAttendance(student.id, 'Absent')}
                                      className={cn(
-                                       "min-w-[38px] sm:min-w-[36px] min-h-[38px] sm:min-h-[36px] px-2.5 py-1.5 rounded-[6px] text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all duration-150 cursor-pointer border active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11",
+                                       "min-w-[38px] sm:min-w-[36px] min-h-[38px] sm:min-h-[36px] px-2.5 py-1.5 rounded-[6px] text-micro font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all duration-150 cursor-pointer border active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11",
                                        currentStatus === 'Absent'
                                          ? "bg-red-500/20 border-red-500/50 text-red-700 dark:text-red-400 font-black shadow-sm"
                                          : "border-transparent text-neutral-600 dark:text-neutral-400 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-500/10 font-bold"
@@ -1706,7 +1711,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                             disabled={isProcessingId !== null || (isFull && !isEnrolled)}
                             onClick={() => handleToggleEnroll(student.id, isEnrolled)}
                             className={cn(
-                              "w-full sm:w-auto px-4 py-2 min-h-[40px] rounded-[8px] text-[11px] font-black uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 border shadow-sm disabled:opacity-40 select-none cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                              "w-full sm:w-auto px-4 py-2 min-h-[40px] rounded-[8px] text-micro font-black uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 border shadow-sm disabled:opacity-40 select-none cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                               isEnrolled 
                                 ? "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500"
                                 : conflicts.length > 0
@@ -1750,7 +1755,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                <button
                  type="button"
                  onClick={() => setSelectedStudentIds(new Set())}
-                 className="text-[10px] text-neutral-300 dark:text-neutral-700 hover:text-white dark:hover:text-black underline cursor-pointer ml-1 p-1 active:scale-95 touch-manipulation"
+                 className="text-micro text-neutral-300 dark:text-neutral-700 hover:text-white dark:hover:text-black underline cursor-pointer ml-1 p-1 active:scale-95 touch-manipulation"
                >
                  Clear
                </button>
@@ -1759,7 +1764,7 @@ function EnrollmentModal({ classId, initialTab, onClose }: { classId: number, in
                type="button"
                disabled={isBatchEnrolling || isFull}
                onClick={handleBatchEnroll}
-               className="px-4 py-2 min-h-[42px] bg-brand text-white rounded-[8px] text-[10px] font-black uppercase tracking-wider hover:bg-brand-strong transition-colors flex items-center gap-2 shadow-md disabled:opacity-50 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+               className="px-4 py-2 min-h-[42px] bg-brand text-white rounded-[8px] text-micro font-black uppercase tracking-wider hover:bg-brand-strong transition-colors flex items-center gap-2 shadow-md disabled:opacity-50 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
              >
                {isBatchEnrolling ? (
                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />

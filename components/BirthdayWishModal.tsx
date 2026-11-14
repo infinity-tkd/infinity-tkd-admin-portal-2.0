@@ -66,9 +66,9 @@ export function BirthdayWishModal() {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-blue-500 rounded-full mix-blend-screen filter blur-[50px] animate-pulse" style={{ animationDelay: '0.5s' }}></div>
               </div>
 
-              <button
+              <button aria-label="Close"
                 onClick={handleClose}
-                className="absolute top-4 right-4 p-2 text-[#666] hover:text-white bg-[#1A1A1A] hover:bg-[#262626] rounded-full transition-colors z-10"
+                className="absolute top-4 right-4 p-2 text-[#666] hover:text-white bg-[#1A1A1A] hover:bg-[#262626] rounded-full transition-colors z-10 min-h-6 min-w-6 inline-flex items-center justify-center"
               >
                 <X className="w-4 h-4" />
               </button>

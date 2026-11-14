@@ -497,6 +497,8 @@ export interface AppState {
   dataLoadErrors?: string[];
   dataLoadIssues?: DataLoadIssue[];
   isRefreshingData?: boolean;
+  /** The first snapshot of this session's records has finished (loaded, or failed with a notice). Pages wait for it so they never show zeros or "Access restricted" while loading. */
+  dataReady?: boolean;
   currentUser: User | null;
   users: User[];
   theme: 'light' | 'dark';
@@ -821,7 +823,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Set currentUser and clear loading state immediately so user is authenticated instantly without waiting for global table downloads
       setState(s => ({ ...(s.currentUser?.id === currentUser.id && s.currentUser.role === currentUser.role && !currentUser.mustChangePassword ? s : {
         ...initialAppState(), theme: s.theme, language: s.language, academyProfile: s.academyProfile,
-      }), currentUser, isLoading: false, isRefreshingData: true }));
+      }), currentUser, isLoading: false, isRefreshingData: true, ...(mfaPending || currentUser.mustChangePassword ? { dataReady: true } : {}) }));
 
       if (mfaPending || currentUser.mustChangePassword) return;
 
@@ -1256,7 +1258,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         dataLoadErrors: loadIssues.map(issue => issue.dataset),
         dataLoadIssues: loadIssues,
         partners: finalPartners,
-        isLoading: false
+        isLoading: false,
+        dataReady: true
       }, loadIssues, unrequested, deniedDatasets, accountDetailsAllowed));
 
       if (academyProfileData && typeof window !== 'undefined') {
@@ -1273,7 +1276,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const safe = ['role_permissions', 'user_permissions'].includes(failureDataset) ? {
           ...initialAppState(), currentUser: s.currentUser, theme: s.theme, language: s.language, academyProfile: s.academyProfile,
         } : s;
-        return { ...safe, isLoading: false, dataLoadIssues: issues, dataLoadErrors: issues.map(item => item.dataset) };
+        return { ...safe, isLoading: false, dataReady: true, dataLoadIssues: issues, dataLoadErrors: issues.map(item => item.dataset) };
       });
     } finally {
       clearTimeout(timeoutId);

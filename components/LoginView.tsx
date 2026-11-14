@@ -173,7 +173,7 @@ const LoginBackground = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />;
+  return <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 w-full h-full pointer-events-none" />;
 };
 
 export function LoginView() {
@@ -274,7 +274,7 @@ export function LoginView() {
         {/* Left: Brand Badge */}
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
-          <span className="text-[10px] font-mono font-bold tracking-widest text-neutral-600 dark:text-neutral-400 uppercase">
+          <span className="text-micro font-mono font-bold tracking-widest text-neutral-600 dark:text-neutral-400 uppercase">
             {t('login_badge')}
           </span>
         </div>
@@ -282,7 +282,7 @@ export function LoginView() {
         {/* Right: Language Pill & Theme Switcher */}
         <div className="flex items-center gap-2">
           {/* Language Selector */}
-          <div className="flex items-center p-0.5 bg-white/70 dark:bg-[#141414]/80 backdrop-blur-md border border-neutral-200/80 dark:border-neutral-800 rounded-[8px] text-[10px] font-mono font-bold shadow-xs">
+          <div className="flex items-center p-0.5 bg-white/70 dark:bg-[#141414]/80 backdrop-blur-md border border-neutral-200/80 dark:border-neutral-800 rounded-[8px] text-micro font-mono font-bold shadow-xs">
             <button
               type="button"
               onClick={() => setLanguage('en')}
@@ -357,7 +357,7 @@ export function LoginView() {
             <h1 className="text-lg sm:text-xl font-black tracking-widest text-neutral-900 dark:text-white uppercase leading-tight">
               {t('login_title')}
             </h1>
-            <p className="text-neutral-500 dark:text-neutral-400 text-[11px] sm:text-xs mt-1 font-mono tracking-wider uppercase">
+            <p className="text-neutral-500 dark:text-neutral-400 text-micro sm:text-xs mt-1 font-mono tracking-wider uppercase">
               {t('login_subtitle')}
             </p>
           </div>
@@ -368,7 +368,7 @@ export function LoginView() {
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="login-identifier"
-                className="block text-[10px] sm:text-[11px] uppercase tracking-wider text-neutral-600 dark:text-neutral-400 font-bold font-mono"
+                className="block text-micro sm:text-micro uppercase tracking-wider text-neutral-600 dark:text-neutral-400 font-bold font-mono"
               >
                 {t('login_username_email')}
               </label>
@@ -380,6 +380,7 @@ export function LoginView() {
                 <input
                   id="login-identifier"
                   type="text"
+                  inputMode="email"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   required
@@ -409,7 +410,7 @@ export function LoginView() {
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="login-password"
-                  className="block text-[10px] sm:text-[11px] uppercase tracking-wider text-neutral-600 dark:text-neutral-400 font-bold font-mono"
+                  className="block text-micro sm:text-micro uppercase tracking-wider text-neutral-600 dark:text-neutral-400 font-bold font-mono"
                 >
                   {t('login_password')}
                 </label>
@@ -452,7 +453,7 @@ export function LoginView() {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="w-4 h-4 rounded-[4px] accent-brand cursor-pointer"
                 />
-                <span className="text-[11px] text-neutral-600 dark:text-neutral-400 font-medium">
+                <span className="text-micro text-neutral-600 dark:text-neutral-400 font-medium">
                   {t('login_remember_me')}
                 </span>
               </label>
@@ -464,7 +465,7 @@ export function LoginView() {
                 <div className="flex gap-2.5 items-start">
                   <ShieldWarning size={18} className="text-brand-ink shrink-0 mt-0.5" weight="fill" />
                   <div className="flex flex-col gap-0.5 min-w-0">
-                    <span className="text-[10px] font-mono font-bold text-red-800 dark:text-red-400 uppercase tracking-wider">
+                    <span className="text-micro font-mono font-bold text-red-800 dark:text-red-400 uppercase tracking-wider">
                       {t('login_alert_title')}
                     </span>
                     <p className="text-xs text-red-700 dark:text-red-300 leading-relaxed break-words font-sans">
@@ -510,7 +511,7 @@ export function LoginView() {
       </main>
 
       {/* 5. Bottom Copyright & Safety Banner */}
-      <footer className="relative z-20 text-center py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] text-[10px] font-mono text-neutral-600 dark:text-neutral-400 uppercase tracking-widest shrink-0">
+      <footer className="relative z-20 text-center py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] text-micro font-mono text-neutral-600 dark:text-neutral-400 uppercase tracking-widest shrink-0">
         {t('login_footer_copyright')}
       </footer>
 
@@ -530,13 +531,13 @@ export function LoginView() {
                   </div>
                   <div>
                     <h3 className="text-sm font-bold uppercase tracking-wider font-mono">{t('login_help_title')}</h3>
-                    <p className="text-[10px] text-neutral-500 dark:text-neutral-400">{t('login_help_subtitle')}</p>
+                    <p className="text-micro text-neutral-500 dark:text-neutral-400">{t('login_help_subtitle')}</p>
                   </div>
                 </div>
-                <button
+                <button aria-label="Close"
                   type="button"
                   onClick={() => setShowHelpModal(false)}
-                  className="p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                  className="p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer min-h-6 min-w-6 inline-flex items-center justify-center"
                 >
                   <X size={16} />
                 </button>
@@ -558,14 +559,14 @@ export function LoginView() {
                     >
                       <TelegramLogo size={20} className="text-[#0088cc] group-hover:scale-110 transition-transform" weight="fill" />
                       <div>
-                        <span className="text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold block">{t('login_help_telegram')}</span>
+                        <span className="text-micro text-neutral-600 dark:text-neutral-400 uppercase font-bold block">{t('login_help_telegram')}</span>
                         <span className="font-bold text-neutral-900 dark:text-white group-hover:text-brand-ink transition-colors">@infinity_taekwondo</span>
                       </div>
                     </a>
                     <button
                       type="button"
                       onClick={() => handleCopy('@infinity_taekwondo', 'telegram')}
-                      className="px-2.5 py-1 text-[10px] font-bold rounded-[8px] bg-neutral-200 dark:bg-neutral-800 hover:bg-brand hover:text-white transition-colors cursor-pointer flex items-center gap-1"
+                      className="px-2.5 py-1 text-micro font-bold rounded-[8px] bg-neutral-200 dark:bg-neutral-800 hover:bg-brand hover:text-white transition-colors cursor-pointer flex items-center gap-1"
                     >
                       {copiedTelegram ? <Check size={12} /> : <Copy size={12} />}
                       <span>{copiedTelegram ? t('login_help_copied') : t('login_help_copy')}</span>
@@ -580,14 +581,14 @@ export function LoginView() {
                     >
                       <Phone size={20} className="text-emerald-500 group-hover:scale-110 transition-transform" weight="fill" />
                       <div>
-                        <span className="text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold block">{t('login_help_phone')}</span>
+                        <span className="text-micro text-neutral-600 dark:text-neutral-400 uppercase font-bold block">{t('login_help_phone')}</span>
                         <span className="font-bold text-neutral-900 dark:text-white group-hover:text-brand-ink transition-colors">012 220 124</span>
                       </div>
                     </a>
                     <button
                       type="button"
                       onClick={() => handleCopy('012220124', 'phone')}
-                      className="px-2.5 py-1 text-[10px] font-bold rounded-[8px] bg-neutral-200 dark:bg-neutral-800 hover:bg-brand hover:text-white transition-colors cursor-pointer flex items-center gap-1"
+                      className="px-2.5 py-1 text-micro font-bold rounded-[8px] bg-neutral-200 dark:bg-neutral-800 hover:bg-brand hover:text-white transition-colors cursor-pointer flex items-center gap-1"
                     >
                       {copiedPhone ? <Check size={12} /> : <Copy size={12} />}
                       <span>{copiedPhone ? t('login_help_copied') : t('login_help_copy')}</span>
@@ -595,7 +596,7 @@ export function LoginView() {
                   </div>
                 </div>
 
-                <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 rounded-[8px] text-[11px] leading-relaxed">
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 rounded-[8px] text-micro leading-relaxed">
                   {t('login_help_hours')}
                 </div>
               </div>

@@ -37,10 +37,10 @@ export function BirthdayPanel({ birthdayStudents, calculateAge, checkIsBirthdayT
         </div>
 
         {/* Dynamic Month Selector Toggles */}
-        <select
+        <select aria-label="Birthday month"
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(parseInt(e.target.value, 10))}
-          className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[6px] sm:rounded-[8px] px-2.5 h-8 sm:h-8.5 text-[10px] sm:text-[9px] uppercase font-bold focus:outline-none focus:border-[#444] font-mono shadow-sm cursor-pointer"
+          className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[6px] sm:rounded-[8px] px-2.5 h-8 sm:h-8.5 text-micro sm:text-micro uppercase font-bold focus:outline-none focus:border-[#444] font-mono shadow-sm cursor-pointer"
         >
           {MONTH_NAMES.map((name, idx) => (
             <option key={name} value={idx}>{getLocalizedMonthName(idx, state.language)}</option>
@@ -76,7 +76,7 @@ export function BirthdayPanel({ birthdayStudents, calculateAge, checkIsBirthdayT
 
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
                   <div className={cn(
-                    "w-6.5 h-6.5 rounded-full flex items-center justify-center font-black text-[10px] font-mono border shrink-0",
+                    "w-6.5 h-6.5 rounded-full flex items-center justify-center font-black text-micro font-mono border shrink-0",
                     isBirthdayToday
                       ? "bg-brand text-white border-brand"
                       : "bg-neutral-50 dark:bg-[#141414] text-neutral-500 dark:text-neutral-400 border-neutral-200 dark:border-[#262626]"
@@ -85,17 +85,17 @@ export function BirthdayPanel({ birthdayStudents, calculateAge, checkIsBirthdayT
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] font-bold truncate text-neutral-900 dark:text-white">{student.englishName}</span>
+                      <span className="text-micro font-bold truncate text-neutral-900 dark:text-white">{student.englishName}</span>
                       {isBirthdayToday && (
-                        <span className="px-1 py-0.2 bg-brand text-white text-[9px] font-black uppercase tracking-wider rounded-full animate-bounce shrink-0">
+                        <span className="px-1 py-0.2 bg-brand text-white text-micro font-black uppercase tracking-wider rounded-full animate-bounce shrink-0">
                           {t('dash_today')}
                         </span>
                       )}
                     </div>
-                    <span className="block text-[9px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 flex items-center flex-wrap gap-1 leading-none">
+                    <span className="block text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 flex items-center flex-wrap gap-1 leading-none">
                       <span>{t('dash_age_belt').replace('{age}', String(age)).replace('{belt}', student.currentBelt)}</span>
                       <span className="text-neutral-300 dark:text-neutral-700 select-none">•</span>
-                      <span className="text-[9px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded px-1 py-0.2 text-neutral-500 dark:text-neutral-400 font-bold font-mono">{student.dob}</span>
+                      <span className="text-micro bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded px-1 py-0.2 text-neutral-500 dark:text-neutral-400 font-bold font-mono">{student.dob}</span>
                     </span>
                   </div>
                 </div>
@@ -130,15 +130,15 @@ export function BirthdayPanel({ birthdayStudents, calculateAge, checkIsBirthdayT
           <div className="py-12 flex flex-col items-center justify-center text-center space-y-2 bg-white dark:bg-transparent">
             <Cake className="w-7 h-7 text-neutral-300 dark:text-neutral-700 animate-pulse" />
             <div>
-              <h4 className="text-[11px] font-bold text-neutral-800 dark:text-neutral-200">{t('dash_no_birthdays_in')} {getLocalizedMonthName(selectedMonth, state.language)}</h4>
-              <p className="text-[9px] text-neutral-500 dark:text-neutral-400 mt-0.5">{t('dash_no_birthdays_desc')}</p>
+              <h3 className="text-micro font-bold text-neutral-800 dark:text-neutral-200">{t('dash_no_birthdays_in')} {getLocalizedMonthName(selectedMonth, state.language)}</h3>
+              <p className="text-micro text-neutral-500 dark:text-neutral-400 mt-0.5">{t('dash_no_birthdays_desc')}</p>
             </div>
           </div>
         )}
       </div>
 
       {/* Bottom mini-summary */}
-      <div className="py-2 px-3 bg-white dark:bg-[#0F0F0F] border-t border-neutral-200 dark:border-[#262626] text-[9px] text-neutral-500 dark:text-neutral-400 font-mono text-center flex items-center justify-center gap-1.5 rounded-b-[8px] shadow-sm">
+      <div className="py-2 px-3 bg-white dark:bg-[#0F0F0F] border-t border-neutral-200 dark:border-[#262626] text-micro text-neutral-500 dark:text-neutral-400 font-mono text-center flex items-center justify-center gap-1.5 rounded-b-[8px] shadow-sm">
         <span>{t('dash_selected_birthdays').replace('{count}', String(birthdayStudents.length))}</span>
       </div>
     </div>
