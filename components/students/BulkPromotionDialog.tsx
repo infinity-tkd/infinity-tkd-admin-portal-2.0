@@ -50,7 +50,7 @@ export function BulkPromotionDialog({ BELT_RANK_ORDER, handleBulkPromoteSubmit, 
             </p>
 
             <div className="space-y-1">
-              <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_promotion_mode')}</label>
+              <label className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_promotion_mode')}</label>
               <div className="grid grid-cols-2 gap-2 bg-neutral-100 dark:bg-[#141414] p-1 border border-neutral-200 dark:border-[#262626] rounded-[8px]">
                 <button
                   type="button"
@@ -81,8 +81,8 @@ export function BulkPromotionDialog({ BELT_RANK_ORDER, handleBulkPromoteSubmit, 
 
             {promotionForm.targetBeltMode === 'fixed' && (
               <div className="space-y-1">
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_target_belt')}</label>
-                <select
+                <label htmlFor="bulk-promotion-dialog-dir_target_belt" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_target_belt')}</label>
+                <select id="bulk-promotion-dialog-dir_target_belt"
                   value={promotionForm.fixedTargetBelt}
                   onChange={(e) => setPromotionForm(prev => ({ ...prev, fixedTargetBelt: e.target.value }))}
                   className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand cursor-pointer"
@@ -96,8 +96,8 @@ export function BulkPromotionDialog({ BELT_RANK_ORDER, handleBulkPromoteSubmit, 
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_test_score')}</label>
-                <input
+                <label htmlFor="bulk-promotion-dialog-dir_test_score" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_test_score')}</label>
+                <input id="bulk-promotion-dialog-dir_test_score"
                   type="number"
                   min="1"
                   max="100"
@@ -107,8 +107,8 @@ export function BulkPromotionDialog({ BELT_RANK_ORDER, handleBulkPromoteSubmit, 
                 />
               </div>
               <div className="space-y-1">
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_promotion_date')}</label>
-                <input
+                <label htmlFor="bulk-promotion-dialog-dir_promotion_date" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_promotion_date')}</label>
+                <input id="bulk-promotion-dialog-dir_promotion_date"
                   type="date"
                   value={promotionForm.promotionDate}
                   onChange={(e) => setPromotionForm(prev => ({ ...prev, promotionDate: e.target.value }))}
@@ -118,8 +118,8 @@ export function BulkPromotionDialog({ BELT_RANK_ORDER, handleBulkPromoteSubmit, 
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_curriculum_program')}</label>
-              <input
+              <label htmlFor="bulk-promotion-dialog-dir_curriculum_program" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_curriculum_program')}</label>
+              <input id="bulk-promotion-dialog-dir_curriculum_program"
                 type="text"
                 value={promotionForm.program}
                 onChange={(e) => setPromotionForm(prev => ({ ...prev, program: e.target.value }))}
@@ -128,8 +128,8 @@ export function BulkPromotionDialog({ BELT_RANK_ORDER, handleBulkPromoteSubmit, 
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_cert_url_label')}</label>
-              <input
+              <label htmlFor="bulk-promotion-dialog-dir_cert_url_label" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_cert_url_label')}</label>
+              <input id="bulk-promotion-dialog-dir_cert_url_label"
                 type="url"
                 placeholder="e.g. https://drive.google.com/file/d/..."
                 value={promotionForm.certificateUrl || ''}

@@ -78,9 +78,10 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                   {/* Low Stock Toggle */}
                   <button
                     type="button"
+                    aria-pressed={onlyLowStock}
                     onClick={() => setOnlyLowStock(!onlyLowStock)}
                     className={cn(
-                      "px-3 py-1.5 min-h-[38px] text-[11px] font-mono rounded-[8px] border flex items-center gap-1.5 transition-all cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                      "px-3 py-1.5 min-h-[38px] text-micro font-mono rounded-[8px] border flex items-center gap-1.5 transition-all cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                       onlyLowStock
                         ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/40 font-bold shadow-xs"
                         : "bg-neutral-50 text-neutral-600 border-neutral-200 hover:text-neutral-900 hover:bg-neutral-100 dark:bg-[#0F0F0F] dark:text-neutral-400 dark:border-[#262626] dark:hover:text-white"
@@ -98,7 +99,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                       value={sortOption}
                       onChange={(e) => setSortOption(e.target.value as any)}
                       aria-label="Sort product catalog"
-                      className="min-h-8 pointer-coarse:min-h-9 bg-transparent text-neutral-800 dark:text-[#ccc] text-[11px] font-mono focus:outline-none cursor-pointer py-1"
+                      className="min-h-8 pointer-coarse:min-h-9 bg-transparent text-neutral-800 dark:text-[#ccc] text-micro font-mono focus:outline-none cursor-pointer py-1"
                     >
                       <option value="default">Default</option>
                       <option value="name-asc">Name: A to Z</option>
@@ -110,12 +111,13 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                   </div>
 
                   {/* Grid / List Mode Switcher */}
-                  <div className="flex items-center bg-neutral-100 dark:bg-[#0F0F0F] rounded-[8px] p-0.5 border border-neutral-200 dark:border-[#262626] shrink-0 min-h-[38px]">
+                  <div role="group" aria-label="Catalog layout" className="flex items-center bg-neutral-100 dark:bg-[#0F0F0F] rounded-[8px] p-0.5 border border-neutral-200 dark:border-[#262626] shrink-0 min-h-[38px]">
                     <button
                       type="button"
+                      aria-pressed={posViewMode === 'grid'}
                       onClick={() => setPosViewMode('grid')}
                       className={cn(
-                        "px-2.5 py-1 min-h-[32px] rounded-[6px] transition-all cursor-pointer flex items-center gap-1 text-[11px] font-mono font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                        "px-2.5 py-1 min-h-[32px] rounded-[6px] transition-all cursor-pointer flex items-center gap-1 text-micro font-mono font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                         posViewMode === 'grid'
                           ? "bg-white dark:bg-[#222] text-neutral-900 dark:text-white shadow-sm"
                           : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
@@ -127,9 +129,10 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                     </button>
                     <button
                       type="button"
+                      aria-pressed={posViewMode === 'compact'}
                       onClick={() => setPosViewMode('compact')}
                       className={cn(
-                        "px-2.5 py-1 min-h-[32px] rounded-[6px] transition-all cursor-pointer flex items-center gap-1 text-[11px] font-mono font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                        "px-2.5 py-1 min-h-[32px] rounded-[6px] transition-all cursor-pointer flex items-center gap-1 text-micro font-mono font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                         posViewMode === 'compact'
                           ? "bg-white dark:bg-[#222] text-neutral-900 dark:text-white shadow-sm"
                           : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
@@ -157,7 +160,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
               {/* LINE 2: DEDICATED FULL-WIDTH CATEGORY FILTER ROW */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2.5 border-t border-neutral-100 dark:border-[#202020]">
                 {/* Horizontal Scrolling Pill Category Filters */}
-                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 flex-nowrap min-w-0">
+                <div role="group" aria-label="Filter products by category" className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 flex-nowrap min-w-0">
                   {dynamicCategories.map(cat => {
                     const isSelected = selectedCategory === cat;
                     const count = categoryCounts[cat] ?? 0;
@@ -165,9 +168,10 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                       <button
                         key={cat}
                         type="button"
+                        aria-pressed={isSelected}
                         onClick={() => setSelectedCategory(cat)}
                         className={cn(
-                          "px-3 py-1.5 min-h-[34px] text-[11px] font-mono rounded-[8px] border transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 select-none active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                          "px-3 py-1.5 min-h-[34px] text-micro font-mono rounded-[8px] border transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 select-none active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                           isSelected
                             ? "bg-brand text-white font-bold border-brand shadow-sm shadow-red-500/20 ring-1 ring-brand"
                             : "bg-neutral-100/80 text-neutral-700 border-neutral-200/90 hover:bg-neutral-200/70 hover:text-neutral-900 dark:bg-[#1a1a1a] dark:text-neutral-300 dark:border-[#262626] dark:hover:bg-[#222] dark:hover:text-white"
@@ -176,7 +180,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                         <span>{cat}</span>
                         <span
                           className={cn(
-                            "px-1.5 py-0.5 text-[9px] rounded-full font-mono font-bold leading-none tabular-nums",
+                            "px-1.5 py-0.5 text-micro rounded-full font-mono font-bold leading-none tabular-nums",
                             isSelected
                               ? "bg-black/20 text-white"
                               : "bg-neutral-200 dark:bg-[#292929] text-neutral-600 dark:text-neutral-400"
@@ -190,7 +194,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                 </div>
 
                 {/* Filter Status & Reset Action */}
-                <div className="flex items-center gap-2 text-[10px] font-mono text-neutral-500 dark:text-neutral-400 shrink-0 self-end sm:self-center">
+                <div className="flex items-center gap-2 text-micro font-mono text-neutral-500 dark:text-neutral-400 shrink-0 self-end sm:self-center">
                   <span>
                     Showing <span className="font-bold text-neutral-900 dark:text-neutral-100">{filteredProducts.length}</span> of {catalog.length}
                   </span>
@@ -230,7 +234,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
               <div className="py-16 text-center text-xs font-mono text-neutral-500 dark:text-neutral-400 border border-dashed border-neutral-300 dark:border-[#262626] rounded-[8px] bg-neutral-50 dark:bg-[#0F0F0F] space-y-2">
                 <Storefront size={28} className="mx-auto text-neutral-400 dark:text-neutral-500 mb-1" />
                 <p className="font-bold text-neutral-700 dark:text-neutral-300">No products found</p>
-                <p className="text-[11px] text-neutral-500">
+                <p className="text-micro text-neutral-500">
                   {catalog.length === 0
                     ? 'No products available in the database. Use "+ ADD ITEM" to create one.'
                     : 'No items match your active search or category filters.'}
@@ -243,7 +247,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                       setSearchQuery('');
                       setOnlyLowStock(false);
                     }}
-                    className="mt-2 px-3 py-1.5 bg-brand text-white text-[11px] rounded-[6px] font-bold cursor-pointer hover:bg-brand-strong transition-colors"
+                    className="mt-2 px-3 py-1.5 bg-brand text-white text-micro rounded-[6px] font-bold cursor-pointer hover:bg-brand-strong transition-colors"
                   >
                     Clear All Filters
                   </button>
@@ -272,7 +276,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                     >
                       <div>
                         {/* Header: SKU Badge + Stock Badge */}
-                        <div className="flex items-center justify-between text-[10px] font-mono mb-2">
+                        <div className="flex items-center justify-between text-micro font-mono mb-2">
                           <span className="bg-neutral-100 dark:bg-[#0F0F0F] px-2 py-0.5 rounded-[6px] border border-neutral-200 dark:border-[#262626] font-bold text-neutral-700 dark:text-neutral-300">
                             {product.sku}
                           </span>
@@ -310,7 +314,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                         <h3 className="text-xs font-bold text-neutral-900 dark:text-white group-hover:text-brand-ink transition-colors leading-snug">
                           {product.name}
                         </h3>
-                        <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono text-neutral-500 dark:text-neutral-400 flex-wrap">
+                        <div className="flex items-center gap-1.5 mt-1 text-micro font-mono text-neutral-500 dark:text-neutral-400 flex-wrap">
                           <span>{product.category}</span>
                           {product.hasVariants && product.variants && product.variants.length > 0 ? (
                             <>
@@ -319,7 +323,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                 {product.variants.length} Variations
                               </span>
                               {product.sizes && product.sizes.length > 0 && (
-                                <span className="text-[9px] text-neutral-400 truncate max-w-[140px]">
+                                <span className="text-micro text-neutral-400 truncate max-w-[140px]">
                                   ({product.sizes.join(', ')})
                                 </span>
                               )}
@@ -342,7 +346,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                           <span className="text-sm font-black font-mono text-neutral-900 dark:text-white">
                             ${product.price.toFixed(2)}
                           </span>
-                          <span className="text-[9px] font-mono text-neutral-500 dark:text-neutral-400 leading-none">
+                          <span className="text-micro font-mono text-neutral-500 dark:text-neutral-400 leading-none">
                             ≈ {formatKHR(product.price)}
                           </span>
                         </div>
@@ -352,7 +356,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                           {product.hasVariants && product.variants && product.variants.length > 0 ? (
                             <div className="flex items-center gap-1.5">
                               {inCartQty > 0 && (
-                                <span className="text-[10px] font-mono font-bold text-brand-ink bg-red-50 dark:bg-red-950/30 border border-red-500/30 px-1.5 py-0.5 rounded">
+                                <span className="text-micro font-mono font-bold text-brand-ink bg-red-50 dark:bg-red-950/30 border border-red-500/30 px-1.5 py-0.5 rounded">
                                   {inCartQty} in cart
                                 </span>
                               )}
@@ -420,7 +424,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                 {/* Desktop Table View */}
                 <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left text-xs font-mono">
-                    <thead className="bg-neutral-50 dark:bg-[#0F0F0F] text-[10px] text-neutral-600 dark:text-neutral-400 uppercase tracking-wider border-b border-neutral-200 dark:border-[#262626]">
+                    <thead className="bg-neutral-50 dark:bg-[#0F0F0F] text-micro text-neutral-600 dark:text-neutral-400 uppercase tracking-wider border-b border-neutral-200 dark:border-[#262626]">
                       <tr>
                         <th className="py-2.5 px-3">SKU</th>
                         <th className="py-2.5 px-3">Product Name & Sizing</th>
@@ -457,11 +461,11 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                   {product.name}
                                 </span>
                                 {product.hasVariants && product.variants && product.variants.length > 0 ? (
-                                  <span className="text-[9px] bg-red-50 dark:bg-red-950/30 text-brand-ink border border-red-500/20 px-1.5 py-0.2 rounded font-bold whitespace-nowrap">
+                                  <span className="text-micro bg-red-50 dark:bg-red-950/30 text-brand-ink border border-red-500/20 px-1.5 py-0.2 rounded font-bold whitespace-nowrap">
                                     {product.variants.length} Variants
                                   </span>
                                 ) : product.size ? (
-                                  <span className="text-[9px] bg-neutral-100 dark:bg-[#222] px-1.5 py-0.2 rounded border border-neutral-200 dark:border-[#333] text-neutral-600 dark:text-neutral-400 whitespace-nowrap">
+                                  <span className="text-micro bg-neutral-100 dark:bg-[#222] px-1.5 py-0.2 rounded border border-neutral-200 dark:border-[#333] text-neutral-600 dark:text-neutral-400 whitespace-nowrap">
                                     Size {product.size}
                                   </span>
                                 ) : null}
@@ -472,15 +476,15 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                             </td>
                             <td className="py-2.5 px-3 whitespace-nowrap">
                               {isOutOfStock ? (
-                                <span className="text-rose-700 dark:text-rose-400 font-bold text-[10px] flex items-center gap-1">
+                                <span className="text-rose-700 dark:text-rose-400 font-bold text-micro flex items-center gap-1">
                                   <Warning size={10} weight="fill" /> OUT
                                 </span>
                               ) : isLowStock ? (
-                                <span className="text-amber-800 dark:text-amber-300 font-bold text-[10px] flex items-center gap-1">
+                                <span className="text-amber-800 dark:text-amber-300 font-bold text-micro flex items-center gap-1">
                                   <Warning size={10} weight="fill" /> LOW ({product.stock})
                                 </span>
                               ) : (
-                                <span className="text-emerald-700 dark:text-emerald-400 font-bold text-[10px]">
+                                <span className="text-emerald-700 dark:text-emerald-400 font-bold text-micro">
                                   {product.stock} in stock
                                 </span>
                               )}
@@ -489,7 +493,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                               <span className="font-black text-neutral-900 dark:text-white">
                                 ${product.price.toFixed(2)}
                               </span>
-                              <span className="block text-[9px] text-neutral-500 dark:text-neutral-400 leading-none">
+                              <span className="block text-micro text-neutral-500 dark:text-neutral-400 leading-none">
                                 ≈ {formatKHR(product.price)}
                               </span>
                             </td>
@@ -501,7 +505,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                     disabled={!canCreateOrder || (isOutOfStock)}
                                     onClick={() => addToCart(product)}
                                     className={cn(
-                                      "px-2.5 py-1 text-[10px] font-mono font-bold rounded-[6px] flex items-center gap-1 transition active:scale-95 touch-manipulation cursor-pointer",
+                                      "px-2.5 py-1 text-micro font-mono font-bold rounded-[6px] flex items-center gap-1 transition active:scale-95 touch-manipulation cursor-pointer",
                                       isOutOfStock
                                         ? "bg-neutral-100 text-neutral-400 dark:bg-[#1a1a1a] dark:text-[#555] cursor-not-allowed"
                                         : "bg-brand text-white hover:bg-brand-strong"
@@ -511,21 +515,21 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                   </button>
                                 ) : inCartQty > 0 ? (
                                   <div className="flex items-center gap-1 bg-neutral-100 dark:bg-[#0F0F0F] border border-red-500/40 rounded-[6px] p-0.5">
-                                    <button
+                                    <button aria-label={`Decrease quantity of ${product.name}`}
                                       type="button"
                                       onClick={() => updateQuantity(getCartItemKey({ product }), -1)}
-                                      className="p-1 hover:bg-neutral-200 dark:hover:bg-[#222] text-neutral-800 dark:text-white rounded transition cursor-pointer active:scale-90 touch-manipulation"
+                                      className="p-1 hover:bg-neutral-200 dark:hover:bg-[#222] text-neutral-800 dark:text-white rounded transition cursor-pointer active:scale-90 touch-manipulation min-h-6 min-w-6 inline-flex items-center justify-center"
                                     >
                                       <Minus size={10} weight="bold" />
                                     </button>
                                     <span className="text-xs font-bold text-brand-ink px-1.5 min-w-[18px] text-center">
                                       {inCartQty}
                                     </span>
-                                    <button
+                                    <button aria-label={`Increase quantity of ${product.name}`}
                                       type="button"
                                       onClick={() => addToCart(product)}
                                       disabled={!canCreateOrder || (inCartQty >= product.stock)}
-                                      className="p-1 hover:bg-neutral-200 dark:hover:bg-[#222] text-neutral-800 dark:text-white rounded transition cursor-pointer disabled:opacity-30 active:scale-90 touch-manipulation"
+                                      className="p-1 hover:bg-neutral-200 dark:hover:bg-[#222] text-neutral-800 dark:text-white rounded transition cursor-pointer disabled:opacity-30 active:scale-90 touch-manipulation min-h-6 min-w-6 inline-flex items-center justify-center"
                                     >
                                       <Plus size={10} weight="bold" />
                                     </button>
@@ -536,7 +540,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                                     disabled={!canCreateOrder || (isOutOfStock)}
                                     onClick={() => addToCart(product)}
                                     className={cn(
-                                      "px-2.5 py-1 text-[10px] font-mono font-bold rounded-[6px] flex items-center gap-1 transition active:scale-95 touch-manipulation",
+                                      "px-2.5 py-1 text-micro font-mono font-bold rounded-[6px] flex items-center gap-1 transition active:scale-95 touch-manipulation",
                                       isOutOfStock
                                         ? "bg-neutral-100 text-neutral-400 dark:bg-[#1a1a1a] dark:text-[#555] cursor-not-allowed"
                                         : "bg-brand/10 text-brand-ink hover:bg-brand hover:text-white cursor-pointer"
@@ -575,15 +579,15 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                       >
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-[10px] font-bold font-mono px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-[#262626]">
+                            <span className="text-micro font-bold font-mono px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-[#262626]">
                               {product.sku}
                             </span>
                             {product.hasVariants && product.variants && product.variants.length > 0 ? (
-                              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-red-50 dark:bg-red-950/30 text-brand-ink border border-red-500/20 font-bold">
+                              <span className="text-micro font-mono px-1.5 py-0.2 rounded bg-red-50 dark:bg-red-950/30 text-brand-ink border border-red-500/20 font-bold">
                                 {product.variants.length} Variations
                               </span>
                             ) : product.size ? (
-                              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-neutral-100 dark:bg-[#222] text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-[#333]">
+                              <span className="text-micro font-mono px-1.5 py-0.2 rounded bg-neutral-100 dark:bg-[#222] text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-[#333]">
                                 {product.size}
                               </span>
                             ) : null}
@@ -591,7 +595,7 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                           <p className="text-xs font-bold text-neutral-900 dark:text-white truncate mt-1">
                             {product.name}
                           </p>
-                          <div className="flex items-center gap-2 mt-0.5 text-[10px] font-mono">
+                          <div className="flex items-center gap-2 mt-0.5 text-micro font-mono">
                             <span className="font-bold text-brand-ink">${product.price.toFixed(2)}</span>
                             <span>•</span>
                             {isOutOfStock ? (
@@ -622,21 +626,21 @@ export function CounterCatalogPanel({ searchQuery, setSearchQuery, setOnlyLowSto
                             </button>
                           ) : inCartQty > 0 ? (
                             <div className="flex items-center gap-1 bg-neutral-100 dark:bg-[#0F0F0F] border border-red-500/40 rounded-[8px] p-0.5">
-                              <button
+                              <button aria-label={`Decrease quantity of ${product.name}`}
                                 type="button"
                                 onClick={() => updateQuantity(getCartItemKey({ product }), -1)}
-                                className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#222] text-neutral-800 dark:text-white rounded transition cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
+                                className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#222] text-neutral-800 dark:text-white rounded transition cursor-pointer active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11 min-h-6 min-w-6"
                               >
                                 <Minus size={12} weight="bold" />
                               </button>
                               <span className="text-xs font-bold font-mono text-brand-ink px-1.5 min-w-[20px] text-center">
                                 {inCartQty}
                               </span>
-                              <button
+                              <button aria-label={`Increase quantity of ${product.name}`}
                                 type="button"
                                 onClick={() => addToCart(product)}
                                 disabled={!canCreateOrder || (inCartQty >= product.stock)}
-                                className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#222] text-neutral-800 dark:text-white rounded transition cursor-pointer disabled:opacity-30 active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
+                                className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#222] text-neutral-800 dark:text-white rounded transition cursor-pointer disabled:opacity-30 active:scale-90 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11 min-h-6 min-w-6"
                               >
                                 <Plus size={12} weight="bold" />
                               </button>

@@ -41,7 +41,7 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
               <div className="p-4 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between shrink-0">
                 <div>
                   <h3 className="text-xs font-black text-neutral-900 dark:text-white uppercase tracking-widest">{t('dir_history_title')}</h3>
-                  <p className="text-[9px] text-neutral-500 dark:text-[#666] font-mono mt-0.5">
+                  <p className="text-micro text-neutral-500 dark:text-[#666] font-mono mt-0.5">
                     {filteredHistory.length} recorded promotions | Kukkiwon & Academy Log
                   </p>
                 </div>
@@ -54,15 +54,15 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                       placeholder={t('dir_history_search_placeholder')}
                       value={historySearch}
                       onChange={(e) => setHistorySearch(e.target.value)}
-                      className="w-full pl-8 pr-2 h-9 pointer-coarse:h-11 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs focus:outline-none focus:border-brand placeholder:text-neutral-400 dark:placeholder:text-[#666]"
+                      className="w-full pl-8 pr-2 h-9 pointer-coarse:h-11 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[6px] sm:rounded-[8px] text-micro sm:text-xs focus:outline-none focus:border-brand placeholder:text-neutral-400 dark:placeholder:text-[#666]"
                     />
                   </div>
 
                   <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar touch-pan-x -mx-4 px-4 sm:mx-0 sm:px-0">
-                    <select
+                    <select aria-label="Filter by branch"
                       value={filterBranchHistory}
                       onChange={(e) => setFilterBranchHistory(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-9 pointer-coarse:h-11 shrink-0 focus:outline-none font-bold cursor-pointer"
+                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-micro sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-9 pointer-coarse:h-11 shrink-0 focus:outline-none font-bold cursor-pointer"
                     >
                       <option value="all">{t('dir_all_branches')}</option>
                       {state.branches.map(b => (
@@ -70,10 +70,10 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                       ))}
                     </select>
 
-                    <select
+                    <select aria-label="Filter by belt"
                       value={filterBeltHistory}
                       onChange={(e) => setFilterBeltHistory(e.target.value)}
-                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-9 pointer-coarse:h-11 shrink-0 focus:outline-none font-bold cursor-pointer"
+                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-micro sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-9 pointer-coarse:h-11 shrink-0 focus:outline-none font-bold cursor-pointer"
                     >
                       <option value="all">{t('dir_all_ranks')}</option>
                       {BELT_RANK_ORDER.map(b => (
@@ -81,10 +81,10 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                       ))}
                     </select>
 
-                    <select
+                    <select aria-label="Filter by program"
                       value={filterProgramHistory}
                       onChange={(e) => setFilterProgramHistory(e.target.value)}
-                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-9 pointer-coarse:h-11 shrink-0 focus:outline-none font-bold cursor-pointer"
+                      className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] sm:rounded-[8px] text-micro sm:text-xs text-neutral-900 dark:text-white px-2 sm:px-2.5 h-9 pointer-coarse:h-11 shrink-0 focus:outline-none font-bold cursor-pointer"
                     >
                       <option value="all">{t('dir_all_programs')}</option>
                       {Array.from(new Set(state.beltHistories.map(h => h.program || 'Standard Class'))).map(p => (
@@ -95,7 +95,7 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                     <button
                       type="button"
                       onClick={handleExportHistoryCsv}
-                      className="px-2.5 sm:px-3 h-9 pointer-coarse:h-11 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-[#DDD] hover:text-neutral-900 dark:hover:text-white rounded-[6px] sm:rounded-[8px] text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer active:scale-95 touch-manipulation"
+                      className="px-2.5 sm:px-3 h-9 pointer-coarse:h-11 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-[#DDD] hover:text-neutral-900 dark:hover:text-white rounded-[6px] sm:rounded-[8px] text-micro sm:text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer active:scale-95 touch-manipulation"
                       title="Export History to CSV"
                     >
                       <DownloadSimple className="w-3.5 h-3.5" />
@@ -148,22 +148,22 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                                   <div className="font-bold text-xs text-neutral-900 dark:text-white group-hover/st:text-brand-ink transition-colors">
                                     {student ? student.englishName : history.studentId}
                                   </div>
-                                  <div className="text-[10px] text-neutral-500 dark:text-[#666] font-mono">
+                                  <div className="text-micro text-neutral-500 dark:text-[#666] font-mono">
                                     {history.studentId} {student?.homeBranchId && `• ${state.branches.find(b => b.id === student.homeBranchId)?.name}`}
                                   </div>
                                 </div>
                               </button>
                             </td>
                             <td className="px-4 py-2.5">
-                              <span className={cn("px-2 py-0.5 rounded text-[9px] font-bold border tracking-wider uppercase", history.beltLevel.toLowerCase().includes('poom') || history.beltLevel.toLowerCase().includes('dan') || history.beltLevel.toLowerCase() === 'black' ? "bg-neutral-900 text-white border-neutral-700 dark:bg-black dark:text-neutral-100 dark:border-neutral-700" : history.beltLevel === 'Red' ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30" : history.beltLevel === 'Brown' ? "bg-amber-900/10 text-amber-800 dark:text-amber-500 border-amber-800/30" : history.beltLevel === 'Blue' ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30" : history.beltLevel === 'Green' ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : history.beltLevel === 'White' ? "bg-neutral-100 text-neutral-800 dark:bg-white/10 dark:text-neutral-200 border-neutral-300 dark:border-white/20" : "bg-yellow-500/15 text-yellow-800 dark:text-yellow-400 border-yellow-500/40" )}>
+                              <span className={cn("px-2 py-0.5 rounded text-micro font-bold border tracking-wider uppercase", history.beltLevel.toLowerCase().includes('poom') || history.beltLevel.toLowerCase().includes('dan') || history.beltLevel.toLowerCase() === 'black' ? "bg-neutral-900 text-white border-neutral-700 dark:bg-black dark:text-neutral-100 dark:border-neutral-700" : history.beltLevel === 'Red' ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30" : history.beltLevel === 'Brown' ? "bg-amber-900/10 text-amber-800 dark:text-amber-500 border-amber-800/30" : history.beltLevel === 'Blue' ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30" : history.beltLevel === 'Green' ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : history.beltLevel === 'White' ? "bg-neutral-100 text-neutral-800 dark:bg-white/10 dark:text-neutral-200 border-neutral-300 dark:border-white/20" : "bg-yellow-500/15 text-yellow-800 dark:text-yellow-400 border-yellow-500/40" )}>
                                 {history.beltLevel}
                               </span>
                             </td>
-                            <td className="px-4 py-2.5 font-mono text-[10px] text-neutral-600 dark:text-[#999]">{history.promotionDate}</td>
-                            <td className="px-4 py-2.5 font-mono text-[10px] text-neutral-700 dark:text-neutral-200">
+                            <td className="px-4 py-2.5 font-mono text-micro text-neutral-600 dark:text-[#999]">{history.promotionDate}</td>
+                            <td className="px-4 py-2.5 font-mono text-micro text-neutral-700 dark:text-neutral-200">
                               {t('dir_test_score').replace(/\s*\(.*\)/, '')}: <span className="font-bold text-amber-600 dark:text-amber-400">{history.testScore || 80}</span> • {history.program || 'Standard'}
                             </td>
-                            <td className="px-4 py-2.5 font-mono text-[10px] text-neutral-500 dark:text-[#888] tracking-wider">
+                            <td className="px-4 py-2.5 font-mono text-micro text-neutral-500 dark:text-[#888] tracking-wider">
                               {history.certificateRef || 'N/A'}
                             </td>
                             <td className="px-4 py-2.5 text-center">
@@ -174,7 +174,7 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                                       href={history.kukkiwonDanCardId}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="px-2.5 py-1 bg-emerald-500/15 hover:bg-emerald-600 border border-emerald-500/25 hover:border-transparent text-emerald-700 dark:text-emerald-400 hover:text-white rounded text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1 active:scale-95 touch-manipulation cursor-pointer"
+                                      className="px-2.5 py-1 bg-emerald-500/15 hover:bg-emerald-600 border border-emerald-500/25 hover:border-transparent text-emerald-700 dark:text-emerald-400 hover:text-white rounded text-micro font-black uppercase tracking-widest transition-all flex items-center gap-1 active:scale-95 touch-manipulation cursor-pointer"
                                       title="Open Uploaded Infinity TKD Certificate"
                                     >
                                       <Globe className="w-3 h-3 text-emerald-600 dark:text-emerald-400 animate-pulse" />
@@ -198,14 +198,14 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                                     </button>
                                   </>
                                 ) : history.kukkiwonDanCardId ? (
-                                  <span className="font-mono text-[9px] text-neutral-700 dark:text-[#999] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] px-1.5 py-0.5 rounded" title="Kukkiwon ID / Custom Card ID">
+                                  <span className="font-mono text-micro text-neutral-700 dark:text-[#999] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] px-1.5 py-0.5 rounded" title="Kukkiwon ID / Custom Card ID">
                                     ID: {history.kukkiwonDanCardId}
                                   </span>
                                 ) : (
                                   <button
                                     type="button"
                                     onClick={() => handleOpenEditHistory(history)}
-                                    className="text-[9px] font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                                    className="text-micro font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
                                   >
                                     + Add Link
                                   </button>
@@ -257,14 +257,14 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                             className="font-bold text-xs text-neutral-900 dark:text-white hover:text-brand-ink text-left transition-colors cursor-pointer"
                           >
                             {student ? student.englishName : history.studentId}
-                            <span className="text-[10px] text-neutral-500 font-mono font-normal ml-1">({history.studentId})</span>
+                            <span className="text-micro text-neutral-500 font-mono font-normal ml-1">({history.studentId})</span>
                           </button>
-                          <span className="px-2 py-0.5 rounded text-[9px] font-bold border uppercase tracking-wider bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white">
+                          <span className="px-2 py-0.5 rounded text-micro font-bold border uppercase tracking-wider bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white">
                             {history.beltLevel}
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-neutral-600 dark:text-[#999] bg-neutral-50 dark:bg-[#0D0D0D] p-2 rounded border border-neutral-200/60 dark:border-[#202020]">
+                        <div className="grid grid-cols-2 gap-2 text-micro font-mono text-neutral-600 dark:text-[#999] bg-neutral-50 dark:bg-[#0D0D0D] p-2 rounded border border-neutral-200/60 dark:border-[#202020]">
                           <div>Date: <span className="font-bold text-neutral-900 dark:text-white">{history.promotionDate}</span></div>
                           <div>Score: <span className="font-bold text-amber-600 dark:text-amber-400">{history.testScore || 80}</span></div>
                           <div className="truncate">Prog: {history.program || 'Standard'}</div>
@@ -279,7 +279,7 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                                   href={history.kukkiwonDanCardId}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="px-2.5 py-1 bg-emerald-500/15 hover:bg-emerald-600 border border-emerald-500/25 hover:border-transparent text-emerald-700 dark:text-emerald-400 hover:text-white rounded text-[9px] font-bold uppercase tracking-wider transition-all inline-flex items-center gap-1"
+                                  className="px-2.5 py-1 bg-emerald-500/15 hover:bg-emerald-600 border border-emerald-500/25 hover:border-transparent text-emerald-700 dark:text-emerald-400 hover:text-white rounded text-micro font-bold uppercase tracking-wider transition-all inline-flex items-center gap-1"
                                 >
                                   <Globe className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                                   <span>View Cert</span>
@@ -292,12 +292,12 @@ export function PromotionHistoryPanel({ t, filteredHistory, historySearch, setHi
                                 </button>
                               </div>
                             ) : history.kukkiwonDanCardId ? (
-                              <span className="text-[9px] font-mono text-neutral-600 dark:text-neutral-400">ID: {history.kukkiwonDanCardId}</span>
+                              <span className="text-micro font-mono text-neutral-600 dark:text-neutral-400">ID: {history.kukkiwonDanCardId}</span>
                             ) : (
                               <button
                                 type="button"
                                 onClick={() => handleOpenEditHistory(history)}
-                                className="text-[9px] font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                                className="text-micro font-bold text-blue-600 dark:text-blue-400 hover:underline"
                               >
                                 + Add Cert Link
                               </button>

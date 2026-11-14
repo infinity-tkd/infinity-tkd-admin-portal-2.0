@@ -45,7 +45,7 @@ const Anatomical3DModel = dynamic(
     loading: () => (
       <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-900/60 rounded-[8px] p-6 border border-neutral-800 animate-pulse">
         <span className="w-6 h-6 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin mb-2" />
-        <span className="text-[10px] text-neutral-400 font-mono uppercase tracking-widest">Loading 3D Anatomy...</span>
+        <span className="text-micro text-neutral-400 font-mono uppercase tracking-widest">Loading 3D Anatomy...</span>
       </div>
     )
   }
@@ -201,10 +201,10 @@ export function LmsView() {
           {/* Belt Track Selector Strip */}
           <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 shadow-sm">
             <div className="flex items-center justify-between mb-2.5 px-1">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-mono">
+              <span className="text-micro sm:text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-mono">
                 Curriculum Belt Progression Track
               </span>
-              <span className="text-[10px] sm:text-xs text-neutral-400 font-mono font-bold">
+              <span className="text-micro sm:text-xs text-neutral-400 font-mono font-bold">
                 {displayedVideos.length} Lessons Available
               </span>
             </div>
@@ -245,7 +245,7 @@ export function LmsView() {
             <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 bg-brand/10 text-brand-ink border border-brand/20 rounded-[6px] text-[10px] font-bold uppercase tracking-wider font-mono">
+                  <span className="px-2.5 py-0.5 bg-brand/10 text-brand-ink border border-brand/20 rounded-[6px] text-micro font-bold uppercase tracking-wider font-mono">
                     {selectedTrackBelt === 'All' ? 'Complete Syllabus' : `${selectedTrackBelt} Belt Track`}
                   </span>
                   <span className="text-xs text-neutral-500 dark:text-neutral-400 font-mono">
@@ -260,7 +260,7 @@ export function LmsView() {
               {/* Student Progress Badge or Selector */}
               {isElevated ? (
                 <div className="flex min-w-0 max-w-full items-center gap-2.5 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3.5 min-h-[42px] shadow-sm">
-                  <span className="text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 shrink-0 font-mono">
+                  <span className="text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 shrink-0 font-mono">
                     Track Student:
                   </span>
                   <select
@@ -281,7 +281,7 @@ export function LmsView() {
                 <div className="flex items-center gap-3 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-4 min-h-[42px] shadow-sm">
                   <UserCircle className="w-5 h-5 text-brand-ink" weight="fill"/>
                   <div>
-                    <span className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono">My Student Progress</span>
+                    <span className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono">My Student Progress</span>
                     <span className="text-xs font-bold text-neutral-900 dark:text-white">
                       {effectiveStudent.englishName || effectiveStudent.khmerName} ({effectiveStudent.currentBelt})
                     </span>
@@ -379,23 +379,23 @@ export function LmsView() {
                     <PlayCircle className="w-12 h-12 text-white/90 z-20 group-hover:scale-110 group-hover:text-brand-ink transition-all duration-300 shadow-lg"/>
 
                     <div className="absolute top-3 left-3 z-20 flex gap-1.5">
-                       <span className="px-2.5 py-1 bg-black/80 backdrop-blur-md rounded-[6px] text-[10px] font-bold uppercase tracking-wider text-white border border-white/10 shadow-sm">
+                       <span className="px-2.5 py-1 bg-black/80 backdrop-blur-md rounded-[6px] text-micro font-bold uppercase tracking-wider text-white border border-white/10 shadow-sm">
                          {isAllBeltsLesson(video.minBeltLevel) ? t('lib_all_belts') : `${video.minBeltLevel} Belt`}
                        </span>
                     </div>
                     {isDraft && (
-                      <span className="absolute bottom-3 left-3 z-20 px-2 py-0.5 rounded-[6px] border border-amber-400/40 bg-amber-950/80 text-[9px] font-bold uppercase tracking-wider text-amber-200">
+                      <span className="absolute bottom-3 left-3 z-20 px-2 py-0.5 rounded-[6px] border border-amber-400/40 bg-amber-950/80 text-micro font-bold uppercase tracking-wider text-amber-200">
                         Private draft · not counted
                       </span>
                     )}
                     {nextTestLessons.has(video.id) && (
-                      <span className="absolute bottom-3 right-3 z-20 px-2 py-0.5 rounded-[6px] border border-emerald-400/40 bg-emerald-950/80 text-[9px] font-bold uppercase tracking-wider text-emerald-200">
+                      <span className="absolute bottom-3 right-3 z-20 px-2 py-0.5 rounded-[6px] border border-emerald-400/40 bg-emerald-950/80 text-micro font-bold uppercase tracking-wider text-emerald-200">
                         On the {nextTest.next?.belt_name} test
                       </span>
                     )}
 
                     <div className="absolute top-3 right-3 z-20 flex gap-1.5">
-                       <span className="px-2.5 py-1 bg-black/80 backdrop-blur-md rounded-[6px] text-[10px] font-bold uppercase tracking-wider text-red-300 border border-white/10 shadow-sm">
+                       <span className="px-2.5 py-1 bg-black/80 backdrop-blur-md rounded-[6px] text-micro font-bold uppercase tracking-wider text-red-300 border border-white/10 shadow-sm">
                          {t(getCategoryTranslationKey(video.category)) || video.category}
                        </span>
                     </div>
@@ -424,7 +424,7 @@ export function LmsView() {
                                void toggleVideoProgress(effectiveStudent.id, video.id, !isWatched).catch(() => {});
                              }}
                              className={cn(
-                               "flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all border cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                               "flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-[6px] text-micro font-bold uppercase tracking-wider transition-all border cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                                isWatched
                                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
                                  : "bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-300 dark:border-[#333] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:border-neutral-400"
@@ -435,7 +435,7 @@ export function LmsView() {
                              <span>{isWatched ? t('lms_completed') : t('lms_pending')}</span>
                            </button>
                          ) : (
-                           <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono">
+                           <span className="flex items-center gap-1 text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono">
                              {effectiveStudent ? (isWatched ? t('lms_completed') : t('lms_pending')) : <><Lock className="w-3.5 h-3.5"/>{video.minBeltLevel}+ {t('lms_belt_req_suffix')}</>}
                            </span>
                          )}
@@ -444,7 +444,7 @@ export function LmsView() {
                            type="button"
                            aria-label={`${t('lms_watch')}: ${video.title}`}
                            onClick={() => handlePlayVideo(video)}
-                           className="px-3.5 py-1.5 min-h-[36px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] text-neutral-900 dark:text-white text-[10px] font-bold uppercase tracking-wider rounded-[6px] border border-neutral-300 dark:border-[#262626] transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center gap-1 pointer-coarse:min-h-11"
+                           className="px-3.5 py-1.5 min-h-[36px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#252525] text-neutral-900 dark:text-white text-micro font-bold uppercase tracking-wider rounded-[6px] border border-neutral-300 dark:border-[#262626] transition-all cursor-pointer active:scale-95 touch-manipulation flex items-center gap-1 pointer-coarse:min-h-11"
                          >
                            <PlayCircle size={14} className="text-brand-ink" weight="fill" />
                            <span>{t('lms_watch')}</span>
@@ -498,8 +498,8 @@ export function LmsView() {
           const isTkd = activePlayVideo.category && !activePlayVideo.category.startsWith('Fitness:') && activePlayVideo.minBeltLevel !== 'Fitness';
           const isWatched = effectiveStudent ? studentWatchedIds.has(activePlayVideo.id) : false;
           const hasStudyContent = !!(parsed.terminology?.length || parsed.studyGuide?.length || parsed.performance?.length);
-          const tabClass = (tab: typeof playerTab) => cn("px-3 py-1.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer min-h-[32px] pointer-coarse:min-h-11", playerTab === tab ? "bg-[#222] text-white border border-white/10" : "text-[#777] hover:text-white");
-          const emptyTab = (message: string) => <p className="text-[10px] text-[#555] italic text-center py-6">{message}</p>;
+          const tabClass = (tab: typeof playerTab) => cn("px-3 py-1.5 rounded-[6px] text-micro font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer min-h-[32px] pointer-coarse:min-h-11", playerTab === tab ? "bg-[#222] text-white border border-white/10" : "text-[#777] hover:text-white");
+          const emptyTab = (message: string) => <p className="text-micro text-[#555] italic text-center py-6">{message}</p>;
 
           return (
             <Portal>
@@ -530,19 +530,19 @@ export function LmsView() {
                     <div className="p-5 md:flex-1 md:overflow-y-auto md:p-6 bg-[#141414] border-t border-[#262626] space-y-4">
                       <div className="flex justify-between items-start gap-4">
                         <div>
-                          <span className="px-2.5 py-1 bg-red-500/10 text-brand-ink border border-red-500/20 rounded-[6px] text-[9px] font-bold uppercase tracking-wider inline-block">
+                          <span className="px-2.5 py-1 bg-red-500/10 text-brand-ink border border-red-500/20 rounded-[6px] text-micro font-bold uppercase tracking-wider inline-block">
                             {t(getCategoryTranslationKey(activePlayVideo.category)) || activePlayVideo.category}
                           </span>
                           <h2 id="lesson-viewer-title" className="text-base md:text-lg font-bold text-white mt-2 tracking-tight">{t.translateText(activePlayVideo.title)}</h2>
                         </div>
                         <div className="text-right shrink-0">
-                          <span className="text-[9px] uppercase font-bold text-[#777] block tracking-wider">{t('lms_belt_req')}</span>
+                          <span className="text-micro uppercase font-bold text-[#777] block tracking-wider">{t('lms_belt_req')}</span>
                           <span className="text-xs font-mono font-bold text-white mt-0.5 inline-block bg-[#1A1A1A] border border-[#262626] px-2 py-0.5 rounded-[6px]">{activePlayVideo.minBeltLevel} Belt</span>
                         </div>
                       </div>
 
                       <div className="space-y-1">
-                        <span className="block text-[9px] uppercase font-bold text-[#666] tracking-wider">Mechanics & Guidelines</span>
+                        <span className="block text-micro uppercase font-bold text-[#666] tracking-wider">Mechanics & Guidelines</span>
                         <p className="text-xs text-[#AAA] leading-relaxed font-sans whitespace-pre-line">{parsed.text ? t.translateText(parsed.text) : 'No description provided.'}</p>
                       </div>
                     </div>
@@ -630,7 +630,7 @@ export function LmsView() {
                         type="button"
                         aria-pressed={playerTab === 'biomechanics'}
                         onClick={() => setPlayerTab('biomechanics')}
-                        className={cn("px-3 py-1.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer flex items-center gap-1.5 min-h-[32px] pointer-coarse:min-h-11", playerTab === 'biomechanics' ? "bg-[#222] text-brand-ink border border-brand/30" : "text-[#777] hover:text-white")}
+                        className={cn("px-3 py-1.5 rounded-[6px] text-micro font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer flex items-center gap-1.5 min-h-[32px] pointer-coarse:min-h-11", playerTab === 'biomechanics' ? "bg-[#222] text-brand-ink border border-brand/30" : "text-[#777] hover:text-white")}
                       >
                         <Stack className="w-3.5 h-3.5 text-brand-ink" weight="bold"/>
                         <span>3D Studio</span>
@@ -643,17 +643,17 @@ export function LmsView() {
                         <div className="space-y-4">
                           {/* Sets & Reps */}
                           <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px]">
-                            <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider mb-1">Target Reps & Sets</span>
+                            <span className="block text-micro uppercase font-black text-[#555] tracking-wider mb-1">Target Reps & Sets</span>
                             <span className="text-xs font-bold text-neutral-300 font-mono">{parsed.repsSets || t('lib_self_paced')}</span>
                           </div>
 
                           {/* Focus Zones */}
                           {parsed.focusZones && parsed.focusZones.length > 0 && (
                             <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px]">
-                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider mb-2">Target Focus Areas</span>
+                              <span className="block text-micro uppercase font-black text-[#555] tracking-wider mb-2">Target Focus Areas</span>
                               <div className="flex flex-wrap gap-1">
                                 {parsed.focusZones.map((zone, idx) => (
-                                  <span key={idx} className="px-1.5 py-0.5 bg-[#262626] text-[#999] border border-white/5 text-[9px] font-black uppercase tracking-wider rounded">{zone}</span>
+                                  <span key={idx} className="px-1.5 py-0.5 bg-[#262626] text-[#999] border border-white/5 text-micro font-black uppercase tracking-wider rounded">{zone}</span>
                                 ))}
                               </div>
                             </div>
@@ -662,13 +662,13 @@ export function LmsView() {
                           {/* Instructions */}
                           {parsed.instructions && parsed.instructions.length > 0 && (
                             <div className="space-y-2">
-                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider">Execution Steps</span>
+                              <span className="block text-micro uppercase font-black text-[#555] tracking-wider">Execution Steps</span>
                               <ol className="space-y-2">
                                 {parsed.instructions.map((step, idx) => {
                                   const cleanStep = step.replace(/^Step\s+\d+:\s*/i, '');
                                   return (
                                     <li key={idx} className="flex items-start gap-2 text-xs text-[#999] leading-relaxed">
-                                      <span className="w-4 h-4 rounded-full bg-brand/10 border border-brand/20 text-brand-ink text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                      <span className="w-4 h-4 rounded-full bg-brand/10 border border-brand/20 text-brand-ink text-micro font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                                       <span>{cleanStep}</span>
                                     </li>
                                   );
@@ -683,7 +683,7 @@ export function LmsView() {
                         <div className="space-y-3">
                           {parsed.principles && parsed.principles.length > 0 && (
                             <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px] space-y-1.5">
-                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider">Core Principles</span>
+                              <span className="block text-micro uppercase font-black text-[#555] tracking-wider">Core Principles</span>
                               <ul className="space-y-1 text-xs text-[#999]">
                                 {parsed.principles.map((item, idx) => (
                                   <li key={idx} className="flex items-start gap-1.5">• {item}</li>
@@ -693,7 +693,7 @@ export function LmsView() {
                           )}
                           {parsed.prerequisites && parsed.prerequisites.length > 0 && (
                             <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px] space-y-1.5">
-                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider">Prerequisites</span>
+                              <span className="block text-micro uppercase font-black text-[#555] tracking-wider">Prerequisites</span>
                               <ul className="space-y-1 text-xs text-[#999]">
                                 {parsed.prerequisites.map((item, idx) => (
                                   <li key={idx} className="flex items-start gap-1.5">• {item}</li>
@@ -709,11 +709,11 @@ export function LmsView() {
                         <div className="space-y-3">
                           {parsed.drillingMethods && parsed.drillingMethods.length > 0 && (
                             <div className="p-3.5 bg-[#141414] border border-[#262626] rounded-[8px] space-y-2">
-                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider">Drilling Methods</span>
+                              <span className="block text-micro uppercase font-black text-[#555] tracking-wider">Drilling Methods</span>
                               <ul className="space-y-1.5">
                                 {parsed.drillingMethods.map((item, idx) => (
                                   <li key={idx} className="flex items-start gap-2 text-xs text-[#999]">
-                                    <span className="w-4 h-4 rounded-full bg-brand/10 border border-brand/20 text-brand-ink text-[9px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                    <span className="w-4 h-4 rounded-full bg-brand/10 border border-brand/20 text-brand-ink text-micro font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                                     <span>{item}</span>
                                   </li>
                                 ))}
@@ -728,7 +728,7 @@ export function LmsView() {
                         <div className="space-y-3">
                           {!!parsed.performance?.length && (
                             <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px] space-y-1.5">
-                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider">Performance criteria</span>
+                              <span className="block text-micro uppercase font-black text-[#555] tracking-wider">Performance criteria</span>
                               <ul className="space-y-1 text-xs text-[#999]">
                                 {parsed.performance.map((item, idx) => <li key={idx} className="flex items-start gap-1.5">• {item}</li>)}
                               </ul>
@@ -736,7 +736,7 @@ export function LmsView() {
                           )}
                           {!!parsed.terminology?.length && (
                             <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px] space-y-2">
-                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider">Terminology</span>
+                              <span className="block text-micro uppercase font-black text-[#555] tracking-wider">Terminology</span>
                               <dl className="space-y-2 text-xs">
                                 {parsed.terminology.map((term, idx) => (
                                   <div key={idx} className="border-b border-[#262626] pb-2 last:border-0 last:pb-0">
@@ -749,7 +749,7 @@ export function LmsView() {
                           )}
                           {!!parsed.studyGuide?.length && (
                             <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px] space-y-2">
-                              <span className="block text-[9px] uppercase font-black text-[#555] tracking-wider">Study guide</span>
+                              <span className="block text-micro uppercase font-black text-[#555] tracking-wider">Study guide</span>
                               {parsed.studyGuide.map((item, idx) => (
                                 <details key={idx} className="rounded-[6px] border border-[#262626] bg-[#0F0F0F] p-2.5 text-xs">
                                   <summary className="cursor-pointer font-semibold text-neutral-200">{item.question || 'Question'}</summary>
@@ -767,17 +767,17 @@ export function LmsView() {
                             parsed.mistakes.map((item, idx) => (
                               <div key={idx} className="border border-[#262626] rounded-[8px] overflow-hidden bg-[#111]/30 text-xs">
                                 <div className="p-3 bg-red-500/[0.02] border-b border-[#262626] flex flex-col">
-                                  <span className="px-1.5 py-0.5 rounded bg-red-500/15 text-red-500 text-[9px] font-black uppercase tracking-wider mb-1.5 w-max">Mistake</span>
+                                  <span className="px-1.5 py-0.5 rounded bg-red-500/15 text-red-500 text-micro font-black uppercase tracking-wider mb-1.5 w-max">Mistake</span>
                                   <span className="text-[#E4E4E4] font-medium leading-relaxed font-sans">{item.mistake || "—"}</span>
                                 </div>
                                 <div className="p-3 bg-emerald-500/[0.02] flex flex-col">
-                                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[9px] font-black uppercase tracking-wider mb-1.5 w-max">Correction</span>
+                                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-micro font-black uppercase tracking-wider mb-1.5 w-max">Correction</span>
                                   <span className="text-[#E4E4E4] font-medium leading-relaxed font-sans">{item.correction || "—"}</span>
                                 </div>
                               </div>
                             ))
                           ) : (
-                            <p className="text-[10px] text-[#555] italic text-center py-6">No common mistakes logged for this skill.</p>
+                            <p className="text-micro text-[#555] italic text-center py-6">No common mistakes logged for this skill.</p>
                           )}
                         </div>
                       )}
@@ -785,14 +785,14 @@ export function LmsView() {
                       {playerTab === 'biomechanics' && (
                         <div className="space-y-4">
                           <div className="p-3 bg-[#141414] border border-[#262626] rounded-[8px] flex items-center justify-between">
-                            <span className="text-[9px] font-black uppercase text-neutral-400 tracking-wider">3D Biomechanics View</span>
+                            <span className="text-micro font-black uppercase text-neutral-400 tracking-wider">3D Biomechanics View</span>
                             <button
                               type="button"
                               onClick={() => {
                                 setSelected3DAsset(activePlayVideo);
                                 setShow3DStudio(true);
                               }}
-                              className="px-2 py-1 bg-red-500/10 hover:bg-red-500/20 text-brand-ink border border-red-500/30 rounded-[6px] text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors cursor-pointer"
+                              className="px-2 py-1 bg-red-500/10 hover:bg-red-500/20 text-brand-ink border border-red-500/30 rounded-[6px] text-micro font-bold uppercase tracking-wider flex items-center gap-1 transition-colors cursor-pointer"
                             >
                               <ArrowsOut className="w-3 h-3" />
                               <span>{t('lib_3d_fullscreen')}</span>
@@ -805,13 +805,13 @@ export function LmsView() {
                               <div className="space-y-3">
                                 {primaryMuscles.length > 0 && (
                                   <div className="p-3 bg-[#141414] border border-red-500/20 rounded-[8px] space-y-1.5">
-                                    <span className="text-[9px] uppercase font-black text-red-400 tracking-wider flex items-center gap-1">
+                                    <span className="text-micro uppercase font-black text-red-400 tracking-wider flex items-center gap-1">
                                       <Flame className="w-3 h-3 text-brand-ink" weight="fill" />
                                       {t('lib_primary_muscles')}
                                     </span>
                                     <div className="flex flex-wrap gap-1">
                                       {primaryMuscles.map(m => (
-                                        <span key={m} className="px-2 py-0.5 rounded-[4px] text-[10px] font-mono font-bold bg-red-500/10 border border-red-500/30 text-red-300">
+                                        <span key={m} className="px-2 py-0.5 rounded-[4px] text-micro font-mono font-bold bg-red-500/10 border border-red-500/30 text-red-300">
                                           {m}
                                         </span>
                                       ))}
@@ -821,13 +821,13 @@ export function LmsView() {
 
                                 {secondaryMuscles.length > 0 && (
                                   <div className="p-3 bg-[#141414] border border-amber-500/20 rounded-[8px] space-y-1.5">
-                                    <span className="text-[9px] uppercase font-black text-amber-400 tracking-wider flex items-center gap-1">
+                                    <span className="text-micro uppercase font-black text-amber-400 tracking-wider flex items-center gap-1">
                                       <Sparkle className="w-3 h-3 text-amber-500" weight="fill" />
                                       {t('lib_secondary_muscles')}
                                     </span>
                                     <div className="flex flex-wrap gap-1">
                                       {secondaryMuscles.map(m => (
-                                        <span key={m} className="px-2 py-0.5 rounded-[4px] text-[10px] font-mono font-bold bg-amber-500/10 border border-amber-500/30 text-amber-300">
+                                        <span key={m} className="px-2 py-0.5 rounded-[4px] text-micro font-mono font-bold bg-amber-500/10 border border-amber-500/30 text-amber-300">
                                           {m}
                                         </span>
                                       ))}
@@ -1139,7 +1139,7 @@ function LmsAnalyticsTab() {
             </div>
             <button
               onClick={() => setShowManager(!showManager)}
-              className="px-4 py-2 bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-[#E4E4E4] hover:text-brand-ink hover:border-brand/40 font-bold uppercase tracking-wider text-[10px] rounded-[8px] transition-colors min-h-[38px] cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11"
+              className="px-4 py-2 bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] text-neutral-700 dark:text-[#E4E4E4] hover:text-brand-ink hover:border-brand/40 font-bold uppercase tracking-wider text-micro rounded-[8px] transition-colors min-h-[38px] cursor-pointer touch-manipulation active:scale-95 pointer-coarse:min-h-11"
             >
               {showManager ? t('lms_close_editor') : t('lms_edit_belt_skills')}
             </button>
@@ -1150,8 +1150,8 @@ function LmsAnalyticsTab() {
               {/* Form Column */}
               <form onSubmit={handleAddTechnique} className="space-y-4">
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider mb-1.5">{t('lms_choose_belt')}</label>
-                  <select
+                  <label htmlFor="lms-view-lms_choose_belt" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider mb-1.5">{t('lms_choose_belt')}</label>
+                  <select id="lms-view-lms_choose_belt"
                     value={manageBelt}
                     onChange={e => setManageBelt(e.target.value)}
                     className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-brand min-h-[42px]"
@@ -1161,8 +1161,8 @@ function LmsAnalyticsTab() {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider mb-1.5">{t('lms_category')}</label>
-                  <select
+                  <label htmlFor="lms-view-lms_category" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider mb-1.5">{t('lms_category')}</label>
+                  <select id="lms-view-lms_category"
                     value={newCategory}
                     onChange={e => {
                       setNewCategory(e.target.value);
@@ -1177,8 +1177,8 @@ function LmsAnalyticsTab() {
                 </div>
 
                 <div className="relative" ref={techDropdownRef}>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider mb-1.5">{t('lms_new_skill_name')}</label>
-                  <input
+                  <label htmlFor="lms-view-lms_new_skill_name" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider mb-1.5">{t('lms_new_skill_name')}</label>
+                  <input id="lms-view-lms_new_skill_name"
                     type="text"
                     value={newTechnique}
                     onChange={e => {
@@ -1219,7 +1219,7 @@ function LmsAnalyticsTab() {
                             )}
                           >
                             <span className="truncate pr-2">{asset.title}</span>
-                            <span className="text-[9px] text-neutral-500 dark:text-[#666] shrink-0 font-mono bg-neutral-100 dark:bg-[#1A1A1A] px-1.5 py-0.5 rounded border border-neutral-200 dark:border-[#262626] uppercase">
+                            <span className="text-micro text-neutral-500 dark:text-[#666] shrink-0 font-mono bg-neutral-100 dark:bg-[#1A1A1A] px-1.5 py-0.5 rounded border border-neutral-200 dark:border-[#262626] uppercase">
                               {t(getCategoryTranslationKey(asset.category)) || asset.category}
                             </span>
                           </div>
@@ -1237,7 +1237,7 @@ function LmsAnalyticsTab() {
                 <button
                   type="submit"
                   disabled={isSubmittingTech}
-                  className="w-full py-2.5 min-h-[42px] bg-brand text-white font-bold uppercase tracking-wider text-[11px] rounded-[8px] hover:bg-[#d6262f] transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                  className="w-full py-2.5 min-h-[42px] bg-brand text-white font-bold uppercase tracking-wider text-micro rounded-[8px] hover:bg-[#d6262f] transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                 >
                   {isSubmittingTech ? t('act_saving') : t('lms_add_skill_to_belt')}
                 </button>
@@ -1246,8 +1246,8 @@ function LmsAnalyticsTab() {
               {/* Active Requirements List Column */}
               <div className="space-y-3 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-4 rounded-[10px] max-h-[340px] overflow-y-auto">
                 <div className="flex justify-between items-center border-b border-neutral-200 dark:border-[#262626] pb-2 mb-2">
-                  <span className="text-[10px] uppercase font-bold text-neutral-800 dark:text-[#E4E4E4] tracking-wider">{manageBelt} Requirements</span>
-                  <span className="px-2 py-0.5 bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-[9px] text-neutral-500 dark:text-[#666] font-mono rounded-[6px]">
+                  <span className="text-micro uppercase font-bold text-neutral-800 dark:text-[#E4E4E4] tracking-wider">{manageBelt} Requirements</span>
+                  <span className="px-2 py-0.5 bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-micro text-neutral-500 dark:text-[#666] font-mono rounded-[6px]">
                     {state.beltTechniques.filter(x => getBeltKeyLocal(x.beltLevel) === getBeltKeyLocal(manageBelt)).length} items
                   </span>
                 </div>
@@ -1267,7 +1267,7 @@ function LmsAnalyticsTab() {
 
                     return categories.map(cat => (
                       <div key={cat} className="space-y-1.5">
-                        <div className="text-[9px] font-bold uppercase tracking-wider text-brand-ink mb-1">{cat}</div>
+                        <div className="text-micro font-bold uppercase tracking-wider text-brand-ink mb-1">{cat}</div>
                         <div className="space-y-1.5">
                           {beltTechs
                             .filter(t => (t.category || 'Kicks (Chagi)') === cat)
@@ -1312,7 +1312,7 @@ function LmsAnalyticsTab() {
           </div>
 
           <div className="md:col-span-3">
-             <select
+             <select aria-label="Filter by status"
                value={statusFilter}
                onChange={e => setStatusFilter(e.target.value)}
                className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-brand"
@@ -1326,7 +1326,7 @@ function LmsAnalyticsTab() {
           </div>
 
           <div className="md:col-span-3">
-             <select
+             <select aria-label="Filter by gender"
                value={genderFilter}
                onChange={e => setGenderFilter(e.target.value)}
                className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-brand"
@@ -1341,8 +1341,8 @@ function LmsAnalyticsTab() {
         {/* Row 2: Branch, Schedule, and Belt filters */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-             <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider mb-1.5">Branch</label>
-             <select
+             <label htmlFor="lms-view-branch" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider mb-1.5">Branch</label>
+             <select id="lms-view-branch"
                value={branchFilter}
                onChange={e => {
                  setBranchFilter(e.target.value);
@@ -1356,8 +1356,8 @@ function LmsAnalyticsTab() {
           </div>
 
           <div>
-             <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider mb-1.5">{t('sch_title')}</label>
-             <select
+             <label htmlFor="lms-view-sch_title" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider mb-1.5">{t('sch_title')}</label>
+             <select id="lms-view-sch_title"
                value={scheduleFilter}
                onChange={e => setScheduleFilter(e.target.value)}
                className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-brand"
@@ -1378,8 +1378,8 @@ function LmsAnalyticsTab() {
           </div>
 
           <div>
-             <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider mb-1.5">{t('stu_belt')}</label>
-             <select
+             <label htmlFor="lms-view-stu_belt" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider mb-1.5">{t('stu_belt')}</label>
+             <select id="lms-view-stu_belt"
                value={beltFilter}
                onChange={e => setBeltFilter(e.target.value)}
                className="w-full min-h-[42px] bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[8px] px-3 py-2 text-sm focus:outline-none focus:border-brand"
@@ -1397,10 +1397,10 @@ function LmsAnalyticsTab() {
           <table className="w-full text-left border-collapse min-w-[700px]">
              <thead>
                 <tr className="bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626]">
-                   <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest">{t('fin_student')}</th>
-                   <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest text-center">{t.translateText("Modules Completed")}</th>
-                   <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest text-center">{t('stu_belt')}</th>
-                   <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest text-right">{t('lms_belt_eligibility')}</th>
+                   <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest">{t('fin_student')}</th>
+                   <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest text-center">{t.translateText("Modules Completed")}</th>
+                   <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest text-center">{t('stu_belt')}</th>
+                   <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest text-right">{t('lms_belt_eligibility')}</th>
                 </tr>
              </thead>
              <tbody className="divide-y divide-neutral-100 dark:divide-[#262626]">
@@ -1433,7 +1433,7 @@ function LmsAnalyticsTab() {
                                         <span className="text-xs text-neutral-500 dark:text-[#999] font-khmer">{student.khmerName}</span>
                                      )}
                                   </div>
-                                  <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-neutral-500 dark:text-[#666] font-mono">
+                                  <div className="flex items-center gap-1.5 mt-0.5 text-micro text-neutral-500 dark:text-[#666] font-mono">
                                      <span>{student.id}</span>
                                      <span>•</span>
                                      <span className="capitalize">{student.gender?.toLowerCase() || 'N/A'}</span>
@@ -1451,16 +1451,16 @@ function LmsAnalyticsTab() {
                             <span className="text-xs font-mono font-bold text-neutral-800 dark:text-[#E4E4E4]">{completedCount} <span className="text-neutral-400 dark:text-[#666] font-normal">/ {totalAvailable}</span></span>
                          </td>
                          <td className="px-4 py-3 text-center">
-                            <span className="inline-flex items-center justify-center px-2.5 py-1 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-[10px] font-bold uppercase tracking-wider text-neutral-700 dark:text-[#999]">
+                            <span className="inline-flex items-center justify-center px-2.5 py-1 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-micro font-bold uppercase tracking-wider text-neutral-700 dark:text-[#999]">
                               {formatBeltLocalized(student.currentBelt, student.dob, t)}
                             </span>
                          </td>
                          <td className="px-4 py-3 text-right">
                             <div className="flex flex-col items-end gap-1.5">
                                <div className="flex items-center gap-2">
-                                  <span className="text-[10px] font-bold text-neutral-600 dark:text-neutral-400 font-mono">PRI: {pri}%</span>
+                                  <span className="text-micro font-bold text-neutral-600 dark:text-neutral-400 font-mono">PRI: {pri}%</span>
                                   <span className={cn(
-                                    "px-2 py-0.5 rounded-[6px] text-[9px] font-bold uppercase tracking-wider border",
+                                    "px-2 py-0.5 rounded-[6px] text-micro font-bold uppercase tracking-wider border",
                                     eligibilityStatus === 'Ready' ? "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400" :
                                     eligibilityStatus === 'Developing' ? "bg-sky-500/10 border-sky-500/20 text-sky-600 dark:text-sky-400" :
                                     "bg-neutral-100 dark:bg-[#1A1A1A] border-neutral-200 dark:border-[#262626] text-neutral-500 dark:text-[#666]"
@@ -1468,7 +1468,7 @@ function LmsAnalyticsTab() {
                                     {eligibilityStatus === 'Ready' ? 'Ready' : eligibilityStatus === 'Developing' ? 'Developing' : 'Needs Work'}
                                   </span>
                                </div>
-                               {report.beltTest && <span className="text-[10px] text-neutral-500 dark:text-neutral-400">{beltEligibilitySummary(report.beltTest)}</span>}
+                               {report.beltTest && <span className="text-micro text-neutral-500 dark:text-neutral-400">{beltEligibilitySummary(report.beltTest)}</span>}
                                <div className="w-32 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-full h-1.5 overflow-hidden relative">
                                   <div className={cn(
                                     "h-full rounded-full transition-all duration-500",
@@ -1537,15 +1537,15 @@ function LmsAnalyticsTab() {
                                        <span className="text-sm text-neutral-500 dark:text-[#999] font-khmer">{selectedStudent.khmerName}</span>
                                     )}
                                  </div>
-                                 <p className="text-[10px] text-neutral-400 dark:text-[#666] font-mono mt-0.5 uppercase">ID: {selectedStudent.id}</p>
+                                 <p className="text-micro text-neutral-400 dark:text-[#666] font-mono mt-0.5 uppercase">ID: {selectedStudent.id}</p>
                               </div>
-                              <span className="px-2.5 py-1 bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-[10px] font-bold uppercase tracking-wider text-neutral-800 dark:text-[#E4E4E4]">
+                              <span className="px-2.5 py-1 bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[6px] text-micro font-bold uppercase tracking-wider text-neutral-800 dark:text-[#E4E4E4]">
                                  {formatBeltLocalized(selectedStudent.currentBelt, selectedStudent.dob, t)}
                               </span>
                            </div>
 
                            <div>
-                              <span className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('lms_status_gender')}</span>
+                              <span className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('lms_status_gender')}</span>
                               <span className="text-xs text-neutral-800 dark:text-[#E4E4E4] font-medium flex items-center gap-1.5 mt-0.5">
                                  <span className={cn(
                                    "inline-block w-1.5 h-1.5 rounded-full",
@@ -1567,28 +1567,28 @@ function LmsAnalyticsTab() {
                            </div>
 
                            <div>
-                              <span className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('lms_age_dob')}</span>
+                              <span className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('lms_age_dob')}</span>
                               <span className="text-xs text-neutral-800 dark:text-[#E4E4E4] font-medium mt-0.5 block">
                                  {selectedStudent.dob ? `${calculateAge(selectedStudent.dob)} ${(state.language || 'en') === 'kh' ? 'ឆ្នាំ' : (state.language || 'en') === 'zh' ? '岁' : 'y/o'} (${selectedStudent.dob})` : 'N/A'}
                               </span>
                            </div>
 
                            <div>
-                              <span className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('lms_home_branch')}</span>
+                              <span className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('lms_home_branch')}</span>
                               <span className="text-xs text-neutral-800 dark:text-[#E4E4E4] font-medium mt-0.5 block">
                                  {state.branches.find(b => b.id === selectedStudent.homeBranchId)?.name || 'Unknown'}
                               </span>
                            </div>
 
                            <div>
-                              <span className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('lms_contact_info')}</span>
+                              <span className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('lms_contact_info')}</span>
                               <span className="text-xs text-neutral-800 dark:text-[#E4E4E4] font-medium mt-0.5 block font-mono">
                                  {selectedStudent.phone || t('stf_no_phone')}
                               </span>
                            </div>
 
                            <div className="sm:col-span-2">
-                              <span className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('lms_enrolled_schedules')}</span>
+                              <span className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('lms_enrolled_schedules')}</span>
                               <span className="text-xs text-neutral-800 dark:text-[#E4E4E4] mt-0.5 block font-medium">
                                  {state.classEnrollments.filter(e => e.studentId === selectedStudent.id).length > 0 ? (
                                     state.classEnrollments
@@ -1658,12 +1658,12 @@ function LmsAnalyticsTab() {
                                   <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-neutral-200 dark:border-[#262626] pb-3 gap-3">
                                      <div>
                                         <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-white">{t('lms_pri_scorecard')}</h3>
-                                        <p className="text-[10px] text-neutral-500 dark:text-[#666] mt-0.5 font-mono">Evaluation date since: {startDate}</p>
+                                        <p className="text-micro text-neutral-500 dark:text-[#666] mt-0.5 font-mono">Evaluation date since: {startDate}</p>
                                      </div>
                                      <div className="flex items-center gap-2">
                                         <span className="text-sm font-bold text-neutral-900 dark:text-white font-mono bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] px-2.5 py-0.5 rounded-[6px]">PRI: {report.pri}%</span>
                                         <span className={cn(
-                                           "px-2.5 py-1 rounded-[6px] text-[9px] font-bold uppercase tracking-wider border transition-all duration-300",
+                                           "px-2.5 py-1 rounded-[6px] text-micro font-bold uppercase tracking-wider border transition-all duration-300",
                                            report.eligibilityStatus === 'Ready' ? "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400 shadow-md shadow-amber-500/5" :
                                            report.eligibilityStatus === 'Developing' ? "bg-sky-500/10 border-sky-500/20 text-sky-600 dark:text-sky-400" :
                                            "bg-neutral-100 dark:bg-[#1A1A1A] border-neutral-200 dark:border-[#262626] text-neutral-500 dark:text-[#666]"
@@ -1673,14 +1673,14 @@ function LmsAnalyticsTab() {
                                      </div>
                                   </div>
                                   {report.beltTest ? <div className="space-y-2 rounded-[8px] border border-neutral-200 bg-white p-3 dark:border-[#262626] dark:bg-[#0F0F0F]">
-                                     <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-[10px] font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">Belt test eligibility · {report.beltTest.targetBelt}</span><Link href="/belt-tests" className="text-[10px] font-semibold text-brand-ink underline">Open Belt Tests</Link></div>
+                                     <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-micro font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">Belt test eligibility · {report.beltTest.targetBelt}</span><Link href="/belt-tests" className="text-micro font-semibold text-brand-ink underline">Open Belt Tests</Link></div>
                                      <RuleChips entry={{ eligibility: report.beltTest }} />
-                                     <p className="text-[10px] text-neutral-500">Ready is decided by the published {report.beltTest.targetBelt} test rules, the same check students see in the student portal. The index above still shows overall progress.</p>
-                                  </div> : <p className="text-[10px] text-neutral-500">No published belt test syllabus for this student&apos;s next belt yet, so readiness uses the academy&apos;s standard requirements.</p>}
+                                     <p className="text-micro text-neutral-500">Ready is decided by the published {report.beltTest.targetBelt} test rules, the same check students see in the student portal. The index above still shows overall progress.</p>
+                                  </div> : <p className="text-micro text-neutral-500">No published belt test syllabus for this student&apos;s next belt yet, so readiness uses the academy&apos;s standard requirements.</p>}
 
                                   {/* Sleek Overall PRI Progress Bar */}
                                   <div className="space-y-1.5 bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-3.5 rounded-[8px]">
-                                     <div className="flex justify-between items-center text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">
+                                     <div className="flex justify-between items-center text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">
                                         <span>{t('lms_overall_progress')}</span>
                                         <span>{report.pri === 100 ? t('lms_mastery_achieved') : report.pri >= 80 ? t('lms_excellent') : report.pri >= 50 ? t('dir_developing') : t('lms_beginning')}</span>
                                      </div>
@@ -1697,7 +1697,7 @@ function LmsAnalyticsTab() {
                                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                      <div className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-4 rounded-[8px]">
                                         <div className="flex justify-between items-center mb-1">
-                                           <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] tracking-wider">{t('lms_time_in_grade_min').replace('{days}', String(report.daysRequired))}</span>
+                                           <span className="text-micro uppercase font-bold text-neutral-500 dark:text-[#666] tracking-wider">{t('lms_time_in_grade_min').replace('{days}', String(report.daysRequired))}</span>
                                            <span className={cn("text-xs font-mono font-bold", report.daysEligible ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-400')}>{daysElapsedCount} / {report.daysRequired}d</span>
                                         </div>
                                         <div className="h-1.5 w-full bg-neutral-100 dark:bg-[#141414] rounded-full overflow-hidden">
@@ -1707,7 +1707,7 @@ function LmsAnalyticsTab() {
 
                                      <div className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-4 rounded-[8px]">
                                         <div className="flex justify-between items-center mb-1">
-                                           <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] tracking-wider">{t('lms_attendance_min').replace('{count}', String(report.attendanceRequired))}</span>
+                                           <span className="text-micro uppercase font-bold text-neutral-500 dark:text-[#666] tracking-wider">{t('lms_attendance_min').replace('{count}', String(report.attendanceRequired))}</span>
                                            <span className={cn("text-xs font-mono font-bold", report.attendanceEligible ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-400')}>{attendanceSinceCount} / {report.attendanceRequired}</span>
                                         </div>
                                         <div className="h-1.5 w-full bg-neutral-100 dark:bg-[#141414] rounded-full overflow-hidden">
@@ -1717,7 +1717,7 @@ function LmsAnalyticsTab() {
 
                                      <div className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-4 rounded-[8px]">
                                         <div className="flex justify-between items-center mb-1">
-                                           <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] tracking-wider">{t('lms_syllabus_videos_req')}</span>
+                                           <span className="text-micro uppercase font-bold text-neutral-500 dark:text-[#666] tracking-wider">{t('lms_syllabus_videos_req')}</span>
                                            <span className={cn("text-xs font-mono font-bold", syllabusCompletedPct === 100 ? 'text-green-600 dark:text-green-500' : 'text-amber-600 dark:text-amber-500')}>{syllabusCompletedPct}%</span>
                                         </div>
                                         <div className="h-1.5 w-full bg-neutral-100 dark:bg-[#141414] rounded-full overflow-hidden">
@@ -1732,13 +1732,13 @@ function LmsAnalyticsTab() {
                                   <div className="bg-neutral-50/50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[10px] p-5 space-y-4">
                                      <div>
                                         <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-white">{t('lms_skill_grading_title')}</h3>
-                                        <p className="text-[10px] text-neutral-500 dark:text-[#666] mt-0.5">{t('lms_skill_grading_desc')}</p>
+                                        <p className="text-micro text-neutral-500 dark:text-[#666] mt-0.5">{t('lms_skill_grading_desc')}</p>
                                      </div>
 
                                      <div className="space-y-6">
                                         {Object.entries(groupedSkills).map(([category, skills]) => (
                                            <div key={category} className="space-y-2">
-                                              <h4 className="text-[10px] uppercase font-bold text-brand-ink tracking-wider border-b border-neutral-200 dark:border-[#262626] pb-1.5 mb-2">
+                                              <h4 className="text-micro uppercase font-bold text-brand-ink tracking-wider border-b border-neutral-200 dark:border-[#262626] pb-1.5 mb-2">
                                                  {t(getCategoryTranslationKey(category)) || category}
                                               </h4>
                                               <div className="space-y-2">
@@ -1766,7 +1766,7 @@ function LmsAnalyticsTab() {
                                                                       type="button"
                                                                       onClick={() => handleGradePhysical(selectedStudent.id, skillName, selectedStudent.currentBelt, level)}
                                                                       className={cn(
-                                                                         "px-3 py-1.5 rounded-[6px] border text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer min-h-[34px] touch-manipulation active:scale-95 pointer-coarse:min-h-11",
+                                                                         "px-3 py-1.5 rounded-[6px] border text-micro font-bold uppercase tracking-wider transition-all cursor-pointer min-h-[34px] touch-manipulation active:scale-95 pointer-coarse:min-h-11",
                                                                          isActive
                                                                             ? (level === 'Outstanding' ? 'bg-emerald-600 border-emerald-500 text-white shadow-sm' :
                                                                                level === 'Proficient' ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm' :
@@ -1815,17 +1815,17 @@ function LmsAnalyticsTab() {
                                      <div className="flex items-center gap-2">
                                         <h4 className="text-sm font-bold text-neutral-900 dark:text-white">{t.translateText(video.title)}</h4>
                                         {isCurrentBeltRequirement && !isDraft && (
-                                          <span className="px-2 py-0.5 bg-red-500/10 text-brand-ink border border-red-500/20 rounded-[6px] text-[9px] font-bold uppercase tracking-wider">
+                                          <span className="px-2 py-0.5 bg-red-500/10 text-brand-ink border border-red-500/20 rounded-[6px] text-micro font-bold uppercase tracking-wider">
                                             {t.translateText("Current Syllabus")}
                                           </span>
                                         )}
                                         {isDraft && (
-                                          <span className="px-2 py-0.5 bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 rounded-[6px] text-[9px] font-bold uppercase tracking-wider">
+                                          <span className="px-2 py-0.5 bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 rounded-[6px] text-micro font-bold uppercase tracking-wider">
                                             Private draft
                                           </span>
                                         )}
                                      </div>
-                                      <p className="text-[10px] text-neutral-500 dark:text-[#666] uppercase font-bold tracking-wider mt-1">
+                                      <p className="text-micro text-neutral-500 dark:text-[#666] uppercase font-bold tracking-wider mt-1">
                                         {t(getCategoryTranslationKey(video.category)) || video.category} • {t('lms_belt_req')}: {video.minBeltLevel}
                                       </p>
                                   </div>
@@ -1841,7 +1841,7 @@ function LmsAnalyticsTab() {
                                       />
                                       <div className="w-9 h-5 bg-neutral-200 dark:bg-[#262626] rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-brand peer-disabled:opacity-40 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-[#666] peer-checked:after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600 shadow-inner"></div>
                                     </label>}
-                                    <span className={cn("text-[10px] font-bold tracking-wider uppercase w-16 text-right", isCompleted ? "text-emerald-600 dark:text-emerald-500" : "text-neutral-400 dark:text-[#666]")}>
+                                    <span className={cn("text-micro font-bold tracking-wider uppercase w-16 text-right", isCompleted ? "text-emerald-600 dark:text-emerald-500" : "text-neutral-400 dark:text-[#666]")}>
                                       {isCompleted ? t('lms_completed') : t('lms_pending')}
                                      </span>
                                   </div>

@@ -108,7 +108,7 @@ export function LessonContentEditor({ assetId, onClose }: { assetId: number; onC
                   <button type="button" className={buttonClass({ size: 'sm' })} onClick={() => editMeta({ slug: slugify(loaded.asset.title) || null })}>Suggest</button></div></div>
               <div className="sm:col-span-2"><label htmlFor="content-tags" className={labelClass}>Tags (comma separated, up to 20)</label>
                 <input id="content-tags" className={fieldClass} value={tags} onChange={event => { setTags(event.target.value); setDirty(true); }} /></div>
-              {loaded.asset.sourceKey && <p className="text-[11px] text-ink-subtle sm:col-span-2">Imported from the website ({loaded.asset.sourceKey}). Your edits here are kept if the website library is imported again.</p>}
+              {loaded.asset.sourceKey && <p className="text-micro text-ink-subtle sm:col-span-2">Imported from the website ({loaded.asset.sourceKey}). Your edits here are kept if the website library is imported again.</p>}
             </div>}
             {tab === 'sections' && <SectionEditor sections={content.sections} onChange={sections => editContent({ sections })} />}
             {(tab === 'km' || tab === 'zh') && <TranslationEditor lang={tab} english={{ title: loaded.asset.title, summary: metadata.summary, levelNote: metadata.levelNote }} sections={content.sections} value={content.translations[tab]} onChange={next => setTranslation(tab, next)} />}
@@ -125,7 +125,7 @@ export function LessonContentEditor({ assetId, onClose }: { assetId: number; onC
         </>}
       </DialogBody>
       <DialogFooter>
-        <span className="mr-auto text-[11px] text-ink-subtle">{dirty ? 'Unsaved changes' : loaded ? 'All changes saved' : ''}</span>
+        <span className="mr-auto text-micro text-ink-subtle">{dirty ? 'Unsaved changes' : loaded ? 'All changes saved' : ''}</span>
         <button type="button" className={buttonClass()} onClick={close} disabled={saving}>Close</button>
         <button type="button" className={buttonClass({ variant: 'primary' })} onClick={() => void save()} disabled={saving || !loaded || !dirty}>{saving ? 'Saving…' : 'Save draft'}</button>
       </DialogFooter>

@@ -74,7 +74,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
             <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4">
               <div>
                 <h2 className="font-bold uppercase tracking-widest text-xs text-neutral-900 dark:text-[#E4E4E4]">{t('att_title')}</h2>
-                <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono mt-0.5">{t('att_subtitle')}</p>
+                <p className="text-micro text-neutral-500 dark:text-[#888] font-mono mt-0.5">{t('att_subtitle')}</p>
               </div>
               <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 w-full xl:w-auto items-stretch sm:items-center">
                 <DatePicker value={selectedDate} onChange={(date) => {
@@ -156,17 +156,17 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
               <div className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626]/80 rounded-[8px] p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs animate-in fade-in duration-200">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-neutral-900 dark:text-white uppercase text-[10px] tracking-wide">{selectedClassObj.name}</span>
-                    <span className="px-2 py-0.5 bg-red-500/10 border border-red-500/20 text-brand-ink text-[9px] font-black uppercase tracking-wider rounded">
+                    <span className="font-bold text-neutral-900 dark:text-white uppercase text-micro tracking-wide">{selectedClassObj.name}</span>
+                    <span className="px-2 py-0.5 bg-red-500/10 border border-red-500/20 text-brand-ink text-micro font-black uppercase tracking-wider rounded">
                       {selectedClassObj.classType}
                     </span>
                   </div>
-                  <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono">
+                  <p className="text-micro text-neutral-500 dark:text-[#888] font-mono">
                     {t('nav_schedule')}: {selectedClassObj.daysOfWeek?.map(d => getLocalizedDayName(d)).join(', ') || getLocalizedDayName(selectedClassObj.dayOfWeek)} • {selectedClassObj.startTime} - {selectedClassObj.endTime}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-4 text-[10px] font-mono">
+                <div className="flex items-center gap-4 text-micro font-mono">
                   <div>
                     <span className="text-neutral-500 dark:text-[#888] block">{t('att_instructor')}</span>
                     <span className="text-neutral-900 dark:text-[#E4E4E4] font-bold">{selectedClassCoach?.displayName || t('act_tba')}</span>
@@ -192,7 +192,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                 <div className="flex items-start gap-2.5">
                   <Warning className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-bold uppercase tracking-wider text-[10px]">{t('att_schedule_mismatch')}</p>
+                    <p className="font-bold uppercase tracking-wider text-micro">{t('att_schedule_mismatch')}</p>
                     <p className="mt-1 leading-relaxed">
                       {isAttendanceLocked
                         ? t('att_mismatch_locked')
@@ -208,7 +208,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                   </div>
                 </div>
 
-                <label className="flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-[#262626] hover:border-neutral-400 dark:hover:border-[#444] text-neutral-900 dark:text-white font-bold uppercase text-[9px] tracking-wider shrink-0 cursor-pointer select-none shadow-sm">
+                <label className="flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-[#262626] hover:border-neutral-400 dark:hover:border-[#444] text-neutral-900 dark:text-white font-bold uppercase text-micro tracking-wider shrink-0 cursor-pointer select-none shadow-sm">
                   <input
                     type="checkbox"
                     checked={overrideMismatch}
@@ -226,7 +226,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                   <button
                     onClick={() => setStatusFilter('all')}
                     className={cn(
-                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-micro font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                       statusFilter === 'all'
                         ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white font-black shadow"
                         : "bg-white dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
@@ -235,7 +235,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                     <span>{t('belt_all')}</span>
                     {/* On the selected (black) chip, light mode forces its contents to white text,
                         so the count sits on a translucent white pill instead of a light grey one. */}
-                    <span className={cn("px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold",
+                    <span className={cn("px-1.5 py-0.2 rounded-full text-micro font-mono font-bold",
                       statusFilter === 'all'
                         ? "bg-white/20 text-white dark:bg-neutral-900/10 dark:text-neutral-900"
                         : "bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300")}>
@@ -245,56 +245,56 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                   <button
                     onClick={() => setStatusFilter('Present')}
                     className={cn(
-                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-micro font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                       statusFilter === 'Present'
                         ? "bg-emerald-500/20 border-emerald-500 text-emerald-800 dark:text-emerald-400 font-black shadow ring-1 ring-emerald-500/30"
                         : "bg-white dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#888] hover:text-emerald-600 dark:hover:text-emerald-400"
                     )}
                   >
                     <span>{t('att_present')}</span>
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-mono font-bold">
+                    <span className="px-1.5 py-0.2 rounded-full text-micro bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-mono font-bold">
                       {presentRosterCount}
                     </span>
                   </button>
                   <button
                     onClick={() => setStatusFilter('Late')}
                     className={cn(
-                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-micro font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                       statusFilter === 'Late'
                         ? "bg-amber-500/20 border-amber-500 text-amber-800 dark:text-amber-400 font-black shadow ring-1 ring-amber-500/30"
                         : "bg-white dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#888] hover:text-amber-600 dark:hover:text-amber-400"
                     )}
                   >
                     <span>{t('att_late')}</span>
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-amber-500/10 text-amber-700 dark:text-amber-300 font-mono font-bold">
+                    <span className="px-1.5 py-0.2 rounded-full text-micro bg-amber-500/10 text-amber-700 dark:text-amber-300 font-mono font-bold">
                       {lateRosterCount}
                     </span>
                   </button>
                   <button
                     onClick={() => setStatusFilter('Absent')}
                     className={cn(
-                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-micro font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                       statusFilter === 'Absent'
                         ? "bg-rose-500/20 border-rose-500 text-rose-800 dark:text-rose-400 font-black shadow ring-1 ring-rose-500/30"
                         : "bg-white dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#888] hover:text-rose-600 dark:hover:text-rose-400"
                     )}
                   >
                     <span>{t('att_absent')}</span>
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-rose-500/10 text-rose-700 dark:text-rose-300 font-mono font-bold">
+                    <span className="px-1.5 py-0.2 rounded-full text-micro bg-rose-500/10 text-rose-700 dark:text-rose-300 font-mono font-bold">
                       {absentRosterCount}
                     </span>
                   </button>
                   <button
                     onClick={() => setStatusFilter('Unmarked')}
                     className={cn(
-                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                      "px-3 py-1.5 min-h-[34px] rounded-[8px] border text-micro font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                       statusFilter === 'Unmarked'
                         ? "bg-blue-500/20 border-blue-500 text-blue-800 dark:text-blue-400 font-black shadow ring-1 ring-blue-500/30"
                         : "bg-white dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#888] hover:text-blue-600 dark:hover:text-blue-400"
                     )}
                   >
                     <span>{t('dash_unmarked')}</span>
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-blue-500/10 text-blue-700 dark:text-blue-300 font-mono font-bold">
+                    <span className="px-1.5 py-0.2 rounded-full text-micro bg-blue-500/10 text-blue-700 dark:text-blue-300 font-mono font-bold">
                       {unmarkedRosterCount}
                     </span>
                   </button>
@@ -302,8 +302,8 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
 
                 {/* Bulk Actions Capsule */}
                 {canBulkAction && (
-                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px]">
-                    <span className="text-neutral-600 dark:text-neutral-400 font-bold uppercase tracking-wider text-[9px] sm:text-[10px]">{t('att_quick_actions')}</span>
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-micro">
+                    <span className="text-neutral-600 dark:text-neutral-400 font-bold uppercase tracking-wider text-micro sm:text-micro">{t('att_quick_actions')}</span>
                     <button
                       type="button"
                       onClick={() => requestBulkMark('Present')}
@@ -337,7 +337,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
 
               {/* Marked progress bar */}
               <div className="space-y-1.5">
-                <div className="flex justify-between items-center text-[10px] text-neutral-500 dark:text-[#888] font-mono">
+                <div className="flex justify-between items-center text-micro text-neutral-500 dark:text-[#888] font-mono">
                   <span>{lang === 'kh' ? `វឌ្ឍនភាពវត្តមាន៖ ${presentRosterCount + lateRosterCount + absentRosterCount} / ${totalRosterCount} សិស្ស (${markedPercentage}%)` : lang === 'zh' ? `已标记进度: ${presentRosterCount + lateRosterCount + absentRosterCount} / ${totalRosterCount} 学员 (${markedPercentage}%)` : `Marked Progress: ${presentRosterCount + lateRosterCount + absentRosterCount} / ${totalRosterCount} Students (${markedPercentage}%)`}</span>
                   <span className={cn("font-bold", markedPercentage === 100 ? "text-emerald-600 dark:text-emerald-400" : "text-neutral-600 dark:text-neutral-400")}>
                     {markedPercentage === 100 ? (lang === 'kh' ? '✓ បញ្ជីរួចរាល់' : lang === 'zh' ? '✓ 名单已完成' : '✓ Roster Complete') : (lang === 'kh' ? 'មិនទាន់រួចរាល់' : lang === 'zh' ? '未完成' : 'Incomplete')}
@@ -434,14 +434,14 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-bold text-xs mb-0.5 text-neutral-900 dark:text-[#E4E4E4] group-hover:text-brand-ink dark:group-hover:text-white transition-colors truncate">
-                          {student.englishName} <span className="text-[10px] font-khmer text-neutral-500 dark:text-[#888] ml-1 font-normal">{student.khmerName}</span>
+                          {student.englishName} <span className="text-micro font-khmer text-neutral-500 dark:text-[#888] ml-1 font-normal">{student.khmerName}</span>
                           {isNotYetEnrolled && (
-                            <span className="ml-2 px-2 py-0.5 rounded-[8px] bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 font-bold uppercase tracking-widest text-[9px] whitespace-nowrap">
+                            <span className="ml-2 px-2 py-0.5 rounded-[8px] bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 font-bold uppercase tracking-widest text-micro whitespace-nowrap">
                               {t('panel_not_enrolled_yet')}
                             </span>
                           )}
                         </p>
-                        <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono tracking-tight font-semibold truncate flex items-center gap-1.5">
+                        <p className="text-micro text-neutral-500 dark:text-[#888] font-mono tracking-tight font-semibold truncate flex items-center gap-1.5">
                           <span>{student.id}</span>
                           <span>•</span>
                           <span className="font-bold text-neutral-700 dark:text-neutral-300">{formatBelt(student.currentBelt, student.dob)}</span>
@@ -454,7 +454,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                       disabled={isCommitting || isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance}
                       onClick={() => markAttendance(student.id, selectedDate, 'Present', filterClass === 'all' ? undefined : filterClass)}
                       className={cn(
-                        "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-11 pointer-fine:min-h-[38px] rounded-[6px] text-[11px] sm:text-[10px] font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
+                        "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-11 pointer-fine:min-h-[38px] rounded-[6px] text-micro sm:text-micro font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
                         isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance
                           ? "opacity-30 cursor-not-allowed text-neutral-400 dark:text-[#444] border-transparent"
                           : currentStatus === 'Present'
@@ -469,7 +469,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                       disabled={isCommitting || isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance}
                       onClick={() => markAttendance(student.id, selectedDate, 'Late', filterClass === 'all' ? undefined : filterClass)}
                       className={cn(
-                        "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-11 pointer-fine:min-h-[38px] rounded-[6px] text-[11px] sm:text-[10px] font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
+                        "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-11 pointer-fine:min-h-[38px] rounded-[6px] text-micro sm:text-micro font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
                         isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance
                           ? "opacity-30 cursor-not-allowed text-neutral-400 dark:text-[#444] border-transparent"
                           : currentStatus === 'Late'
@@ -484,7 +484,7 @@ export function AttendanceRosterPanel({ t, selectedDate, setSelectedDate, setSta
                       disabled={isCommitting || isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance}
                       onClick={() => markAttendance(student.id, selectedDate, 'Absent', filterClass === 'all' ? undefined : filterClass)}
                       className={cn(
-                        "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-11 pointer-fine:min-h-[38px] rounded-[6px] text-[11px] sm:text-[10px] font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
+                        "flex-1 md:flex-none px-3 sm:px-5 py-2 min-h-11 pointer-fine:min-h-[38px] rounded-[6px] text-micro sm:text-micro font-bold uppercase transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation select-none",
                         isNotYetEnrolled || isAttendanceLocked || !canMarkAttendance
                           ? "opacity-30 cursor-not-allowed text-neutral-400 dark:text-[#444] border-transparent"
                           : currentStatus === 'Absent'

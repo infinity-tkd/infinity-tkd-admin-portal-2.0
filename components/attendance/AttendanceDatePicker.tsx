@@ -216,20 +216,20 @@ export function AttendanceDatePicker({ value, onChange }: DatePickerProps) {
             className="absolute right-0 top-full mt-2 w-[260px] max-w-[calc(100vw-2rem)] bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl p-3 z-50 select-none text-neutral-900 dark:text-neutral-200"
           >
             <div className="flex items-center justify-between pb-2.5 border-b border-neutral-200 dark:border-[#262626]">
-              <button
+              <button aria-label="Previous month"
                 type="button"
                 onClick={handlePrevMonth}
-                className="p-1 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer"
+                className="p-1 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer min-h-6 min-w-6 inline-flex items-center justify-center"
               >
                 <CaretLeft className="w-3.5 h-3.5" />
               </button>
-              <span className="text-[10px] font-black uppercase tracking-wider text-neutral-900 dark:text-[#E4E4E4] font-sans">
+              <span className="text-micro font-black uppercase tracking-wider text-neutral-900 dark:text-[#E4E4E4] font-sans">
                 {getLocalizedMonthName(viewMonth, lang)} {viewYear}
               </span>
-              <button
+              <button aria-label="Next month"
                 type="button"
                 onClick={handleNextMonth}
-                className="p-1 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer"
+                className="p-1 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-[8px] hover:bg-neutral-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer min-h-6 min-w-6 inline-flex items-center justify-center"
               >
                 <CaretRight className="w-3.5 h-3.5" />
               </button>
@@ -239,20 +239,20 @@ export function AttendanceDatePicker({ value, onChange }: DatePickerProps) {
               <button
                 type="button"
                 onClick={() => handleQuickSelect(0)}
-                className="py-1 bg-neutral-100 dark:bg-[#0F0F0F] hover:bg-neutral-200 dark:hover:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-[9px] font-black uppercase tracking-wider text-center text-neutral-800 dark:text-[#E4E4E4] transition-colors cursor-pointer"
+                className="py-1 bg-neutral-100 dark:bg-[#0F0F0F] hover:bg-neutral-200 dark:hover:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-micro font-black uppercase tracking-wider text-center text-neutral-800 dark:text-[#E4E4E4] transition-colors cursor-pointer"
               >
                 {lang === 'kh' ? 'ថ្ងៃនេះ' : lang === 'zh' ? '今天' : 'Today'}
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickSelect(-1)}
-                className="py-1 bg-neutral-100 dark:bg-[#0F0F0F] hover:bg-neutral-200 dark:hover:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-[9px] font-black uppercase tracking-wider text-center text-neutral-800 dark:text-[#E4E4E4] transition-colors cursor-pointer"
+                className="py-1 bg-neutral-100 dark:bg-[#0F0F0F] hover:bg-neutral-200 dark:hover:bg-[#1C1C1C] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-micro font-black uppercase tracking-wider text-center text-neutral-800 dark:text-[#E4E4E4] transition-colors cursor-pointer"
               >
                 {lang === 'kh' ? 'ម្សិលមិញ' : lang === 'zh' ? '昨天' : 'Yesterday'}
               </button>
             </div>
 
-            <div className="grid grid-cols-7 gap-1 text-center py-2 text-[9px] font-black uppercase tracking-widest text-neutral-600 dark:text-neutral-400">
+            <div className="grid grid-cols-7 gap-1 text-center py-2 text-micro font-black uppercase tracking-widest text-neutral-600 dark:text-neutral-400">
               <span>{t('day_short_mon')}</span>
               <span>{t('day_short_tue')}</span>
               <span>{t('day_short_wed')}</span>
@@ -294,7 +294,7 @@ export function AttendanceDatePicker({ value, onChange }: DatePickerProps) {
                       }
                     }}
                     className={cn(
-                      "h-6.5 w-6.5 rounded-[4px] flex items-center justify-center transition-all text-[11px] cursor-pointer",
+                      "h-6.5 w-6.5 rounded-[4px] flex items-center justify-center transition-all text-micro cursor-pointer",
                       isSelected
                         ? "bg-brand text-white font-extrabold shadow-sm shadow-brand/30"
                         : cell.isCurrentMonth

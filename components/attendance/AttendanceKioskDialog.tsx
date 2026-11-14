@@ -1,5 +1,6 @@
 'use client';
 import { useAttendanceAudio } from '@/hooks/use-attendance-audio';
+import { useModalFocus } from '@/hooks/use-modal-focus';
 import { dialogMotion } from '@/lib/motion';
 import React from 'react';
 import { useAppStore, Student } from '@/lib/store';
@@ -33,11 +34,19 @@ interface AttendanceKioskDialogProps {
 
 export function AttendanceKioskDialog({ setKioskSound, kioskSound, setIsKioskOpen, kioskBarcode, state, showNotification, setKioskBarcode, kioskInputRef, markAttendance, selectedDate, filterClass, setKioskRecentScans, kioskRecentScans }: AttendanceKioskDialogProps) {
   const playBeep = useAttendanceAudio();
+  // A full-screen modal: it is announced as a dialog, keeps Tab inside, closes with Escape and gives focus back to "Kiosk mode".
+  const panel = React.useRef<HTMLDivElement>(null);
+  useModalFocus(panel, () => setIsKioskOpen(false));
   return <>{(
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
             <motion.div
               {...dialogMotion}
-              className="w-full max-w-lg max-h-[92dvh] bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl overflow-hidden flex flex-col text-neutral-900 dark:text-white"
+              ref={panel}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="attendance-kiosk-title"
+              tabIndex={-1}
+              className="outline-none w-full max-w-lg max-h-[92dvh] bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl overflow-hidden flex flex-col text-neutral-900 dark:text-white"
             >
               <div className="p-4 bg-emerald-600 text-white flex items-center justify-between shadow-md shrink-0">
                 <div className="flex items-center gap-2.5">
@@ -45,22 +54,24 @@ export function AttendanceKioskDialog({ setKioskSound, kioskSound, setIsKioskOpe
                     <Barcode className="w-5 h-5 animate-pulse" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-black uppercase tracking-widest leading-none">Instant Kiosk Check-In</h3>
-                    <p className="text-[10px] text-white/80 font-mono mt-0.5">Scan Barcode / QR or type Student ID</p>
+                    <h3 id="attendance-kiosk-title" className="text-xs font-black uppercase tracking-widest leading-none">Instant Kiosk Check-In</h3>
+                    <p className="text-micro text-white/80 font-mono mt-0.5">Scan Barcode / QR or type Student ID</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => setKioskSound(!kioskSound)}
+                    aria-label="Check-in sound"
+                    aria-pressed={kioskSound}
                     title={kioskSound ? "Sound chime enabled (Click to mute)" : "Sound chime muted (Click to unmute)"}
-                    className="p-1.5 hover:bg-emerald-700 rounded-[6px] transition-colors cursor-pointer text-white/90"
+                    className="p-1.5 min-h-6 min-w-6 inline-flex items-center justify-center hover:bg-emerald-700 rounded-[6px] transition-colors cursor-pointer text-white/90"
                   >
                     {kioskSound ? <SpeakerHigh className="w-4 h-4" /> : <SpeakerSlash className="w-4 h-4 text-emerald-200" />}
                   </button>
-                  <button
+                  <button aria-label="Close"
                     onClick={() => setIsKioskOpen(false)}
-                    className="p-1.5 hover:bg-emerald-700 rounded-[6px] transition-colors cursor-pointer"
+                    className="p-1.5 hover:bg-emerald-700 rounded-[6px] transition-colors cursor-pointer min-h-6 min-w-6 inline-flex items-center justify-center"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -107,7 +118,7 @@ export function AttendanceKioskDialog({ setKioskSound, kioskSound, setIsKioskOpe
                 >
                   <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-neutral-600 dark:text-[#AAA]">
                     <span>Barcode / Student ID Scanner</span>
-                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-semibold flex items-center gap-1">
+                    <span className="text-micro text-emerald-600 dark:text-emerald-400 font-mono font-semibold flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
                       Ready for input
                     </span>
@@ -124,7 +135,7 @@ export function AttendanceKioskDialog({ setKioskSound, kioskSound, setIsKioskOpe
                       className="w-full pl-11 pr-4 py-3 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[8px] text-sm font-mono font-bold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-inner placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
                     />
                   </div>
-                  <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono">
+                  <p className="text-micro text-neutral-500 dark:text-[#888] font-mono">
                     💡 Tip: USB & Bluetooth hardware scanners trigger automatic Enter key submission.
                   </p>
                 </form>
@@ -132,7 +143,7 @@ export function AttendanceKioskDialog({ setKioskSound, kioskSound, setIsKioskOpe
                 {/* Recent Scanned Students Feed */}
                 {kioskRecentScans.length > 0 && (
                   <div className="space-y-2.5 pt-2">
-                    <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono uppercase tracking-wider font-bold">
+                    <p className="text-micro text-neutral-500 dark:text-[#888] font-mono uppercase tracking-wider font-bold">
                       Recent Check-Ins ({kioskRecentScans.length})
                     </p>
 
@@ -152,10 +163,10 @@ export function AttendanceKioskDialog({ setKioskSound, kioskSound, setIsKioskOpe
                               {kioskRecentScans[0].student.englishName}
                             </h4>
                           </div>
-                          <p className="text-[10px] text-neutral-600 dark:text-neutral-400 font-mono mt-0.5 truncate">
+                          <p className="text-micro text-neutral-600 dark:text-neutral-400 font-mono mt-0.5 truncate">
                             ID: {kioskRecentScans[0].student.id} • Belt: {formatBelt(kioskRecentScans[0].student.currentBelt, kioskRecentScans[0].student.dob)}
                           </p>
-                          <span className="inline-block mt-1 text-[9px] font-mono text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-[4px]">
+                          <span className="inline-block mt-1 text-micro font-mono text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-[4px]">
                             ✓ Checked In at {kioskRecentScans[0].time}
                           </span>
                         </div>
@@ -168,9 +179,9 @@ export function AttendanceKioskDialog({ setKioskSound, kioskSound, setIsKioskOpe
                         <div className="flex items-center gap-2 truncate">
                           <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                           <span className="font-bold text-neutral-900 dark:text-white truncate">{scan.student.englishName}</span>
-                          <span className="text-[10px] font-mono text-neutral-500 dark:text-[#888]">({scan.student.id})</span>
+                          <span className="text-micro font-mono text-neutral-500 dark:text-[#888]">({scan.student.id})</span>
                         </div>
-                        <span className="text-[10px] font-mono text-neutral-500 dark:text-[#888] shrink-0">{scan.time}</span>
+                        <span className="text-micro font-mono text-neutral-500 dark:text-[#888] shrink-0">{scan.time}</span>
                       </div>
                     ))}
                   </div>
@@ -178,7 +189,7 @@ export function AttendanceKioskDialog({ setKioskSound, kioskSound, setIsKioskOpe
               </div>
 
               <div className="p-3 bg-neutral-50 dark:bg-[#0F0F0F] border-t border-neutral-200 dark:border-[#262626] flex justify-between items-center shrink-0">
-                <span className="text-[10px] text-neutral-500 dark:text-[#888] font-mono">
+                <span className="text-micro text-neutral-500 dark:text-[#888] font-mono">
                   {kioskSound ? "🔊 Sound Enabled" : "🔇 Sound Muted"}
                 </span>
                 <button

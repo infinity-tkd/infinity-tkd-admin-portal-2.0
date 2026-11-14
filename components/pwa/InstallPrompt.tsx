@@ -95,7 +95,7 @@ export function InstallPrompt() {
       {/* Sleek Header / Action Install Trigger */}
       <button
         onClick={handleInstallClick}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[8px] bg-red-500/10 hover:bg-red-500/15 border border-red-500/30 text-red-600 dark:text-red-400 text-[10px] font-bold uppercase tracking-wider transition-all duration-200 min-h-[36px] min-w-[36px] justify-center cursor-pointer shadow-xs shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[8px] bg-red-500/10 hover:bg-red-500/15 border border-red-500/30 text-red-600 dark:text-red-400 text-micro font-bold uppercase tracking-wider transition-all duration-200 min-h-[36px] min-w-[36px] justify-center cursor-pointer shadow-xs shrink-0 active:scale-95 touch-manipulation pointer-coarse:min-h-11 pointer-coarse:min-w-11"
         title="Install Infinity Admin Portal"
         aria-label="Install Infinity Admin Portal"
       >
@@ -116,10 +116,10 @@ export function InstallPrompt() {
                     <Desktop className="w-4 h-4 text-brand-ink" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-neutral-900 dark:text-white uppercase tracking-wider leading-none">
+                    <h2 className="text-sm font-bold text-neutral-900 dark:text-white uppercase tracking-wider leading-none">
                       Install on Desktop
-                    </h3>
-                    <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-1">
+                    </h2>
+                    <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-1">
                       Infinity Admin Portal PWA
                     </p>
                   </div>
@@ -187,10 +187,10 @@ export function InstallPrompt() {
                 <div className="flex items-center gap-2.5">
                   <NextImage unoptimized width={24} height={24} src="/icons/logo.svg" alt="Infinity Logo" className="w-6 h-6 object-contain" />
                   <div>
-                    <h3 className="text-sm font-bold text-neutral-900 dark:text-white uppercase tracking-wider leading-none">
+                    <h2 className="text-sm font-bold text-neutral-900 dark:text-white uppercase tracking-wider leading-none">
                       Install on iOS
-                    </h3>
-                    <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-1">
+                    </h2>
+                    <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-1">
                       Add to iPhone/iPad Home Screen
                     </p>
                   </div>
@@ -219,7 +219,7 @@ export function InstallPrompt() {
                     <p className="text-neutral-700 dark:text-[#E4E4E4] leading-relaxed">
                       Tap the <strong className="text-neutral-900 dark:text-white font-semibold">Share</strong> button in Safari&apos;s bottom toolbar:
                     </p>
-                    <div className="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-blue-600 dark:text-blue-400 font-mono text-[10px] font-bold">
+                    <div className="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-blue-600 dark:text-blue-400 font-mono text-micro font-bold">
                       <ShareNetwork className="w-3.5 h-3.5" />
                       <span>Share Sheet</span>
                     </div>
@@ -234,7 +234,7 @@ export function InstallPrompt() {
                     <p className="text-neutral-700 dark:text-[#E4E4E4] leading-relaxed">
                       Scroll down and tap <strong className="text-neutral-900 dark:text-white font-semibold">Add to Home Screen</strong>:
                     </p>
-                    <div className="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-emerald-700 dark:text-emerald-400 font-mono text-[10px] font-bold">
+                    <div className="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] text-emerald-700 dark:text-emerald-400 font-mono text-micro font-bold">
                       <PlusSquare className="w-3.5 h-3.5" />
                       <span>Add to Home Screen</span>
                     </div>

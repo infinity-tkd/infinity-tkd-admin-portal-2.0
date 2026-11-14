@@ -51,30 +51,30 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
           {/* Operational Metrics Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 shadow-sm">
-              <span className="text-[10px] font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400">Total SKUs</span>
+              <span className="text-micro font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400">Total SKUs</span>
               <p className="text-lg sm:text-2xl font-black font-mono text-neutral-900 dark:text-white mt-1">
                 {catalog.length}
               </p>
             </div>
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 shadow-sm">
-              <span className="text-[10px] font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400">Low Stock</span>
+              <span className="text-micro font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400">Low Stock</span>
               <p className="text-lg sm:text-2xl font-black font-mono text-amber-600 dark:text-amber-400 mt-1">
                 {lowStockCount}
               </p>
             </div>
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 shadow-sm">
-              <span className="text-[10px] font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400">Out of Stock</span>
+              <span className="text-micro font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400">Out of Stock</span>
               <p className="text-lg sm:text-2xl font-black font-mono text-rose-600 dark:text-rose-400 mt-1">
                 {outOfStockCount}
               </p>
             </div>
             <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 shadow-sm">
-              <span className="text-[10px] font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400">Retail stock value</span>
+              <span className="text-micro font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400">Retail stock value</span>
               <p className="text-lg sm:text-2xl font-black font-mono text-emerald-700 dark:text-emerald-400 mt-1">
                 ${totalInventoryValuation.toFixed(2)}
               </p>
               {catalog.some(product => product.hasVariants && !product.variants?.length) && (
-                <p className="mt-1 text-[10px] text-amber-700 dark:text-amber-400">Excludes stock needing variant setup.</p>
+                <p className="mt-1 text-micro text-amber-700 dark:text-amber-400">Excludes stock needing variant setup.</p>
               )}
             </div>
           </div>
@@ -109,7 +109,7 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
                       type="button"
                       onClick={() => setInventoryStockFilter(f)}
                       className={cn(
-                        "min-w-0 flex-1 sm:flex-initial px-1.5 sm:px-2.5 py-1 min-h-[38px] text-[10px] font-mono rounded-[6px] transition cursor-pointer flex items-center justify-center gap-1 sm:gap-1.5 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                        "min-w-0 flex-1 sm:flex-initial px-1.5 sm:px-2.5 py-1 min-h-[38px] text-micro font-mono rounded-[6px] transition cursor-pointer flex items-center justify-center gap-1 sm:gap-1.5 active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                         inventoryStockFilter === f
                           ? "bg-white text-neutral-900 shadow-sm font-bold border border-neutral-200/80 dark:bg-[#222] dark:text-white dark:border-neutral-700"
                           : "text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
@@ -118,7 +118,7 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
                       <span>{f}</span>
                       <span
                         className={cn(
-                          "px-1.5 py-0.2 text-[9px] rounded-full font-mono font-bold leading-none",
+                          "px-1.5 py-0.2 text-micro rounded-full font-mono font-bold leading-none",
                           f === 'LOW' && (inventoryStockCounts.LOW > 0)
                             ? "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400"
                             : f === 'OUT' && (inventoryStockCounts.OUT > 0)
@@ -160,7 +160,7 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
             </div>
 
             {/* Sub-bar: Showing Counter */}
-            <div className="flex items-center justify-between pt-2 border-t border-neutral-200 dark:border-[#262626] text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
+            <div className="flex items-center justify-between pt-2 border-t border-neutral-200 dark:border-[#262626] text-micro font-mono text-neutral-500 dark:text-neutral-400">
               <span>
                 Showing <span className="font-bold text-neutral-900 dark:text-neutral-100">{visibleInventory.length}</span> of {filteredInventory.length} matching products
               </span>
@@ -174,7 +174,7 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
           <div className="hidden md:block bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden shadow-sm flex-1">
             <div className="overflow-x-auto scrollbar-thin">
               <table className="w-full min-w-[760px] text-left text-xs font-mono">
-                <thead className="bg-neutral-50 dark:bg-[#0F0F0F] text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 border-b border-neutral-200 dark:border-[#262626]">
+                <thead className="bg-neutral-50 dark:bg-[#0F0F0F] text-micro uppercase font-bold text-neutral-600 dark:text-neutral-400 border-b border-neutral-200 dark:border-[#262626]">
                   <tr>
                     <th className="py-3 px-4">SKU</th>
                     <th className="py-3 px-4">Item Name</th>
@@ -224,7 +224,7 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
                                         return next;
                                       });
                                     }}
-                                    className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700 cursor-pointer flex items-center gap-1 transition-colors"
+                                    className="px-1.5 py-0.5 rounded text-micro font-mono font-bold bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700 cursor-pointer flex items-center gap-1 transition-colors"
                                     title="View sizes and collar variations"
                                   >
                                     <Sparkle size={10} className="text-brand-ink" />
@@ -237,7 +237,7 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
                             <td className="py-3 px-4 text-neutral-600 dark:text-neutral-400">{prod.category}</td>
                             <td className="py-3 px-4 text-neutral-600 dark:text-neutral-400">
                               {hasVar ? (
-                                <span className="text-[10px] font-bold text-neutral-700 dark:text-neutral-300">
+                                <span className="text-micro font-bold text-neutral-700 dark:text-neutral-300">
                                   {prod.sizes && prod.sizes.length > 0 ? prod.sizes.join(', ') : 'Multi-size'}
                                 </span>
                               ) : (
@@ -248,7 +248,7 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
 
                             {/* Stock Health Progress Bar */}
                             <td className="py-3 px-4 min-w-[150px]">
-                              <div className="flex items-center justify-between text-[10px] mb-1">
+                              <div className="flex items-center justify-between text-micro mb-1">
                                 <span className={cn(
                                   "font-bold",
                                   isOutOfStock ? "text-rose-600 dark:text-rose-400" : isLowStock ? "text-amber-700 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"
@@ -289,7 +289,7 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
                                     setAdjustingVariant(null);
                                   }}
                                   title="Adjust Stock / Restock"
-                                  className="px-2 py-1 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-[#1a1a1a] dark:hover:text-brand-ink dark:text-[#ccc] dark:border-[#262626] rounded-[6px] transition cursor-pointer text-[10px] font-bold" disabled={!canManageInventory}
+                                  className="px-2 py-1 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-300 dark:bg-[#0F0F0F] dark:hover:bg-[#1a1a1a] dark:hover:text-brand-ink dark:text-[#ccc] dark:border-[#262626] rounded-[6px] transition cursor-pointer text-micro font-bold" disabled={!canManageInventory}
                                 >
                                   Restock
                                 </button>
@@ -310,19 +310,19 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
                             <tr className="bg-neutral-50/80 dark:bg-[#0D0D0D]">
                               <td colSpan={8} className="py-2.5 px-4 sm:px-6 border-y border-neutral-200 dark:border-[#262626]">
                                 <div className="space-y-1.5">
-                                  <div className="flex items-center justify-between text-[11px] font-bold text-neutral-700 dark:text-neutral-300">
+                                  <div className="flex items-center justify-between text-micro font-bold text-neutral-700 dark:text-neutral-300">
                                     <span className="flex items-center gap-1.5">
                                       <Sparkle size={12} className="text-brand-ink" />
                                       {prod.name} — Size & Style Variation Ledger
                                     </span>
-                                    <span className="text-[10px] text-neutral-500 font-mono">
+                                    <span className="text-micro text-neutral-500 font-mono">
                                       {prod.variants!.length} active combinations
                                     </span>
                                   </div>
 
                                   <div className="border border-neutral-200 dark:border-[#222] rounded-[6px] overflow-hidden bg-white dark:bg-[#141414]">
                                     <table className="w-full text-left text-xs font-mono">
-                                      <thead className="bg-neutral-100 dark:bg-[#1A1A1A] text-[9px] uppercase font-bold text-neutral-600 dark:text-neutral-400 border-b border-neutral-200 dark:border-[#262626]">
+                                      <thead className="bg-neutral-100 dark:bg-[#1A1A1A] text-micro uppercase font-bold text-neutral-600 dark:text-neutral-400 border-b border-neutral-200 dark:border-[#262626]">
                                         <tr>
                                           <th className="py-1.5 px-3">Variant SKU</th>
                                           <th className="py-1.5 px-3">Collar / Style</th>
@@ -335,27 +335,27 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
                                       <tbody className="divide-y divide-neutral-100 dark:divide-[#202020]">
                                         {prod.variants!.map(v => (
                                           <tr key={v.sku} className="hover:bg-neutral-50 dark:hover:bg-[#181818] transition-colors">
-                                            <td className="py-1.5 px-3 font-bold text-brand-ink text-[11px]">{v.sku}</td>
+                                            <td className="py-1.5 px-3 font-bold text-brand-ink text-micro">{v.sku}</td>
                                             <td className="py-1.5 px-3 text-neutral-800 dark:text-neutral-200">
                                               {v.color ? (
-                                                <span className="px-1.5 py-0.2 rounded bg-red-50 dark:bg-red-950/30 text-brand-ink border border-red-500/20 font-bold text-[10px]">
+                                                <span className="px-1.5 py-0.2 rounded bg-red-50 dark:bg-red-950/30 text-brand-ink border border-red-500/20 font-bold text-micro">
                                                   {v.color}
                                                 </span>
                                               ) : 'Standard'}
                                             </td>
                                             <td className="py-1.5 px-3 text-neutral-800 dark:text-neutral-200">
                                               {v.size ? (
-                                                <span className="px-1.5 py-0.2 rounded bg-neutral-100 dark:bg-[#222] text-neutral-700 dark:text-neutral-300 font-bold text-[10px] border border-neutral-200 dark:border-[#333]">
+                                                <span className="px-1.5 py-0.2 rounded bg-neutral-100 dark:bg-[#222] text-neutral-700 dark:text-neutral-300 font-bold text-micro border border-neutral-200 dark:border-[#333]">
                                                   {v.size}
                                                 </span>
                                               ) : 'Standard'}
                                             </td>
-                                            <td className="py-1.5 px-3 font-bold text-neutral-900 dark:text-white text-[11px]">
+                                            <td className="py-1.5 px-3 font-bold text-neutral-900 dark:text-white text-micro">
                                               ${(v.price_override ?? prod.price).toFixed(2)}
                                             </td>
-                                            <td className="py-1.5 px-3 text-[11px]">
+                                            <td className="py-1.5 px-3 text-micro">
                                               <span className={cn(
-                                                "font-bold px-1.5 py-0.2 rounded text-[10px]",
+                                                "font-bold px-1.5 py-0.2 rounded text-micro",
                                                 v.stock <= 0
                                                   ? "bg-rose-50 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400"
                                                   : v.stock <= (v.min_stock_threshold ?? prod.minStockThreshold)
@@ -372,7 +372,7 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
                                                   setAdjustingProduct(prod);
                                                   setAdjustingVariant(v);
                                                 }}
-                                                className="px-2 py-0.5 text-[10px] font-bold font-mono bg-neutral-100 hover:bg-neutral-200 text-neutral-800 dark:bg-[#222] dark:hover:bg-[#2a2a2a] dark:text-[#E4E4E4] border border-neutral-300 dark:border-[#333] rounded-[4px] cursor-pointer transition active:scale-95" disabled={!canManageInventory}
+                                                className="px-2 py-0.5 text-micro font-bold font-mono bg-neutral-100 hover:bg-neutral-200 text-neutral-800 dark:bg-[#222] dark:hover:bg-[#2a2a2a] dark:text-[#E4E4E4] border border-neutral-300 dark:border-[#333] rounded-[4px] cursor-pointer transition active:scale-95" disabled={!canManageInventory}
                                               >
                                                 Restock
                                               </button>
@@ -417,14 +417,14 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[10px] font-bold text-brand-ink bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 px-1.5 py-0.5 rounded">
+                          <span className="text-micro font-bold text-brand-ink bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 px-1.5 py-0.5 rounded">
                             {prod.sku}
                           </span>
-                          <span className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                          <span className="text-micro text-neutral-500 dark:text-neutral-400">
                             {prod.category}
                           </span>
                           {prod.size && (
-                            <span className="text-[9px] bg-neutral-100 dark:bg-[#202020] px-1.5 py-0.2 rounded text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-[#262626]">
+                            <span className="text-micro bg-neutral-100 dark:bg-[#202020] px-1.5 py-0.2 rounded text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-[#262626]">
                               {prod.size}
                             </span>
                           )}
@@ -433,18 +433,18 @@ export function InventoryCatalogPanel({ canManageInventory, catalog, lowStockCou
                           {prod.name}
                         </h4>
                         <div className="mt-1 flex flex-wrap gap-1"><ProductVisibilityBadge product={prod} /><ProductVariantSetupNotice product={prod} /></div>
-                        {prod.hasVariants && !prod.variants?.length && <p className="mt-2 text-[11px] leading-relaxed text-amber-700 dark:text-amber-300">Physical stock is retained. Configure variants before selling this item.</p>}
-                        {prod.description && <p className="mt-2 line-clamp-2 break-words text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400">{prod.description}</p>}
+                        {prod.hasVariants && !prod.variants?.length && <p className="mt-2 text-micro leading-relaxed text-amber-700 dark:text-amber-300">Physical stock is retained. Configure variants before selling this item.</p>}
+                        {prod.description && <p className="mt-2 line-clamp-2 break-words text-micro leading-relaxed text-neutral-500 dark:text-neutral-400">{prod.description}</p>}
                       </div>
                       <div className="text-right shrink-0">
                         <div className="text-xs font-black text-neutral-900 dark:text-white">${prod.price.toFixed(2)}</div>
-                        <div className="text-[9px] text-neutral-500 dark:text-neutral-400">Retail: ${inventoryRetailValue(prod).toFixed(2)}</div>
+                        <div className="text-micro text-neutral-500 dark:text-neutral-400">Retail: ${inventoryRetailValue(prod).toFixed(2)}</div>
                       </div>
                     </div>
 
                     {/* Stock Health Bar */}
                     <div className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[6px] p-2 space-y-1">
-                      <div className="flex items-center justify-between text-[10px]">
+                      <div className="flex items-center justify-between text-micro">
                         <span className={cn(
                           "font-bold",
                           isOutOfStock ? "text-rose-600 dark:text-rose-400" : isLowStock ? "text-amber-700 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"

@@ -71,6 +71,14 @@ interface CounterCartPanelProps {
 }
 
 export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTotal, resumeParkedCart, discardParkedCart, cart, parkCurrentCart, clearCart, studentComboboxRef, selectedStudentId, setSelectedStudentId, setStudentSearchTerm, selectedStudent, getBeltColorClass, state, studentSearchTerm, setIsStudentDropdownOpen, isStudentDropdownOpen, filteredStudents, getCartItemKey, updateQuantity, removeFromCart, setIsNotesExpanded, isNotesExpanded, orderNotes, setOrderNotes, clampedDiscount, discountPercent, setDiscountPercent, subtotal, discountAmount, grandTotal, setPaymentMethod, paymentMethod, cashTendered, setCashTendered, isCashInsufficient, tenderedAmountNumber, changeDue, setIsKhqrModalOpen, canCreateOrder, executeCompleteSale, isCatalogLoading, dataErrors, isCheckoutPending }: CounterCartPanelProps) {
+  // Customer combobox, usable from the keyboard: the arrow keys move through "Walk-in" and the matching students, Enter picks, Escape closes.
+  const [activeStudentIndex, setActiveStudentIndex] = React.useState(0);
+  const studentOptions: { id: string }[] = [{ id: '' }, ...filteredStudents];
+  const optionId = (index: number) => `pos-student-option-${index}`;
+  const chooseStudent = (id: string) => { setSelectedStudentId(id); setStudentSearchTerm(''); setIsStudentDropdownOpen(false); };
+  React.useEffect(() => {
+    if (isStudentDropdownOpen) document.getElementById(optionId(activeStudentIndex))?.scrollIntoView({ block: 'nearest' });
+  }, [activeStudentIndex, isStudentDropdownOpen]);
   return <>{<div
             id="pos-checkout-cart"
             className="lg:col-span-4 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100dvh-90px)] flex flex-col bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 shadow-sm relative"
@@ -88,7 +96,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                   <button
                     type="button"
                     onClick={resumeParkedCart}
-                    className="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-[6px] font-bold text-[10px] cursor-pointer transition flex items-center gap-1 shadow-sm"
+                    className="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-[6px] font-bold text-micro cursor-pointer transition flex items-center gap-1 shadow-sm"
                   >
                     <Play size={10} weight="fill" /> Resume
                   </button>
@@ -118,7 +126,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                     <button
                       type="button"
                       onClick={parkCurrentCart}
-                      className="px-2 py-0.5 text-[9px] font-mono text-neutral-700 hover:text-amber-600 dark:text-neutral-300 dark:hover:text-amber-400 border border-neutral-200 dark:border-[#262626] bg-neutral-100 dark:bg-[#0F0F0F] rounded-[6px] transition cursor-pointer flex items-center gap-1"
+                      className="px-2 py-0.5 text-micro font-mono text-neutral-700 hover:text-amber-600 dark:text-neutral-300 dark:hover:text-amber-400 border border-neutral-200 dark:border-[#262626] bg-neutral-100 dark:bg-[#0F0F0F] rounded-[6px] transition cursor-pointer flex items-center gap-1"
                       title="Hold current cart to serve next customer"
                     >
                       <Pause size={10} weight="bold" /> Hold
@@ -126,14 +134,14 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                     <button
                       type="button"
                       onClick={clearCart}
-                      className="px-2 py-0.5 text-[9px] font-mono text-neutral-700 hover:text-brand-ink dark:text-neutral-300 dark:hover:text-brand-ink border border-neutral-200 dark:border-[#262626] bg-neutral-100 dark:bg-[#0F0F0F] rounded-[6px] transition cursor-pointer flex items-center gap-1"
+                      className="px-2 py-0.5 text-micro font-mono text-neutral-700 hover:text-brand-ink dark:text-neutral-300 dark:hover:text-brand-ink border border-neutral-200 dark:border-[#262626] bg-neutral-100 dark:bg-[#0F0F0F] rounded-[6px] transition cursor-pointer flex items-center gap-1"
                       title="Clear Cart"
                     >
                       <Trash size={10} /> Clear
                     </button>
                   </>
                 )}
-                <span className="text-[10px] font-mono bg-neutral-100 dark:bg-[#0F0F0F] px-2 py-0.5 rounded-[8px] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 font-bold">
+                <span className="text-micro font-mono bg-neutral-100 dark:bg-[#0F0F0F] px-2 py-0.5 rounded-[8px] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-300 font-bold">
                   {cart.reduce((s, i) => s + i.quantity, 0)} ITEMS
                 </span>
               </div>
@@ -142,7 +150,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
             {/* Customer Tagging: Searchable Combobox with Belt Badges */}
             <div className="mb-3 shrink-0 relative" ref={studentComboboxRef}>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-[9px] font-mono font-bold uppercase text-neutral-600 dark:text-neutral-400">
+                <label htmlFor="pos-student-search" className="text-micro font-mono font-bold uppercase text-neutral-600 dark:text-neutral-400">
                   CUSTOMER / STUDENT
                 </label>
                 {selectedStudentId && (
@@ -152,7 +160,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                       setSelectedStudentId('');
                       setStudentSearchTerm('');
                     }}
-                    className="text-[9px] font-mono text-amber-700 dark:text-amber-400 hover:underline cursor-pointer flex items-center gap-1"
+                    className="text-micro font-mono text-amber-700 dark:text-amber-400 hover:underline cursor-pointer flex items-center gap-1"
                   >
                     <X size={10} /> Switch to Walk-in
                   </button>
@@ -172,15 +180,15 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                           {selectedStudent.englishName}
                         </p>
                         {selectedStudent.khmerName && (
-                          <span className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">
+                          <span className="text-micro text-neutral-500 dark:text-neutral-400 truncate">
                             ({selectedStudent.khmerName})
                           </span>
                         )}
-                        <span className={cn("text-[9px] font-mono px-1.5 py-0.2 rounded border uppercase font-bold", getBeltColorClass(selectedStudent.currentBelt))}>
+                        <span className={cn("text-micro font-mono px-1.5 py-0.2 rounded border uppercase font-bold", getBeltColorClass(selectedStudent.currentBelt))}>
                           {selectedStudent.currentBelt}
                         </span>
                       </div>
-                      <p className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 mt-0.5 truncate">
+                      <p className="text-micro font-mono text-neutral-500 dark:text-neutral-400 mt-0.5 truncate">
                         {state.branches.find(b => b.id === selectedStudent.homeBranchId)?.name || 'Dojang Member'} • {selectedStudent.phone || selectedStudent.id}
                       </p>
                     </div>
@@ -200,21 +208,35 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                   <div className="relative">
                     <MagnifyingGlass size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
                     <input
+                      id="pos-student-search"
                       type="text"
+                      role="combobox"
+                      aria-expanded={isStudentDropdownOpen}
+                      aria-controls="pos-student-listbox"
+                      aria-autocomplete="list"
+                      aria-activedescendant={isStudentDropdownOpen ? optionId(activeStudentIndex) : undefined}
+                      autoComplete="off"
                       placeholder="Search student by name, belt, or phone..."
                       value={studentSearchTerm}
                       onFocus={() => setIsStudentDropdownOpen(true)}
                       onChange={e => {
                         setStudentSearchTerm(e.target.value);
+                        setActiveStudentIndex(0);
                         setIsStudentDropdownOpen(true);
+                      }}
+                      onKeyDown={event => {
+                        if (event.key === 'ArrowDown') { event.preventDefault(); setIsStudentDropdownOpen(true); setActiveStudentIndex(index => Math.min(index + 1, studentOptions.length - 1)); }
+                        else if (event.key === 'ArrowUp') { event.preventDefault(); setActiveStudentIndex(index => Math.max(index - 1, 0)); }
+                        else if (event.key === 'Enter' && isStudentDropdownOpen) { event.preventDefault(); chooseStudent(studentOptions[Math.min(activeStudentIndex, studentOptions.length - 1)].id); }
+                        else if (event.key === 'Escape' && isStudentDropdownOpen) { event.preventDefault(); event.stopPropagation(); setIsStudentDropdownOpen(false); }
                       }}
                       className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-xs text-neutral-900 dark:text-[#E4E4E4] pl-8 pr-7 py-2 rounded-[8px] focus:outline-none focus:border-brand font-mono placeholder:text-neutral-400 dark:placeholder:text-neutral-600"
                     />
                     {studentSearchTerm && (
-                      <button
+                      <button aria-label="Clear search"
                         type="button"
                         onClick={() => setStudentSearchTerm('')}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 dark:hover:text-white cursor-pointer"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 dark:hover:text-white cursor-pointer min-h-6 min-w-6 inline-flex items-center justify-center"
                       >
                         <X size={12} />
                       </button>
@@ -223,14 +245,14 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
 
                   {/* Dropdown Options */}
                   {isStudentDropdownOpen && (
-                    <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl max-h-56 overflow-y-auto scrollbar-thin">
+                    <div id="pos-student-listbox" role="listbox" aria-label="Customer" className="absolute z-50 left-0 right-0 top-full mt-1 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] shadow-2xl max-h-56 overflow-y-auto scrollbar-thin">
                       <div
-                        onClick={() => {
-                          setSelectedStudentId('');
-                          setStudentSearchTerm('');
-                          setIsStudentDropdownOpen(false);
-                        }}
-                        className="px-3 py-2.5 min-h-[44px] text-xs font-mono text-amber-700 dark:text-amber-400 hover:bg-neutral-100 dark:hover:bg-[#1a1a1a] cursor-pointer border-b border-neutral-200 dark:border-[#262626] flex items-center justify-between active:bg-neutral-200 dark:active:bg-[#202020] touch-manipulation"
+                        id={optionId(0)}
+                        role="option"
+                        aria-selected={activeStudentIndex === 0}
+                        onMouseEnter={() => setActiveStudentIndex(0)}
+                        onClick={() => chooseStudent('')}
+                        className={cn("px-3 py-2.5 min-h-[44px] text-xs font-mono text-amber-700 dark:text-amber-400 hover:bg-neutral-100 dark:hover:bg-[#1a1a1a] cursor-pointer border-b border-neutral-200 dark:border-[#262626] flex items-center justify-between active:bg-neutral-200 dark:active:bg-[#202020] touch-manipulation", activeStudentIndex === 0 && "bg-neutral-100 dark:bg-[#1a1a1a]")}
                       >
                         <span className="font-bold">-- Walk-in Customer / Parent (No Tag) --</span>
                         <User size={14} />
@@ -241,28 +263,28 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                           No students found matching &quot;{studentSearchTerm}&quot;.
                         </div>
                       ) : (
-                        filteredStudents.map(s => {
+                        filteredStudents.map((s, studentIndex) => {
                           const branchName = state.branches.find(b => b.id === s.homeBranchId)?.name;
                           return (
                             <div
                               key={s.id}
-                              onClick={() => {
-                                setSelectedStudentId(s.id);
-                                setIsStudentDropdownOpen(false);
-                                setStudentSearchTerm('');
-                              }}
-                              className="px-3 py-2.5 min-h-[44px] text-xs font-mono hover:bg-neutral-100 dark:hover:bg-[#1a1a1a] cursor-pointer border-b border-neutral-100 dark:border-[#1f1f1f] last:border-none flex items-center justify-between active:bg-neutral-200 dark:active:bg-[#202020] touch-manipulation"
+                              id={optionId(studentIndex + 1)}
+                              role="option"
+                              aria-selected={activeStudentIndex === studentIndex + 1}
+                              onMouseEnter={() => setActiveStudentIndex(studentIndex + 1)}
+                              onClick={() => chooseStudent(s.id)}
+                              className={cn("px-3 py-2.5 min-h-[44px] text-xs font-mono hover:bg-neutral-100 dark:hover:bg-[#1a1a1a] cursor-pointer border-b border-neutral-100 dark:border-[#1f1f1f] last:border-none flex items-center justify-between active:bg-neutral-200 dark:active:bg-[#202020] touch-manipulation", activeStudentIndex === studentIndex + 1 && "bg-neutral-100 dark:bg-[#1a1a1a]")}
                             >
                               <div className="min-w-0 pr-2">
                                 <div className="flex items-center gap-1.5">
                                   <span className="font-bold text-neutral-900 dark:text-white truncate">{s.englishName}</span>
-                                  {s.khmerName && <span className="text-[10px] text-neutral-500 dark:text-neutral-400">({s.khmerName})</span>}
+                                  {s.khmerName && <span className="text-micro text-neutral-500 dark:text-neutral-400">({s.khmerName})</span>}
                                 </div>
-                                <p className="text-[9px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
+                                <p className="text-micro text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
                                   {branchName || 'Dojang'} • {s.phone || s.id}
                                 </p>
                               </div>
-                              <span className={cn("text-[9px] px-1.5 py-0.5 rounded border uppercase shrink-0 font-bold", getBeltColorClass(s.currentBelt))}>
+                              <span className={cn("text-micro px-1.5 py-0.5 rounded border uppercase shrink-0 font-bold", getBeltColorClass(s.currentBelt))}>
                                 {s.currentBelt}
                               </span>
                             </div>
@@ -290,29 +312,29 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                     <div key={itemKey} className="flex items-center justify-between bg-neutral-50 dark:bg-[#0F0F0F] p-2.5 rounded-[8px] border border-neutral-200 dark:border-[#262626] shadow-sm">
                       <div className="flex-1 min-w-0 pr-2">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <p className="text-[11px] font-bold text-neutral-900 dark:text-white truncate">
+                          <p className="text-micro font-bold text-neutral-900 dark:text-white truncate">
                             {item.product.name}
                           </p>
                           {item.variant ? (
                             <>
                               {item.variant.color && (
-                                <span className="text-[9px] font-mono bg-red-50 dark:bg-red-950/30 text-brand-ink border border-red-500/30 px-1 rounded font-bold">
+                                <span className="text-micro font-mono bg-red-50 dark:bg-red-950/30 text-brand-ink border border-red-500/30 px-1 rounded font-bold">
                                   {item.variant.color}
                                 </span>
                               )}
                               {item.variant.size && (
-                                <span className="text-[9px] font-mono bg-neutral-200 dark:bg-[#202020] px-1 rounded text-neutral-700 dark:text-neutral-300 font-bold">
+                                <span className="text-micro font-mono bg-neutral-200 dark:bg-[#202020] px-1 rounded text-neutral-700 dark:text-neutral-300 font-bold">
                                   {item.variant.size}
                                 </span>
                               )}
                             </>
                           ) : item.product.size ? (
-                            <span className="text-[9px] font-mono bg-neutral-200 dark:bg-[#202020] px-1 rounded text-neutral-600 dark:text-neutral-400">
+                            <span className="text-micro font-mono bg-neutral-200 dark:bg-[#202020] px-1 rounded text-neutral-600 dark:text-neutral-400">
                               {item.product.size}
                             </span>
                           ) : null}
                         </div>
-                        <p className="text-[9px] font-mono text-neutral-600 dark:text-neutral-400 mt-0.5">
+                        <p className="text-micro font-mono text-neutral-600 dark:text-neutral-400 mt-0.5">
                           <span className="text-neutral-400 mr-1">SKU: {item.variant?.sku || item.product.sku}</span>
                           • ${itemPrice.toFixed(2)} × {item.quantity} = <strong className="text-brand-ink">${(itemPrice * item.quantity).toFixed(2)}</strong>
                         </p>
@@ -359,11 +381,11 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                 type="button"
                 onClick={() => setIsNotesExpanded(!isNotesExpanded)}
                 aria-expanded={isNotesExpanded}
-                className="min-h-8 pointer-coarse:min-h-9 text-[10px] font-mono text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white flex items-center gap-1 cursor-pointer transition-colors py-1 touch-manipulation"
+                className="min-h-8 pointer-coarse:min-h-9 text-micro font-mono text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white flex items-center gap-1 cursor-pointer transition-colors py-1 touch-manipulation"
               >
                 <ChatCenteredText size={12} weight={orderNotes ? "fill" : "regular"} className={orderNotes ? "text-brand-ink" : ""} />
                 <span>Order Notes {orderNotes ? `("${orderNotes.slice(0, 15)}...")` : ''}</span>
-                <span className="text-[9px] text-neutral-400">({isNotesExpanded ? 'Hide' : 'Add'})</span>
+                <span className="text-micro text-neutral-400">({isNotesExpanded ? 'Hide' : 'Add'})</span>
               </button>
               {isNotesExpanded && (
                 <div className="mt-1.5 animate-in fade-in">
@@ -383,7 +405,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
 
               {/* Discount Controls */}
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-[10px] font-mono text-neutral-600 dark:text-neutral-400">
+                <div className="flex items-center justify-between text-micro font-mono text-neutral-600 dark:text-neutral-400">
                   <span>DISCOUNT ({clampedDiscount}%):</span>
                   <div className="flex items-center gap-1">
                     <input
@@ -394,20 +416,21 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                       inputMode="numeric"
                       aria-label="Discount percent"
                       onChange={e => setDiscountPercent(Math.max(0, Math.min(100, parseInt(e.target.value) || 0)))}
-                      className="min-h-8 pointer-coarse:min-h-9 w-14 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[6px] px-1.5 py-0.5 text-center text-[10px] font-bold text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
+                      className="min-h-8 pointer-coarse:min-h-9 w-14 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[6px] px-1.5 py-0.5 text-center text-micro font-bold text-neutral-900 dark:text-white focus:outline-none focus:border-brand"
                     />
                     <span>%</span>
                   </div>
                 </div>
 
-                <div className="flex gap-1">
+                <div role="group" aria-label="Discount presets" className="flex gap-1">
                   {[0, 5, 10, 15, 20].map(d => (
                     <button
                       key={d}
                       type="button"
+                      aria-pressed={discountPercent === d}
                       onClick={() => setDiscountPercent(d)}
                       className={cn(
-                        "flex-1 py-1 min-h-[34px] text-[10px] font-mono rounded-[6px] border transition cursor-pointer font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11",
+                        "flex-1 py-1 min-h-[34px] text-micro font-mono rounded-[6px] border transition cursor-pointer font-bold active:scale-95 touch-manipulation pointer-coarse:min-h-11",
                         discountPercent === d
                           ? "bg-brand text-white border-brand shadow-sm"
                           : "bg-neutral-100 dark:bg-[#0F0F0F] border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
@@ -434,13 +457,13 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                 <div className="flex items-baseline justify-between pt-1.5 border-t border-neutral-200 dark:border-[#262626]">
                   <div>
                     <span className="text-xs font-bold text-neutral-900 dark:text-white block">GRAND TOTAL:</span>
-                    <span className="text-[10px] text-neutral-500 dark:text-neutral-400">Exchange @ 4,100 KHR</span>
+                    <span className="text-micro text-neutral-500 dark:text-neutral-400">Exchange @ 4,100 KHR</span>
                   </div>
                   <div className="text-right">
                     <span className="text-base font-black text-brand-ink block leading-tight">
                       ${grandTotal.toFixed(2)}
                     </span>
-                    <span className="text-[10px] font-bold text-neutral-600 dark:text-neutral-400 font-mono">
+                    <span className="text-micro font-bold text-neutral-600 dark:text-neutral-400 font-mono">
                       ≈ {formatKHR(grandTotal)}
                     </span>
                   </div>
@@ -478,7 +501,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
               {/* CASH REGISTER TOOLS: Tendered & Change Calculator with KHR */}
               {paymentMethod === 'Cash' && cart.length > 0 && (
                 <div className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-2.5 rounded-[8px] space-y-2 shadow-sm animate-in fade-in">
-                  <div className="flex items-center justify-between text-[10px] font-mono text-neutral-600 dark:text-neutral-400">
+                  <div className="flex items-center justify-between text-micro font-mono text-neutral-600 dark:text-neutral-400">
                     <span>CASH TENDERED (USD):</span>
                     <div className="flex items-center gap-1">
                       <span className="text-neutral-900 dark:text-white font-bold">$</span>
@@ -524,7 +547,7 @@ export function CounterCartPanel({ parkedCart, parkedItemsCount, parkedGrandTota
                         {isCashInsufficient ? `Short by $${(grandTotal - tenderedAmountNumber).toFixed(2)}` : `$${changeDue.toFixed(2)}`}
                       </span>
                       {!isCashInsufficient && changeDue > 0 && (
-                        <span className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 block">
+                        <span className="text-micro font-bold text-neutral-500 dark:text-neutral-400 block">
                           ≈ {formatKHR(changeDue)}
                         </span>
                       )}

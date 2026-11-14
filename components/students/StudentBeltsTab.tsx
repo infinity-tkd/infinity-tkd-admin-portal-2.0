@@ -30,10 +30,10 @@ export function StudentBeltsTab({ t, canEdit, handleOpenBulkBeltModal, handleOpe
                    <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-800 dark:text-white">{t('panel_tab_belts')}</h3>
                    {canEdit && (
                      <div className="flex gap-2">
-                       <button onClick={handleOpenBulkBeltModal} className="text-[10px] bg-neutral-200 hover:bg-neutral-300 dark:bg-[#262626] dark:hover:bg-white dark:hover:text-black px-3.5 py-1.5 rounded-[8px] font-bold text-neutral-800 dark:text-white uppercase tracking-widest transition-colors border border-neutral-300 dark:border-transparent">
+                       <button onClick={handleOpenBulkBeltModal} className="text-micro bg-neutral-200 hover:bg-neutral-300 dark:bg-[#262626] dark:hover:bg-white dark:hover:text-black px-3.5 py-1.5 rounded-[8px] font-bold text-neutral-800 dark:text-white uppercase tracking-widest transition-colors border border-neutral-300 dark:border-transparent">
                          {t('panel_bulk_log_btn')}
                        </button>
-                       <button onClick={handleOpenBeltModal} className="text-[10px] bg-neutral-200 hover:bg-neutral-300 dark:bg-[#262626] dark:hover:bg-white dark:hover:text-black px-3.5 py-1.5 rounded-[8px] font-bold text-neutral-800 dark:text-white uppercase tracking-widest transition-colors border border-neutral-300 dark:border-transparent">
+                       <button onClick={handleOpenBeltModal} className="text-micro bg-neutral-200 hover:bg-neutral-300 dark:bg-[#262626] dark:hover:bg-white dark:hover:text-black px-3.5 py-1.5 rounded-[8px] font-bold text-neutral-800 dark:text-white uppercase tracking-widest transition-colors border border-neutral-300 dark:border-transparent">
                          + {t('panel_add_belt_btn')}
                        </button>
                      </div>
@@ -60,7 +60,7 @@ export function StudentBeltsTab({ t, canEdit, handleOpenBulkBeltModal, handleOpe
                               <p className="text-sm font-bold text-neutral-900 dark:text-white">
                                 {state.language === 'en' ? `${formatBeltLocalized(h.beltLevel, student.dob, t)} Belt` : formatBeltLocalized(h.beltLevel, student.dob, t)}
                               </p>
-                              {i === 0 && <p className="text-[10px] text-green-600 dark:text-green-500 uppercase tracking-widest font-bold">{t('panel_current_rank')}</p>}
+                              {i === 0 && <p className="text-micro text-green-600 dark:text-green-500 uppercase tracking-widest font-bold">{t('panel_current_rank')}</p>}
                             </div>
                          </div>
                          <div className="flex items-center gap-2">
@@ -109,13 +109,13 @@ export function StudentBeltsTab({ t, canEdit, handleOpenBulkBeltModal, handleOpe
                            )}
                            {h.certificateRef && (
                              <div className="text-neutral-600 dark:text-[#999] col-span-2 mt-1">
-                               <span className="text-neutral-400 dark:text-[#666] text-[10px] uppercase font-bold tracking-widest mr-2 inline-block">{t('panel_certificate_ref')}:</span>
-                               <span className="font-mono text-neutral-800 dark:text-white text-[10px] tracking-tight bg-neutral-200 dark:bg-[#262626] px-2 py-0.5 rounded font-bold">{h.certificateRef}</span>
+                               <span className="text-neutral-400 dark:text-[#666] text-micro uppercase font-bold tracking-widest mr-2 inline-block">{t('panel_certificate_ref')}:</span>
+                               <span className="font-mono text-neutral-800 dark:text-white text-micro tracking-tight bg-neutral-200 dark:bg-[#262626] px-2 py-0.5 rounded font-bold">{h.certificateRef}</span>
                              </div>
                            )}
                            {h.kukkiwonDanCardId && (
                               <div className="text-neutral-600 dark:text-[#999] col-span-2 mt-1 flex flex-wrap items-center gap-2">
-                                <span className="text-red-500 dark:text-red-400 text-[10px] uppercase font-bold tracking-widest mr-2 inline-block">{h.kukkiwonDanCardId.startsWith('http') || h.kukkiwonDanCardId.includes('drive.google.com') ? `${t('panel_certificate_ref')}:` : `${t('panel_kukkiwon_card')}:`}</span>
+                                <span className="text-red-500 dark:text-red-400 text-micro uppercase font-bold tracking-widest mr-2 inline-block">{h.kukkiwonDanCardId.startsWith('http') || h.kukkiwonDanCardId.includes('drive.google.com') ? `${t('panel_certificate_ref')}:` : `${t('panel_kukkiwon_card')}:`}</span>
                                 {h.kukkiwonDanCardId.startsWith('http') || h.kukkiwonDanCardId.includes('drive.google.com') ? (
                                   <a
                                     href={h.kukkiwonDanCardId}
@@ -127,7 +127,7 @@ export function StudentBeltsTab({ t, canEdit, handleOpenBulkBeltModal, handleOpe
                                     {t('panel_open_gdrive_cert')}
                                   </a>
                                 ) : (
-                                  <span className="font-mono text-red-500 dark:text-red-400 text-[10px] tracking-tight bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded font-bold">{h.kukkiwonDanCardId}</span>
+                                  <span className="font-mono text-red-500 dark:text-red-400 text-micro tracking-tight bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded font-bold">{h.kukkiwonDanCardId}</span>
                                 )}
                               </div>
                             )}

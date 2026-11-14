@@ -8,13 +8,33 @@
      WCAG AA (4.5:1): red-500 5.0, red-600 5.9 against white. Same hue, calmer on the eyes. */
   --color-red-400: #ef5a61;
   --color-red-500: #d62630;
-  --color-red-600: #c41f28;
+  --color-red-600: #b81d26;   /* 4.7:1 as chip text on a 15% red tint over #f5f5f5; white on it 6.5:1 */
   --color-red-700: #a3181f;
-  /* Tailwind 4's emerald-600 (#009966) gives white text only 3.7:1 ("Quick Pay", "Kiosk mode"). */
-  --color-emerald-600: #047857;
+  /* Tailwind 4's emerald-600 (#009966) gives white text only 3.7:1 ("Quick Pay", "Kiosk mode"); #047857 was 4.2:1 on a 20% emerald tint. */
+  --color-emerald-600: #046a4d;
+  --color-rose-700: #bf0033;
   --color-emerald-700: #036246;
   /* Gender badges: pink-600 text on its own tint was 4.0:1. */
   --color-pink-600: #c6005c;
+  /* Status chips are text of one hue on a 10-20% tint of that hue. Tailwind's 600 and 700 shades of these hues measured 2.6 to 4.2:1 there
+     (and white text on them as solid buttons 3:1 or less). Same hue, darker, so every chip reaches 4.5:1 on white, #fafafa and #f5f5f5;
+     scripts/check-chip-contrast-browser.mjs measures all of them. */
+  --color-orange-600: #bc2500;
+  --color-orange-700: #a82000;
+  --color-amber-600: #af4200;
+  --color-amber-700: #9a3800;
+  --color-yellow-600: #9b5500;
+  --color-yellow-700: #864a00;
+  --color-green-600: #007400;
+  --color-green-700: #006320;
+  --color-cyan-600: #006b8f;
+  --color-sky-600: #0064ae;
+  --color-blue-600: #044eec;
+  --color-rose-600: #ba0017;
+  --color-purple-600: #8900e8;
+  /* Type-scale floor. Labels, chips and table heads were authored at 9, 9.5, 10 and 11px (56% of all text was under 11px), which is hard to
+     read on a phone held at arm's length. They all use text-micro now, so the smallest text anywhere in the portal is changed here, once. */
+  --text-micro: 0.6875rem;
   --font-sans: var(--font-sans), var(--font-khmer), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --radius-lg: 8px;
@@ -468,8 +488,9 @@ html:not(.dark) .text-violet-400,
 html:not(.dark) .text-violet-500 {
   color: #7E22CE !important; /* Deep Violet Purple 7.5:1 contrast against #FFFFFF */
 }
-html:not(.dark) .text-red-400 {
-  color: #B91C1C !important; /* Deep Crimson Red 7.4:1 contrast against #FFFFFF */
+html:not(.dark) .text-red-400,
+html:not(.dark) .text-red-500 {
+  color: #B91C1C !important; /* Deep Crimson Red 7.4:1 contrast against #FFFFFF (red-500 on its own 15% tint was 3.9:1) */
 }
 html:not(.dark) .text-orange-400,
 html:not(.dark) .text-orange-500 {

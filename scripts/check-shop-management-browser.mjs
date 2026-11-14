@@ -105,7 +105,8 @@ async function fixture(readOnly = false) {
   return { context, page, orders, releasePayment: () => paymentRelease(), paymentStarted };
 }
 const fits = async page => assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no horizontal page overflow');
-const dismiss = async page => { const notice = page.getByRole('alertdialog'); await notice.waitFor({ state: 'visible', timeout: 15000 }); await notice.getByRole('button', { name: 'Dismiss Notification', exact: true }).click(); await notice.waitFor({ state: 'hidden' }); };
+// A notice is an alert dialog for an error or warning and a status message for a success or info (it never takes focus), so it is found by its title.
+const dismiss = async page => { const notice = page.locator('[aria-labelledby="sys-modal-title"]'); await notice.waitFor({ state: 'visible', timeout: 15000 }); await notice.getByRole('button', { name: 'Dismiss Notification', exact: true }).click(); await notice.waitFor({ state: 'hidden' }); };
 const tab = (page, name) => page.getByRole('button', { name: new RegExp('^' + name) }).first();
 
 try {
@@ -178,7 +179,7 @@ try {
   const create = page.getByRole('dialog', { name: 'Create product', exact: true });
   assert.equal(await create.getByLabel('Available in student shop', { exact: false }).isChecked(), false);
   await create.getByLabel('Product name', { exact: true }).fill('Fixture new product');
-  await create.getByLabel('Product SKU', { exact: true }).fill('FIXTURE-NEW-001');
+  await create.getByLabel('BASE SKU CODE', { exact: false }).fill('FIXTURE-NEW-001');
   await create.getByLabel('Product description', { exact: true }).fill('New fictional student catalog content');
   await create.getByRole('button', { name: 'Add Single Item', exact: true }).click(); await create.waitFor({ state: 'hidden' }); await dismiss(page);
   const created = writes.find(row => row.kind === 'product' && row.body.action === 'CREATE_PRODUCT').body;

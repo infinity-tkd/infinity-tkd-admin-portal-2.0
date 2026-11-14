@@ -3,7 +3,7 @@
 // behind it (ancestor backgrounds composited, including translucent ones). Colours are converted
 // through a canvas, so oklch()/color-mix() values from Tailwind 4 are handled.
 // Thresholds: 4.5:1, or 3:1 for large text (24px+, or 18.66px+ bold). Disabled controls are exempt.
-export function contrastAudit() {
+export function contrastAudit(rootSelector = 'body') {
   const canvas = document.createElement('canvas'); canvas.width = canvas.height = 1;
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   const rgba = value => { ctx.clearRect(0, 0, 1, 1); ctx.fillStyle = '#000'; ctx.fillStyle = value; ctx.fillRect(0, 0, 1, 1); const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data; return [r, g, b, a / 255]; };
@@ -27,7 +27,7 @@ export function contrastAudit() {
   };
   const findings = new Map();
   let checked = 0;
-  for (const element of document.querySelectorAll('body *')) {
+  for (const element of document.querySelectorAll(rootSelector + ' *')) {
     if (!/\S/.test([...element.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join(''))) continue;
     const box = element.getBoundingClientRect();
     if (box.width < 1 || box.height < 1) continue;
@@ -44,7 +44,7 @@ export function contrastAudit() {
       const key = `${hex(ink)} on ${hex(behind)}`;
       const entry = findings.get(key) ?? { colours: key, ratio: Math.round(value * 100) / 100, count: 0, examples: [] };
       entry.count++;
-      if (entry.examples.length < 3) entry.examples.push(`${element.tagName.toLowerCase()}.${String(element.className || '').split(/\s+/).filter(c => /text-|bg-/.test(c)).slice(0, 4).join('.')} "${element.textContent.trim().slice(0, 30)}"`);
+      if (entry.examples.length < 3) entry.examples.push(element.dataset.chip || `${element.tagName.toLowerCase()}.${String(element.className || '').split(/\s+/).filter(c => /text-|bg-/.test(c)).slice(0, 4).join('.')} "${element.textContent.trim().slice(0, 30)}"`);
       findings.set(key, entry);
     }
   }

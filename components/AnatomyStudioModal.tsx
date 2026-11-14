@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { X } from '@phosphor-icons/react/dist/csr/X';
 import { CurriculumVideo, Student, useAppStore } from '@/lib/store';
 import { Portal } from '@/components/Portal';
+import { useModalFocus } from '@/hooks/use-modal-focus';
 import { resolveAssetMuscleLoads } from '@/lib/anatomyUtils';
 import { AnatomyContext, resolveStudentMuscleLoads } from '@/lib/anatomy-integration';
 import { cn } from '@/lib/utils';
@@ -30,7 +31,6 @@ export function AnatomyStudioModal({ isOpen, onClose, asset = null, student = nu
   const router = useRouter();
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
   const [focusedMuscle, setFocusedMuscle] = useState<string | null>(null);
@@ -54,29 +54,14 @@ export function AnatomyStudioModal({ isOpen, onClose, asset = null, student = nu
   };
 
   useEffect(() => { setFocusedMuscle(null); }, [isOpen, asset?.id, student?.id]);
+  // The panel renders through <Portal>, which mounts a frame late: useModalFocus waits for it, then moves focus in,
+  // traps Tab, closes on Escape and restores the opener.
+  useModalFocus(dialogRef, () => onCloseRef.current(), isOpen);
   useEffect(() => {
     if (!isOpen) return;
-    const previousFocus = document.activeElement;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const frame = requestAnimationFrame(() => closeRef.current?.focus());
-    const keydown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); onCloseRef.current(); return; }
-      if (event.key !== 'Tab') return;
-      const dialog = dialogRef.current;
-      const controls = dialog ? [...dialog.querySelectorAll<HTMLElement>('button,input,select,a[href],[tabindex]')].filter(item => item.tabIndex >= 0 && !item.hasAttribute('disabled') && item.getClientRects().length) : [];
-      const first = controls[0]; const last = controls[controls.length - 1];
-      if (!first) { event.preventDefault(); dialog?.focus(); }
-      else if (event.shiftKey && (document.activeElement === first || !dialog?.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && (document.activeElement === last || !dialog?.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
-    };
-    document.addEventListener('keydown', keydown, true);
-    return () => {
-      cancelAnimationFrame(frame);
-      document.removeEventListener('keydown', keydown, true);
-      document.body.style.overflow = previousOverflow;
-      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus();
-    };
+    return () => { document.body.style.overflow = previousOverflow; };
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -85,10 +70,10 @@ export function AnatomyStudioModal({ isOpen, onClose, asset = null, student = nu
     <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} data-testid="anatomy-studio" className="fixed inset-0 z-[10000] flex h-[100dvh] min-h-0 flex-col bg-white font-sans text-neutral-900 dark:bg-[#0A0A0A] dark:text-white motion-safe:animate-in motion-safe:fade-in motion-safe:duration-150">
       <header className="flex shrink-0 items-center justify-between gap-3 border-b border-neutral-200 px-4 py-3 pt-[max(.75rem,env(safe-area-inset-top))] dark:border-neutral-800 sm:px-6">
         <div className="min-w-0 border-l-4 border-brand pl-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Infinity TKD · {sourceLabel}</p>
+          <p className="text-micro font-semibold uppercase tracking-wider text-neutral-500">Infinity TKD · {sourceLabel}</p>
           <h2 id={titleId} className="truncate text-base font-semibold sm:text-lg">{title}</h2>
         </div>
-        <button ref={closeRef} type="button" onClick={onClose} aria-label="Close muscle explorer" className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-red-500 dark:border-neutral-800 dark:hover:bg-neutral-900"><X size={20} /></button>
+        <button type="button" onClick={onClose} aria-label="Close muscle explorer" className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-red-500 dark:border-neutral-800 dark:hover:bg-neutral-900"><X size={20} /></button>
       </header>
       <div className="shrink-0 border-b border-neutral-200 bg-neutral-50 px-4 py-2.5 dark:border-neutral-800 dark:bg-neutral-950 sm:px-6">
         <p className="text-xs leading-relaxed text-neutral-500">{studentView ? `${coverage.completedAssetIds.length} completed learning material${coverage.completedAssetIds.length === 1 ? '' : 's'}. Colour shows mapped training coverage, not measured muscle fatigue or strength.` : asset ? 'Explore the muscles used in this material, then open related learning resources.' : 'Select a muscle to explore its role in Taekwondo and the academy’s related learning materials.'}</p>

@@ -32,7 +32,7 @@ export function StudentBulkAchievementDialog({ t, setShowBulkAchvModal, bulkAchv
                         <Trophy className="w-5 h-5 text-amber-500" />
                         {t('panel_bulk_log_achvs_title')}
                       </h2>
-                      <button onClick={() => setShowBulkAchvModal(false)} className="p-1 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+                      <button aria-label="Close" onClick={() => setShowBulkAchvModal(false)} className="p-1 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors min-h-6 min-w-6 inline-flex items-center justify-center"><X className="w-5 h-5" /></button>
                    </div>
 
                    {/* Table / Card area */}
@@ -42,13 +42,13 @@ export function StudentBulkAchievementDialog({ t, setShowBulkAchvModal, bulkAchv
                        <table className="w-full text-left border-collapse">
                          <thead>
                            <tr className="bg-neutral-100 dark:bg-[#141414] border-b border-neutral-200 dark:border-[#262626]">
-                             <th className="p-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[26%]">{t('panel_event_name_req')}</th>
-                             <th className="p-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[16%]">{t('panel_col_category')}</th>
-                             <th className="p-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[14%]">{t('panel_col_division')}</th>
-                             <th className="p-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[14%]">{t('panel_col_medal_rank')}</th>
-                             <th className="p-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[12%]">{t('panel_date_req')}</th>
-                             <th className="p-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[14%]">{t('panel_col_notes_opt')}</th>
-                             <th className="p-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] text-center w-[4%]">{t('panel_col_act')}</th>
+                             <th className="p-3 text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[26%]">{t('panel_event_name_req')}</th>
+                             <th className="p-3 text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[16%]">{t('panel_col_category')}</th>
+                             <th className="p-3 text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[14%]">{t('panel_col_division')}</th>
+                             <th className="p-3 text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[14%]">{t('panel_col_medal_rank')}</th>
+                             <th className="p-3 text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[12%]">{t('panel_date_req')}</th>
+                             <th className="p-3 text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[14%]">{t('panel_col_notes_opt')}</th>
+                             <th className="p-3 text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] text-center w-[4%]">{t('panel_col_act')}</th>
                            </tr>
                          </thead>
                          <tbody className="divide-y divide-neutral-200 dark:divide-[#262626]">
@@ -64,7 +64,7 @@ export function StudentBulkAchievementDialog({ t, setShowBulkAchvModal, bulkAchv
                                  />
                                </td>
                                <td className="p-2">
-                                 <select
+                                 <select aria-label={`Category, row ${index + 1}`}
                                    className="w-full bg-transparent border-0 focus:ring-1 focus:ring-red-500 rounded p-1 text-sm text-neutral-900 dark:text-white"
                                    value={row.category}
                                    onChange={e => handleUpdateBulkAchvCell(index, 'category', e.target.value)}
@@ -76,7 +76,7 @@ export function StudentBulkAchievementDialog({ t, setShowBulkAchvModal, bulkAchv
                                  </select>
                                </td>
                                <td className="p-2">
-                                 <select
+                                 <select aria-label={`Division, row ${index + 1}`}
                                    className="w-full bg-transparent border-0 focus:ring-1 focus:ring-red-500 rounded p-1 text-sm text-neutral-900 dark:text-white"
                                    value={row.division}
                                    onChange={e => handleUpdateBulkAchvCell(index, 'division', e.target.value)}
@@ -88,7 +88,7 @@ export function StudentBulkAchievementDialog({ t, setShowBulkAchvModal, bulkAchv
                                  </select>
                                </td>
                                <td className="p-2">
-                                 <select
+                                 <select aria-label={`Medal, row ${index + 1}`}
                                    className="w-full bg-transparent border-0 focus:ring-1 focus:ring-red-500 rounded p-1 text-sm text-neutral-900 dark:text-white"
                                    value={row.medalRank}
                                    onChange={e => handleUpdateBulkAchvCell(index, 'medalRank', e.target.value)}
@@ -100,7 +100,7 @@ export function StudentBulkAchievementDialog({ t, setShowBulkAchvModal, bulkAchv
                                  </select>
                                </td>
                                <td className="p-2">
-                                 <input
+                                 <input aria-label={`Date, row ${index + 1}`}
                                    type="date"
                                    className="w-full bg-transparent border-0 focus:ring-1 focus:ring-red-500 rounded p-1 text-sm text-neutral-900 dark:text-white [color-scheme:light] dark:[color-scheme:dark]"
                                    value={row.date}
@@ -144,12 +144,12 @@ export function StudentBulkAchievementDialog({ t, setShowBulkAchvModal, bulkAchv
                            >
                              <X className="w-4 h-4" />
                            </button>
-                           <div className="text-[10px] font-bold uppercase tracking-wider text-amber-500">{t('bulk_table_row')} #{index + 1}</div>
+                           <div className="text-micro font-bold uppercase tracking-wider text-amber-500">{t('bulk_table_row')} #{index + 1}</div>
 
                            <div className="space-y-3">
                              <div>
-                               <label className="block text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_event_name_req')}</label>
-                               <input
+                               <label htmlFor={`student-bulk-achievement-dialog-panel_event_name_req-${index}`} className="block text-micro uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_event_name_req')}</label>
+                               <input id={`student-bulk-achievement-dialog-panel_event_name_req-${index}`}
                                  type="text"
                                  className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white"
                                  placeholder={t('panel_placeholder_tournament_event')}
@@ -161,8 +161,8 @@ export function StudentBulkAchievementDialog({ t, setShowBulkAchvModal, bulkAchv
 
                            <div className="grid grid-cols-2 gap-3">
                              <div>
-                               <label className="block text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_col_category')}</label>
-                               <select
+                               <label htmlFor={`student-bulk-achievement-dialog-panel_col_category-${index}`} className="block text-micro uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_col_category')}</label>
+                               <select id={`student-bulk-achievement-dialog-panel_col_category-${index}`}
                                  className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white"
                                  value={row.category}
                                  onChange={e => handleUpdateBulkAchvCell(index, 'category', e.target.value)}
@@ -175,8 +175,8 @@ export function StudentBulkAchievementDialog({ t, setShowBulkAchvModal, bulkAchv
                              </div>
 
                              <div>
-                               <label className="block text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_col_division')}</label>
-                               <select
+                               <label htmlFor={`student-bulk-achievement-dialog-panel_col_division-${index}`} className="block text-micro uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_col_division')}</label>
+                               <select id={`student-bulk-achievement-dialog-panel_col_division-${index}`}
                                  className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white"
                                  value={row.division}
                                  onChange={e => handleUpdateBulkAchvCell(index, 'division', e.target.value)}
@@ -191,8 +191,8 @@ export function StudentBulkAchievementDialog({ t, setShowBulkAchvModal, bulkAchv
 
                            <div className="grid grid-cols-2 gap-3">
                              <div>
-                               <label className="block text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_col_medal_rank')}</label>
-                               <select
+                               <label htmlFor={`student-bulk-achievement-dialog-panel_col_medal_rank-${index}`} className="block text-micro uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_col_medal_rank')}</label>
+                               <select id={`student-bulk-achievement-dialog-panel_col_medal_rank-${index}`}
                                  className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white"
                                  value={row.medalRank}
                                  onChange={e => handleUpdateBulkAchvCell(index, 'medalRank', e.target.value)}
@@ -205,8 +205,8 @@ export function StudentBulkAchievementDialog({ t, setShowBulkAchvModal, bulkAchv
                              </div>
 
                              <div>
-                               <label className="block text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_date_req')}</label>
-                               <input
+                               <label htmlFor={`student-bulk-achievement-dialog-panel_date_req-${index}`} className="block text-micro uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_date_req')}</label>
+                               <input id={`student-bulk-achievement-dialog-panel_date_req-${index}`}
                                  type="date"
                                  className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white [color-scheme:light] dark:[color-scheme:dark]"
                                  value={row.date}
@@ -217,8 +217,8 @@ export function StudentBulkAchievementDialog({ t, setShowBulkAchvModal, bulkAchv
 
                            <div className="space-y-3">
                              <div>
-                               <label className="block text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_col_notes_opt')}</label>
-                               <input
+                               <label htmlFor={`student-bulk-achievement-dialog-panel_col_notes_opt-${index}`} className="block text-micro uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_col_notes_opt')}</label>
+                               <input id={`student-bulk-achievement-dialog-panel_col_notes_opt-${index}`}
                                  type="text"
                                  className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-sm text-neutral-800 dark:text-white"
                                  placeholder={t('panel_col_notes_opt')}
@@ -240,7 +240,7 @@ export function StudentBulkAchievementDialog({ t, setShowBulkAchvModal, bulkAchv
                    </div>
 
                    <div className="p-4 border-t border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex justify-between items-center shrink-0">
-                     <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">{t('panel_required_hint')}</p>
+                     <p className="text-micro text-neutral-400 dark:text-neutral-500 font-medium">{t('panel_required_hint')}</p>
                      <div className="flex gap-2 text-xs">
                        <button
                          onClick={() => setShowBulkAchvModal(false)}

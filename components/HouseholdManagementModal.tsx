@@ -1,5 +1,6 @@
 'use client';
 
+import { pressable } from '@/components/ui/pressable';
 import { ModalA11y } from '@/components/ui/ModalA11y';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useAppStore } from '@/lib/store';
@@ -156,7 +157,7 @@ export function HouseholdManagementModal({
             </div>
             <div>
               <h2 className="text-sm font-black font-mono tracking-wider text-neutral-900 dark:text-white">FAMILY & MULTI-SIBLING HOUSEHOLD PORTAL</h2>
-              <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">CONSOLIDATED PARENT LINKAGE & INVOICING</p>
+              <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono">CONSOLIDATED PARENT LINKAGE & INVOICING</p>
             </div>
           </div>
 
@@ -176,11 +177,11 @@ export function HouseholdManagementModal({
           {/* LEFT: HOUSEHOLD PROFILES (4 Columns) */}
           <div className="md:col-span-4 flex flex-col space-y-3 border-r border-neutral-200 dark:border-neutral-850 pr-4">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono font-black text-brand-ink uppercase tracking-wider">{"// HOUSEHOLDS"}</span>
+              <span className="text-micro font-mono font-black text-brand-ink uppercase tracking-wider">{"// HOUSEHOLDS"}</span>
               <button
                 disabled={savingHousehold || !can('action:student_edit')}
                 onClick={() => setIsCreatingHousehold(true)}
-                className="px-2 py-1 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-brand text-neutral-900 dark:text-white text-[9px] font-mono rounded-[8px] flex items-center gap-1 cursor-pointer"
+                className="px-2 py-1 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-brand text-neutral-900 dark:text-white text-micro font-mono rounded-[8px] flex items-center gap-1 cursor-pointer"
               >
                 <UserPlus size={12} /> NEW GUARDIAN
               </button>
@@ -192,7 +193,7 @@ export function HouseholdManagementModal({
                 return (
                   <div
                     key={hh.id}
-                    onClick={() => setSelectedHouseholdId(hh.id)}
+                    {...pressable(() => setSelectedHouseholdId(hh.id), isSelected)}
                     className={`p-3 rounded-[8px] border transition-all cursor-pointer ${
                       isSelected
                         ? 'bg-brand/10 border-brand text-neutral-900 dark:text-white'
@@ -201,11 +202,11 @@ export function HouseholdManagementModal({
                   >
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-bold font-sans">{hh.guardianName}</p>
-                      <span className="text-[9px] font-mono bg-white dark:bg-neutral-950 px-1.5 py-0.5 rounded-[8px] border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400">
+                      <span className="text-micro font-mono bg-white dark:bg-neutral-950 px-1.5 py-0.5 rounded-[8px] border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400">
                         {hh.studentIds.length} SIBLINGS
                       </span>
                     </div>
-                    <p className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 mt-1">{hh.guardianPhone}</p>
+                    <p className="text-micro font-mono text-neutral-500 dark:text-neutral-400 mt-1">{hh.guardianPhone}</p>
                   </div>
                 );
               })}
@@ -220,9 +221,9 @@ export function HouseholdManagementModal({
                 {/* Guardian Details Card */}
                 <div className="bg-neutral-50 dark:bg-neutral-900/80 border border-neutral-200 dark:border-neutral-800 p-3.5 rounded-[8px] flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <span className="text-[9px] font-mono text-neutral-500 uppercase font-bold">PRIMARY GUARDIAN PROFILE</span>
+                    <span className="text-micro font-mono text-neutral-500 uppercase font-bold">PRIMARY GUARDIAN PROFILE</span>
                     <h3 className="text-sm font-bold text-neutral-900 dark:text-white">{activeHousehold.guardianName}</h3>
-                    <div className="flex items-center gap-3 text-[10px] font-mono text-neutral-500 dark:text-neutral-400 pt-1">
+                    <div className="flex items-center gap-3 text-micro font-mono text-neutral-500 dark:text-neutral-400 pt-1">
                       <span className="flex items-center gap-1"><Phone size={10} /> {activeHousehold.guardianPhone}</span>
                       {activeHousehold.guardianEmail && (
                         <span className="flex items-center gap-1"><Envelope size={10} /> {activeHousehold.guardianEmail}</span>
@@ -232,7 +233,7 @@ export function HouseholdManagementModal({
 
                   {/* Add Sibling Control */}
                   <div className="flex items-center gap-2">
-                    <select
+                    <select aria-label="Link a sibling"
                       value={addStudentId}
                       onChange={e => setAddStudentId(e.target.value)}
                       className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-neutral-200 rounded-[8px] p-1.5 font-mono max-w-[160px]"
@@ -247,7 +248,7 @@ export function HouseholdManagementModal({
                     <button
                       onClick={handleAddSibling}
                       disabled={savingHousehold || !addStudentId || !can('action:student_edit')}
-                      className="px-2.5 py-1.5 bg-brand disabled:bg-neutral-300 dark:disabled:bg-neutral-800 text-white text-[10px] font-mono font-bold rounded-[8px] cursor-pointer"
+                      className="px-2.5 py-1.5 bg-brand disabled:bg-neutral-300 dark:disabled:bg-neutral-800 text-white text-micro font-mono font-bold rounded-[8px] cursor-pointer"
                     >
                       LINK
                     </button>
@@ -256,7 +257,7 @@ export function HouseholdManagementModal({
 
                 {/* Linked Siblings Grid */}
                 <div>
-                  <span className="block text-[9px] font-mono font-black text-brand-ink uppercase tracking-wider mb-2">
+                  <span className="block text-micro font-mono font-black text-brand-ink uppercase tracking-wider mb-2">
                     {"// LINKED SIBLINGS ("}{linkedStudents.length})
                   </span>
 
@@ -273,7 +274,7 @@ export function HouseholdManagementModal({
                           />
                           <div>
                             <p className="text-xs font-bold text-neutral-900 dark:text-white">{st.englishName}</p>
-                            <span className="text-[9px] font-mono text-brand-ink">{st.currentBelt}</span>
+                            <span className="text-micro font-mono text-brand-ink">{st.currentBelt}</span>
                           </div>
                         </div>
 
@@ -293,7 +294,7 @@ export function HouseholdManagementModal({
                 {/* Family Consolidated Invoicing Card */}
                 <div className="bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-800 p-4 rounded-[8px] space-y-3">
                   <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
-                    <span className="text-[10px] font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
+                    <span className="text-micro font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
                       <Receipt size={14} className="text-brand-ink" /> CONSOLIDATED FAMILY TUITION
                     </span>
                     <span className="text-xs font-mono font-black text-brand-ink">
@@ -301,7 +302,7 @@ export function HouseholdManagementModal({
                     </span>
                   </div>
 
-                  <p className="text-[11px] font-sans text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                  <p className="text-micro font-sans text-neutral-600 dark:text-neutral-400 leading-relaxed">
                     Collects one outstanding tuition cycle for each of {familyEntries.length} active siblings. Review each month before recording funds received.
                   </p>
 
@@ -333,15 +334,15 @@ export function HouseholdManagementModal({
           <form onSubmit={handleCreateHousehold} className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white w-full max-w-md rounded-[8px] p-5 font-mono space-y-4 shadow-2xl max-h-[90dvh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
               <h3 className="text-xs font-black tracking-wider text-brand-ink">{"// CREATE HOUSEHOLD GUARDIAN"}</h3>
-              <button type="button" onClick={() => setIsCreatingHousehold(false)} className="text-neutral-400 hover:text-neutral-900 dark:hover:text-white cursor-pointer">
+              <button aria-label="Cancel new household" type="button" onClick={() => setIsCreatingHousehold(false)} className="text-neutral-400 hover:text-neutral-900 dark:hover:text-white cursor-pointer min-h-6 min-w-6 inline-flex items-center justify-center">
                 <X size={16} />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-[9px] text-neutral-500 dark:text-neutral-400 mb-1">GUARDIAN FULL NAME</label>
-                <input
+                <label htmlFor="household-management-modal-guardian-full-name" className="block text-micro text-neutral-500 dark:text-neutral-400 mb-1">GUARDIAN FULL NAME</label>
+                <input id="household-management-modal-guardian-full-name"
                   type="text"
                   required
                   placeholder="e.g. Sokha Tan (Father)"
@@ -352,8 +353,8 @@ export function HouseholdManagementModal({
               </div>
 
               <div>
-                <label className="block text-[9px] text-neutral-500 dark:text-neutral-400 mb-1">PRIMARY PHONE NUMBER</label>
-                <input
+                <label htmlFor="household-management-modal-primary-phone-number" className="block text-micro text-neutral-500 dark:text-neutral-400 mb-1">PRIMARY PHONE NUMBER</label>
+                <input id="household-management-modal-primary-phone-number"
                   type="text"
                   required
                   placeholder="e.g. +855 12 345 678"
@@ -364,8 +365,8 @@ export function HouseholdManagementModal({
               </div>
 
               <div>
-                <label className="block text-[9px] text-neutral-500 dark:text-neutral-400 mb-1">EMAIL ADDRESS (OPTIONAL)</label>
-                <input
+                <label htmlFor="household-management-modal-email-address-optional" className="block text-micro text-neutral-500 dark:text-neutral-400 mb-1">EMAIL ADDRESS (OPTIONAL)</label>
+                <input id="household-management-modal-email-address-optional"
                   type="email"
                   placeholder="e.g. parent@gmail.com"
                   value={newGuardian.email}
@@ -428,18 +429,18 @@ export function HouseholdManagementModal({
           <div className="bg-white text-neutral-900 w-full max-w-sm rounded-[8px] p-6 font-mono shadow-2xl space-y-4 max-h-[90dvh] overflow-y-auto">
             <div className="text-center border-b border-neutral-300 pb-3">
               <h2 className="text-sm font-black tracking-widest text-brand-ink">INFINITY TAEKWONDO ACADEMY</h2>
-              <p className="text-[9px] text-neutral-600 uppercase font-bold">CONSOLIDATED FAMILY TUITION RECEIPT</p>
-              <p className="text-[9px] text-neutral-500 mt-1">TX #: {familyReceipt.receipt_number}</p>
+              <p className="text-micro text-neutral-600 uppercase font-bold">CONSOLIDATED FAMILY TUITION RECEIPT</p>
+              <p className="text-micro text-neutral-500 mt-1">TX #: {familyReceipt.receipt_number}</p>
             </div>
 
-            <div className="text-[10px] space-y-1">
+            <div className="text-micro space-y-1">
               <p><strong>Guardian:</strong> {familyReceipt.guardian_name}</p>
               <p><strong>Method:</strong> {familyReceipt.payment_method}</p>
               {familyReceipt.external_reference && <p><strong>Reference:</strong> {familyReceipt.external_reference}</p>}
             </div>
 
             {/* Siblings Breakdown */}
-            <div className="border-t border-b border-neutral-300 py-2 space-y-1 text-[10px]">
+            <div className="border-t border-b border-neutral-300 py-2 space-y-1 text-micro">
               {familyReceipt.transactions.map((sib, idx) => (
                 <div key={idx} className="flex justify-between">
                   <span>{sib.student_name} ({sib.for_month} {sib.year})</span>
@@ -455,7 +456,7 @@ export function HouseholdManagementModal({
 
             <button
               onClick={() => setFamilyReceipt(null)}
-              className="w-full py-2 bg-brand hover:bg-brand-strong text-white text-[10px] font-bold uppercase rounded-[8px] shadow cursor-pointer"
+              className="w-full py-2 bg-brand hover:bg-brand-strong text-white text-micro font-bold uppercase rounded-[8px] shadow cursor-pointer"
             >
               Close Receipt
             </button>

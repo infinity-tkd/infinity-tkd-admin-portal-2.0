@@ -86,14 +86,14 @@ export function StudentAttendanceCalendar({ student, records, classes, enrollmen
     </div>
     <div className="mb-3 grid grid-cols-2 gap-2">
       <div>
-        <label htmlFor="student-attendance-scope" className="mb-1 block min-h-[28px] text-[11px] font-medium text-neutral-500">{t('att_calendar_scope')}</label>
+        <label htmlFor="student-attendance-scope" className="mb-1 block min-h-[28px] text-micro font-medium text-neutral-500">{t('att_calendar_scope')}</label>
         <select id="student-attendance-scope" value={scope} disabled={busy} onChange={event => { setScope(event.target.value === 'all' || event.target.value === 'daily' ? event.target.value : Number(event.target.value)); resetMessages(); }} className="min-h-[44px] w-full rounded-md border border-neutral-200 bg-white px-2 text-xs dark:border-neutral-700 dark:bg-neutral-900 dark:text-white">
           <option value="all">{t('att_calendar_all')}</option><option value="daily">{t('att_calendar_daily')}</option>
           {classIds.map(id => <option key={id} value={id}>{scopeLabel(id)}</option>)}
         </select>
       </div>
       <div>
-        <label htmlFor="student-attendance-date" className="mb-1 block min-h-[28px] text-[11px] font-medium text-neutral-500">{t('att_calendar_date')}</label>
+        <label htmlFor="student-attendance-date" className="mb-1 block min-h-[28px] text-micro font-medium text-neutral-500">{t('att_calendar_date')}</label>
         <input id="student-attendance-date" type="date" min="1900-01-01" max="2100-12-31" value={selectedDate} disabled={busy} onChange={event => selectDate(event.target.value)} className="min-h-[44px] w-full min-w-0 rounded-md border border-neutral-200 bg-white px-2 text-xs [color-scheme:light] dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:[color-scheme:dark]" />
       </div>
     </div>
@@ -103,7 +103,7 @@ export function StudentAttendanceCalendar({ student, records, classes, enrollmen
       <button type="button" aria-label={t('att_calendar_next')} disabled={busy || month === '2100-12'} onClick={() => navigateMonth(1)} className="flex h-11 w-11 items-center justify-center rounded-md text-neutral-600 hover:bg-neutral-100 disabled:opacity-40 dark:text-neutral-300 dark:hover:bg-neutral-800"><CaretRight aria-hidden="true" /></button>
     </div>
     <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
-      {weekdayLabels.map((label, i) => <span key={i} className="py-1 text-center text-[10px] font-medium text-neutral-500" aria-hidden="true">{label}</span>)}
+      {weekdayLabels.map((label, i) => <span key={i} className="py-1 text-center text-micro font-medium text-neutral-500" aria-hidden="true">{label}</span>)}
       {days.map((date, i) => {
         if (!date) return <span key={`empty-${i}`} />;
         const marks = byDate.get(date) || [];
@@ -111,12 +111,12 @@ export function StudentAttendanceCalendar({ student, records, classes, enrollmen
         return <button key={date} type="button" data-attendance-date={date} aria-label={`${date}: ${counts.map(item => `${statusLabel(item.status)} (${item.count})`).join(', ') || t('att_unmarked')}`} aria-pressed={date === selectedDate} disabled={busy} onClick={() => selectDate(date)} className={cn('flex min-h-[54px] min-w-0 flex-col items-center justify-start gap-1 rounded-md border border-transparent py-1.5 text-xs transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand disabled:opacity-50 dark:hover:bg-neutral-800', date === selectedDate ? 'border-brand bg-red-50 dark:bg-red-500/10' : 'bg-neutral-50 dark:bg-neutral-900/50', date > today && 'text-neutral-400')}>
           <span className={cn('flex h-5 w-5 items-center justify-center rounded-full font-medium', date === today && 'bg-brand text-white')}>{Number(date.slice(-2))}</span>
           <span className="flex max-w-full flex-wrap justify-center gap-0.5">
-            {counts.map(({ status, count }) => <span key={status} aria-hidden="true" className={cn('rounded border px-0.5 text-[9px] font-semibold', tones[status])}>{status[0]}{count > 1 ? count : ''}</span>)}
+            {counts.map(({ status, count }) => <span key={status} aria-hidden="true" className={cn('rounded border px-0.5 text-micro font-semibold', tones[status])}>{status[0]}{count > 1 ? count : ''}</span>)}
           </span>
         </button>;
       })}
     </div>
-    <div className="my-3 flex flex-wrap gap-2 text-[10px]">
+    <div className="my-3 flex flex-wrap gap-2 text-micro">
       {statuses.map(status => <span key={status} className={cn('rounded border px-2 py-1', tones[status])}>{statusLabel(status)}</span>)}
     </div>
     {!dataReady && <p role="alert" className="mb-2 text-xs text-amber-700 dark:text-amber-300">{t('att_calendar_partial')}</p>}
@@ -132,14 +132,14 @@ export function StudentAttendanceCalendar({ student, records, classes, enrollmen
         const offSchedule = !target.record && session && !(session.daysOfWeek.length ? session.daysOfWeek : [session.dayOfWeek]).includes(weekday);
         return <div key={target.classId ?? 'daily'} role="group" aria-label={`${label} attendance`} className="rounded-md border border-neutral-200 p-2 dark:border-neutral-700">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-1 text-xs"><span className="font-medium text-neutral-900 dark:text-white">{label}</span><span className="text-neutral-500">{target.record ? statusLabel(target.record.status) : t('att_unmarked')}</span></div>
-          {block && <p className="mb-2 text-[11px] text-neutral-500">{t(`att_calendar_${block}`)}</p>}
-          {offSchedule && !block && canMark && <label className="mb-2 flex items-start gap-2 text-[11px] text-neutral-500"><input type="checkbox" checked={makeup} disabled={busy || !dataReady} onChange={event => setMakeup(event.target.checked)} className="mt-0.5 accent-brand" />{t('att_calendar_makeup')}</label>}
+          {block && <p className="mb-2 text-micro text-neutral-500">{t(`att_calendar_${block}`)}</p>}
+          {offSchedule && !block && canMark && <label className="mb-2 flex items-start gap-2 text-micro text-neutral-500"><input type="checkbox" checked={makeup} disabled={busy || !dataReady} onChange={event => setMakeup(event.target.checked)} className="mt-0.5 accent-brand" />{t('att_calendar_makeup')}</label>}
           <div className="grid grid-cols-3 gap-1">
-            {statuses.map(status => <button key={status} type="button" aria-label={`${statusLabel(status)} — ${label}`} aria-pressed={target.record?.status === status} disabled={busy || !dataReady || !canMark || Boolean(block) || Boolean(offSchedule && !makeup) || target.record?.status === status} onClick={() => void save(target, status)} className={cn('min-h-[44px] rounded-md border px-1 text-[11px] font-medium transition-colors enabled:hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-40', tones[status])}>{statusLabel(status)}</button>)}
+            {statuses.map(status => <button key={status} type="button" aria-label={`${statusLabel(status)} — ${label}`} aria-pressed={target.record?.status === status} disabled={busy || !dataReady || !canMark || Boolean(block) || Boolean(offSchedule && !makeup) || target.record?.status === status} onClick={() => void save(target, status)} className={cn('min-h-[44px] rounded-md border px-1 text-micro font-medium transition-colors enabled:hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-40', tones[status])}>{statusLabel(status)}</button>)}
           </div>
           {target.record && canDelete && <div className="mt-2">
-            {clearId === target.record.id ? <div className="space-y-2"><p className="text-[11px] text-neutral-600 dark:text-neutral-300">{t('att_calendar_clear_confirm')}</p><div className="flex gap-2"><button type="button" disabled={busy || !dataReady} onClick={() => void save(target, 'clear')} className="min-h-[44px] rounded-md bg-rose-600 px-3 text-xs font-semibold text-white disabled:opacity-40">{t('att_calendar_confirm_clear')}</button><button type="button" disabled={busy} onClick={() => setClearId(null)} className="min-h-[44px] rounded-md px-3 text-xs text-neutral-500">{t('act_cancel')}</button></div></div>
-              : <button type="button" aria-label={`${t('att_calendar_clear')} — ${label}`} disabled={busy || !dataReady} onClick={() => {setClearId(target.record!.id); setError(''); setFeedback('');}} className="min-h-[44px] rounded-md px-2 text-[11px] font-medium text-rose-700 hover:bg-rose-50 disabled:opacity-40 dark:text-rose-300 dark:hover:bg-rose-500/10">{t('att_calendar_clear')}</button>}
+            {clearId === target.record.id ? <div className="space-y-2"><p className="text-micro text-neutral-600 dark:text-neutral-300">{t('att_calendar_clear_confirm')}</p><div className="flex gap-2"><button type="button" disabled={busy || !dataReady} onClick={() => void save(target, 'clear')} className="min-h-[44px] rounded-md bg-rose-600 px-3 text-xs font-semibold text-white disabled:opacity-40">{t('att_calendar_confirm_clear')}</button><button type="button" disabled={busy} onClick={() => setClearId(null)} className="min-h-[44px] rounded-md px-3 text-xs text-neutral-500">{t('act_cancel')}</button></div></div>
+              : <button type="button" aria-label={`${t('att_calendar_clear')} — ${label}`} disabled={busy || !dataReady} onClick={() => {setClearId(target.record!.id); setError(''); setFeedback('');}} className="min-h-[44px] rounded-md px-2 text-micro font-medium text-rose-700 hover:bg-rose-50 disabled:opacity-40 dark:text-rose-300 dark:hover:bg-rose-500/10">{t('att_calendar_clear')}</button>}
           </div>}
         </div>;
       })}

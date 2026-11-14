@@ -31,16 +31,16 @@ interface ProductEditDialogProps {
 }
 
 export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEditItemOpen, setEditingProduct, editFormData, setEditFormData, handleGenerateEditItemSku, editItemSkuConflict, editItemSkuFormatValid, dynamicCategories, handleDeleteProduct, isEditSubmitting }: ProductEditDialogProps) {
-  const dialog = useRef<HTMLFormElement>(null);
+  const dialog = useRef<HTMLDivElement>(null);
   useModalFocus(dialog, () => { if (!isEditSubmitting) setIsEditItemOpen(false); });
   return <>{(
         <Portal>
           <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-            <form onSubmit={handleEditProduct} className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] w-full max-w-md rounded-[10px] p-4 sm:p-5 font-mono space-y-4 shadow-2xl my-auto max-h-[92dvh] overflow-y-auto" ref={dialog} role="dialog" aria-modal="true" aria-label="Edit product" tabIndex={-1} aria-busy={isEditSubmitting}><fieldset disabled={isEditSubmitting} className="contents space-y-4">
+            <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] w-full max-w-md rounded-[10px] p-4 sm:p-5 font-mono shadow-2xl my-auto max-h-[92dvh] overflow-y-auto" ref={dialog} role="dialog" aria-modal="true" aria-label="Edit product" tabIndex={-1} aria-busy={isEditSubmitting}><form onSubmit={handleEditProduct} className="contents"><fieldset disabled={isEditSubmitting} className="contents space-y-4">
               <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3">
                 <div>
                   <h3 className="text-xs font-bold tracking-wider text-brand-ink">{"// EDIT INVENTORY ITEM"}</h3>
-                  <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5 truncate max-w-[260px]">{editingProduct.name}</p>
+                  <p className="text-micro text-neutral-500 dark:text-neutral-400 mt-0.5 truncate max-w-[260px]">{editingProduct.name}</p>
                 </div>
                 <button
                   type="button"
@@ -57,8 +57,8 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
 
               <div className="space-y-3 text-xs">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">PRODUCT NAME</label>
-                  <input
+                  <label htmlFor="product-edit-dialog-product-name" className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">PRODUCT NAME</label>
+                  <input id="product-edit-dialog-product-name"
                     type="text"
                     required
                     aria-label="Product name" value={editFormData.name}
@@ -70,11 +70,11 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400">SKU CODE</label>
+                      <label className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400">SKU CODE</label>
                       <button
                         type="button"
                         onClick={handleGenerateEditItemSku}
-                        className="text-[10px] font-mono font-bold text-brand-ink hover:underline flex items-center gap-1 cursor-pointer py-0.5 active:scale-95 touch-manipulation"
+                        className="text-micro font-mono font-bold text-brand-ink hover:underline flex items-center gap-1 cursor-pointer py-0.5 active:scale-95 touch-manipulation"
                         title="Auto-generate standardized unique SKU"
                       >
                         <Barcode size={13} /> Auto Gen
@@ -95,7 +95,7 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                       )}
                     />
                     {editFormData.sku && (
-                      <div className="mt-1 text-[9px] font-mono flex items-center gap-1">
+                      <div className="mt-1 text-micro font-mono flex items-center gap-1">
                         {editItemSkuConflict ? (
                           <span className="text-rose-600 dark:text-rose-400 flex items-center gap-1 font-bold">
                             <Warning size={10} weight="fill" /> Duplicate: Used by &quot;{editItemSkuConflict.name}&quot;
@@ -113,8 +113,8 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                     )}
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">CATEGORY</label>
-                    <select
+                    <label htmlFor="product-edit-dialog-category" className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">CATEGORY</label>
+                    <select id="product-edit-dialog-category"
                       aria-label="Product category" value={editFormData.category}
                       onChange={e => setEditFormData({ ...editFormData, category: e.target.value as any })}
                       className="w-full bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 min-h-[40px] text-neutral-900 dark:text-[#E4E4E4] focus:outline-none focus:border-brand cursor-pointer pointer-coarse:min-h-11"
@@ -128,8 +128,8 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
 
                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   <div>
-                    <label className="block text-[9px] sm:text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1 truncate">PRICE ($)</label>
-                    <input
+                    <label htmlFor="product-edit-dialog-price" className="block text-micro sm:text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1 truncate">PRICE ($)</label>
+                    <input id="product-edit-dialog-price"
                       type="number"
                       step="0.01"
                       min="0"
@@ -140,8 +140,8 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                     />
                   </div>
                   <div>
-                    <label className="block text-[9px] sm:text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1 truncate">STOCK QTY</label>
-                    <input
+                    <label htmlFor="product-edit-dialog-stock-qty" className="block text-micro sm:text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1 truncate">STOCK QTY</label>
+                    <input id="product-edit-dialog-stock-qty"
                       type="number"
                       min="0"
                       required
@@ -151,8 +151,8 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                     />
                   </div>
                   <div>
-                    <label className="block text-[9px] sm:text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1 truncate">THRESHOLD</label>
-                    <input
+                    <label htmlFor="product-edit-dialog-threshold" className="block text-micro sm:text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1 truncate">THRESHOLD</label>
+                    <input id="product-edit-dialog-threshold"
                       type="number"
                       min="0"
                       required
@@ -164,8 +164,8 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                 </div>
 
                 {!editingProduct.hasVariants && <div>
-                  <label className="block text-[10px] font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">SIZE / VARIATION (OPTIONAL)</label>
-                  <input
+                  <label htmlFor="product-edit-dialog-size-variation-optional" className="block text-micro font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-1">SIZE / VARIATION (OPTIONAL)</label>
+                  <input id="product-edit-dialog-size-variation-optional"
                     type="text"
                     placeholder="e.g. Size 3 (160cm) or Medium"
                     aria-label="Product size" value={editFormData.size}
@@ -209,7 +209,7 @@ export function ProductEditDialog({ handleEditProduct, editingProduct, setIsEdit
                   </button>
                 </div>
               </div>
-            </fieldset></form>
+            </fieldset></form></div>
           </div>
         </Portal>
       )}</>;

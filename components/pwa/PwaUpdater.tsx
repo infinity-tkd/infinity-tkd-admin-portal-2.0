@@ -21,24 +21,22 @@ export function PwaUpdater() {
     }
 
     navigator.serviceWorker.ready.then((registration) => {
-      // Check if there is already a waiting worker
-      if (registration.waiting) {
-        setWaitingWorker(registration.waiting);
-        setUpdateAvailable(true);
-      }
-
-      // Listen for new updates
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
-        if (!newWorker) return;
-
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            setWaitingWorker(newWorker);
+      // Follow a new worker until it is installed and waiting. It may already be installing, or waiting, by the time this runs: the browser
+      // looks for an update as the page loads and `updatefound` fires when installation starts, before this effect has attached a listener.
+      const follow = (worker: ServiceWorker | null) => {
+        if (!worker) return;
+        const settle = () => {
+          if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+            setWaitingWorker(worker);
             setUpdateAvailable(true);
           }
-        });
-      });
+        };
+        worker.addEventListener('statechange', settle);
+        settle();
+      };
+      follow(registration.waiting);
+      follow(registration.installing);
+      registration.addEventListener('updatefound', () => follow(registration.installing));
     });
 
     let refreshing = false;
@@ -74,22 +72,23 @@ export function PwaUpdater() {
       aria-label="Application update available"
       className="portal-global-toast fixed right-4 sm:right-6 z-[35] animate-in fade-in max-w-sm w-[calc(100vw-2rem)] sm:w-auto"
     >
-      <div className="bg-[#141414]/95 backdrop-blur-md border border-red-500/40 rounded-[8px] p-4 shadow-2xl flex items-center justify-between gap-3 text-white">
+      <div className="bg-surface/95 backdrop-blur-md border border-brand/40 rounded-[8px] p-4 shadow-2xl flex items-center justify-between gap-3 text-ink">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-brand-ink flex items-center justify-center shrink-0">
-            <Sparkle className="w-4 h-4" />
+          <div className="w-8 h-8 rounded-lg bg-brand/10 border border-brand/20 text-brand-ink flex items-center justify-center shrink-0">
+            <Sparkle className="w-4 h-4" aria-hidden="true" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-bold text-white tracking-wide">Update Ready</p>
-            <p className="text-[10px] text-[#888] truncate">Save your work before applying</p>
+            <p className="text-xs font-bold text-ink tracking-wide">Update Ready</p>
+            <p className="text-micro text-ink-muted truncate">Save your work before applying</p>
           </div>
         </div>
 
         <button
+          type="button"
           onClick={handleApplyUpdate}
-          className="px-3 py-1.5 bg-brand hover:bg-red-600 text-white font-bold uppercase tracking-wider text-[10px] rounded-[6px] transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer shadow-sm"
+          className="min-h-9 px-3 py-1.5 bg-brand hover:bg-brand-strong text-on-brand font-bold uppercase tracking-wider text-micro rounded-[6px] transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer shadow-sm pointer-coarse:min-h-11"
         >
-          <ArrowClockwise className="w-3.5 h-3.5" />
+          <ArrowClockwise className="w-3.5 h-3.5" aria-hidden="true" />
           <span>Apply</span>
         </button>
       </div>

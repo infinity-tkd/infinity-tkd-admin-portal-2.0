@@ -35,7 +35,7 @@ export function StudentBulkBeltDialog({ t, setShowBulkBeltModal, bulkBelts, hand
                         <Certificate className="w-5 h-5 text-red-500" />
                         {t('panel_bulk_log_belts_title')}
                       </h2>
-                      <button onClick={() => setShowBulkBeltModal(false)} className="p-1 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+                      <button aria-label="Close" onClick={() => setShowBulkBeltModal(false)} className="p-1 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors min-h-6 min-w-6 inline-flex items-center justify-center"><X className="w-5 h-5" /></button>
                    </div>
 
                    {/* Table / Card area */}
@@ -45,20 +45,20 @@ export function StudentBulkBeltDialog({ t, setShowBulkBeltModal, bulkBelts, hand
                        <table className="w-full text-left border-collapse">
                          <thead>
                            <tr className="bg-neutral-100 dark:bg-[#141414] border-b border-neutral-200 dark:border-[#262626]">
-                             <th className="p-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[18%]">{t('panel_next_belt_req')}</th>
-                             <th className="p-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[16%]">{t('panel_promotion_date_req')}</th>
-                             <th className="p-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[12%]">{t('panel_col_score_opt')}</th>
-                             <th className="p-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[18%]">{t('panel_col_program')}</th>
-                             <th className="p-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[18%]">{t('panel_col_cert_ref_opt')}</th>
-                             <th className="p-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[18%]">{t('panel_col_cert_url_id')}</th>
-                             <th className="p-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] text-center w-[6%]">{t('panel_col_act')}</th>
+                             <th className="p-3 text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[18%]">{t('panel_next_belt_req')}</th>
+                             <th className="p-3 text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[16%]">{t('panel_promotion_date_req')}</th>
+                             <th className="p-3 text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[12%]">{t('panel_col_score_opt')}</th>
+                             <th className="p-3 text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[18%]">{t('panel_col_program')}</th>
+                             <th className="p-3 text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[18%]">{t('panel_col_cert_ref_opt')}</th>
+                             <th className="p-3 text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] w-[18%]">{t('panel_col_cert_url_id')}</th>
+                             <th className="p-3 text-micro font-bold uppercase tracking-wider text-neutral-500 dark:text-[#666] text-center w-[6%]">{t('panel_col_act')}</th>
                            </tr>
                          </thead>
                          <tbody className="divide-y divide-neutral-200 dark:divide-[#262626]">
                            {bulkBelts.map((row, index) => (
                              <tr key={index} className="bg-white dark:bg-[#0A0A0A] hover:bg-neutral-50 dark:hover:bg-[#141414] transition-colors">
                                <td className="p-2">
-                                 <select
+                                 <select aria-label={`Belt, row ${index + 1}`}
                                    className="w-full bg-transparent border-0 focus:ring-1 focus:ring-red-500 rounded p-1 text-sm text-neutral-900 dark:text-white"
                                    value={row.beltLevel}
                                    onChange={e => handleUpdateBulkBeltCell(index, 'beltLevel', e.target.value)}
@@ -67,7 +67,7 @@ export function StudentBulkBeltDialog({ t, setShowBulkBeltModal, bulkBelts, hand
                                  </select>
                                </td>
                                <td className="p-2">
-                                 <input
+                                 <input aria-label={`Promotion date, row ${index + 1}`}
                                    type="date"
                                    className="w-full bg-transparent border-0 focus:ring-1 focus:ring-red-500 rounded p-1 text-sm text-neutral-900 dark:text-white [color-scheme:light] dark:[color-scheme:dark]"
                                    value={row.promotionDate}
@@ -86,7 +86,7 @@ export function StudentBulkBeltDialog({ t, setShowBulkBeltModal, bulkBelts, hand
                                  />
                                </td>
                                <td className="p-2">
-                                 <select
+                                 <select aria-label={`Program, row ${index + 1}`}
                                    className="w-full bg-transparent border-0 focus:ring-1 focus:ring-red-500 rounded p-1 text-sm text-neutral-900 dark:text-white"
                                    value={row.program}
                                    onChange={e => handleUpdateBulkBeltCell(index, 'program', e.target.value)}
@@ -142,12 +142,12 @@ export function StudentBulkBeltDialog({ t, setShowBulkBeltModal, bulkBelts, hand
                            >
                              <X className="w-4 h-4" />
                            </button>
-                           <div className="text-[10px] font-bold uppercase tracking-wider text-red-500">{t('bulk_table_row')} #{index + 1}</div>
+                           <div className="text-micro font-bold uppercase tracking-wider text-red-500">{t('bulk_table_row')} #{index + 1}</div>
 
                            <div className="grid grid-cols-2 gap-3">
                              <div>
-                               <label className="block text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_next_belt_req')}</label>
-                               <select
+                               <label htmlFor={`student-bulk-belt-dialog-panel_next_belt_req-${index}`} className="block text-micro uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_next_belt_req')}</label>
+                               <select id={`student-bulk-belt-dialog-panel_next_belt_req-${index}`}
                                  className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white focus:ring-1 focus:ring-red-500"
                                  value={row.beltLevel}
                                  onChange={e => handleUpdateBulkBeltCell(index, 'beltLevel', e.target.value)}
@@ -157,8 +157,8 @@ export function StudentBulkBeltDialog({ t, setShowBulkBeltModal, bulkBelts, hand
                              </div>
 
                              <div>
-                               <label className="block text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_promotion_date_req')}</label>
-                               <input
+                               <label htmlFor={`student-bulk-belt-dialog-panel_promotion_date_req-${index}`} className="block text-micro uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_promotion_date_req')}</label>
+                               <input id={`student-bulk-belt-dialog-panel_promotion_date_req-${index}`}
                                  type="date"
                                  className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white [color-scheme:light] dark:[color-scheme:dark]"
                                  value={row.promotionDate}
@@ -169,8 +169,8 @@ export function StudentBulkBeltDialog({ t, setShowBulkBeltModal, bulkBelts, hand
 
                            <div className="grid grid-cols-2 gap-3">
                              <div>
-                               <label className="block text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_col_score_opt')}</label>
-                               <input
+                               <label htmlFor={`student-bulk-belt-dialog-panel_col_score_opt-${index}`} className="block text-micro uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_col_score_opt')}</label>
+                               <input id={`student-bulk-belt-dialog-panel_col_score_opt-${index}`}
                                  type="number"
                                  min="0"
                                  max="100"
@@ -182,8 +182,8 @@ export function StudentBulkBeltDialog({ t, setShowBulkBeltModal, bulkBelts, hand
                              </div>
 
                              <div>
-                               <label className="block text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_col_program')}</label>
-                               <select
+                               <label htmlFor={`student-bulk-belt-dialog-panel_col_program-${index}`} className="block text-micro uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_col_program')}</label>
+                               <select id={`student-bulk-belt-dialog-panel_col_program-${index}`}
                                  className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white"
                                  value={row.program}
                                  onChange={e => handleUpdateBulkBeltCell(index, 'program', e.target.value)}
@@ -197,8 +197,8 @@ export function StudentBulkBeltDialog({ t, setShowBulkBeltModal, bulkBelts, hand
 
                            <div className="grid grid-cols-1 gap-3">
                              <div>
-                               <label className="block text-[9px] uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_col_cert_ref_opt')}</label>
-                               <input
+                               <label htmlFor={`student-bulk-belt-dialog-panel_col_cert_ref_opt-${index}`} className="block text-micro uppercase font-bold text-neutral-400 dark:text-[#666] mb-1">{t('panel_col_cert_ref_opt')}</label>
+                               <input id={`student-bulk-belt-dialog-panel_col_cert_ref_opt-${index}`}
                                  type="text"
                                  className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-sm text-neutral-800 dark:text-white font-mono uppercase"
                                  placeholder={t('panel_placeholder_autogen')}
@@ -208,8 +208,8 @@ export function StudentBulkBeltDialog({ t, setShowBulkBeltModal, bulkBelts, hand
                              </div>
 
                              <div>
-                               <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_cert_link_or_kukkiwon')}</label>
-                               <input
+                               <label htmlFor={`student-bulk-belt-dialog-panel_cert_link_or_kukkiwon-${index}`} className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] mb-1">{t('panel_cert_link_or_kukkiwon')}</label>
+                               <input id={`student-bulk-belt-dialog-panel_cert_link_or_kukkiwon-${index}`}
                                  type="text"
                                  className="w-full bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-2.5 py-1.5 text-sm text-neutral-800 dark:text-white font-mono"
                                  placeholder={t('panel_cert_link_or_kukkiwon')}
@@ -231,7 +231,7 @@ export function StudentBulkBeltDialog({ t, setShowBulkBeltModal, bulkBelts, hand
                    </div>
 
                    <div className="p-4 border-t border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex justify-between items-center shrink-0">
-                     <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">* Required fields must be populated.</p>
+                     <p className="text-micro text-neutral-400 dark:text-neutral-500 font-medium">* Required fields must be populated.</p>
                      <div className="flex gap-2 text-xs">
                        <button
                          onClick={() => setShowBulkBeltModal(false)}

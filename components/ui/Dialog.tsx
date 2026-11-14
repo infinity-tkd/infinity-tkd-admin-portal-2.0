@@ -75,7 +75,7 @@ export function DialogHeader({ icon, title, description, onClose, closeLabel = '
         {icon && <div aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand-ink [&_svg]:size-4">{icon}</div>}
         <div className="min-w-0">
           <h2 id={titleId} className="truncate text-sm font-bold uppercase tracking-wider text-ink">{title}</h2>
-          {description && <p className="mt-0.5 font-mono text-[10px] text-ink-subtle">{description}</p>}
+          {description && <p className="mt-0.5 font-mono text-micro text-ink-subtle">{description}</p>}
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-1.5">

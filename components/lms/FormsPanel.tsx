@@ -10,6 +10,7 @@ import { buttonClass, cardClass, fieldClass, sectionLabelClass } from '@/compone
 import { EmptyState, ErrorBanner } from '@/components/ui/States';
 import { poomsaeFormInput, QUIZ_KINDS, QUIZ_SCOPES, quizQuestionInput } from '@/lib/lms-contract';
 import { cn } from '@/lib/utils';
+import { useAppStore } from '@/lib/store';
 import { Labeled, LessonSelect, lmsPost, Pill, StatusLine, TranslationFields, useLmsView, useSaving, type Overview } from './coaching-shared';
 
 interface Form { id: string; curriculum_id: number; name: string; korean_name: string | null; series: string; belt_id: number | null; movement_count: number; sort_order: number; published: boolean; translations: Record<string, any>; revision: number }
@@ -112,6 +113,7 @@ function QuizBank({ overview, canEdit, initialScope, initialRef, onChanged }: { 
   const [editing, setEditing] = useState<Question | null | 'new'>(null);
   const refresh = () => { void reload(); onChanged?.(); };
   const { saving, message, run } = useSaving(refresh);
+  const { showConfirm } = useAppStore();
   const questions = ready ? data?.questions ?? [] : [];
   return <section className="space-y-2">
     <h2 className={sectionLabelClass}>Quiz bank</h2>
@@ -128,7 +130,7 @@ function QuizBank({ overview, canEdit, initialScope, initialRef, onChanged }: { 
       {questions.length === 0 ? <p className="text-xs text-ink-muted">No questions yet.</p> : <ol className="space-y-1.5">{questions.map((q, i) => <li key={q.id} className="flex flex-wrap items-center gap-2 rounded-lg border border-line p-2 text-sm">
         <span className="font-mono text-xs text-ink-subtle">{i + 1}</span><span className="min-w-[12rem] flex-1 text-ink">{q.prompt}</span><Pill>{KIND_LABEL[q.kind]}</Pill>{!q.published && <Pill tone="warn">draft</Pill>}
         {canEdit && <><button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'} onClick={() => setEditing(q)}>Edit</button>
-          <button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => { if (window.confirm('Delete this question?')) void run(() => lmsPost({ action: 'quiz.delete', id: q.id, expectedRevision: q.revision }), 'Deleted.'); }}>Delete</button></>}
+          <button type="button" className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => showConfirm('Delete this question?', () => void run(() => lmsPost({ action: 'quiz.delete', id: q.id, expectedRevision: q.revision }), 'Deleted.'), 'Delete question')}>Delete</button></>}
       </li>)}</ol>}
     </>}
     {editing && <QuestionEditor scope={scope} scopeRef={scopeRef.trim()} editing={editing === 'new' ? null : editing} onClose={() => setEditing(null)} onSaved={refresh} />}
@@ -139,6 +141,7 @@ export function FormsPanel({ overview, canEdit, onChanged }: { overview: Overvie
   const { data, error, reload } = useLmsView<{ forms: Form[]; questionCounts: Record<string, number> }>('forms');
   const [editing, setEditing] = useState<Form | null | 'new'>(null);
   const { saving, message, run } = useSaving(() => { void reload(); onChanged(); });
+  const { showConfirm } = useAppStore();
   if (error) return <ErrorBanner title="Forms unavailable">{error}</ErrorBanner>;
   if (!data) return <EmptyState busy title="Loading…" />;
   const belt = (id: number | null) => overview.belts.find(b => b.id === id)?.belt_name ?? 'Every belt';
@@ -157,7 +160,7 @@ export function FormsPanel({ overview, canEdit, onChanged }: { overview: Overvie
             <button type="button" aria-label={`Move ${f.name} up`} disabled={i === 0 || saving} className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'} onClick={() => reorder(i, i - 1)}><ArrowUp className="size-3.5" /></button>
             <button type="button" aria-label={`Move ${f.name} down`} disabled={i === data.forms.length - 1 || saving} className={buttonClass({ size: 'sm', variant: 'ghost' }) + ' pointer-coarse:min-h-11'} onClick={() => reorder(i, i + 1)}><ArrowDown className="size-3.5" /></button>
             <button type="button" className={buttonClass({ size: 'sm' }) + ' pointer-coarse:min-h-11'} onClick={() => setEditing(f)}>Edit</button>
-            <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => { if (window.confirm(`Delete ${f.name}? Its quiz questions are deleted too.`)) void run(() => lmsPost({ action: 'form.delete', id: f.id, expectedRevision: f.revision }), 'Deleted.'); }}>Delete</button>
+            <button type="button" className={buttonClass({ size: 'sm', variant: 'danger' }) + ' pointer-coarse:min-h-11'} disabled={saving} onClick={() => showConfirm(`Delete ${f.name}? Its quiz questions are deleted too.`, () => void run(() => lmsPost({ action: 'form.delete', id: f.id, expectedRevision: f.revision }), 'Deleted.'), 'Delete form')}>Delete</button>
           </span>}
         </li>)}</ul>}
     </section>

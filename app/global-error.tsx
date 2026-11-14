@@ -28,22 +28,20 @@ export default function GlobalError({
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-xl font-black text-white tracking-tight uppercase">Fatal System Exception</h1>
+            <h1 className="text-xl font-black text-white tracking-tight">The portal could not load</h1>
             <p className="text-xs text-[#999] leading-relaxed">
-              The root application shell encountered an unrecoverable runtime error. Core settings and encrypted session state have been preserved.
+              The app ran into an unexpected problem while starting. You are still signed in and nothing you saved has changed. Try again, or reload the portal.
             </p>
           </div>
 
-          {error.message && (
-            <div className="w-full bg-[#0F0F0F] border border-[#262626] rounded-[8px] p-3 text-left">
-              <span className="block text-[10px] uppercase tracking-widest font-black text-[#999] mb-1 font-mono">Crash Trace</span>
-              <code className="text-[10px] text-red-400 font-mono break-all line-clamp-3">
-                {error.message}
-              </code>
-              {error.digest && (
-                <span className="block text-[10px] text-[#999] font-mono mt-1">Digest: {error.digest}</span>
-              )}
-            </div>
+          {(error.message || error.digest) && (
+            <details className="w-full bg-[#0F0F0F] border border-[#262626] rounded-[8px] px-3 text-left">
+              <summary className="flex min-h-11 cursor-pointer items-center text-micro uppercase tracking-widest font-black text-[#999] font-mono">Technical details</summary>
+              <div className="max-h-40 overflow-y-auto pb-3 space-y-1">
+                {error.digest && <p className="text-micro text-[#999] font-mono">Reference: {error.digest}</p>}
+                {error.message && <code className="block text-micro text-red-400 font-mono break-all">{error.message}</code>}
+              </div>
+            </details>
           )}
 
           <div className="flex flex-col w-full gap-2.5 pt-2">
@@ -51,7 +49,7 @@ export default function GlobalError({
               onClick={() => reset()}
               className="w-full min-h-[44px] py-2.5 bg-brand hover:bg-red-600 text-white font-bold uppercase tracking-widest text-xs rounded-[8px] transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-950/40 cursor-pointer"
             >
-              Self-Heal & Reset
+              Try again
             </button>
 
             <button
@@ -62,7 +60,7 @@ export default function GlobalError({
               }}
               className="w-full min-h-[44px] py-2.5 bg-[#1F1F1F] hover:bg-[#2A2A2A] border border-[#333] text-[#E4E4E4] font-bold uppercase tracking-widest text-xs rounded-[8px] transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              Reload Portal Home
+              Go to dashboard
             </button>
           </div>
         </div>

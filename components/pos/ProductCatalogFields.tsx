@@ -29,12 +29,12 @@ export function ProductCatalogFields({ prefix, value, onChange }: {
   onChange: (patch: Partial<ProductFormData>) => void;
 }) {
   const field = 'w-full min-h-11 rounded-lg border border-neutral-300 bg-neutral-50 px-3 py-2 text-xs text-neutral-900 outline-none focus:border-brand dark:border-neutral-700 dark:bg-[#0F0F0F] dark:text-neutral-100';
-  const label = 'mb-1 block text-[10px] font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-400';
+  const label = 'mb-1 block text-micro font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-400';
   return (
     <section aria-labelledby={`${prefix}-catalog-heading`} className="space-y-3 rounded-lg border border-neutral-200 p-3 dark:border-neutral-700">
       <div>
         <h4 id={`${prefix}-catalog-heading`} className="text-xs font-semibold text-neutral-900 dark:text-neutral-100">Catalog details & availability</h4>
-        <p className="mt-1 text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400">Keep product information consistent at the counter and in the student shop.</p>
+        <p className="mt-1 text-micro leading-relaxed text-neutral-500 dark:text-neutral-400">Keep product information consistent at the counter and in the student shop.</p>
       </div>
       <div>
         <label htmlFor={`${prefix}-description`} className={label}>Product description</label>
@@ -52,13 +52,13 @@ export function ProductCatalogFields({ prefix, value, onChange }: {
       </div>
       <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg bg-neutral-50 p-3 dark:bg-[#0F0F0F]">
         <input type="checkbox" aria-label="Active product" checked={value.isActive} onChange={event => onChange({ isActive: event.target.checked })} className="mt-0.5 h-4 w-4 accent-brand" />
-        <span><span className="block text-xs font-semibold">Active product</span><span className="mt-1 block text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400">Inactive products stay in the management catalog and cannot be sold.</span></span>
+        <span><span className="block text-xs font-semibold">Active product</span><span className="mt-1 block text-micro leading-relaxed text-neutral-500 dark:text-neutral-400">Inactive products stay in the management catalog and cannot be sold.</span></span>
       </label>
       <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg bg-neutral-50 p-3 dark:bg-[#0F0F0F]">
         <input type="checkbox" aria-label="Available in student shop" checked={value.allowStudentOrders} onChange={event => onChange({ allowStudentOrders: event.target.checked })} className="mt-0.5 h-4 w-4 accent-brand" />
-        <span><span className="block text-xs font-semibold">Available in student shop</span><span className="mt-1 block text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400">Make this active product available for student orders. Leave unchecked for counter sales only.</span></span>
+        <span><span className="block text-xs font-semibold">Available in student shop</span><span className="mt-1 block text-micro leading-relaxed text-neutral-500 dark:text-neutral-400">Make this active product available for student orders. Leave unchecked for counter sales only.</span></span>
       </label>
-      {!value.isActive && <p className="text-[11px] leading-relaxed text-amber-700 dark:text-amber-300">This product will remain hidden from students while inactive.</p>}
+      {!value.isActive && <p className="text-micro leading-relaxed text-amber-700 dark:text-amber-300">This product will remain hidden from students while inactive.</p>}
     </section>
   );
 }

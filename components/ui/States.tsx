@@ -8,7 +8,7 @@ export function PageLoader({ label = 'Loading…' }: { label?: string }) {
     <div role="status" aria-live="polite" className="flex min-h-[50dvh] flex-1 items-center justify-center p-8">
       <div className="flex flex-col items-center gap-3">
         <div aria-hidden="true" className="size-8 rounded-full border-2 border-brand border-t-transparent motion-safe:animate-spin" />
-        <span className="font-mono text-[10px] uppercase tracking-widest text-ink-subtle">{label}</span>
+        <span className="font-mono text-micro uppercase tracking-widest text-ink-subtle">{label}</span>
       </div>
     </div>
   );
@@ -23,8 +23,8 @@ export function BrandSplash({ message, tone = 'brand' }: { message: string; tone
       <div className="relative z-10 flex flex-col items-center gap-6">
         <Image unoptimized priority width={56} height={56} src="/icons/logo.svg" alt="" className="size-14 object-contain drop-shadow-[0_0_15px_rgba(239,47,56,0.35)] motion-safe:animate-pulse" />
         <div className="flex flex-col items-center gap-1.5 text-center">
-          <p className="text-[11px] font-black uppercase leading-none tracking-[0.25em]">Infinity TKD</p>
-          <p className={cn('font-mono text-[10px] uppercase tracking-[0.18em]', tone === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-brand-ink')}>{message}</p>
+          <p className="text-micro font-black uppercase leading-none tracking-[0.25em]">Infinity TKD</p>
+          <p className={cn('font-mono text-micro uppercase tracking-[0.18em]', tone === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-brand-ink')}>{message}</p>
         </div>
         <div aria-hidden="true" className="relative h-0.5 w-32 overflow-hidden rounded-full bg-line">
           <div className={cn('absolute inset-y-0 left-0 w-1/2 rounded-full animate-shimmer', accent)} />

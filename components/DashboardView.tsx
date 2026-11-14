@@ -1,4 +1,5 @@
 'use client';
+import { pressable } from '@/components/ui/pressable';
 import { useAttendanceActions } from '@/hooks/use-attendance-actions';
 import { activeClassEnrollmentCounts } from '@/lib/attendance-roster';
 import { BirthdayWishActionModal } from '@/components/dashboard/BirthdayWishActionModal';
@@ -838,7 +839,7 @@ export function DashboardView() {
         actions={
           <div className="flex min-h-10 items-center justify-center gap-2 rounded-lg border border-line bg-surface px-3 shadow-xs">
             <CalendarBlank className="h-4 w-4 text-brand-ink" aria-hidden="true" />
-            <span className="font-mono text-[11px] font-bold uppercase tracking-wider">
+            <span className="font-mono text-micro font-bold uppercase tracking-wider">
               {mounted ? currentLocalTime.toLocaleDateString(state.language === 'en' ? 'en-US' : state.language === 'zh' ? 'zh-CN' : 'km-KH', { weekday: 'short', month: 'short', day: 'numeric' }) : '---'}
             </span>
           </div>
@@ -882,7 +883,7 @@ export function DashboardView() {
               tone="blue"
               value={<span className="inline-flex items-baseline gap-1.5">{attendanceRate}%{turnoutTrendStats.trend !== 0 && (
                 <span className={cn(
-                  "inline-flex items-center gap-0.5 rounded border px-1 py-0.5 font-mono text-[10px] font-bold leading-none",
+                  "inline-flex items-center gap-0.5 rounded border px-1 py-0.5 font-mono text-micro font-bold leading-none",
                   turnoutTrendStats.trend > 0
                     ? "border-emerald-500/20 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
                     : "border-red-500/20 bg-red-500/15 text-red-700 dark:text-red-400"
@@ -916,21 +917,21 @@ export function DashboardView() {
                   <span className="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
                   Live Session & Attendance Hub
                 </h2>
-                <p className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
+                <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
                   Select today&apos;s active training session, check in students, and review live attendance.
                 </p>
               </div>
 
               {/* Quick session switch dropdown on mobile or selector */}
               <div className="flex items-center gap-2 w-full sm:w-auto">
-                <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono shrink-0">
+                <span className="text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono shrink-0">
                   {t('dash_select_session')}:
                 </span>
                 {todayClasses.length > 0 ? (
                   <select
                     aria-label="Dashboard class" value={selectedClassId || ''}
                     onChange={(e) => setSelectedClassId(Number(e.target.value))}
-                    className="w-full sm:w-auto bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[8px] px-2.5 py-1.5 text-xs sm:text-[11px] min-h-[38px] sm:min-h-0 font-bold focus:outline-none focus:border-brand/50 shadow-sm cursor-pointer pointer-coarse:min-h-11"
+                    className="w-full sm:w-auto bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[8px] px-2.5 py-1.5 text-xs sm:text-micro min-h-[38px] sm:min-h-0 font-bold focus:outline-none focus:border-brand/50 shadow-sm cursor-pointer pointer-coarse:min-h-11"
                   >
                     {todayClasses.map(c => {
                       const enrolled = activeEnrollmentCounts.get(c.id) ?? 0;
@@ -954,10 +955,10 @@ export function DashboardView() {
               {/* Left 4 Cols: Today's Scheduled Classes List */}
               <div className="lg:col-span-4 space-y-2.5 flex flex-col">
                 <div className="flex items-center justify-between px-1">
-                  <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider font-mono">
+                  <span className="text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider font-mono">
                     Today&apos;s Schedule ({todayClasses.length})
                   </span>
-                  <span className="text-[9px] text-neutral-400 dark:text-neutral-500 font-mono">
+                  <span className="text-micro text-neutral-400 dark:text-neutral-500 font-mono">
                     {new Date(todayDate).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                   </span>
                 </div>
@@ -978,7 +979,7 @@ export function DashboardView() {
                     return (
                       <div
                         key={cls.id}
-                        onClick={() => setSelectedClassId(cls.id)}
+                        {...pressable(() => setSelectedClassId(cls.id), isSelected)}
                         className={cn(
                           "p-3 rounded-[8px] border transition-all cursor-pointer text-left relative overflow-hidden group",
                           isSelected
@@ -991,20 +992,20 @@ export function DashboardView() {
                         )}
                         <div className="flex items-start justify-between gap-2 mb-1.5">
                           <div className="min-w-0 flex-1">
-                            <h4 className={cn(
+                            <h3 className={cn(
                               "text-xs font-bold truncate leading-tight",
                               isSelected ? "text-neutral-900 dark:text-white" : "text-neutral-800 dark:text-neutral-200"
                             )}>
                               {cls.name}
-                            </h4>
-                            <span className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 flex items-center gap-1">
+                            </h3>
+                            <span className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 flex items-center gap-1">
                               <Clock className="w-2.5 h-2.5 shrink-0 text-brand-ink" />
                               {cls.startTime} - {cls.endTime}
                               {cls.classType && <span>• {cls.classType}</span>}
                             </span>
                           </div>
                           <span className={cn(
-                            "text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full shrink-0 uppercase tracking-wider",
+                            "text-micro font-mono font-bold px-1.5 py-0.5 rounded-full shrink-0 uppercase tracking-wider",
                             isSelected
                               ? "bg-brand/10 text-brand-ink border border-brand/20"
                               : "bg-neutral-100 dark:bg-[#1E1E1E] text-neutral-600 dark:text-neutral-400"
@@ -1015,7 +1016,7 @@ export function DashboardView() {
 
                         {/* Occupancy and Turnout Bars */}
                         <div className="space-y-1.5 pt-1 border-t border-neutral-100 dark:border-[#222]">
-                          <div className="flex items-center justify-between text-[9px] font-mono">
+                          <div className="flex items-center justify-between text-micro font-mono">
                             <span className="text-neutral-500 dark:text-neutral-400">
                               Enrolled: <strong className="text-neutral-800 dark:text-neutral-200">{enrolled}/{cls.capacity || '—'}</strong>
                             </span>
@@ -1043,7 +1044,7 @@ export function DashboardView() {
                       <p className="text-xs text-neutral-500 dark:text-neutral-400 font-mono">
                         No classes scheduled for today.
                       </p>
-                      <p className="text-[9px] text-neutral-400 dark:text-neutral-500 mt-1">
+                      <p className="text-micro text-neutral-400 dark:text-neutral-500 mt-1">
                         Check the Schedule Matrix to create or view sessions.
                       </p>
                     </div>
@@ -1093,7 +1094,7 @@ export function DashboardView() {
                         <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
                         <h2 className="text-xs font-bold uppercase tracking-widest">{t('dash_intake_queue')}</h2>
                       </div>
-                      <span className="px-1.5 py-0.5 bg-red-500/10 border border-red-500/20 text-brand-ink text-[9px] font-bold rounded-full font-mono">
+                      <span className="px-1.5 py-0.5 bg-red-500/10 border border-red-500/20 text-brand-ink text-micro font-bold rounded-full font-mono">
                         {pendingIntake.length} {t('dash_waiting')}
                       </span>
                     </div>
@@ -1106,16 +1107,16 @@ export function DashboardView() {
                               src={student.profilePicturePath}
                               alt={student.englishName}
                               containerClassName="w-7.5 h-7.5 rounded-[8px] bg-neutral-100 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 shadow-sm"
-                              fallback={<span className="font-bold text-neutral-500 dark:text-neutral-400 text-[10px]">{student.englishName.charAt(0)}</span>}
+                              fallback={<span className="font-bold text-neutral-500 dark:text-neutral-400 text-micro">{student.englishName.charAt(0)}</span>}
                             />
                             <div>
-                              <h4 className="text-xs font-bold text-neutral-900 dark:text-neutral-100">{student.englishName}</h4>
-                              <p className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">{student.id} • {t('stu_reg_date')} {student.registrationDate}</p>
+                              <h3 className="text-xs font-bold text-neutral-900 dark:text-neutral-100">{student.englishName}</h3>
+                              <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">{student.id} • {t('stu_reg_date')} {student.registrationDate}</p>
                             </div>
                           </div>
                           <button
                             onClick={() => handleApproveStudent(student.id)}
-                            className="px-3 py-1.5 h-7.5 sm:h-8 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-black text-[9px] font-black uppercase tracking-widest rounded-[6px] sm:rounded-[8px] transition-colors flex items-center justify-center sm:justify-start sm:w-fit gap-1 shadow-sm w-full cursor-pointer active:scale-95 touch-manipulation"
+                            className="px-3 py-1.5 h-7.5 sm:h-8 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-black text-micro font-black uppercase tracking-widest rounded-[6px] sm:rounded-[8px] transition-colors flex items-center justify-center sm:justify-start sm:w-fit gap-1 shadow-sm w-full cursor-pointer active:scale-95 touch-manipulation"
                           >
                             <span>{t('dash_approve_student')}</span>
                             <ArrowRight className="w-2.5 h-2.5" />
@@ -1142,12 +1143,12 @@ export function DashboardView() {
                         </div>
                         <div>
                           <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white">{t('dash_outstanding_tuition')}</h2>
-                          <p className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">{t('dash_ledger_sync')}</p>
+                          <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">{t('dash_ledger_sync')}</p>
                         </div>
                       </div>
 
                       {/* Summary Counter badge */}
-                      <span className="px-1.5 py-0.5 bg-brand/5 border border-brand/15 text-brand-ink text-[9px] font-bold rounded-full font-mono tracking-wide w-fit">
+                      <span className="px-1.5 py-0.5 bg-brand/5 border border-brand/15 text-brand-ink text-micro font-bold rounded-full font-mono tracking-wide w-fit">
                         {filteredUnpaidTuition.length} Pending • ${totalOutstandingAmount.toFixed(2)} Outstanding
                       </span>
                     </div>
@@ -1163,16 +1164,16 @@ export function DashboardView() {
                           placeholder="Search name..."
                           value={tuitionSearch}
                           onChange={(e) => setTuitionSearch(e.target.value)}
-                          className="w-full bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[6px] sm:rounded-[8px] pl-7 pr-2.5 h-8 sm:h-8.5 text-[11px] sm:text-xs font-semibold focus:outline-none focus:border-brand/50 placeholder-neutral-400 dark:placeholder-neutral-500 shadow-inner"
+                          className="w-full bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200 rounded-[6px] sm:rounded-[8px] pl-7 pr-2.5 h-8 sm:h-8.5 text-micro sm:text-xs font-semibold focus:outline-none focus:border-brand/50 placeholder-neutral-400 dark:placeholder-neutral-500 shadow-inner"
                         />
                       </div>
 
                       <div className="flex items-center gap-1.5 w-full sm:w-auto shrink-0 justify-between sm:justify-end">
-                        <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono">Group:</span>
-                        <select
+                        <span className="text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono">Group:</span>
+                        <select aria-label="Filter tuition alerts by group"
                           value={tuitionGroupFilter}
                           onChange={(e) => setTuitionGroupFilter(e.target.value as any)}
-                          className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[6px] sm:rounded-[8px] px-2.5 h-8 sm:h-8.5 text-[11px] sm:text-xs font-bold focus:outline-none focus:border-brand/50 shadow-sm cursor-pointer"
+                          className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-[#E4E4E4] rounded-[6px] sm:rounded-[8px] px-2.5 h-8 sm:h-8.5 text-micro sm:text-xs font-bold focus:outline-none focus:border-brand/50 shadow-sm cursor-pointer"
                         >
                           <option value="all">{t('dash_all_groups')}</option>
                           <option value="Standard Class">Standard Class</option>
@@ -1219,18 +1220,18 @@ export function DashboardView() {
                               src={student.profilePicturePath}
                               alt={student.englishName}
                               containerClassName="w-7.5 h-7.5 rounded-full bg-neutral-100 dark:bg-[#0A0A0A] border border-red-500/20 flex items-center justify-center overflow-hidden shadow-inner"
-                              fallback={<span className="font-bold text-neutral-500 dark:text-neutral-400 text-[10px]">{student.englishName.charAt(0)}</span>}
+                              fallback={<span className="font-bold text-neutral-500 dark:text-neutral-400 text-micro">{student.englishName.charAt(0)}</span>}
                             />
                             {/* Alert dot on avatar */}
                             <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-brand border-2 border-white dark:border-[#0F0F0F] rounded-full animate-pulse" />
                           </div>
                           <div className="space-y-0.5 min-w-0 flex-1">
-                            <h4 className="text-[11px] font-bold text-neutral-800 dark:text-neutral-300 leading-none truncate">{student.englishName}</h4>
+                            <h3 className="text-micro font-bold text-neutral-800 dark:text-neutral-300 leading-none truncate">{student.englishName}</h3>
 
-                            <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[9px] text-neutral-500 font-mono font-medium">
+                            <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-micro text-neutral-500 font-mono font-medium">
                               {/* Belt Rank with dot indicator */}
                               <span className="flex items-center gap-0.5">
-                                <span aria-hidden="true" className={cn("text-[9px] leading-none", getBeltColor(student.currentBelt))}>●</span>
+                                <span aria-hidden="true" className={cn("text-micro leading-none", getBeltColor(student.currentBelt))}>●</span>
                                 <span>{translateBeltFormatted(student.currentBelt, student.dob)}</span>
                               </span>
 
@@ -1279,11 +1280,11 @@ export function DashboardView() {
                               <span className="text-brand-ink font-bold text-xs font-mono tracking-tight leading-none">
                                 ${studentOwed.toFixed(2)}
                               </span>
-                              <span className="px-1 py-0.2 rounded bg-red-500/10 text-brand-ink border border-red-500/20 text-[9px] font-bold uppercase tracking-wider font-mono">
+                              <span className="px-1 py-0.2 rounded bg-red-500/10 text-brand-ink border border-red-500/20 text-micro font-bold uppercase tracking-wider font-mono">
                                 {t('dash_overdue')}
                               </span>
                             </div>
-                            <span className="block text-[9px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 font-bold">
+                            <span className="block text-micro uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 font-bold">
                               {t('dash_unpaid_for')} {currentMonthName} • Overdue {overdueDays}d
                             </span>
                           </div>
@@ -1298,7 +1299,7 @@ export function DashboardView() {
                                   console.error(err);
                               }
                             }}
-                            className="px-2.5 sm:px-3 h-7.5 sm:h-8 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-[6px] sm:rounded-[8px] text-[9px] font-bold uppercase tracking-wider transition-all duration-150 flex items-center gap-1 shadow-sm cursor-pointer whitespace-nowrap touch-manipulation"
+                            className="px-2.5 sm:px-3 h-7.5 sm:h-8 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-[6px] sm:rounded-[8px] text-micro font-bold uppercase tracking-wider transition-all duration-150 flex items-center gap-1 shadow-sm cursor-pointer whitespace-nowrap touch-manipulation"
                             title="Quick Pay Invoice"
                           >
                             <Coins className="w-3 h-3" />
@@ -1344,7 +1345,7 @@ export function DashboardView() {
                     <Crown className="w-3.5 h-3.5 text-yellow-500" />
                     <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white">{t('dash_promotion_readiness')}</h2>
                   </div>
-                  <span className="text-[9px] text-neutral-500 dark:text-neutral-400 font-mono uppercase font-bold tracking-widest">
+                  <span className="text-micro text-neutral-500 dark:text-neutral-400 font-mono uppercase font-bold tracking-widest">
                     {t('dash_pri_ranked')}
                   </span>
                 </div>
@@ -1356,9 +1357,9 @@ export function DashboardView() {
                       <div key={candidate.student.id} className="bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2.5 space-y-2 shadow-sm">
                         <div className="flex justify-between items-center">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] font-bold text-neutral-800 dark:text-neutral-300 leading-none">{candidate.student.englishName}</span>
+                            <span className="text-micro font-bold text-neutral-800 dark:text-neutral-300 leading-none">{candidate.student.englishName}</span>
                             <span className={cn(
-                              "px-1 py-0.2 rounded text-[9px] font-mono font-bold uppercase border",
+                              "px-1 py-0.2 rounded text-micro font-mono font-bold uppercase border",
                               candidate.rank === 'Gold' ? "bg-amber-500/10 text-amber-600 border-amber-500/20 animate-pulse" :
                               candidate.rank === 'Silver' ? "bg-neutral-500/10 text-neutral-600 border-neutral-500/20" :
                               "bg-orange-500/10 text-orange-600 border-orange-500/20"
@@ -1366,12 +1367,12 @@ export function DashboardView() {
                               {t(`dash_${candidate.rank.toLowerCase()}_candidate` as any)} ({candidate.pri}%)
                             </span>
                           </div>
-                          <span className="px-1 py-0.2 bg-brand/10 text-brand-ink border border-brand/20 rounded-[3px] text-[9px] font-bold uppercase font-mono">
+                          <span className="px-1 py-0.2 bg-brand/10 text-brand-ink border border-brand/20 rounded-[3px] text-micro font-bold uppercase font-mono">
                             {translateBeltFormatted(candidate.student.currentBelt, candidate.student.dob)}
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-1 text-[9px] font-mono border-t border-neutral-100 dark:border-[#1A1A1A] pt-1.5">
+                        <div className="grid grid-cols-2 gap-1 text-micro font-mono border-t border-neutral-100 dark:border-[#1A1A1A] pt-1.5">
                           <div className="flex items-center gap-1">
                             <Clock className={cn("w-3 h-3 shrink-0", report?.daysEligible ? "text-green-500" : "text-neutral-400")} />
                             <span className={report?.daysEligible ? "text-neutral-700 dark:text-neutral-300 font-bold" : "text-neutral-400"}>

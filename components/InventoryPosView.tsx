@@ -1729,18 +1729,18 @@ export function InventoryPosView() {
         </>}
       >
         {isPosReadOnly && (
-          <span className="mt-2 inline-flex items-center rounded-md border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 font-mono text-[10px] font-bold text-blue-700 dark:text-blue-400">
+          <span className="mt-2 inline-flex items-center rounded-md border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 font-mono text-micro font-bold text-blue-700 dark:text-blue-400">
             Read-only access
           </span>
         )}
       </PageHeader>
 
-      <SegmentedTabs label="Shop workspace" stacked value={activeMainTab} onChange={setActiveMainTab} className="grid grid-cols-4 sm:flex" items={[
+      <SegmentedTabs label="Shop workspace" stacked value={activeMainTab} onChange={setActiveMainTab} className="grid grid-cols-4 max-[359px]:grid-cols-2 sm:flex" items={[
         { id: 'terminal', ariaLabel: 'TERMINAL', icon: <Storefront weight="bold" />, label: 'TERMINAL' },
         { id: 'orders', ariaLabel: 'STUDENT ORDERS', icon: <Package weight="bold" />, label: <><span className="sm:hidden">Orders</span><span className="hidden sm:inline">Student orders</span></>,
-          badge: pendingOrdersCount > 0 ? <span aria-hidden="true" className="absolute right-0.5 top-0.5 rounded-full bg-brand px-1.5 text-[9px] font-bold text-on-brand sm:static">{pendingOrdersCount}</span> : undefined },
+          badge: pendingOrdersCount > 0 ? <span aria-hidden="true" className="absolute right-0.5 top-0.5 rounded-full bg-brand px-1.5 text-micro font-bold text-on-brand sm:static">{pendingOrdersCount}</span> : undefined },
         { id: 'inventory', ariaLabel: 'INVENTORY', icon: <Tag weight="bold" />, label: 'INVENTORY',
-          badge: lowStockCount > 0 ? <span aria-hidden="true" className="absolute right-0.5 top-0.5 rounded-full border border-amber-300 bg-amber-100 px-1.5 text-[9px] font-bold text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-400 sm:static">{lowStockCount}</span> : undefined },
+          badge: lowStockCount > 0 ? <span aria-hidden="true" className="absolute right-0.5 top-0.5 rounded-full border border-amber-300 bg-amber-100 px-1.5 text-micro font-bold text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-400 sm:static">{lowStockCount}</span> : undefined },
         { id: 'history', ariaLabel: 'SALES (' + salesHistory.length + ')', icon: <ClockCounterClockwise weight="bold" />, label: <><span className="sm:hidden">Sales</span><span className="hidden sm:inline">Sales ({salesHistory.length})</span></> },
       ]} />
 

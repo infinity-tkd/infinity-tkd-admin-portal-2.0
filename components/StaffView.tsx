@@ -285,7 +285,7 @@ export function StaffView() {
             { id: 'table', label: 'Table view', title: 'Detailed Table View', icon: <ListDashes weight="bold" /> },
           ]} />
 
-          <div className="flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-lg border border-line bg-control px-3 font-mono text-[10px] font-bold uppercase text-ink-muted">
+          <div className="flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-lg border border-line bg-control px-3 font-mono text-micro font-bold uppercase text-ink-muted">
             {t('stf_total')}: <span className="ml-1 font-bold text-ink">{staffMembers.length}</span>
           </div>
         </FilterRail>
@@ -361,13 +361,13 @@ export function StaffView() {
                         <div className="flex items-center gap-1.5">
                           <h3 className="text-sm font-bold text-neutral-900 dark:text-white tracking-tight group-hover:text-brand-ink transition-colors truncate">{staff.displayName}</h3>
                         </div>
-                        <p className="text-[10px] text-neutral-500 dark:text-[#777] font-mono truncate">@{staff.username}</p>
+                        <p className="text-micro text-neutral-500 dark:text-[#777] font-mono truncate">@{staff.username}</p>
                       </div>
                     </div>
 
                     {/* Active/Inactive Status Dot */}
                     <span className={cn(
-                      "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider font-mono shrink-0 border",
+                      "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-micro font-bold uppercase tracking-wider font-mono shrink-0 border",
                       staff.isActive
                         ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                         : "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20"
@@ -380,7 +380,7 @@ export function StaffView() {
                   {/* Role & Classes Tags */}
                   <div className="flex flex-wrap gap-1.5 items-center mb-3">
                     <span className={cn(
-                      "inline-block px-2 py-0.5 rounded-[8px] text-[9px] font-bold uppercase tracking-widest border font-mono",
+                      "inline-block px-2 py-0.5 rounded-[8px] text-micro font-bold uppercase tracking-widest border font-mono",
                       staff.role === 'Admin' ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30" :
                       staff.role === 'Head Coach' ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30" :
                       "bg-neutral-100 dark:bg-[#262626] text-neutral-800 dark:text-[#999] border-neutral-300 dark:border-transparent"
@@ -388,7 +388,7 @@ export function StaffView() {
                       {staff.role}
                     </span>
                     {assignedClassesCount > 0 && (
-                      <span className="px-2 py-0.5 rounded-[8px] text-[9px] font-bold uppercase tracking-widest bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 font-mono">
+                      <span className="px-2 py-0.5 rounded-[8px] text-micro font-bold uppercase tracking-widest bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 font-mono">
                         {assignedClassesCount} {assignedClassesCount === 1 ? 'Class' : 'Classes'}
                       </span>
                     )}
@@ -400,25 +400,25 @@ export function StaffView() {
                       const el = calculateDanEligibility(staff.currentDan, staff.danIssueDate, staff.dob);
                       return (
                         <div className="mb-3 p-2.5 rounded-[8px] bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] space-y-1.5 font-mono">
-                          <div className="flex items-center justify-between text-[10px]">
+                          <div className="flex items-center justify-between text-micro">
                             <span className="font-bold text-neutral-900 dark:text-white flex items-center gap-1.5">
                               <Medal className="w-3.5 h-3.5 text-brand-ink" weight="bold" />
                               <span>{formatDanRank(staff.currentDan)} ({getDanStripes(staff.currentDan)})</span>
                             </span>
                             {el.status === 'ELIGIBLE' ? (
-                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 animate-pulse">
+                              <span className="px-1.5 py-0.5 rounded text-micro font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 animate-pulse">
                                 ✅ Legit to Test
                               </span>
                             ) : el.status === 'TIME_PENDING' ? (
-                              <span className="text-[9px] text-amber-600 dark:text-amber-400 font-semibold truncate max-w-[130px]" title={el.headline}>
+                              <span className="text-micro text-amber-600 dark:text-amber-400 font-semibold truncate max-w-[130px]" title={el.headline}>
                                 ⏳ {el.headline}
                               </span>
                             ) : el.status === 'AGE_RESTRICTED' ? (
-                              <span className="text-[9px] text-rose-500 font-semibold">
+                              <span className="text-micro text-rose-500 font-semibold">
                                 Age {el.minAgeForNextDan} Req
                               </span>
                             ) : el.status === 'MAX_DAN' ? (
-                              <span className="text-[9px] text-purple-400 font-semibold">
+                              <span className="text-micro text-purple-400 font-semibold">
                                 9th Dan Max
                               </span>
                             ) : null}
@@ -435,7 +435,7 @@ export function StaffView() {
                           )}
 
                           {staff.kukkiwonId && (
-                            <div className="flex items-center justify-between text-[9px] text-neutral-400 dark:text-[#777]">
+                            <div className="flex items-center justify-between text-micro text-neutral-400 dark:text-[#777]">
                               <span>ID: #{staff.kukkiwonId}</span>
                               {el.earliestTestDate && (
                                 <span>Target: {el.earliestTestDate}</span>
@@ -446,11 +446,11 @@ export function StaffView() {
                       );
                     })()
                   ) : (staff.role === 'Coach' || staff.role === 'Assistant Coach' || staff.role === 'Head Coach') ? (
-                    <div className="mb-3 px-2.5 py-1.5 rounded-[8px] border border-dashed border-neutral-200 dark:border-[#262626] flex items-center justify-between text-[10px] font-mono text-neutral-400 dark:text-[#777]">
+                    <div className="mb-3 px-2.5 py-1.5 rounded-[8px] border border-dashed border-neutral-200 dark:border-[#262626] flex items-center justify-between text-micro font-mono text-neutral-400 dark:text-[#777]">
                       <span>No Kukkiwon ID</span>
-                      <span className="text-[9px] text-brand-ink hover:underline cursor-pointer" onClick={() => openEditor(staff)}>
+                      <button type="button" className="text-micro text-brand-ink hover:underline cursor-pointer" onClick={() => openEditor(staff)}>
                         + Add Dan
-                      </span>
+                      </button>
                     </div>
                   ) : null}
 
@@ -576,13 +576,13 @@ export function StaffView() {
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
                 <tr className="bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626]">
-                  <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-widest font-mono">Staff Member</th>
-                  <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-widest font-mono">Role</th>
-                  <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-widest font-mono">Kukkiwon Dan</th>
-                  <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-widest font-mono text-center">Classes</th>
-                  <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-widest font-mono">Direct Contact</th>
-                  <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-widest font-mono text-center">Status</th>
-                  <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-widest font-mono text-right">Actions</th>
+                  <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-[#888] tracking-widest font-mono">Staff Member</th>
+                  <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-[#888] tracking-widest font-mono">Role</th>
+                  <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-[#888] tracking-widest font-mono">Kukkiwon Dan</th>
+                  <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-[#888] tracking-widest font-mono text-center">Classes</th>
+                  <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-[#888] tracking-widest font-mono">Direct Contact</th>
+                  <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-[#888] tracking-widest font-mono text-center">Status</th>
+                  <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-[#888] tracking-widest font-mono text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200 dark:divide-[#262626]">
@@ -605,13 +605,13 @@ export function StaffView() {
                           <div className="flex flex-col min-w-0">
                             <span className="text-sm font-bold text-neutral-900 dark:text-white truncate">{staff.displayName}</span>
                             <ContactActions contact={staff} name={staff.displayName} compact />
-                            <span className="text-[10px] text-neutral-500 dark:text-[#888] font-mono">@{staff.username}</span>
+                            <span className="text-micro text-neutral-500 dark:text-[#888] font-mono">@{staff.username}</span>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <span className={cn(
-                          "px-2.5 py-1 rounded-[8px] text-[10px] font-bold uppercase tracking-widest border font-mono whitespace-nowrap",
+                          "px-2.5 py-1 rounded-[8px] text-micro font-bold uppercase tracking-widest border font-mono whitespace-nowrap",
                           staff.role === 'Admin' ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30" :
                           staff.role === 'Head Coach' ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30" :
                           "bg-neutral-100 dark:bg-[#262626] text-neutral-800 dark:text-[#999] border-neutral-300 dark:border-transparent"
@@ -630,29 +630,29 @@ export function StaffView() {
                                   <span className="text-xs font-bold text-neutral-900 dark:text-white">
                                     {formatDanRank(staff.currentDan)}
                                   </span>
-                                  <span className="text-[10px] text-neutral-400">({getDanStripes(staff.currentDan)})</span>
+                                  <span className="text-micro text-neutral-400">({getDanStripes(staff.currentDan)})</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                   {el.status === 'ELIGIBLE' ? (
-                                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
+                                    <span className="px-1.5 py-0.5 rounded text-micro font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
                                       ✅ Legit to Test
                                     </span>
                                   ) : el.status === 'TIME_PENDING' ? (
-                                    <span className="text-[9px] text-amber-600 dark:text-amber-400 font-semibold truncate max-w-[140px]" title={el.headline}>
+                                    <span className="text-micro text-amber-600 dark:text-amber-400 font-semibold truncate max-w-[140px]" title={el.headline}>
                                       ⏳ {el.headline}
                                     </span>
                                   ) : el.status === 'AGE_RESTRICTED' ? (
-                                    <span className="text-[9px] text-rose-500 font-semibold">
+                                    <span className="text-micro text-rose-500 font-semibold">
                                       Age {el.minAgeForNextDan} Req
                                     </span>
                                   ) : el.status === 'MAX_DAN' ? (
-                                    <span className="text-[9px] text-purple-400 font-semibold">
+                                    <span className="text-micro text-purple-400 font-semibold">
                                       9th Dan Max
                                     </span>
                                   ) : null}
                                 </div>
                                 {staff.kukkiwonId && (
-                                  <span className="text-[9px] text-neutral-400 dark:text-[#666]">
+                                  <span className="text-micro text-neutral-400 dark:text-[#666]">
                                     #{staff.kukkiwonId}
                                   </span>
                                 )}
@@ -660,21 +660,21 @@ export function StaffView() {
                             );
                           })()
                         ) : (staff.role === 'Coach' || staff.role === 'Assistant Coach' || staff.role === 'Head Coach') ? (
-                          <span className="text-[10px] text-neutral-400 dark:text-[#666] italic">
+                          <span className="text-micro text-neutral-400 dark:text-[#666] italic">
                             Unranked
                           </span>
                         ) : (
-                          <span className="text-[10px] text-neutral-400 dark:text-[#666]">—</span>
+                          <span className="text-micro text-neutral-400 dark:text-[#666]">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span className="text-xs font-mono font-bold text-neutral-700 dark:text-neutral-300">
                           {assignedClassesCount > 0 ? (
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px]">
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-micro">
                               {assignedClassesCount} {assignedClassesCount === 1 ? 'class' : 'classes'}
                             </span>
                           ) : (
-                            <span className="text-neutral-400 dark:text-[#666] text-[10px]">—</span>
+                            <span className="text-neutral-400 dark:text-[#666] text-micro">—</span>
                           )}
                         </span>
                       </td>
@@ -705,7 +705,7 @@ export function StaffView() {
                             )}
                           </div>
                           {staff.phone && (
-                            <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 dark:text-[#777]">
+                            <div className="flex items-center gap-1.5 text-micro text-neutral-400 dark:text-[#777]">
                               <a href={`tel:${staff.phone}`} onClick={(e) => e.stopPropagation()} className="hover:text-brand-ink">
                                 {staff.phone}
                               </a>
@@ -730,11 +730,11 @@ export function StaffView() {
                       </td>
                       <td className="px-4 py-3 text-center">
                         {staff.isActive ? (
-                          <span className="text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest font-mono">
+                          <span className="text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1 text-micro font-bold uppercase tracking-widest font-mono">
                             <Checks className="w-3.5 h-3.5"/> Active
                           </span>
                         ) : (
-                          <span className="text-red-500 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest font-mono">
+                          <span className="text-red-500 inline-flex items-center gap-1 text-micro font-bold uppercase tracking-widest font-mono">
                             <XCircle className="w-3.5 h-3.5"/> Locked
                           </span>
                         )}
@@ -800,12 +800,12 @@ export function StaffView() {
                             {staff.displayName}
                           </span>
                           {staff.khmerName && (
-                            <span className="text-[10px] text-neutral-400 dark:text-[#777] font-normal truncate">
+                            <span className="text-micro text-neutral-400 dark:text-[#777] font-normal truncate">
                               ({staff.khmerName})
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] text-neutral-500 dark:text-[#888] font-mono block">
+                        <span className="text-micro text-neutral-500 dark:text-[#888] font-mono block">
                           @{staff.username}
                         </span>
                       </div>
@@ -813,11 +813,11 @@ export function StaffView() {
 
                     <div className="shrink-0">
                       {staff.isActive ? (
-                        <span className="text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider font-mono bg-emerald-500/10 px-2 py-0.5 rounded-[6px] border border-emerald-500/20">
+                        <span className="text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1 text-micro font-bold uppercase tracking-wider font-mono bg-emerald-500/10 px-2 py-0.5 rounded-[6px] border border-emerald-500/20">
                           <Checks className="w-3 h-3" /> Active
                         </span>
                       ) : (
-                        <span className="text-red-500 inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider font-mono bg-red-500/10 px-2 py-0.5 rounded-[6px] border border-red-500/20">
+                        <span className="text-red-500 inline-flex items-center gap-1 text-micro font-bold uppercase tracking-wider font-mono bg-red-500/10 px-2 py-0.5 rounded-[6px] border border-red-500/20">
                           <XCircle className="w-3 h-3" /> Locked
                         </span>
                       )}
@@ -828,7 +828,7 @@ export function StaffView() {
                   <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                     <span
                       className={cn(
-                        "px-2 py-0.5 rounded-[6px] text-[9px] font-bold uppercase tracking-wider border font-mono whitespace-nowrap",
+                        "px-2 py-0.5 rounded-[6px] text-micro font-bold uppercase tracking-wider border font-mono whitespace-nowrap",
                         staff.role === 'Admin'
                           ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30"
                           : staff.role === 'Head Coach'
@@ -840,7 +840,7 @@ export function StaffView() {
                     </span>
 
                     {staff.currentDan && (
-                      <span className="px-2 py-0.5 rounded-[6px] text-[9px] font-bold font-mono bg-brand/10 text-brand-ink border border-brand/20 flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded-[6px] text-micro font-bold font-mono bg-brand/10 text-brand-ink border border-brand/20 flex items-center gap-1">
                         <Medal className="w-3 h-3 shrink-0" weight="bold" />
                         <span>{formatDanRank(staff.currentDan)}</span>
                         {el?.status === 'ELIGIBLE' && (
@@ -850,7 +850,7 @@ export function StaffView() {
                     )}
 
                     {assignedClassesCount > 0 && (
-                      <span className="px-2 py-0.5 rounded-[6px] text-[9px] font-bold font-mono bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      <span className="px-2 py-0.5 rounded-[6px] text-micro font-bold font-mono bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                         {assignedClassesCount} {assignedClassesCount === 1 ? 'class' : 'classes'}
                       </span>
                     )}
@@ -859,7 +859,7 @@ export function StaffView() {
                   {/* Direct Contact Links */}
                   <ContactActions contact={staff} name={staff.displayName} />
                   {(staff.email || staff.phone) && (
-                    <div className="flex flex-col gap-1 text-[11px] font-mono text-neutral-600 dark:text-[#999] pt-1 border-t border-neutral-100 dark:border-[#1E1E1E]">
+                    <div className="flex flex-col gap-1 text-micro font-mono text-neutral-600 dark:text-[#999] pt-1 border-t border-neutral-100 dark:border-[#1E1E1E]">
                       {staff.email && (
                         <div className="flex items-center justify-between gap-2">
                           <a
@@ -923,7 +923,7 @@ export function StaffView() {
                           href={`tel:${staff.phone}`}
                           onClick={(e) => e.stopPropagation()}
                           title="Call Staff Member"
-                          className="h-8 px-2.5 flex items-center justify-center gap-1 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-[#AAA] hover:text-brand-ink dark:hover:text-white text-[10px] font-bold uppercase tracking-wider font-mono active:scale-95 touch-manipulation transition-all"
+                          className="h-8 px-2.5 flex items-center justify-center gap-1 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-[#AAA] hover:text-brand-ink dark:hover:text-white text-micro font-bold uppercase tracking-wider font-mono active:scale-95 touch-manipulation transition-all"
                         >
                           <Phone className="w-3.5 h-3.5" />
                           <span>Call</span>
@@ -937,7 +937,7 @@ export function StaffView() {
                           setStaffNewPassword('');
                           setPasswordTargetStaff(staff);
                         }}
-                        className="h-8 px-2.5 flex items-center justify-center gap-1 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-[#AAA] hover:text-brand-ink dark:hover:text-white text-[10px] font-bold uppercase tracking-wider font-mono active:scale-95 touch-manipulation transition-all cursor-pointer"
+                        className="h-8 px-2.5 flex items-center justify-center gap-1 rounded-[6px] bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1C1C1C] dark:hover:bg-[#262626] text-neutral-700 dark:text-[#AAA] hover:text-brand-ink dark:hover:text-white text-micro font-bold uppercase tracking-wider font-mono active:scale-95 touch-manipulation transition-all cursor-pointer"
                       >
                         <Key className="w-3.5 h-3.5 text-brand-ink" />
                         <span>Pass</span>
@@ -949,7 +949,7 @@ export function StaffView() {
                           e.stopPropagation();
                           openEditor(staff);
                         }}
-                        className="h-8 px-2.5 flex items-center justify-center gap-1 rounded-[6px] bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-black text-[10px] font-bold uppercase tracking-wider font-mono active:scale-95 touch-manipulation transition-all cursor-pointer"
+                        className="h-8 px-2.5 flex items-center justify-center gap-1 rounded-[6px] bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-black text-micro font-bold uppercase tracking-wider font-mono active:scale-95 touch-manipulation transition-all cursor-pointer"
                       >
                         <PencilSimple className="w-3.5 h-3.5" />
                         <span>Edit</span>
@@ -980,12 +980,12 @@ export function StaffView() {
                     </div>
                     <div>
                       <h3 className="text-sm font-black text-neutral-900 dark:text-white uppercase tracking-wider">Set Staff Password</h3>
-                      <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono">@{passwordTargetStaff.username} • {passwordTargetStaff.displayName}</p>
+                      <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono">@{passwordTargetStaff.username} • {passwordTargetStaff.displayName}</p>
                     </div>
                   </div>
-                  <button
+                  <button aria-label="Close"
                     onClick={() => setPasswordTargetStaff(null)}
-                    className="p-1 text-neutral-400 hover:text-neutral-900 dark:text-[#666] dark:hover:text-white cursor-pointer"
+                    className="p-1 text-neutral-400 hover:text-neutral-900 dark:text-[#666] dark:hover:text-white cursor-pointer min-h-6 min-w-6 inline-flex items-center justify-center"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -997,9 +997,9 @@ export function StaffView() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider font-mono">New Password</label>
+                    <label htmlFor="staff-view-new-password" className="text-micro uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider font-mono">New Password</label>
                     <div className="relative">
-                      <input
+                      <input id="staff-view-new-password"
                         type={showStaffPasswordText ? "text" : "password"}
                         value={staffNewPassword}
                         onChange={e => setStaffNewPassword(e.target.value)}
@@ -1021,7 +1021,7 @@ export function StaffView() {
                     <button
                       type="button"
                       onClick={() => setStaffNewPassword(`Tkd${passwordTargetStaff.username.replace(/[^a-zA-Z0-9]/g, '').slice(0, 5)}!2026`)}
-                      className="text-[10px] text-brand-ink hover:underline font-mono cursor-pointer"
+                      className="text-micro text-brand-ink hover:underline font-mono cursor-pointer"
                     >
                       Suggest: Tkd{passwordTargetStaff.username.replace(/[^a-zA-Z0-9]/g, '').slice(0, 5)}!2026
                     </button>
@@ -1032,7 +1032,7 @@ export function StaffView() {
                   <button
                     type="button"
                     onClick={() => setPasswordTargetStaff(null)}
-                    className="h-9 pointer-coarse:h-11 px-3.5 sm:px-4 bg-neutral-200 dark:bg-[#1A1A1A] text-neutral-800 dark:text-[#AAA] font-bold uppercase tracking-wider text-[11px] sm:text-xs rounded-[6px] sm:rounded-[8px] hover:bg-neutral-300 dark:hover:bg-[#262626] active:scale-95 touch-manipulation cursor-pointer transition-all"
+                    className="h-9 pointer-coarse:h-11 px-3.5 sm:px-4 bg-neutral-200 dark:bg-[#1A1A1A] text-neutral-800 dark:text-[#AAA] font-bold uppercase tracking-wider text-micro sm:text-xs rounded-[6px] sm:rounded-[8px] hover:bg-neutral-300 dark:hover:bg-[#262626] active:scale-95 touch-manipulation cursor-pointer transition-all"
                   >
                     Cancel
                   </button>
@@ -1040,7 +1040,7 @@ export function StaffView() {
                     type="button"
                     onClick={handleResetStaffPassword}
                     disabled={isResettingPassword || !staffNewPassword}
-                    className="h-9 pointer-coarse:h-11 px-3.5 sm:px-4 bg-brand text-white font-bold uppercase tracking-wider text-[11px] sm:text-xs rounded-[6px] sm:rounded-[8px] hover:bg-brand-strong disabled:opacity-50 active:scale-95 touch-manipulation cursor-pointer shadow-sm shadow-brand/20 flex items-center gap-1.5 transition-all"
+                    className="h-9 pointer-coarse:h-11 px-3.5 sm:px-4 bg-brand text-white font-bold uppercase tracking-wider text-micro sm:text-xs rounded-[6px] sm:rounded-[8px] hover:bg-brand-strong disabled:opacity-50 active:scale-95 touch-manipulation cursor-pointer shadow-sm shadow-brand/20 flex items-center gap-1.5 transition-all"
                   >
                     {isResettingPassword ? (
                       <>

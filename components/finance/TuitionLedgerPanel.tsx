@@ -1,4 +1,5 @@
 'use client';
+import { pressable } from '@/components/ui/pressable';
 import {billingDueDay, membershipDueText} from '@/lib/billing';
 
 // Most urgent first: past the grace period, then within grace, due today, due soon.
@@ -86,13 +87,13 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
               {/* Financial CRM Controls */}
               <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 flex flex-col gap-3.5 sm:gap-4 shadow-sm">
                 <div>
-                  <h3 className="font-bold uppercase tracking-widest text-xs text-neutral-900 dark:text-[#E4E4E4] flex items-center justify-between">
+                  <h2 className="font-bold uppercase tracking-widest text-xs text-neutral-900 dark:text-[#E4E4E4] flex items-center justify-between">
                     <span>Financial CRM</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-neutral-100 dark:bg-[#202020] text-neutral-600 dark:text-neutral-400 font-bold">
+                    <span className="text-micro font-mono px-2 py-0.5 rounded bg-neutral-100 dark:bg-[#202020] text-neutral-600 dark:text-neutral-400 font-bold">
                       {filteredStudents.length} Active / paused
                     </span>
-                  </h3>
-                  <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono leading-relaxed mt-1">
+                  </h2>
+                  <p className="text-micro text-neutral-500 dark:text-[#888] font-mono leading-relaxed mt-1">
                     Manage tuition, track missing payments, and apply scholarship discounts for {filterYear}.
                   </p>
                 </div>
@@ -112,12 +113,12 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                       className="w-full pl-9 pr-8 h-10 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded-[6px] text-xs focus:outline-none focus:border-brand transition-all placeholder:text-neutral-400 dark:placeholder:text-[#666]"
                     />
                     {search && (
-                      <button
+                      <button aria-label="Clear search"
                         onClick={() => {
                           setSearch('');
                           setLedgerPage(1);
                         }}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-white p-1"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-white p-1 min-h-6 min-w-6 inline-flex items-center justify-center"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -126,10 +127,10 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
 
                   {/* Status Filter Segmented Control */}
                   <div className="space-y-1">
-                    <label className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider">
+                    <span id="ledger-status-filter-label" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#888] tracking-wider">
                       Status Filter
-                    </label>
-                    <div className="grid grid-cols-3 gap-1 bg-neutral-100 dark:bg-[#0F0F0F] p-1 rounded-[6px] border border-neutral-200 dark:border-[#262626] text-[10px] font-bold">
+                    </span>
+                    <div role="group" aria-labelledby="ledger-status-filter-label" className="grid grid-cols-3 gap-1 bg-neutral-100 dark:bg-[#0F0F0F] p-1 rounded-[6px] border border-neutral-200 dark:border-[#262626] text-micro font-bold">
                       <button
                         type="button"
                         onClick={() => {
@@ -180,7 +181,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
 
                   {/* Year & Month Selectors */}
                   <div className="grid grid-cols-2 gap-2">
-                    <select
+                    <select aria-label="Ledger year"
                       value={filterYear}
                       onChange={(e) => {
                         setFilterYear(Number(e.target.value));
@@ -193,7 +194,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                       <option value={currentActualYear - 2}>{currentActualYear - 2}</option>
                     </select>
 
-                    <select
+                    <select aria-label="Ledger month"
                       value={filterMonth}
                       onChange={(e) => {
                         setFilterMonth(e.target.value);
@@ -209,7 +210,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                   </div>
 
                   {/* Branch Filter */}
-                  <select
+                  <select aria-label="Filter by branch"
                     value={filterBranch}
                     onChange={(e) => {
                       setFilterBranch(e.target.value === 'all' ? 'all' : Number(e.target.value));
@@ -224,7 +225,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                   </select>
 
                   {/* Scholarship Tier Filter */}
-                  <select
+                  <select aria-label="Filter by scholarship tier"
                     value={filterScholarship}
                     onChange={(e) => {
                       setFilterScholarship(e.target.value === 'all' ? 'all' : Number(e.target.value));
@@ -260,9 +261,9 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
 
                   {/* Base Monthly Tuition display */}
                   <div className="pt-2 border-t border-neutral-200 dark:border-[#262626]">
-                    <label className="block text-[9px] text-neutral-500 dark:text-[#888] uppercase font-bold tracking-widest mb-1">
+                    <span className="block text-micro text-neutral-500 dark:text-[#888] uppercase font-bold tracking-widest mb-1">
                       Base Standard Tuition
-                    </label>
+                    </span>
                     <div className="w-full bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-700 dark:text-[#888] rounded-[6px] text-xs px-3 py-1.5 font-mono flex items-center justify-between">
                       <span>Full Monthly Rate</span>
                       <span className="text-neutral-900 dark:text-white font-bold">${standardMonthlyFee.toFixed(2)}</span>
@@ -291,14 +292,15 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                   <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3.5 sm:p-4 shadow-sm space-y-3">
                     <div
                       className="flex justify-between items-center border-b border-neutral-200 dark:border-[#262626] pb-2 cursor-pointer lg:cursor-default"
-                      onClick={() => setIsAlertsCollapsedMobile(prev => !prev)}
+                      {...pressable(() => setIsAlertsCollapsedMobile(prev => !prev))}
+                      aria-expanded={!isAlertsCollapsedMobile}
                     >
                       <div className="space-y-0.5">
-                        <span className="text-[9px] uppercase tracking-widest text-brand-ink font-mono font-bold">Billing CRM</span>
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white leading-none">Renewal Alerts</h3>
+                        <span className="text-micro uppercase tracking-widest text-brand-ink font-mono font-bold">Billing CRM</span>
+                        <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white leading-none">Renewal Alerts</h2>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <span className="px-2 py-0.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 rounded-full text-[9px] font-bold font-mono">
+                        <span className="px-2 py-0.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 rounded-full text-micro font-bold font-mono">
                           {alerts.length} Pending
                         </span>
                         <span className="lg:hidden text-neutral-400 text-xs font-mono ml-1">
@@ -316,7 +318,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                             placeholder="Filter alerts..."
                             value={alertSearch}
                             onChange={(e) => setAlertSearch(e.target.value)}
-                            className="w-full pl-7 pr-2 py-1.5 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded text-[10px] focus:outline-none focus:border-brand"
+                            className="w-full pl-7 pr-2 py-1.5 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-[#E4E4E4] rounded text-micro focus:outline-none focus:border-brand"
                           />
                         </div>
                       )}
@@ -345,17 +347,17 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                     <button
                                       type="button"
                                       onClick={() => { setStudentDetailsId(student.id); setPaymentAmounts({}); }}
-                                      className="font-bold text-neutral-900 dark:text-white leading-none hover:text-brand-ink text-left cursor-pointer transition-colors"
+                                      className="inline-flex min-h-6 items-center font-bold text-neutral-900 dark:text-white leading-none hover:text-brand-ink text-left cursor-pointer transition-colors"
                                     >
                                       {student.englishName}
                                     </button>
-                                    <div className="text-[9px] text-neutral-500 dark:text-[#888] font-mono mt-0.5">
+                                    <div className="text-micro text-neutral-500 dark:text-[#888] font-mono mt-0.5">
                                       {student.id} • {branchName}
                                     </div>
                                     <ContactActions contact={student} name={student.englishName} compact emailSubject="Tuition renewal" />
                                   </div>
                                   <span className={cn(
-                                    "px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border",
+                                    "px-1.5 py-0.5 rounded text-micro font-bold uppercase tracking-wider border",
                                     billing.status === 'Overdue'
                                       ? "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30"
                                       : "bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30"
@@ -365,8 +367,8 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                 </div>
 
                                 <div className="flex justify-between items-end border-t border-neutral-200 dark:border-[#262626] pt-2 mt-0.5">
-                                  <div className="text-[9px] text-neutral-600 dark:text-neutral-400 leading-tight">
-                                    <span className="block text-neutral-400 dark:text-[#666] font-mono uppercase tracking-wider text-[9px]">Target</span>
+                                  <div className="text-micro text-neutral-600 dark:text-neutral-400 leading-tight">
+                                    <span className="block text-neutral-400 dark:text-[#666] font-mono uppercase tracking-wider text-micro">Target</span>
                                     {membershipDueText(billing)}
                                   </div>
 
@@ -386,13 +388,13 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                           showNotification(`Payment logging failed: ${e.message}`, 'error');
                                         }
                                       }}
-                                      className="px-2.5 py-1.5 bg-white hover:bg-neutral-100 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white rounded-[6px] text-[9px] font-bold uppercase tracking-wider transition-all duration-150 flex items-center gap-1 shadow-xs cursor-pointer whitespace-nowrap shrink-0 active:scale-95 touch-manipulation" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
+                                      className="px-2.5 py-1.5 bg-white hover:bg-neutral-100 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white rounded-[6px] text-micro font-bold uppercase tracking-wider transition-all duration-150 flex items-center gap-1 shadow-xs cursor-pointer whitespace-nowrap shrink-0 active:scale-95 touch-manipulation" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
                                     >
                                       <Coins className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                                       Pay ${billing.amountOwed.toFixed(0)}
                                     </button>
                                   ) : (
-                                    <span className="px-2 py-0.5 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-[#262626] text-neutral-500 rounded text-[9px] font-bold uppercase tracking-wider shrink-0">
+                                    <span className="px-2 py-0.5 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-[#262626] text-neutral-500 rounded text-micro font-bold uppercase tracking-wider shrink-0">
                                       View Only
                                     </span>
                                   )}
@@ -415,10 +417,10 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                 <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 flex flex-col justify-between group overflow-hidden relative shadow-sm">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
                   <div>
-                    <p className="text-[10px] text-emerald-700 dark:text-emerald-400 uppercase font-bold tracking-widest mb-1">Tuition allocated</p>
-                    <h2 className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">${totalCollected.toFixed(2)}</h2>
+                    <p className="text-micro text-emerald-700 dark:text-emerald-400 uppercase font-bold tracking-widest mb-1">Tuition allocated</p>
+                    <p className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">${totalCollected.toFixed(2)}</p>
                   </div>
-                  <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2">
+                  <p className="text-micro text-neutral-500 dark:text-[#888] font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2">
                     Applied to billing cycles {filterMonth === 'all' ? 'YTD' : filterMonth} {filterYear}
                   </p>
                 </div>
@@ -426,10 +428,10 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                 <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 flex flex-col justify-between group overflow-hidden relative shadow-sm">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
                   <div>
-                    <p className="text-[10px] text-rose-700 dark:text-rose-400 uppercase font-bold tracking-widest mb-1">Outstanding Dues</p>
-                    <h2 className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">${outstandingBalance.toFixed(2)}</h2>
+                    <p className="text-micro text-rose-700 dark:text-rose-400 uppercase font-bold tracking-widest mb-1">Outstanding Dues</p>
+                    <p className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">${outstandingBalance.toFixed(2)}</p>
                   </div>
-                  <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2">
+                  <p className="text-micro text-neutral-500 dark:text-[#888] font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2">
                     Pending balances {filterMonth === 'all' ? 'YTD' : filterMonth} {filterYear}
                   </p>
                 </div>
@@ -437,10 +439,10 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                 <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 sm:p-5 flex flex-col justify-between group overflow-hidden relative shadow-sm">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
                   <div>
-                    <p className="text-[10px] text-indigo-700 dark:text-indigo-400 uppercase font-bold tracking-widest mb-1">Scholarship Subsidies</p>
-                    <h2 className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">${totalScholarshipDiscounts.toFixed(2)}</h2>
+                    <p className="text-micro text-indigo-700 dark:text-indigo-400 uppercase font-bold tracking-widest mb-1">Scholarship Subsidies</p>
+                    <p className="text-xl sm:text-2xl font-mono text-neutral-900 dark:text-white font-bold">${totalScholarshipDiscounts.toFixed(2)}</p>
                   </div>
-                  <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2">
+                  <p className="text-micro text-neutral-500 dark:text-[#888] font-mono mt-2 sm:mt-3 border-t border-neutral-200 dark:border-[#262626] pt-2">
                     Fee waivers {filterMonth === 'all' ? 'YTD' : filterMonth} {filterYear}
                   </p>
                 </div>
@@ -449,8 +451,8 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
               {/* Matrix Toolbar: View Mode Switcher, Legend & CSV Export */}
               <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
                 {/* Visual Legend */}
-                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] font-mono font-bold">
-                  <span className="text-neutral-500 dark:text-neutral-400 uppercase tracking-widest text-[9px] mr-0.5">Legend:</span>
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-micro font-mono font-bold">
+                  <span className="text-neutral-500 dark:text-neutral-400 uppercase tracking-widest text-micro mr-0.5">Legend:</span>
                   <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 flex items-center gap-1">
                     <Check className="w-2.5 h-2.5" /> Paid
                   </span>
@@ -475,7 +477,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                       aria-pressed={ledgerViewMode === 'matrix'}
                       aria-label="Matrix view"
                       className={cn(
-                        "min-h-8 min-w-8 pointer-coarse:min-h-9 pointer-coarse:min-w-9 justify-center px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1 cursor-pointer",
+                        "min-h-8 min-w-8 pointer-coarse:min-h-9 pointer-coarse:min-w-9 justify-center px-2.5 py-1 rounded text-micro font-bold uppercase tracking-wider transition-colors flex items-center gap-1 cursor-pointer",
                         ledgerViewMode === 'matrix'
                           ? "bg-white dark:bg-[#202020] text-neutral-900 dark:text-white shadow-xs font-black"
                           : "text-neutral-500 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
@@ -491,7 +493,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                       aria-pressed={ledgerViewMode === 'cards'}
                       aria-label="Cards view"
                       className={cn(
-                        "min-h-8 min-w-8 pointer-coarse:min-h-9 pointer-coarse:min-w-9 justify-center px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1 cursor-pointer",
+                        "min-h-8 min-w-8 pointer-coarse:min-h-9 pointer-coarse:min-w-9 justify-center px-2.5 py-1 rounded text-micro font-bold uppercase tracking-wider transition-colors flex items-center gap-1 cursor-pointer",
                         ledgerViewMode === 'cards'
                           ? "bg-white dark:bg-[#202020] text-neutral-900 dark:text-white shadow-xs font-black"
                           : "text-neutral-500 dark:text-[#888] hover:text-neutral-900 dark:hover:text-white"
@@ -561,12 +563,12 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                 <div className="font-bold text-sm text-neutral-900 dark:text-white flex items-center gap-1.5 truncate">
                                   <button type="button" onClick={() => {setStudentDetailsId(student.id);setPaymentAmounts({});}} className="min-h-[44px] truncate text-left hover:text-brand-ink focus-visible:outline-2 focus-visible:outline-offset-2">{student.englishName}</button>
                                   {student.khmerName && (
-                                    <span className="text-[11px] font-khmer text-neutral-500 dark:text-neutral-400 font-normal shrink-0">
+                                    <span className="text-micro font-khmer text-neutral-500 dark:text-neutral-400 font-normal shrink-0">
                                       {student.khmerName}
                                     </span>
                                   )}
                                 </div>
-                                <div className="text-[10px] text-neutral-500 dark:text-[#888] font-mono mt-0.5 flex flex-wrap items-center gap-1">
+                                <div className="text-micro text-neutral-500 dark:text-[#888] font-mono mt-0.5 flex flex-wrap items-center gap-1">
                                   <span>{student.id}</span>
                                   <span className="opacity-40">•</span>
                                   <span>{state.branches.find(b => b.id === student.homeBranchId)?.name}</span>
@@ -578,7 +580,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                             </div>
 
                             <span className={cn(
-                              "px-2 py-0.5 rounded text-[9px] font-bold font-mono uppercase tracking-wider shrink-0 border",
+                              "px-2 py-0.5 rounded text-micro font-bold font-mono uppercase tracking-wider shrink-0 border",
                               hasOverdue
                                 ? "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30"
                                 : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30"
@@ -589,7 +591,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
 
                           {/* Swipeable 12-Month Capsule Rail */}
                           <div className="pt-2 border-t border-neutral-100 dark:border-[#202020]">
-                            <div className="text-[9px] font-mono text-neutral-500 dark:text-neutral-400 uppercase tracking-widest mb-1.5 flex justify-between">
+                            <div className="text-micro font-mono text-neutral-500 dark:text-neutral-400 uppercase tracking-widest mb-1.5 flex justify-between">
                               <span>12-Month Billing Timeline</span>
                               <span className="text-neutral-400">Swipe to view</span>
                             </div>
@@ -614,15 +616,15 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                       "bg-rose-500/15 text-rose-800 dark:text-rose-300 border-rose-500/35"
                                     )}
                                   >
-                                    <span className="text-[9px] font-mono font-bold block">{m}</span>
+                                    <span className="text-micro font-mono font-bold block">{m}</span>
                                     {isBeforeEnroll ? (
-                                      <span className="text-[9px] font-mono text-neutral-400 uppercase mt-0.5">Pre</span>
+                                      <span className="text-micro font-mono text-neutral-400 uppercase mt-0.5">Pre</span>
                                     ) : isPaid ? (
                                       <Check className="w-3 h-3 stroke-[3] mt-0.5" />
                                     ) : isFuture ? (
                                       <span className="w-1 h-1 rounded-full bg-neutral-400 dark:bg-neutral-600 mt-1.5 mb-1" />
                                     ) : (
-                                      <span className="text-[9px] font-mono font-bold mt-0.5 uppercase">
+                                      <span className="text-micro font-mono font-bold mt-0.5 uppercase">
                                         {isCurrent ? 'DUE' : 'LATE'}
                                       </span>
                                     )}
@@ -635,10 +637,10 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                           {/* Bottom Action Footer */}
                           <div className="flex items-center justify-between pt-2 border-t border-neutral-100 dark:border-[#202020]">
                             <div className="font-mono text-xs">
-                              <span className="text-neutral-500 dark:text-neutral-400 text-[10px]">Fee: </span>
+                              <span className="text-neutral-500 dark:text-neutral-400 text-micro">Fee: </span>
                               <strong className="text-neutral-900 dark:text-white">${reqPayment.toFixed(2)}/mo</strong>
                               {scholarship && scholarship.discountPercentage > 0 && (
-                                <span className="ml-1 text-[9px] text-indigo-600 dark:text-indigo-400 font-bold font-mono">
+                                <span className="ml-1 text-micro text-indigo-600 dark:text-indigo-400 font-bold font-mono">
                                   ({scholarship.discountPercentage}% off)
                                 </span>
                               )}
@@ -664,12 +666,12 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
               {ledgerViewMode === 'matrix' && (
                 <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden shadow-sm">
                   {/* Mobile Tip for Matrix Mode */}
-                  <div className="md:hidden px-3.5 py-2 bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626] flex items-center justify-between text-[10px] text-neutral-500 dark:text-[#888]">
+                  <div className="md:hidden px-3.5 py-2 bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626] flex items-center justify-between text-micro text-neutral-500 dark:text-[#888]">
                     <span>Swipe horizontally for 12-month grid</span>
                     <button
                       type="button"
                       onClick={() => setLedgerViewMode('cards')}
-                      className="text-brand-ink font-bold uppercase hover:underline cursor-pointer active:scale-95 touch-manipulation"
+                      className="inline-flex min-h-6 items-center text-brand-ink font-bold uppercase hover:underline cursor-pointer active:scale-95 touch-manipulation"
                     >
                       Cards View →
                     </button>
@@ -682,12 +684,12 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                           <th className="sticky left-0 top-0 z-30 bg-neutral-100 dark:bg-[#0F0F0F] border-r border-neutral-200 dark:border-[#262626] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)] px-4 sm:px-5 py-3.5 w-[260px] min-w-[240px] sm:min-w-[260px] max-w-[280px]">
                             <div className="flex items-center justify-between">
                               <span>Student / Plan</span>
-                              <div className="flex items-center gap-1 bg-white dark:bg-[#141414] rounded-[6px] px-1.5 py-0.5 text-[9px] font-mono border border-neutral-200 dark:border-[#262626]">
+                              <div className="flex items-center gap-1 bg-white dark:bg-[#141414] rounded-[6px] px-1.5 py-0.5 text-micro font-mono border border-neutral-200 dark:border-[#262626]">
                                 <span className="text-neutral-400 dark:text-[#666] select-none">SORT:</span>
                                 <button
                                   type="button"
                                   onClick={() => handleLedgerSort('student')}
-                                  className={cn("hover:text-neutral-900 dark:hover:text-white transition-colors uppercase font-bold cursor-pointer px-0.5", ledgerSortField === 'student' ? "text-brand-ink" : "text-neutral-500 dark:text-[#999]")}
+                                  className={cn("inline-flex min-h-6 items-center hover:text-neutral-900 dark:hover:text-white transition-colors uppercase font-bold cursor-pointer px-0.5", ledgerSortField === 'student' ? "text-brand-ink" : "text-neutral-500 dark:text-[#999]")}
                                 >
                                   Name {ledgerSortField === 'student' && (ledgerSortDirection === 'asc' ? '▲' : '▼')}
                                 </button>
@@ -695,7 +697,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                 <button
                                   type="button"
                                   onClick={() => handleLedgerSort('dueDay')}
-                                  className={cn("hover:text-neutral-900 dark:hover:text-white transition-colors uppercase font-bold cursor-pointer px-0.5", ledgerSortField === 'dueDay' ? "text-brand-ink" : "text-neutral-500 dark:text-[#999]")}
+                                  className={cn("inline-flex min-h-6 items-center hover:text-neutral-900 dark:hover:text-white transition-colors uppercase font-bold cursor-pointer px-0.5", ledgerSortField === 'dueDay' ? "text-brand-ink" : "text-neutral-500 dark:text-[#999]")}
                                 >
                                   Due {ledgerSortField === 'dueDay' && (ledgerSortDirection === 'asc' ? '▲' : '▼')}
                                 </button>
@@ -705,7 +707,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
 
                           {/* 12 Month Headers */}
                           {months.map(m => (
-                            <th key={m} className="sticky top-0 z-20 bg-neutral-100 dark:bg-[#0F0F0F] px-1.5 py-3.5 text-center w-16 min-w-[64px] font-mono font-bold text-[10px]">
+                            <th key={m} className="sticky top-0 z-20 bg-neutral-100 dark:bg-[#0F0F0F] px-1.5 py-3.5 text-center w-16 min-w-[64px] font-mono font-bold text-micro">
                               {m}
                             </th>
                           ))}
@@ -736,7 +738,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                           <tr>
                             <td colSpan={13} className="px-6 py-12 text-center text-neutral-500 dark:text-[#666]">
                               <p className="font-bold uppercase tracking-widest text-neutral-900 dark:text-[#E4E4E4] mb-1">No matching students</p>
-                              <p className="font-mono text-[10px]">Adjust search term or filter status</p>
+                              <p className="font-mono text-micro">Adjust search term or filter status</p>
                             </td>
                           </tr>
                         ) : (
@@ -758,26 +760,27 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                       src={student.profilePicturePath}
                                       alt={student.englishName}
                                       containerClassName="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center overflow-hidden shrink-0 group-hover:border-brand transition-colors"
-                                      fallback={<span className="font-bold text-neutral-400 dark:text-[#666] text-[10px]">{student.englishName.charAt(0)}</span>}
+                                      fallback={<span className="font-bold text-neutral-400 dark:text-[#666] text-micro">{student.englishName.charAt(0)}</span>}
                                     />
                                     <div className="min-w-0 flex-1">
                                       <div className="font-bold text-xs text-neutral-900 dark:text-white group-hover:text-brand-ink dark:group-hover:text-white transition-colors flex items-center gap-1.5 truncate">
                                         <button type="button" onClick={event => {event.stopPropagation();setStudentDetailsId(student.id);setPaymentAmounts({});}} className="min-h-[44px] truncate text-left hover:text-brand-ink focus-visible:outline-2 focus-visible:outline-offset-2">{student.englishName}</button>
                                         {student.khmerName && (
-                                          <span className="text-[10px] font-khmer text-neutral-400 dark:text-neutral-500 font-normal shrink-0">
+                                          <span className="text-micro font-khmer text-neutral-400 dark:text-neutral-500 font-normal shrink-0">
                                             {student.khmerName}
                                           </span>
                                         )}
                                         {scholarship && scholarship.discountPercentage > 0 && (
-                                          <span className="px-1.5 py-0.2 rounded bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 font-bold uppercase tracking-widest text-[9px] border border-indigo-500/20 shrink-0">
+                                          <span className="px-1.5 py-0.2 rounded bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 font-bold uppercase tracking-widest text-micro border border-indigo-500/20 shrink-0">
                                             {scholarship.typeName}
                                           </span>
                                         )}
                                       </div>
-                                      <div className="text-[10px] text-neutral-500 dark:text-[#666] font-mono mt-0.5 tracking-tight flex items-center gap-1 truncate">
+                                      {/* Wraps onto a second line instead of cutting the branch name: the column is a fixed 260px wide. */}
+                                      <div className="text-micro text-neutral-500 dark:text-[#666] font-mono mt-0.5 tracking-tight flex flex-wrap items-center gap-x-1">
                                         <span>{student.id}</span>
                                         <span className="opacity-50">•</span>
-                                        <span className="truncate">{state.branches.find(b => b.id === student.homeBranchId)?.name}</span>
+                                        <span>{state.branches.find(b => b.id === student.homeBranchId)?.name}</span>
                                         <span className="opacity-50">•</span>
                                         <span className="text-neutral-700 dark:text-neutral-300 font-bold">Due: Day {dueDay}</span>
                                       </div>
@@ -800,7 +803,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                           title={`Pre-Enrollment (Enrolled ${enrollDate || 'N/A'})`}
                                           className="w-full h-8 flex flex-col justify-center items-center opacity-30 select-none"
                                         >
-                                          <span className="text-[9px] font-bold uppercase tracking-wider font-mono text-neutral-400 dark:text-[#666]">Pre-Join</span>
+                                          <span className="text-micro font-bold uppercase tracking-wider font-mono text-neutral-400 dark:text-[#666]">Pre-Join</span>
                                         </div>
                                       ) : isPaid ? (
                                         <button
@@ -810,7 +813,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                           className="w-full h-8 rounded-[6px] flex flex-col items-center justify-center transition-all bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25 cursor-pointer shadow-xs active:scale-95 touch-manipulation"
                                         >
                                           <Check className="w-3.5 h-3.5 stroke-[3]"/>
-                                          <span className="text-[9px] font-mono font-bold mt-0.5">
+                                          <span className="text-micro font-mono font-bold mt-0.5">
                                             ${(cycle.cash).toFixed(0)}
                                           </span>
                                         </button>
@@ -833,10 +836,10 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                                               : "bg-rose-500/15 hover:bg-rose-500/25 text-rose-800 dark:text-rose-300 border border-rose-500/35"
                                           )}
                                         >
-                                          <span className="text-[9px] font-bold uppercase tracking-widest font-mono">
+                                          <span className="text-micro font-bold uppercase tracking-widest font-mono">
                                             {isCurrent ? 'DUE' : 'LATE'}
                                           </span>
-                                          <span className="text-[9px] font-mono font-bold mt-0.5">
+                                          <span className="text-micro font-mono font-bold mt-0.5">
                                             ${reqPayment.toFixed(0)}
                                           </span>
                                           {isCurrent && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-amber-500"></span>}
@@ -856,10 +859,10 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                         <tr>
                           <td className="sticky left-0 z-30 bg-neutral-100 dark:bg-[#0F0F0F] border-r border-neutral-200 dark:border-[#262626] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)] px-4 sm:px-5 py-3 w-[260px] min-w-[240px] sm:min-w-[260px] max-w-[280px]">
                             <div className="flex items-center justify-between">
-                              <span className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-[10px]">
+                              <span className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-micro">
                                 Total Monthly Yield
                               </span>
-                              <span className="text-[9px] text-neutral-500 dark:text-neutral-400">
+                              <span className="text-micro text-neutral-500 dark:text-neutral-400">
                                 (Roster)
                               </span>
                             </div>
@@ -867,10 +870,10 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                           {monthlyLedgerMatrixTotals.map(totals => (
                             <td key={totals.month} className="px-1.5 py-2.5 text-center w-16 min-w-[64px]">
                               <div className="space-y-0.5">
-                                <span className="font-bold text-emerald-700 dark:text-emerald-400 text-[10px] block">
+                                <span className="font-bold text-emerald-700 dark:text-emerald-400 text-micro block">
                                   ${totals.totalCollected.toFixed(0)}
                                 </span>
-                                <div className="text-[9px] text-neutral-500 dark:text-neutral-400 flex items-center justify-center gap-0.5">
+                                <div className="text-micro text-neutral-500 dark:text-neutral-400 flex items-center justify-center gap-0.5">
                                   <span>{totals.paidCount}/{totals.eligibleCount}</span>
                                 </div>
                                 {totals.eligibleCount > 0 && (
@@ -897,13 +900,13 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
               {/* Pagination & Per-Page Controls (Responsive) */}
               {filteredStudents.length > 0 && (
                 <div className="p-3 border border-neutral-200 dark:border-[#262626] rounded-[8px] bg-white dark:bg-[#141414] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-xs">
-                  <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 font-mono text-[10px]">
+                  <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 font-mono text-micro">
                     <span>
                       Showing {Math.min((ledgerPage - 1) * ledgerPerPage + 1, filteredStudents.length)}–{Math.min(ledgerPage * ledgerPerPage, filteredStudents.length)} of {filteredStudents.length} students
                     </span>
                     <span className="opacity-40">•</span>
                     <span>Rows:</span>
-                    <select
+                    <select aria-label="Rows per page"
                       value={ledgerPerPage}
                       onChange={(e) => {
                         setLedgerPerPage(Number(e.target.value));
@@ -928,7 +931,7 @@ export function TuitionLedgerPanel({ filteredStudents, filterYear, search, setSe
                       <span>Prev</span>
                     </button>
 
-                    <span className="px-2 font-mono text-[10px] text-neutral-600 dark:text-neutral-400">
+                    <span className="px-2 font-mono text-micro text-neutral-600 dark:text-neutral-400">
                       Page <strong className="text-neutral-900 dark:text-white">{ledgerPage}</strong> of {totalLedgerPages}
                     </span>
 

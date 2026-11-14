@@ -16,6 +16,12 @@ declare global {
 
 declare const self: WorkerGlobalScope;
 
+// The stock list (@serwist/next defaultCache) also stores pages, router payloads, Next data and every other same-origin or
+// cross-origin response (NetworkFirst). This portal never keeps those: they show what a signed-in user was looking at, and a
+// payload stored before a release points at chunks that no longer exist. Only its static-asset entries are used.
+const NEVER_STORED = new Set(['pages', 'pages-rsc', 'pages-rsc-prefetch', 'next-data', 'static-data-assets', 'apis', 'others', 'cross-origin']);
+const staticDefaults = defaultCache.filter(entry => !NEVER_STORED.has((entry.handler as { cacheName?: string }).cacheName ?? ''));
+
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: false,
@@ -53,6 +59,14 @@ const serwist = new Serwist({
     {
       matcher({ request }) {
         return request.mode === 'navigate';
+      },
+      handler: new NetworkOnly(),
+    },
+
+    // 2b. Next's router payloads (client-side navigation and prefetch) are pages too: never stored.
+    {
+      matcher({ request, url }) {
+        return request.headers.get('RSC') === '1' || url.searchParams.has('_rsc');
       },
       handler: new NetworkOnly(),
     },
@@ -107,7 +121,7 @@ const serwist = new Serwist({
       }),
     },
 
-    ...defaultCache,
+    ...staticDefaults,
   ],
 });
 

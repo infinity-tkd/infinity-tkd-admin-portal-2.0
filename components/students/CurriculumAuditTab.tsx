@@ -69,7 +69,7 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
       <div className="w-full md:w-80 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 sm:p-4 flex flex-col max-h-[190px] md:max-h-full transition-colors shadow-xs shrink-0">
         <div className="mb-2 sm:mb-3">
           <h3 className="text-xs font-black text-neutral-900 dark:text-white uppercase tracking-widest">{t('dir_select_student')}</h3>
-          <p className="text-[9px] text-neutral-500 dark:text-[#888] font-mono mt-0.5">Select candidate to inspect curriculum audit</p>
+          <p className="text-micro text-neutral-500 dark:text-[#888] font-mono mt-0.5">Select candidate to inspect curriculum audit</p>
         </div>
 
         <div className="relative mb-2.5 shrink-0">
@@ -79,7 +79,7 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
             placeholder="Filter student..."
             value={promotionSearch}
             onChange={(e) => setPromotionSearch(e.target.value)}
-            className="w-full pl-8 pr-2 h-8 md:h-9 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[6px] md:rounded-[8px] text-[11px] md:text-xs focus:outline-none focus:border-brand placeholder:text-neutral-400 dark:placeholder:text-[#666]"
+            className="w-full pl-8 pr-2 h-8 md:h-9 bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] text-neutral-900 dark:text-white rounded-[6px] md:rounded-[8px] text-micro md:text-xs focus:outline-none focus:border-brand placeholder:text-neutral-400 dark:placeholder:text-[#666]"
           />
         </div>
 
@@ -108,12 +108,12 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
                     <div className={cn("text-xs font-bold", isSelected ? "text-white" : "text-neutral-900 dark:text-white")}>
                       {student.englishName}
                     </div>
-                    <div className={cn("text-[9px] font-mono mt-0.5", isSelected ? "text-white/80" : "text-neutral-500 dark:text-neutral-400")}>
+                    <div className={cn("text-micro font-mono mt-0.5", isSelected ? "text-white/80" : "text-neutral-500 dark:text-neutral-400")}>
                       {student.id}
                     </div>
                   </div>
                   <span className={cn(
-                    "px-2 py-0.5 rounded text-[9px] uppercase tracking-wider shrink-0 border",
+                    "px-2 py-0.5 rounded text-micro uppercase tracking-wider shrink-0 border",
                     isSelected ? "bg-white/20 border-white/30 text-white" : "bg-neutral-100 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-800 dark:text-neutral-200"
                   )}>
                     {student.currentBelt}
@@ -140,10 +140,10 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
                   <div className="flex items-center gap-2">
                     <h2 className="text-sm font-black text-neutral-900 dark:text-white uppercase tracking-wider">{activeStudentObj.englishName}</h2>
                     {activeStudentObj.khmerName && (
-                      <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-khmer">{activeStudentObj.khmerName}</span>
+                      <span className="text-micro text-neutral-500 dark:text-neutral-400 font-khmer">{activeStudentObj.khmerName}</span>
                     )}
                   </div>
-                  <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono mt-0.5 font-semibold">
+                  <p className="text-micro text-neutral-500 dark:text-[#888] font-mono mt-0.5 font-semibold">
                     {t('dir_dossier_id')}: {activeStudentObj.id} • {state.branches.find(b => b.id === activeStudentObj.homeBranchId)?.name} • Reg: {activeStudentObj.registrationDate}
                   </p>
                 </div>
@@ -151,13 +151,13 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
 
               <div className="flex items-center gap-3 bg-neutral-50 dark:bg-[#0F0F0F] px-4 py-2 border border-neutral-200 dark:border-[#262626] rounded-[8px] font-bold">
                 <div className="text-center space-y-0.5">
-                  <span className="text-[9px] text-neutral-500 dark:text-[#888] uppercase block font-semibold">{t('dir_current_rank')}</span>
-                  <span className="text-[10px] text-neutral-900 dark:text-white uppercase tracking-widest font-black">{activeStudentObj.currentBelt}</span>
+                  <span className="text-micro text-neutral-500 dark:text-[#888] uppercase block font-semibold">{t('dir_current_rank')}</span>
+                  <span className="text-micro text-neutral-900 dark:text-white uppercase tracking-widest font-black">{activeStudentObj.currentBelt}</span>
                 </div>
                 <CaretRight className="w-4 h-4 text-neutral-400 dark:text-[#666]" />
                 <div className="text-center space-y-0.5">
-                  <span className="text-[9px] text-brand-ink uppercase block font-black">{t('dir_target_rank')}</span>
-                  <span className="text-[10px] text-amber-600 dark:text-amber-400 uppercase tracking-widest font-black">{targetBelt}</span>
+                  <span className="text-micro text-brand-ink uppercase block font-black">{t('dir_target_rank')}</span>
+                  <span className="text-micro text-amber-600 dark:text-amber-400 uppercase tracking-widest font-black">{targetBelt}</span>
                 </div>
               </div>
             </div>
@@ -173,7 +173,7 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
             )}>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-[9px] font-mono font-black uppercase tracking-wider bg-white dark:bg-[#141414] border border-current shadow-xs">
+                  <span className="px-2 py-0.5 rounded text-micro font-mono font-black uppercase tracking-wider bg-white dark:bg-[#141414] border border-current shadow-xs">
                     {auditData.pri}% PRI SCORE
                   </span>
                   <span className="text-xs font-black uppercase tracking-wider">
@@ -187,14 +187,14 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
                     ? `Candidate is progressing well towards ${targetBelt}. Continue training on incomplete requirements.`
                     : `Candidate has not yet completed prerequisite attendance or time-in-grade cycles.`}
                 </p>
-                {auditData.beltTest && <div className="space-y-1.5 pt-1"><RuleChips entry={{ eligibility: auditData.beltTest }} /><Link href="/belt-tests" className="inline-block text-[11px] font-semibold underline">Open Belt Tests</Link></div>}
+                {auditData.beltTest && <div className="space-y-1.5 pt-1"><RuleChips entry={{ eligibility: auditData.beltTest }} /><Link href="/belt-tests" className="inline-block text-micro font-semibold underline">Open Belt Tests</Link></div>}
               </div>
 
               {auditData.eligibilityStatus === 'Ready' && activeStudentObj.studentStatus === 'Active' && (
                 <button
                   type="button"
                   onClick={() => handleOpenSinglePromote(activeStudentObj.id)}
-                  className="w-full sm:w-auto px-4 h-9 pointer-coarse:h-11 bg-brand hover:bg-brand-strong text-white rounded-[6px] text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95 touch-manipulation cursor-pointer shrink-0"
+                  className="w-full sm:w-auto px-4 h-9 pointer-coarse:h-11 bg-brand hover:bg-brand-strong text-white rounded-[6px] text-micro sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95 touch-manipulation cursor-pointer shrink-0"
                 >
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Promote Now</span>
@@ -209,9 +209,9 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
               {/* Requirement 1: Time in Grade */}
               <div className="p-3.5 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-[#AAA] tracking-wider">Time in Grade</span>
+                  <span className="text-micro uppercase font-bold text-neutral-500 dark:text-[#AAA] tracking-wider">Time in Grade</span>
                   <span className={cn(
-                    "text-[9px] font-black px-1.5 py-0.2 rounded uppercase border",
+                    "text-micro font-black px-1.5 py-0.2 rounded uppercase border",
                     auditData.daysEligible ? "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30" : "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-[#888] border-neutral-300 dark:border-transparent"
                   )}>
                     {auditData.daysEligible ? 'PASSED' : 'PENDING'}
@@ -234,9 +234,9 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
               {/* Requirement 2: Class Attendance */}
               <div className="p-3.5 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-[#AAA] tracking-wider">Attendance</span>
+                  <span className="text-micro uppercase font-bold text-neutral-500 dark:text-[#AAA] tracking-wider">Attendance</span>
                   <span className={cn(
-                    "text-[9px] font-black px-1.5 py-0.2 rounded uppercase border",
+                    "text-micro font-black px-1.5 py-0.2 rounded uppercase border",
                     auditData.attendanceEligible ? "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30" : "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-[#888] border-neutral-300 dark:border-transparent"
                   )}>
                     {auditData.attendanceEligible ? 'PASSED' : 'PENDING'}
@@ -259,9 +259,9 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
               {/* Requirement 3: LMS Video Syllabus */}
               <div className="p-3.5 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-[#AAA] tracking-wider">LMS Syllabus</span>
+                  <span className="text-micro uppercase font-bold text-neutral-500 dark:text-[#AAA] tracking-wider">LMS Syllabus</span>
                   <span className={cn(
-                    "text-[9px] font-black px-1.5 py-0.2 rounded uppercase border",
+                    "text-micro font-black px-1.5 py-0.2 rounded uppercase border",
                     auditData.syllabusEligible ? "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30" : "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-[#888] border-neutral-300 dark:border-transparent"
                   )}>
                     {auditData.syllabusEligible ? 'PASSED' : 'PENDING'}
@@ -284,9 +284,9 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
               {/* Requirement 4: Physical Technique Skills */}
               <div className="p-3.5 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] uppercase font-bold text-neutral-500 dark:text-[#AAA] tracking-wider">Skill Rating</span>
+                  <span className="text-micro uppercase font-bold text-neutral-500 dark:text-[#AAA] tracking-wider">Skill Rating</span>
                   <span className={cn(
-                    "text-[9px] font-black px-1.5 py-0.2 rounded uppercase border",
+                    "text-micro font-black px-1.5 py-0.2 rounded uppercase border",
                     auditData.physicalEligible ? "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30" : "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-[#888] border-neutral-300 dark:border-transparent"
                   )}>
                     {auditData.physicalEligible ? 'PASSED' : 'PENDING'}
@@ -313,14 +313,14 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
                 <h4 className="text-xs font-black text-neutral-900 dark:text-white uppercase tracking-widest">
                   Physical Technique Assessment ({targetBelt})
                 </h4>
-                <p className="text-[10px] text-neutral-500 dark:text-[#777] font-mono mt-0.5">
+                <p className="text-micro text-neutral-500 dark:text-[#777] font-mono mt-0.5">
                   Grade each core skill to determine promotion eligibility. Ratings save instantly.
                 </p>
               </div>
 
               {Object.entries(groupedSkills).map(([category, skills]) => (
                 <div key={category} className="space-y-2">
-                  <h5 className="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400 tracking-wider">
+                  <h5 className="text-micro uppercase font-bold text-indigo-600 dark:text-indigo-400 tracking-wider">
                     {category}
                   </h5>
                   <div className="grid grid-cols-1 gap-2">
@@ -335,7 +335,7 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
                             <div className={cn(
-                              "w-5 h-5 rounded-full flex items-center justify-center border text-[9px] shrink-0 font-black",
+                              "w-5 h-5 rounded-full flex items-center justify-center border text-micro shrink-0 font-black",
                               evalObj && ['Outstanding', 'Proficient', 'Developing', 'A', 'B', 'C'].includes(evalObj.grade)
                                 ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-400"
                                 : "bg-neutral-200 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400"
@@ -370,7 +370,7 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
                                     }
                                   }}
                                   className={cn(
-                                    "px-2 sm:px-2.5 py-1 rounded-[6px] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation border shrink-0",
+                                    "px-2 sm:px-2.5 py-1 rounded-[6px] text-micro sm:text-micro font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 touch-manipulation border shrink-0",
                                     isMatch
                                       ? (level === 'Outstanding' ? 'bg-emerald-600 border-emerald-500 text-white font-black shadow-xs' :
                                          level === 'Proficient' ? 'bg-indigo-600 border-indigo-500 text-white font-black shadow-xs' :
@@ -422,10 +422,10 @@ export function CurriculumAuditTab({ can, getNextBeltRank, getStudentPromotionDa
                         <div className="flex items-center gap-2 truncate">
                           <div className={cn("w-2 h-2 rounded-full", isCompleted ? "bg-emerald-500" : "bg-neutral-400")} />
                           <span className="font-bold text-neutral-900 dark:text-white truncate">{video.title}</span>
-                          <span className="text-[10px] text-neutral-400 font-mono">({video.category})</span>
+                          <span className="text-micro text-neutral-400 font-mono">({video.category})</span>
                         </div>
                         <span className={cn(
-                          "px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border shrink-0",
+                          "px-2 py-0.5 rounded text-micro font-bold uppercase tracking-wider border shrink-0",
                           isCompleted ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" : "bg-neutral-100 dark:bg-[#1A1A1A] text-neutral-500 border-neutral-200 dark:border-[#262626]"
                         )}>
                           {isCompleted ? 'Completed' : 'Not Watched'}

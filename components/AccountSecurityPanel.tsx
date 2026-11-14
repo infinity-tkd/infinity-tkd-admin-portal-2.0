@@ -112,17 +112,17 @@ export function AccountSecurityPanel() {
             <ShieldCheck className="w-5 h-5" weight="bold" />
           </div>
           <div>
-            <h4 className="text-xs font-black text-emerald-800 dark:text-emerald-400 uppercase tracking-widest font-mono">
+            <h2 className="text-xs font-black text-emerald-800 dark:text-emerald-400 uppercase tracking-widest font-mono">
               Session Security Status
-            </h4>
-            <p className="text-[11px] text-neutral-600 dark:text-neutral-400 font-sans mt-0.5">
+            </h2>
+            <p className="text-micro text-neutral-600 dark:text-neutral-400 font-sans mt-0.5">
               Authenticated with Supabase; account status is checked by the server
             </p>
           </div>
         </div>
 
         <div className="flex items-center sm:flex-col sm:items-end justify-between border-t sm:border-t-0 pt-2 sm:pt-0 border-emerald-500/20">
-          <span className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest font-bold">
+          <span className="text-micro font-mono text-neutral-500 uppercase tracking-widest font-bold">
             Device Fingerprint
           </span>
           <span className="text-xs font-mono font-bold text-neutral-900 dark:text-white bg-white dark:bg-[#111] px-2.5 py-1 rounded-[8px] border border-neutral-200 dark:border-[#333] shadow-xs">
@@ -136,11 +136,11 @@ export function AccountSecurityPanel() {
         <div className="flex items-center justify-between border-b border-neutral-200 dark:border-[#262626] pb-3">
           <div className="flex items-center gap-2">
             <Lock className="w-4 h-4 text-brand-ink" weight="bold" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-neutral-900 dark:text-white font-mono">
+            <h2 className="text-xs font-black uppercase tracking-wider text-neutral-900 dark:text-white font-mono">
               Change Account Password
-            </h3>
+            </h2>
           </div>
-          <span className="text-[10px] text-neutral-500 dark:text-[#888] font-mono font-bold">
+          <span className="text-micro text-neutral-500 dark:text-[#888] font-mono font-bold">
             @{state.currentUser?.username || 'user'}
           </span>
         </div>
@@ -149,7 +149,7 @@ export function AccountSecurityPanel() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* New Password */}
             <div className="space-y-1.5">
-              <div className="text-[10px] uppercase font-bold text-neutral-600 dark:text-[#AAA] tracking-wider font-mono flex items-center justify-between">
+              <div className="text-micro uppercase font-bold text-neutral-600 dark:text-[#AAA] tracking-wider font-mono flex items-center justify-between">
                 <label htmlFor="security-new-password">New Password <strong className="text-red-500">*</strong></label>
                 <button
                   type="button"
@@ -158,7 +158,7 @@ export function AccountSecurityPanel() {
                     setNewPassword(generated);
                     setConfirmPassword(generated);
                   }}
-                  className="min-h-8 pointer-coarse:min-h-9 px-1 text-[10px] text-brand-ink hover:underline cursor-pointer flex items-center gap-1 font-bold"
+                  className="min-h-8 pointer-coarse:min-h-9 px-1 text-micro text-brand-ink hover:underline cursor-pointer flex items-center gap-1 font-bold"
                 >
                   <Sparkle className="w-3 h-3" />
                   <span>Generate Strong</span>
@@ -187,7 +187,7 @@ export function AccountSecurityPanel() {
 
             {/* Confirm New Password */}
             <div className="space-y-1.5">
-              <label htmlFor="security-confirm-password" className="text-[10px] uppercase font-bold text-neutral-600 dark:text-[#AAA] tracking-wider font-mono">
+              <label htmlFor="security-confirm-password" className="text-micro uppercase font-bold text-neutral-600 dark:text-[#AAA] tracking-wider font-mono">
                 Confirm Password <strong className="text-red-500">*</strong>
               </label>
               <div className="relative">
@@ -218,7 +218,7 @@ export function AccountSecurityPanel() {
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
-            <div className="text-[11px] text-neutral-500 dark:text-[#888] font-mono">
+            <div className="text-micro text-neutral-500 dark:text-[#888] font-mono">
               {confirmPassword && confirmPassword === newPassword ? (
                 <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
                   <CheckCircle className="w-3.5 h-3.5" weight="bold" /> Passwords match
@@ -247,10 +247,10 @@ export function AccountSecurityPanel() {
       {/* 3. Active Sessions List */}
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          <h3 className="text-xs font-black uppercase tracking-wider text-neutral-900 dark:text-white flex items-center gap-2 font-mono">
+          <h2 className="text-xs font-black uppercase tracking-wider text-neutral-900 dark:text-white flex items-center gap-2 font-mono">
             <Desktop className="w-4 h-4 text-brand-ink" weight="bold" /> 
             <span>Current browser session</span>
-          </h3>
+          </h2>
           <button
             type="button"
             onClick={handleLogoutAllDevices}
@@ -281,12 +281,12 @@ export function AccountSecurityPanel() {
                       {session.device}
                     </span>
                     {session.isCurrent && (
-                      <span className="px-2 py-0.5 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 text-[9px] font-mono font-black uppercase tracking-wider rounded-[8px] border border-emerald-500/30">
+                      <span className="px-2 py-0.5 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 text-micro font-mono font-black uppercase tracking-wider rounded-[8px] border border-emerald-500/30">
                         Current Device
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-3 text-[10px] text-neutral-500 dark:text-neutral-400 font-mono flex-wrap">
+                  <div className="flex items-center gap-3 text-micro text-neutral-500 dark:text-neutral-400 font-mono flex-wrap">
                     <span className="flex items-center gap-1">
                       <Globe className="w-3 h-3 text-neutral-400" /> {session.location} ({session.ip})
                     </span>

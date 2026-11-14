@@ -1,4 +1,5 @@
 'use client';
+import { pressable } from '@/components/ui/pressable';
 import { ModalA11y } from '@/components/ui/ModalA11y';
 import { copyText } from '@/lib/clipboard';
 
@@ -511,7 +512,7 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
                   </div>
                   <button
                     onClick={() => setShowHelp(!showHelp)}
-                    className="text-[10px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white uppercase font-bold tracking-widest flex items-center gap-1 font-mono cursor-pointer"
+                    className="text-micro text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white uppercase font-bold tracking-widest flex items-center gap-1 font-mono cursor-pointer"
                   >
                     <Question className="w-4 h-4" /> Help instructions
                   </button>
@@ -538,8 +539,8 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
                 </div>
 
                 {showHelp && (
-                  <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-neutral-100 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-[11px] text-neutral-600 dark:text-neutral-400 space-y-2 leading-relaxed font-mono">
-                    <p className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-[10px]">Important Rules:</p>
+                  <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-neutral-100 dark:bg-[#0F0F0F] rounded-[8px] border border-neutral-200 dark:border-[#262626] text-micro text-neutral-600 dark:text-neutral-400 space-y-2 leading-relaxed font-mono">
+                    <p className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-micro">Important Rules:</p>
                     <ul className="list-disc pl-4 space-y-1">
                       <li><strong>Required Fields:</strong> Full Name, Username, and a unique Email are mandatory.</li>
                       <li><strong>Username:</strong> Must be alphanumeric, no spaces, minimum 3 characters.</li>
@@ -556,7 +557,8 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Drag and Drop File Selector */}
                 <div
-                  onClick={() => fileInputRef.current?.click()}
+                  {...pressable(() => fileInputRef.current?.click())}
+                  aria-label="Choose a CSV file to import"
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
@@ -579,12 +581,12 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
                   {fileName ? (
                     <div>
                       <p className="text-sm font-bold text-neutral-900 dark:text-white font-mono truncate max-w-[280px]">{fileName}</p>
-                      <p className="text-[10px] text-emerald-600 dark:text-green-500 font-mono mt-1 uppercase tracking-widest font-black">File Loaded Successfully</p>
+                      <p className="text-micro text-emerald-600 dark:text-green-500 font-mono mt-1 uppercase tracking-widest font-black">File Loaded Successfully</p>
                     </div>
                   ) : (
                     <div>
                       <p className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white mb-1">Drag and drop file here, or click to browse</p>
-                      <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono leading-relaxed">Supports CSV or plain text lists with standard column structures.</p>
+                      <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono leading-relaxed">Supports CSV or plain text lists with standard column structures.</p>
                     </div>
                   )}
                   <AnimatePresence>
@@ -603,8 +605,8 @@ export function BulkImportStaffModal({ onClose }: BulkImportStaffModalProps) {
 
                 {/* Clipboard Paste Box */}
                 <div className="flex flex-col space-y-2">
-                  <label className="block text-[11px] uppercase font-black text-neutral-500 dark:text-neutral-400 tracking-wider font-mono">Or Paste Raw CSV Data</label>
-                  <textarea
+                  <label htmlFor="bulk-import-staff-modal-or-paste-raw-csv-data" className="block text-micro uppercase font-black text-neutral-500 dark:text-neutral-400 tracking-wider font-mono">Or Paste Raw CSV Data</label>
+                  <textarea id="bulk-import-staff-modal-or-paste-raw-csv-data"
                     value={csvText}
                     onChange={(e) => {
                       setCsvText(e.target.value);
@@ -626,18 +628,18 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                 <div className="p-4 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0F0F0F] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div>
                     <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-widest font-mono">Review & Edit Imported Accounts</h3>
-                    <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">Correct any highlighted validation conflicts before committing roster</p>
+                    <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">Correct any highlighted validation conflicts before committing roster</p>
                   </div>
                   <div className="flex gap-2 w-full sm:w-auto">
                     <button
                       onClick={handleAddManualRow}
-                      className="flex-1 sm:flex-none px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[8px] text-[10px] font-bold font-mono uppercase tracking-wider transition-colors cursor-pointer active:scale-95"
+                      className="flex-1 sm:flex-none px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] border border-neutral-300 dark:border-[#262626] text-neutral-800 dark:text-white rounded-[8px] text-micro font-bold font-mono uppercase tracking-wider transition-colors cursor-pointer active:scale-95"
                     >
                       + Add Row
                     </button>
                     <button
                       onClick={() => setParsedRows([])}
-                      className="flex-1 sm:flex-none px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-600 dark:text-red-400 rounded-[8px] text-[10px] font-bold font-mono uppercase tracking-wider transition-colors cursor-pointer active:scale-95"
+                      className="flex-1 sm:flex-none px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-600 dark:text-red-400 rounded-[8px] text-micro font-bold font-mono uppercase tracking-wider transition-colors cursor-pointer active:scale-95"
                     >
                       Reset Grid
                     </button>
@@ -646,7 +648,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
 
                 <div className="overflow-x-auto overflow-y-auto flex-1 max-h-[40dvh]">
                   <table className="w-full text-left text-xs whitespace-nowrap border-collapse min-w-[800px]">
-                    <thead className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-600 dark:text-neutral-400 uppercase tracking-widest font-bold sticky top-0 z-10 border-b border-neutral-200 dark:border-[#262626] font-mono text-[10px]">
+                    <thead className="bg-neutral-100 dark:bg-[#0F0F0F] text-neutral-600 dark:text-neutral-400 uppercase tracking-widest font-bold sticky top-0 z-10 border-b border-neutral-200 dark:border-[#262626] font-mono text-micro">
                       <tr>
                         <th className="px-4 py-2.5 w-12 text-center">Row</th>
                         <th className="px-4 py-2.5">Display Name *</th>
@@ -664,7 +666,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                     >
                       {parsedRows.map((row) => (
                         <tr key={row.index} className={cn("hover:bg-neutral-50 dark:hover:bg-[#1A1A1A] transition-colors", !row.isValid && "bg-red-500/5")}>
-                          <td className="px-4 py-2.5 text-center font-mono text-[10px] text-neutral-400 dark:text-neutral-500">
+                          <td className="px-4 py-2.5 text-center font-mono text-micro text-neutral-400 dark:text-neutral-500">
                             {!row.isValid ? (
                               <span title={row.errors.join('\n')}>
                                 <Warning className="w-4 h-4 text-red-500 inline-block" />
@@ -674,7 +676,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                             )}
                           </td>
                           <td className="px-2 py-1">
-                            <input
+                            <input aria-label={`Display name, row ${row.index + 1}`}
                               type="text"
                               value={row.data.displayName}
                               onChange={(e) => handleUpdateCell(row.index, 'displayName', e.target.value)}
@@ -687,7 +689,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                             />
                           </td>
                           <td className="px-2 py-1">
-                            <input
+                            <input aria-label={`Username, row ${row.index + 1}`}
                               type="text"
                               value={row.data.username}
                               onChange={(e) => handleUpdateCell(row.index, 'username', e.target.value)}
@@ -700,7 +702,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                             />
                           </td>
                           <td className="px-2 py-1">
-                            <input
+                            <input aria-label={`Email, row ${row.index + 1}`}
                               type="email"
                               value={row.data.email}
                               onChange={(e) => handleUpdateCell(row.index, 'email', e.target.value)}
@@ -713,7 +715,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                             />
                           </td>
                           <td className="px-2 py-1 w-40">
-                            <select
+                            <select aria-label={`Role, row ${row.index + 1}`}
                               value={row.data.role}
                               onChange={(e) => handleUpdateCell(row.index, 'role', e.target.value)}
                               data-row-index={row.index}
@@ -728,7 +730,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                             </select>
                           </td>
                           <td className="px-2 py-1 w-24">
-                            <select
+                            <select aria-label={`Gender, row ${row.index + 1}`}
                               value={row.data.gender}
                               onChange={(e) => handleUpdateCell(row.index, 'gender', e.target.value)}
                               data-row-index={row.index}
@@ -740,7 +742,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                             </select>
                           </td>
                           <td className="px-2 py-1 w-32">
-                            <input
+                            <input aria-label={`Date of birth, row ${row.index + 1}`}
                               type="date"
                               value={row.data.dob}
                               onChange={(e) => handleUpdateCell(row.index, 'dob', e.target.value)}
@@ -765,7 +767,7 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                 </div>
 
                 {parsedRows.some(r => !r.isValid) && (
-                  <div className="p-3.5 bg-red-500/10 border-t border-neutral-200 dark:border-[#262626] text-[11px] text-red-600 dark:text-red-400 font-bold uppercase tracking-wider flex items-start gap-2 font-mono">
+                  <div className="p-3.5 bg-red-500/10 border-t border-neutral-200 dark:border-[#262626] text-micro text-red-600 dark:text-red-400 font-bold uppercase tracking-wider flex items-start gap-2 font-mono">
                     <Warning className="w-4 h-4 shrink-0 text-red-500" />
                     <div>
                       <span>Rows with errors will be bypassed. Hover over the warning icons on the left to see error details and fix them inline.</span>
@@ -812,11 +814,11 @@ Keo Moni       moni_coach  moni@infinitytkd.com   Coach   012333444"
                 </div>
                 <div className="grid grid-cols-2 gap-3 w-full max-w-xs font-mono text-xs mt-2">
                   <div className="p-3 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-center">
-                    <p className="text-neutral-500 dark:text-neutral-400 uppercase text-[9px] font-bold font-sans">Created</p>
+                    <p className="text-neutral-500 dark:text-neutral-400 uppercase text-micro font-bold font-sans">Created</p>
                     <p className="text-xl font-bold text-emerald-600 dark:text-green-400 mt-1">{importSummary.success}</p>
                   </div>
                   <div className="p-3 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-center">
-                    <p className="text-neutral-500 dark:text-neutral-400 uppercase text-[9px] font-bold font-sans">Skipped/Failed</p>
+                    <p className="text-neutral-500 dark:text-neutral-400 uppercase text-micro font-bold font-sans">Skipped/Failed</p>
                     <p className="text-xl font-bold text-red-600 dark:text-red-400 mt-1">{importSummary.failed}</p>
                   </div>
                 </div>

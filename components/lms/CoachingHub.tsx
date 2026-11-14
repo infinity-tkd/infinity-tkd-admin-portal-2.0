@@ -46,9 +46,9 @@ export function CoachingHub() {
   return <div className="space-y-4" data-coaching-hub>
     {!canEdit && <p className="rounded-lg border border-line bg-surface-muted p-3 text-xs text-ink-muted">View only: coaches and above review work and make changes.</p>}
     <SegmentedTabs label="Coaching views" value={tab} onChange={next => { setTab(next); if (next !== 'review') setReviewFor(null); }} stretch={false} stacked
-      className="max-sm:grid max-sm:grid-cols-4 max-sm:overflow-visible sm:flex-wrap sm:overflow-visible" items={[
+      className="max-sm:grid max-sm:grid-cols-4 max-[359px]:grid-cols-3 max-sm:overflow-visible sm:flex-wrap sm:overflow-visible" items={[
       { id: 'review', label: label('Review', 'Review'), ariaLabel: waiting ? `Review, ${waiting} waiting` : 'Review', icon: <CheckCircle />,
-        badge: waiting ? <span aria-hidden="true" className="rounded-full bg-brand px-1.5 text-[10px] leading-4 text-on-brand max-sm:absolute max-sm:right-1 max-sm:top-1 sm:ml-1">{waiting}</span> : undefined },
+        badge: waiting ? <span aria-hidden="true" className="rounded-full bg-brand px-1.5 text-micro leading-4 text-on-brand max-sm:absolute max-sm:right-1 max-sm:top-1 sm:ml-1">{waiting}</span> : undefined },
       { id: 'assignments', label: label('Tasks', 'Assignments'), ariaLabel: 'Assignments', icon: <ClipboardText /> },
       { id: 'challenges', label: label('Challenges', 'Challenges'), ariaLabel: 'Challenges', icon: <Flag /> },
       { id: 'forms', label: label('Forms', 'Forms & quizzes'), ariaLabel: 'Forms & quizzes', icon: <PersonSimpleTaiChi /> },

@@ -25,17 +25,17 @@ function ClipInput({ clip, onChange, label }: { clip: LibraryClip | null; onChan
   const mode = clip == null ? 'none' : 'src' in clip ? 'src' : 'times';
   const seconds = (value: string) => { const n = Number(value); return Number.isFinite(n) && n >= 0 ? Math.round(n * 10) / 10 : 0; };
   return <div className="flex flex-wrap items-end gap-2">
-    <div><label className={labelClass}>{label}</label>
-      <select aria-label={`${label}: source`} className={fieldClass} value={mode} onChange={event => onChange(event.target.value === 'none' ? null : event.target.value === 'src' ? { src: 'https://' } : { start: 0, end: 5 })}>
+    <div><label htmlFor="technique-steps-editor-field" className={labelClass}>{label}</label>
+      <select id="technique-steps-editor-field" aria-label={`${label}: source`} className={fieldClass} value={mode} onChange={event => onChange(event.target.value === 'none' ? null : event.target.value === 'src' ? { src: 'https://' } : { start: 0, end: 5 })}>
         <option value="none">No clip</option><option value="times">Part of the lesson video</option><option value="src">Its own video file</option>
       </select></div>
     {clip && 'start' in clip && <>
-      <div className="w-24"><label className={labelClass}>Start (s)</label><input aria-label={`${label}: start seconds`} type="number" min={0} step={0.1} className={fieldClass} value={clip.start} onChange={event => onChange({ ...clip, start: seconds(event.target.value) })} /></div>
-      <div className="w-24"><label className={labelClass}>End (s)</label><input aria-label={`${label}: end seconds`} type="number" min={0} step={0.1} className={fieldClass} value={clip.end} onChange={event => onChange({ ...clip, end: seconds(event.target.value) })} /></div>
+      <div className="w-24"><label htmlFor="technique-steps-editor-start-s" className={labelClass}>Start (s)</label><input id="technique-steps-editor-start-s" aria-label={`${label}: start seconds`} type="number" min={0} step={0.1} className={fieldClass} value={clip.start} onChange={event => onChange({ ...clip, start: seconds(event.target.value) })} /></div>
+      <div className="w-24"><label htmlFor="technique-steps-editor-end-s" className={labelClass}>End (s)</label><input id="technique-steps-editor-end-s" aria-label={`${label}: end seconds`} type="number" min={0} step={0.1} className={fieldClass} value={clip.end} onChange={event => onChange({ ...clip, end: seconds(event.target.value) })} /></div>
       {clip.end <= clip.start && <span role="alert" className="text-xs text-red-600 dark:text-red-400">The end must be after the start.</span>}
     </>}
-    {clip && 'src' in clip && <div className="min-w-[14rem] flex-1"><label className={labelClass}>Video link (https://)</label>
-      <input aria-label={`${label}: video link`} className={fieldClass} value={clip.src} onChange={event => onChange({ src: event.target.value.trim() })} /></div>}
+    {clip && 'src' in clip && <div className="min-w-[14rem] flex-1"><label htmlFor="technique-steps-editor-video-link-https" className={labelClass}>Video link (https://)</label>
+      <input id="technique-steps-editor-video-link-https" aria-label={`${label}: video link`} className={fieldClass} value={clip.src} onChange={event => onChange({ src: event.target.value.trim() })} /></div>}
   </div>;
 }
 

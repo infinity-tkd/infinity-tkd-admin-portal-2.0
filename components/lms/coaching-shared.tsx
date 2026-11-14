@@ -71,7 +71,7 @@ export function StatusLine({ message }: { message: { tone: 'ok' | 'error'; text:
 }
 
 export function Pill({ tone = 'neutral', children }: { tone?: 'neutral' | 'brand' | 'good' | 'warn'; children: React.ReactNode }) {
-  return <span className={cn('inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider', {
+  return <span className={cn('inline-flex items-center rounded-md px-2 py-0.5 text-micro font-bold uppercase tracking-wider', {
     neutral: 'bg-control text-ink-muted', brand: 'bg-brand/10 text-brand-ink', good: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400', warn: 'bg-amber-500/15 text-amber-800 dark:text-amber-300',
   }[tone])}>{children}</span>;
 }

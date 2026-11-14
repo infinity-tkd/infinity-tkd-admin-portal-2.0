@@ -71,7 +71,7 @@ export default function NotFound() {
 
         <div className="space-y-2">
           {isInternalBrokenLink && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-widest">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-micro font-bold uppercase tracking-widest">
               <Warning className="w-3.5 h-3.5" /> Broken Link Detected & Reported
             </span>
           )}
@@ -94,7 +94,7 @@ export default function NotFound() {
             />
             <button
               type="submit"
-              className="absolute right-1 flex h-9 items-center rounded-md bg-brand px-3 text-[10px] font-bold uppercase text-on-brand transition-colors hover:bg-brand-strong"
+              className="absolute right-1 flex h-9 items-center rounded-md bg-brand px-3 text-micro font-bold uppercase text-on-brand transition-colors hover:bg-brand-strong"
             >
               Go
             </button>

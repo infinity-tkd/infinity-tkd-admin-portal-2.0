@@ -254,11 +254,11 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                   <h3 className="text-sm sm:text-base font-black text-neutral-900 dark:text-white uppercase tracking-wider">
                     {user.displayName}
                   </h3>
-                  <span className="px-2 py-0.5 rounded-[6px] text-[10px] font-mono font-bold bg-neutral-200 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300">
+                  <span className="px-2 py-0.5 rounded-[6px] text-micro font-mono font-bold bg-neutral-200 dark:bg-[#262626] text-neutral-700 dark:text-neutral-300">
                     {user.role}
                   </span>
                 </div>
-                <p className="text-[11px] text-neutral-500 font-mono">
+                <p className="text-micro text-neutral-500 font-mono">
                   @{user.username} • Account-Level Read / Write Permissions Engine
                 </p>
               </div>
@@ -278,11 +278,11 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
           <div className="px-4 py-2.5 bg-purple-950/20 border-b border-purple-500/20 flex flex-wrap items-center justify-between gap-3 text-xs shrink-0">
             <div className="flex items-center gap-2">
               <Sparkle className="w-4 h-4 text-purple-400" weight="bold" />
-              <span className="text-neutral-700 dark:text-neutral-300 font-medium text-[11px]">
+              <span className="text-neutral-700 dark:text-neutral-300 font-medium text-micro">
                 Overrides take immediate precedence over role baseline defaults for this specific account.
               </span>
             </div>
-            <div className="flex items-center gap-2 font-mono text-[10px]">
+            <div className="flex items-center gap-2 font-mono text-micro">
               <span className="px-2 py-0.5 rounded-[6px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold">
                 {customOverrideStats.customGranted} Custom Allowed
               </span>
@@ -298,14 +298,14 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
           {/* 1-Click Module Presets (Read-Only vs Read & Write) */}
           <div className="p-3 border-b border-neutral-200 dark:border-[#262626] bg-neutral-50/70 dark:bg-[#121212] shrink-0">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider font-mono flex items-center gap-1.5">
+              <span className="text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider font-mono flex items-center gap-1.5">
                 <Sliders className="w-3.5 h-3.5 text-purple-500" />
                 Quick Module Access Presets (Read-Only vs Read & Write)
               </span>
               <button
                 type="button"
                 onClick={() => setShowModulePresets(!showModulePresets)}
-                className="text-[10px] text-purple-600 dark:text-purple-400 hover:underline font-mono cursor-pointer"
+                className="text-micro text-purple-600 dark:text-purple-400 hover:underline font-mono cursor-pointer"
               >
                 {showModulePresets ? 'Collapse Presets' : 'Expand Presets'}
               </button>
@@ -321,11 +321,11 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                       className="p-2 rounded-[8px] bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#262626] flex items-center justify-between gap-2 text-xs"
                     >
                       <div className="min-w-0">
-                        <p className="font-bold text-[11px] truncate text-neutral-900 dark:text-white">
+                        <p className="font-bold text-micro truncate text-neutral-900 dark:text-white">
                           {mod.label}
                         </p>
                         <span className={cn(
-                          "text-[9px] font-mono font-bold uppercase px-1.5 py-0.2 rounded",
+                          "text-micro font-mono font-bold uppercase px-1.5 py-0.2 rounded",
                           currentLevel === 'write' ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" :
                           currentLevel === 'read' ? "bg-blue-500/10 text-blue-600 dark:text-blue-400" :
                           currentLevel === 'none' ? "bg-neutral-200 dark:bg-[#242424] text-neutral-500" :
@@ -343,7 +343,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                           onClick={() => handleSetModuleAccess(mod, 'read')}
                           title="Grant view/read access only (write actions disabled)"
                           className={cn(
-                            "px-2 py-0.5 rounded text-[9px] font-mono font-bold transition-all cursor-pointer",
+                            "px-2 py-0.5 rounded text-micro font-mono font-bold transition-all cursor-pointer",
                             currentLevel === 'read'
                               ? "bg-blue-600 text-white shadow-xs"
                               : "bg-neutral-100 dark:bg-[#1C1C1C] text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-[#262626]"
@@ -356,7 +356,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                           onClick={() => handleSetModuleAccess(mod, 'write')}
                           title="Grant full read and write access"
                           className={cn(
-                            "px-2 py-0.5 rounded text-[9px] font-mono font-bold transition-all cursor-pointer",
+                            "px-2 py-0.5 rounded text-micro font-mono font-bold transition-all cursor-pointer",
                             currentLevel === 'write'
                               ? "bg-emerald-600 text-white shadow-xs"
                               : "bg-neutral-100 dark:bg-[#1C1C1C] text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-[#262626]"
@@ -369,7 +369,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                           onClick={() => handleSetModuleAccess(mod, 'none')}
                           title="Block all access"
                           className={cn(
-                            "px-1.5 py-0.5 rounded text-[9px] font-mono font-bold transition-all cursor-pointer",
+                            "px-1.5 py-0.5 rounded text-micro font-mono font-bold transition-all cursor-pointer",
                             currentLevel === 'none'
                               ? "bg-red-600 text-white shadow-xs"
                               : "bg-neutral-100 dark:bg-[#1C1C1C] text-neutral-500 hover:text-red-500"
@@ -405,7 +405,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                 type="button"
                 onClick={() => setAccessTypeFilter('all')}
                 className={cn(
-                  "px-2.5 py-1 rounded-[5px] text-[10px] font-bold font-mono transition-all cursor-pointer",
+                  "px-2.5 py-1 rounded-[5px] text-micro font-bold font-mono transition-all cursor-pointer",
                   accessTypeFilter === 'all'
                     ? "bg-white dark:bg-[#2A2A2A] text-neutral-900 dark:text-white shadow-xs font-black"
                     : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
@@ -417,7 +417,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                 type="button"
                 onClick={() => setAccessTypeFilter('read')}
                 className={cn(
-                  "px-2.5 py-1 rounded-[5px] text-[10px] font-bold font-mono transition-all flex items-center gap-1 cursor-pointer",
+                  "px-2.5 py-1 rounded-[5px] text-micro font-bold font-mono transition-all flex items-center gap-1 cursor-pointer",
                   accessTypeFilter === 'read'
                     ? "bg-blue-600 text-white shadow-xs font-black"
                     : "text-neutral-500 hover:text-blue-500"
@@ -429,7 +429,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                 type="button"
                 onClick={() => setAccessTypeFilter('write')}
                 className={cn(
-                  "px-2.5 py-1 rounded-[5px] text-[10px] font-bold font-mono transition-all flex items-center gap-1 cursor-pointer",
+                  "px-2.5 py-1 rounded-[5px] text-micro font-bold font-mono transition-all flex items-center gap-1 cursor-pointer",
                   accessTypeFilter === 'write'
                     ? "bg-amber-600 text-white shadow-xs font-black"
                     : "text-neutral-500 hover:text-amber-500"
@@ -447,7 +447,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                   type="button"
                   onClick={() => setSelectedCategory(cat)}
                   className={cn(
-                    "px-2 py-1 rounded-[6px] text-[10px] font-bold whitespace-nowrap transition-colors cursor-pointer",
+                    "px-2 py-1 rounded-[6px] text-micro font-bold whitespace-nowrap transition-colors cursor-pointer",
                     selectedCategory === cat
                       ? "bg-purple-600 text-white shadow-sm"
                       : "bg-neutral-100 dark:bg-[#1A1A1A] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
@@ -494,11 +494,11 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                       <div className="flex items-center gap-2 flex-wrap">
                         {/* Access Type Badge: READ vs WRITE */}
                         {p.accessType === 'read' ? (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-black uppercase bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20">
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-micro font-mono font-black uppercase bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20">
                             <Eye className="w-2.5 h-2.5" weight="bold" /> READ
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-black uppercase bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-micro font-mono font-black uppercase bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
                             <PencilSimple className="w-2.5 h-2.5" weight="bold" /> WRITE
                           </span>
                         )}
@@ -507,13 +507,13 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                           {p.label}
                         </span>
 
-                        <span className="text-[10px] font-mono text-neutral-400 bg-neutral-100 dark:bg-[#1C1C1C] px-1.5 py-0.2 rounded border border-neutral-200 dark:border-[#262626]">
+                        <span className="text-micro font-mono text-neutral-400 bg-neutral-100 dark:bg-[#1C1C1C] px-1.5 py-0.2 rounded border border-neutral-200 dark:border-[#262626]">
                           {p.key}
                         </span>
 
                         {/* Effective State Badge */}
                         <span className={cn(
-                          "px-2 py-0.5 rounded-[6px] text-[9px] font-mono font-bold uppercase",
+                          "px-2 py-0.5 rounded-[6px] text-micro font-mono font-bold uppercase",
                           effective.isGranted
                             ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20"
                             : "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20"
@@ -521,10 +521,10 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                           {effective.isGranted ? 'Allowed' : 'Denied'}
                         </span>
                       </div>
-                      <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                      <p className="text-micro text-neutral-500 dark:text-neutral-400 leading-relaxed">
                         {p.description}
                       </p>
-                      <div className="flex items-center gap-2 text-[10px] text-neutral-400 font-mono">
+                      <div className="flex items-center gap-2 text-micro text-neutral-400 font-mono">
                         <span>Role Default: <strong>{roleBaseline ? 'Granted' : 'Denied'}</strong></span>
                         {currentOverride !== null && currentOverride !== undefined && (
                           <span className="text-purple-600 dark:text-purple-400 font-bold">
@@ -541,7 +541,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                         type="button"
                         onClick={() => handleSetOverride(p.key, null)}
                         className={cn(
-                          "flex-1 sm:flex-none px-2.5 py-1.5 sm:py-1 rounded-[6px] text-[10px] font-bold font-mono transition-all cursor-pointer text-center active:scale-95 touch-manipulation",
+                          "flex-1 sm:flex-none px-2.5 py-1.5 sm:py-1 rounded-[6px] text-micro font-bold font-mono transition-all cursor-pointer text-center active:scale-95 touch-manipulation",
                           (currentOverride === null || currentOverride === undefined)
                             ? "bg-white dark:bg-[#2A2A2A] text-neutral-900 dark:text-white shadow-xs border border-neutral-300 dark:border-neutral-700"
                             : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
@@ -556,7 +556,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                         type="button"
                         onClick={() => handleSetOverride(p.key, true)}
                         className={cn(
-                          "flex-1 sm:flex-none px-2.5 py-1.5 sm:py-1 rounded-[6px] text-[10px] font-bold font-mono transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95 touch-manipulation",
+                          "flex-1 sm:flex-none px-2.5 py-1.5 sm:py-1 rounded-[6px] text-micro font-bold font-mono transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95 touch-manipulation",
                           currentOverride === true
                             ? "bg-emerald-600 text-white shadow-xs font-black"
                             : "text-neutral-500 hover:text-emerald-600 dark:hover:text-emerald-400"
@@ -570,7 +570,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
                         type="button"
                         onClick={() => handleSetOverride(p.key, false)}
                         className={cn(
-                          "flex-1 sm:flex-none px-2.5 py-1.5 sm:py-1 rounded-[6px] text-[10px] font-bold font-mono transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95 touch-manipulation",
+                          "flex-1 sm:flex-none px-2.5 py-1.5 sm:py-1 rounded-[6px] text-micro font-bold font-mono transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95 touch-manipulation",
                           currentOverride === false
                             ? "bg-red-600 text-white shadow-xs font-black"
                             : "text-neutral-500 hover:text-red-600 dark:hover:text-red-400"

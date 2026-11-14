@@ -166,7 +166,7 @@ export function RolePermissionsMatrixPanel() {
                 <h3 className="text-sm sm:text-base font-black text-neutral-900 dark:text-white tracking-wide uppercase font-mono">
                   Central Role & Permission Matrix
                 </h3>
-                <span className="px-2 py-0.5 text-[9px] font-black uppercase rounded-full bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/40 font-mono">
+                <span className="px-2 py-0.5 text-micro font-black uppercase rounded-full bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/40 font-mono">
                   Root Owner Control
                 </span>
               </div>
@@ -224,12 +224,12 @@ export function RolePermissionsMatrixPanel() {
           <span className="text-xs text-neutral-800 dark:text-neutral-200 font-bold font-mono">
             Account-Level Overrides:
           </span>
-          <span className="text-[11px] text-neutral-500 font-mono hidden md:inline">
+          <span className="text-micro text-neutral-500 font-mono hidden md:inline">
             Override permissions for an individual staff member or student
           </span>
         </div>
 
-        <select
+        <select aria-label="Account to override"
           value=""
           onChange={e => {
             const u = state.users.find(x => x.id === e.target.value);
@@ -256,7 +256,7 @@ export function RolePermissionsMatrixPanel() {
             <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200 font-mono">
               Apply Module Access Preset:
             </span>
-            <select
+            <select aria-label="Role to apply the access preset to"
               value={presetTargetRole}
               onChange={e => setPresetTargetRole(e.target.value as Role)}
               className="bg-white dark:bg-[#1C1C1C] border border-neutral-300 dark:border-[#333] rounded-[8px] px-2.5 py-1 text-xs font-bold text-neutral-900 dark:text-white font-mono cursor-pointer"
@@ -287,7 +287,7 @@ export function RolePermissionsMatrixPanel() {
                   <p className="text-xs font-bold truncate text-neutral-800 dark:text-neutral-200">
                     {mod.label}
                   </p>
-                  <p className="text-[10px] text-neutral-400 font-mono truncate">
+                  <p className="text-micro text-neutral-400 font-mono truncate">
                     {mod.writeKeys.length} write actions
                   </p>
                 </div>
@@ -297,7 +297,7 @@ export function RolePermissionsMatrixPanel() {
                     type="button"
                     onClick={() => handleSetRoleModuleAccess(presetTargetRole, mod, 'read')}
                     title={`Grant ${presetTargetRole} Read-Only access`}
-                    className="px-2 py-1 rounded-[6px] text-[10px] font-mono font-bold bg-blue-500/10 hover:bg-blue-500/20 text-blue-700 dark:text-blue-400 border border-blue-500/20 cursor-pointer transition-colors active:scale-95"
+                    className="px-2 py-1 rounded-[6px] text-micro font-mono font-bold bg-blue-500/10 hover:bg-blue-500/20 text-blue-700 dark:text-blue-400 border border-blue-500/20 cursor-pointer transition-colors active:scale-95"
                   >
                     Read
                   </button>
@@ -305,7 +305,7 @@ export function RolePermissionsMatrixPanel() {
                     type="button"
                     onClick={() => handleSetRoleModuleAccess(presetTargetRole, mod, 'write')}
                     title={`Grant ${presetTargetRole} Read & Write access`}
-                    className="px-2 py-1 rounded-[6px] text-[10px] font-mono font-bold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 cursor-pointer transition-colors active:scale-95"
+                    className="px-2 py-1 rounded-[6px] text-micro font-mono font-bold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 cursor-pointer transition-colors active:scale-95"
                   >
                     Write
                   </button>
@@ -313,7 +313,7 @@ export function RolePermissionsMatrixPanel() {
                     type="button"
                     onClick={() => handleSetRoleModuleAccess(presetTargetRole, mod, 'none')}
                     title={`Revoke all access for ${presetTargetRole}`}
-                    className="px-1.5 py-1 rounded-[6px] text-[10px] font-mono font-bold bg-red-500/10 hover:bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/20 cursor-pointer transition-colors active:scale-95"
+                    className="px-1.5 py-1 rounded-[6px] text-micro font-mono font-bold bg-red-500/10 hover:bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/20 cursor-pointer transition-colors active:scale-95"
                   >
                     None
                   </button>
@@ -352,7 +352,7 @@ export function RolePermissionsMatrixPanel() {
               type="button"
               onClick={() => setAccessTypeFilter('all')}
               className={cn(
-                "px-2.5 py-1 rounded-[6px] text-[10px] font-bold font-mono transition-all cursor-pointer",
+                "px-2.5 py-1 rounded-[6px] text-micro font-bold font-mono transition-all cursor-pointer",
                 accessTypeFilter === 'all'
                   ? "bg-white dark:bg-[#2A2A2A] text-neutral-900 dark:text-white shadow-xs font-black"
                   : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
@@ -364,7 +364,7 @@ export function RolePermissionsMatrixPanel() {
               type="button"
               onClick={() => setAccessTypeFilter('read')}
               className={cn(
-                "px-2.5 py-1 rounded-[6px] text-[10px] font-bold font-mono transition-all flex items-center gap-1 cursor-pointer",
+                "px-2.5 py-1 rounded-[6px] text-micro font-bold font-mono transition-all flex items-center gap-1 cursor-pointer",
                 accessTypeFilter === 'read'
                   ? "bg-blue-600 text-white shadow-xs font-black"
                   : "text-neutral-500 hover:text-blue-500"
@@ -376,7 +376,7 @@ export function RolePermissionsMatrixPanel() {
               type="button"
               onClick={() => setAccessTypeFilter('write')}
               className={cn(
-                "px-2.5 py-1 rounded-[6px] text-[10px] font-bold font-mono transition-all flex items-center gap-1 cursor-pointer",
+                "px-2.5 py-1 rounded-[6px] text-micro font-bold font-mono transition-all flex items-center gap-1 cursor-pointer",
                 accessTypeFilter === 'write'
                   ? "bg-amber-600 text-white shadow-xs font-black"
                   : "text-neutral-500 hover:text-amber-500"
@@ -420,20 +420,20 @@ export function RolePermissionsMatrixPanel() {
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5">
                       {p.accessType === 'read' ? (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[6px] text-[9px] font-mono font-black uppercase bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[6px] text-micro font-mono font-black uppercase bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20">
                           <Eye className="w-2.5 h-2.5" weight="bold" /> READ
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[6px] text-[9px] font-mono font-black uppercase bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[6px] text-micro font-mono font-black uppercase bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
                           <PencilSimple className="w-2.5 h-2.5" weight="bold" /> WRITE
                         </span>
                       )}
-                      <span className="text-[10px] font-mono text-neutral-400 bg-neutral-100 dark:bg-[#202020] px-1.5 py-0.5 rounded border border-neutral-200 dark:border-[#333]">
+                      <span className="text-micro font-mono text-neutral-400 bg-neutral-100 dark:bg-[#202020] px-1.5 py-0.5 rounded border border-neutral-200 dark:border-[#333]">
                         {p.category}
                       </span>
                     </div>
 
-                    <span className="text-[9px] font-mono text-neutral-400 truncate max-w-[120px]">
+                    <span className="text-micro font-mono text-neutral-400 truncate max-w-[120px]">
                       {p.key}
                     </span>
                   </div>
@@ -441,23 +441,23 @@ export function RolePermissionsMatrixPanel() {
                   <h4 className="text-xs font-bold text-neutral-900 dark:text-white pt-1">
                     {p.label}
                   </h4>
-                  <p className="text-[11px] text-neutral-500 dark:text-[#888] leading-relaxed">
+                  <p className="text-micro text-neutral-500 dark:text-[#888] leading-relaxed">
                     {p.description}
                   </p>
                 </div>
 
                 {/* Role Toggles Grid */}
                 <div>
-                  <span className="block text-[9px] uppercase font-bold text-neutral-400 font-mono mb-2">
+                  <span className="block text-micro uppercase font-bold text-neutral-400 font-mono mb-2">
                     Role Access Matrix Toggles:
                   </span>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {/* Root Indicator */}
                     <div className="p-2 rounded-[8px] bg-red-500/10 border border-red-500/20 flex items-center justify-between gap-2">
-                      <span className="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase font-mono">
+                      <span className="text-micro font-bold text-red-600 dark:text-red-400 uppercase font-mono">
                         Root
                       </span>
-                      <span className="inline-flex items-center gap-1 text-[9px] font-bold text-red-600 dark:text-red-400 font-mono">
+                      <span className="inline-flex items-center gap-1 text-micro font-bold text-red-600 dark:text-red-400 font-mono">
                         <Check className="w-3 h-3" weight="bold" /> Locked
                       </span>
                     </div>
@@ -481,11 +481,11 @@ export function RolePermissionsMatrixPanel() {
                             isLocallyModified && "ring-2 ring-purple-500 ring-offset-1 dark:ring-offset-[#141414]"
                           )}
                         >
-                          <span className="text-[10px] font-bold uppercase font-mono truncate">
+                          <span className="text-micro font-bold uppercase font-mono truncate">
                             {label}
                           </span>
                           <span className={cn(
-                            "w-5 h-5 rounded-[6px] flex items-center justify-center text-[10px] font-black shrink-0 border",
+                            "w-5 h-5 rounded-[6px] flex items-center justify-center text-micro font-black shrink-0 border",
                             isGranted
                               ? "bg-emerald-500 text-white border-emerald-600"
                               : "bg-neutral-200 dark:bg-[#242424] text-neutral-400 border-neutral-300 dark:border-[#333]"
@@ -516,14 +516,14 @@ export function RolePermissionsMatrixPanel() {
                 </th>
                 {/* Root Column (Pinned Readonly Full-Access) */}
                 <th className="py-3.5 px-3 text-center text-xs font-black uppercase tracking-wider min-w-[90px]">
-                  <span className="px-2 py-0.5 text-[10px] font-black rounded-full bg-red-500/10 text-red-500 border border-red-500/20">
+                  <span className="px-2 py-0.5 text-micro font-black rounded-full bg-red-500/10 text-red-500 border border-red-500/20">
                     Root (Owner)
                   </span>
                 </th>
                 {/* Configurable Roles */}
                 {EDITABLE_ROLES.map(({ role, label, badgeClass }) => (
                   <th key={role} className="py-3.5 px-3 text-center text-xs font-black uppercase tracking-wider min-w-[90px]">
-                    <span className={cn("px-2 py-0.5 text-[10px] font-bold rounded-full border", badgeClass)}>
+                    <span className={cn("px-2 py-0.5 text-micro font-bold rounded-full border", badgeClass)}>
                       {label}
                     </span>
                   </th>
@@ -548,20 +548,20 @@ export function RolePermissionsMatrixPanel() {
                       <td className="py-3 px-4">
                         <div className="font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5 flex-wrap">
                           {p.accessType === 'read' ? (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-black uppercase bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-micro font-mono font-black uppercase bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20">
                               <Eye className="w-2.5 h-2.5" weight="bold" /> READ
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-black uppercase bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-micro font-mono font-black uppercase bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
                               <PencilSimple className="w-2.5 h-2.5" weight="bold" /> WRITE
                             </span>
                           )}
                           <span>{p.label}</span>
-                          <span className="text-[10px] font-mono font-normal text-neutral-400 dark:text-neutral-500">
+                          <span className="text-micro font-mono font-normal text-neutral-400 dark:text-neutral-500">
                             ({p.key})
                           </span>
                         </div>
-                        <div className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
+                        <div className="text-micro text-neutral-500 dark:text-neutral-400 mt-0.5">
                           {p.description}
                         </div>
                       </td>
@@ -611,7 +611,7 @@ export function RolePermissionsMatrixPanel() {
         </div>
 
         {/* Matrix Footer Legend */}
-        <div className="bg-neutral-50 dark:bg-[#181818] p-3 px-4 border-t border-neutral-200 dark:border-[#262626] flex flex-wrap items-center justify-between gap-3 text-[11px] text-neutral-500 font-mono">
+        <div className="bg-neutral-50 dark:bg-[#181818] p-3 px-4 border-t border-neutral-200 dark:border-[#262626] flex flex-wrap items-center justify-between gap-3 text-micro text-neutral-500 font-mono">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />

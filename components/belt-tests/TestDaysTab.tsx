@@ -264,8 +264,8 @@ function ScoreSheet({ detail, candidate, canManage, actions }: { detail: EventDe
             {canScore || current ? <input type="number" inputMode="decimal" min={0} max={10} step={0.1} disabled={!editable || actions.busy} value={shown} aria-label={`Score out of 10 for ${item.title}`}
               onChange={event => setDrafts({ ...drafts, [item.id]: event.target.value })} onBlur={() => void commit(item.id)} onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); void commit(item.id); } }}
               className="h-9 w-20 rounded-md border border-neutral-300 bg-white px-2 text-right font-mono text-sm disabled:opacity-60 dark:border-neutral-700 dark:bg-neutral-900" /> : null}
-            {others.length > 0 && <span className="w-full text-right text-[11px] text-neutral-500 sm:w-auto">{others.map(row => `${examinerName(row.scored_by)} ${row.score}`).join(' · ')}</span>}
-            {!others.length && current && panel.length === 0 && <span className="w-full text-right text-[11px] text-neutral-400 sm:w-auto">{examinerName(current.scored_by)}</span>}
+            {others.length > 0 && <span className="w-full text-right text-micro text-neutral-500 sm:w-auto">{others.map(row => `${examinerName(row.scored_by)} ${row.score}`).join(' · ')}</span>}
+            {!others.length && current && panel.length === 0 && <span className="w-full text-right text-micro text-neutral-400 sm:w-auto">{examinerName(current.scored_by)}</span>}
           </li>; })}</ul>
       </section>; })}
     <div className="space-y-2"><Labeled label="Feedback the student will see with their result"><textarea className={inputClass + ' h-20 py-2'} maxLength={1000} value={feedback} disabled={candidate.status === 'withdrawn' || candidate.status === 'promoted'} onChange={event => setFeedback(event.target.value)} /></Labeled>

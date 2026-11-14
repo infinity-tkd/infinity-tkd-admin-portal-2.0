@@ -46,7 +46,7 @@ export function EditPromotionDialog({ BELT_RANK_ORDER, editHistoryForm, editingH
 
           <div className="p-6 space-y-4 bg-white dark:bg-[#0A0A0A] overflow-y-auto max-h-[70dvh]">
             <div>
-              <span className="block text-[9px] uppercase font-bold text-neutral-500 dark:text-[#666] tracking-wider mb-1">{t('dir_student_context')}</span>
+              <span className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666] tracking-wider mb-1">{t('dir_student_context')}</span>
               <div className="bg-neutral-100 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-700 dark:text-[#999] font-bold">
                 {state.students.find(s => s.id === editingHistory.studentId)?.englishName || editingHistory.studentId} ({editingHistory.studentId})
               </div>
@@ -54,8 +54,8 @@ export function EditPromotionDialog({ BELT_RANK_ORDER, editHistoryForm, editingH
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_target_belt')}</label>
-                <select
+                <label htmlFor="edit-promotion-dialog-dir_target_belt" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_target_belt')}</label>
+                <select id="edit-promotion-dialog-dir_target_belt"
                   value={editHistoryForm.beltLevel}
                   onChange={(e) => setEditHistoryForm(prev => ({ ...prev, beltLevel: e.target.value }))}
                   className="w-full bg-white dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] rounded-[8px] px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-brand cursor-pointer"
@@ -67,8 +67,8 @@ export function EditPromotionDialog({ BELT_RANK_ORDER, editHistoryForm, editingH
               </div>
 
               <div className="space-y-1">
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_promotion_date')}</label>
-                <input
+                <label htmlFor="edit-promotion-dialog-dir_promotion_date" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_promotion_date')}</label>
+                <input id="edit-promotion-dialog-dir_promotion_date"
                   type="date"
                   value={editHistoryForm.promotionDate}
                   onChange={(e) => setEditHistoryForm(prev => ({ ...prev, promotionDate: e.target.value }))}
@@ -79,8 +79,8 @@ export function EditPromotionDialog({ BELT_RANK_ORDER, editHistoryForm, editingH
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_test_score')}</label>
-                <input
+                <label htmlFor="edit-promotion-dialog-dir_test_score" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_test_score')}</label>
+                <input id="edit-promotion-dialog-dir_test_score"
                   type="number"
                   min="1"
                   max="100"
@@ -91,8 +91,8 @@ export function EditPromotionDialog({ BELT_RANK_ORDER, editHistoryForm, editingH
               </div>
 
               <div className="space-y-1">
-                <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_curriculum_program')}</label>
-                <input
+                <label htmlFor="edit-promotion-dialog-dir_curriculum_program" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_curriculum_program')}</label>
+                <input id="edit-promotion-dialog-dir_curriculum_program"
                   type="text"
                   value={editHistoryForm.program}
                   onChange={(e) => setEditHistoryForm(prev => ({ ...prev, program: e.target.value }))}
@@ -102,8 +102,8 @@ export function EditPromotionDialog({ BELT_RANK_ORDER, editHistoryForm, editingH
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_cert_ref_hash')}</label>
-              <input
+              <label htmlFor="edit-promotion-dialog-dir_cert_ref_hash" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_cert_ref_hash')}</label>
+              <input id="edit-promotion-dialog-dir_cert_ref_hash"
                 type="text"
                 value={editHistoryForm.certificateRef}
                 onChange={(e) => setEditHistoryForm(prev => ({ ...prev, certificateRef: e.target.value.toUpperCase() }))}
@@ -113,8 +113,8 @@ export function EditPromotionDialog({ BELT_RANK_ORDER, editHistoryForm, editingH
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[10px] uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_cert_link_label')}</label>
-              <input
+              <label htmlFor="edit-promotion-dialog-dir_cert_link_label" className="block text-micro uppercase font-bold text-neutral-500 dark:text-[#666]">{t('dir_cert_link_label')}</label>
+              <input id="edit-promotion-dialog-dir_cert_link_label"
                 type="text"
                 value={editHistoryForm.kukkiwonDanCardId}
                 onChange={(e) => setEditHistoryForm(prev => ({ ...prev, kukkiwonDanCardId: e.target.value }))}

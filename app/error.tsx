@@ -28,19 +28,20 @@ export default function GlobalError({
         </div>
 
         <div className="space-y-2">
-          <h2 className="text-lg font-bold uppercase tracking-tight text-ink">System Exception</h2>
+          <h2 className="text-lg font-bold tracking-tight text-ink">Something went wrong</h2>
           <p className="text-xs leading-relaxed text-ink-muted">
-            An unexpected application runtime error occurred. The system has automatically isolated the error state to keep settings intact.
+            This page ran into an unexpected problem. You are still signed in and nothing you saved has changed. Try again, or go back to the dashboard.
           </p>
         </div>
 
-        {error.message && (
-          <div className="w-full rounded-lg border border-line bg-surface-inset p-3 text-left">
-            <span className="mb-1 block font-mono text-[10px] font-black uppercase tracking-widest text-ink-subtle">Diagnostics</span>
-            <code className="line-clamp-3 break-all font-mono text-[11px] text-red-700 dark:text-red-400">
-              {error.message}
-            </code>
-          </div>
+        {(error.message || error.digest) && (
+          <details className="w-full rounded-lg border border-line bg-surface-inset px-3 text-left">
+            <summary className="flex min-h-11 cursor-pointer items-center font-mono text-micro font-black uppercase tracking-widest text-ink-subtle">Technical details</summary>
+            <div className="max-h-40 space-y-1 overflow-y-auto pb-3">
+              {error.digest && <p className="font-mono text-micro text-ink-muted">Reference: {error.digest}</p>}
+              {error.message && <code className="block break-all font-mono text-micro text-red-700 dark:text-red-400">{error.message}</code>}
+            </div>
+          </details>
         )}
 
         <div className="flex w-full flex-col gap-2.5">

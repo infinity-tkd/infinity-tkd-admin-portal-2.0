@@ -88,7 +88,8 @@ try {
 
   const page = await context.newPage();
   page.on('pageerror', error => errors.push(error.message));
-  page.on('dialog', dialog => dialog.accept());
+  // Confirmations use the portal's own dialog; a native browser dialog is a regression.
+  page.on('dialog', dialog => { errors.push('native dialog: ' + dialog.message()); void dialog.dismiss(); });
   await page.goto(base, { waitUntil: 'networkidle', timeout: 120000 });
   await page.locator('#login-identifier').fill('coaching_admin'); await page.locator('#login-password').fill('Fictional-Test-Password'); await page.locator('button[type=submit]').click();
   await page.waitForURL('**/dashboard', { timeout: 60000 });
@@ -203,6 +204,10 @@ try {
   await page.getByLabel('Every active student').uncheck();
   await page.getByRole('button', { name: 'Yellow', exact: true }).click();
   await page.getByRole('button', { name: 'Send' }).click();
+  const confirmation = page.getByRole('alertdialog', { name: 'Send announcement' }); // the in-app confirmation is an alert dialog
+  await confirmation.getByText('Grading day').waitFor();
+  assert.equal(posts.filter(p => p.endpoint === 'announcement').length, 0, 'nothing is sent before the coach confirms');
+  await confirmation.getByRole('button', { name: 'Confirm' }).click();
   await until(() => posts.some(p => p.endpoint === 'announcement'), 'announcement sent');
   const announcement = posts.find(p => p.endpoint === 'announcement');
   assert.match(announcement.requestKey, /^[0-9a-f-]{36}$/);

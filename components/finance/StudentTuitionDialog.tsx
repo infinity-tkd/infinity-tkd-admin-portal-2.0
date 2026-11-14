@@ -75,7 +75,7 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                           {activeStudentProfile.englishName}
                           <span className="text-xs font-mono text-[#666] bg-neutral-200 dark:bg-[#1A1A1A] text-neutral-700 dark:text-[#888] px-2 py-0.5 rounded-[8px]">{activeStudentProfile.id}</span>
                         </h2>
-                        <p className="text-[10px] text-neutral-500 dark:text-[#888] uppercase font-bold tracking-widest mt-1">Financial Dossier • FY {filterYear}</p>
+                        <p className="text-micro text-neutral-500 dark:text-[#888] uppercase font-bold tracking-widest mt-1">Financial Dossier • FY {filterYear}</p>
                       </div>
                     </div>
                     <button
@@ -95,33 +95,33 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 flex items-center justify-between">
                            <div>
-                              <p className="text-[10px] text-[#666] uppercase font-bold tracking-widest mb-1">Scholarship / Plan</p>
+                              <p className="text-micro text-[#666] uppercase font-bold tracking-widest mb-1">Scholarship / Plan</p>
                               <p className="text-sm text-neutral-900 dark:text-[#E4E4E4] font-bold">{activeStudentScholarship?.typeName || 'Standard'}</p>
                            </div>
                            <div className="text-right">
-                              <p className="text-[10px] text-[#666] uppercase font-bold tracking-widest mb-1">Discount Rate</p>
+                              <p className="text-micro text-[#666] uppercase font-bold tracking-widest mb-1">Discount Rate</p>
                               <p className="text-sm font-mono text-indigo-400">{activeDiscountPct}%</p>
                            </div>
                         </div>
                         <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 flex items-center justify-between">
                             <div>
-                               <p className="text-[10px] text-[#666] uppercase font-bold tracking-widest mb-1">Net Monthly Fee</p>
+                               <p className="text-micro text-[#666] uppercase font-bold tracking-widest mb-1">Net Monthly Fee</p>
                                <p className="text-xl font-mono text-neutral-900 dark:text-white">${netMonthlyFee.toFixed(2)}</p>
                             </div>
                             <div className="text-right">
-                               <p className="text-[10px] text-[#666] uppercase font-bold tracking-widest mb-1">Base Price</p>
+                               <p className="text-micro text-[#666] uppercase font-bold tracking-widest mb-1">Base Price</p>
                                <p className="text-xs font-mono text-[#666] line-through">${studentBasePrice.toFixed(2)}</p>
                             </div>
                          </div>
                          <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 flex items-center justify-between col-span-1 md:col-span-2">
                              <div>
-                                <p className="text-[10px] text-[#666] uppercase font-bold tracking-widest mb-1">Monthly Billing Anniversary</p>
+                                <p className="text-micro text-[#666] uppercase font-bold tracking-widest mb-1">Monthly Billing Anniversary</p>
                                 <p className="text-xs text-neutral-800 dark:text-white">
                                   Due day: <span className="font-bold text-red-500 font-mono">{activeBillingAnchorDay}</span> (enrollment anniversary unless an admin change applies)
                                 </p>
                              </div>
                              <div className="text-right">
-                                <p className="text-[10px] text-[#666] uppercase font-bold tracking-widest mb-1">Enrollment Base Date</p>
+                                <p className="text-micro text-[#666] uppercase font-bold tracking-widest mb-1">Enrollment Base Date</p>
                                 <p className="text-xs font-mono text-[#CCC]">{activeStudentEnrollDate || 'Not set'}</p>
                              </div>
                           </div>
@@ -138,7 +138,7 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                              <Sparkle className="w-4 h-4 text-indigo-400"/>
                              ⭐ Rapid Multi-Month Prepayment Console
                            </span>
-                           <span className="text-[10px] text-[#666] font-mono">
+                           <span className="text-micro text-[#666] font-mono">
                              {showPrepayPanel ? 'Collapse ▲' : 'Expand ▼'}
                            </span>
                          </button>
@@ -147,8 +147,8 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                            <div className="p-4 border-t border-neutral-200 dark:border-[#262626] space-y-4 animate-in slide-in-from-top-2 duration-200">
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                  <div>
-                                    <label className="block text-[9px] uppercase font-bold text-[#666] mb-1.5">Prepay Term</label>
-                                    <select
+                                    <label htmlFor="student-tuition-dialog-prepay-term" className="block text-micro uppercase font-bold text-[#666] mb-1.5">Prepay Term</label>
+                                    <select id="student-tuition-dialog-prepay-term"
                                       value={prepayMonths}
                                       onChange={(e) => {
                                         const mCount = Number(e.target.value);
@@ -166,9 +166,9 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                                  </div>
 
                                  <div>
-                                    <label className="block text-[9px] uppercase font-bold text-[#666] mb-1.5">Start Month / Year</label>
+                                    <label className="block text-micro uppercase font-bold text-[#666] mb-1.5">Start Month / Year</label>
                                     <div className="flex gap-2">
-                                       <select
+                                       <select aria-label="Prepay start month"
                                          value={prepayStartMonth}
                                          onChange={(e) => setPrepayStartMonth(e.target.value)}
                                          className="flex-1 bg-white dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs px-2.5 py-2.5 focus:outline-none focus:border-[#444]"
@@ -177,7 +177,7 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                                            <option key={m} value={m}>{m}</option>
                                          ))}
                                        </select>
-                                       <select
+                                       <select aria-label="Prepay start year"
                                          value={prepayStartYear}
                                          onChange={(e) => setPrepayStartYear(Number(e.target.value))}
                                          className="flex-1 bg-white dark:bg-[#0F0F0F] text-neutral-900 dark:text-[#E4E4E4] border border-neutral-200 dark:border-[#262626] rounded-[8px] text-xs px-2.5 py-2.5 focus:outline-none focus:border-[#444]"
@@ -189,10 +189,10 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                                  </div>
 
                                  <div>
-                                    <label className="block text-[9px] uppercase font-bold text-[#666] mb-1.5">Total Prepaid Amount</label>
+                                    <label htmlFor="student-tuition-dialog-total-prepaid-amount" className="block text-micro uppercase font-bold text-[#666] mb-1.5">Total Prepaid Amount</label>
                                     <div className="relative">
                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[#666]">$</span>
-                                       <input
+                                       <input id="student-tuition-dialog-total-prepaid-amount"
                                          type="number"
                                          placeholder={(netMonthlyFee * prepayMonths).toFixed(2)}
                                          value={prepayAmount}
@@ -205,7 +205,7 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
 
                               {/* Dynamic Prepayment Schedule Preview */}
                               <div className="border-t border-[#262626] pt-4 mt-2">
-                                <p className="text-[10px] text-[#888] uppercase font-bold tracking-wider mb-2">Prepayment Coverage Timeline</p>
+                                <p className="text-micro text-[#888] uppercase font-bold tracking-wider mb-2">Prepayment Coverage Timeline</p>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 max-h-[180px] overflow-y-auto pr-1 custom-scrollbar">
                                   {prepayPreviewList.map((item, idx) => (
                                     <div
@@ -213,12 +213,12 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                                       className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-2.5 flex flex-col justify-between hover:border-[#333] transition-colors"
                                     >
                                       <div className="flex items-center justify-between gap-1">
-                                        <span className="text-[10px] font-bold text-white">{item.month} {item.year}</span>
-                                        <span className="text-[9px] bg-indigo-500/20 text-indigo-400 font-mono font-bold px-1.5 py-0.5 rounded-[8px]">#{idx + 1}</span>
+                                        <span className="text-micro font-bold text-white">{item.month} {item.year}</span>
+                                        <span className="text-micro bg-indigo-500/20 text-indigo-400 font-mono font-bold px-1.5 py-0.5 rounded-[8px]">#{idx + 1}</span>
                                       </div>
                                       <div className="flex items-end justify-between mt-2.5">
-                                        <span className="text-[9px] text-[#666] uppercase tracking-wider font-mono">Billed</span>
-                                        <span className="text-[11px] font-bold text-green-400 font-mono">${item.amount.toFixed(2)}</span>
+                                        <span className="text-micro text-[#666] uppercase tracking-wider font-mono">Billed</span>
+                                        <span className="text-micro font-bold text-green-400 font-mono">${item.amount.toFixed(2)}</span>
                                       </div>
                                     </div>
                                   ))}
@@ -227,7 +227,7 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
 
                               <div className="bg-white dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] p-3 rounded-[8px] flex items-center justify-between text-xs mt-3">
                                  <div>
-                                    <span className="text-[#666] uppercase text-[9px] font-bold block mb-0.5">Prepayment breakdown</span>
+                                    <span className="text-[#666] uppercase text-micro font-bold block mb-0.5">Prepayment breakdown</span>
                                     <span className="text-white font-mono">
                                       {prepayMonths} Months × ${(prepayPreviewList[0]?.amount ?? 0).toFixed(2)}/mo
                                     </span>
@@ -235,7 +235,7 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                                  <button
                                    onClick={handleProcessBulkPrepay}
                                    disabled={isProcessingPrepay}
-                                   className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-[8px] font-bold uppercase tracking-wider text-[10px] transition-colors shadow-md shadow-indigo-600/10 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                                   className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-[8px] font-bold uppercase tracking-wider text-micro transition-colors shadow-md shadow-indigo-600/10 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                                  >
                                    {isProcessingPrepay ? (
                                      <>
@@ -273,7 +273,7 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                                         <div className="font-bold">{m} {filterYear}</div>
                                       </td>
                                       <td className="px-4 py-3">
-                                        <span className="px-2.5 py-1 bg-neutral-900 border border-[#262626] rounded-[8px] font-bold uppercase text-[9px] tracking-widest text-[#666] font-mono">
+                                        <span className="px-2.5 py-1 bg-neutral-900 border border-[#262626] rounded-[8px] font-bold uppercase text-micro tracking-widest text-[#666] font-mono">
                                           Pre-Enrollment
                                         </span>
                                       </td>
@@ -294,13 +294,13 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                                     <td className="px-4 py-3">
                                       <div className="font-bold flex items-center gap-2">
                                         {m} {filterYear}
-                                        {isCurrent && <span className="text-[9px] bg-yellow-500/20 text-yellow-500 px-1.5 py-0.5 rounded-[8px] uppercase tracking-widest font-bold">Current</span>}
-                                        {isFuture && !isPaid && <span className="text-[9px] bg-[#262626] text-[#888] px-1.5 py-0.5 rounded-[8px] uppercase tracking-widest font-bold font-mono">Upcoming</span>}
+                                        {isCurrent && <span className="text-micro bg-yellow-500/20 text-yellow-500 px-1.5 py-0.5 rounded-[8px] uppercase tracking-widest font-bold">Current</span>}
+                                        {isFuture && !isPaid && <span className="text-micro bg-[#262626] text-[#888] px-1.5 py-0.5 rounded-[8px] uppercase tracking-widest font-bold font-mono">Upcoming</span>}
                                       </div>
                                     </td>
                                     <td className="px-4 py-3">
                                       <span className={cn(
-                                        "px-2 py-1 rounded-[8px] font-bold uppercase text-[9px] tracking-widest border",
+                                        "px-2 py-1 rounded-[8px] font-bold uppercase text-micro tracking-widest border",
                                         isPaid ? "bg-green-500/10 text-green-500 border-green-500/20" :
                                         (isCurrent ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" :
                                         (isFuture ? "bg-neutral-900 text-[#888] border-neutral-800" : "bg-red-500/10 text-red-500 border-red-500/20"))
@@ -314,7 +314,7 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                                       ) : (
                                         <div className="flex items-center justify-end gap-1">
                                           <span className="text-[#666]">$</span>
-                                          <input
+                                          <input aria-label={`Amount for ${m}`}
                                             type="number"
                                             disabled={isReadOnlyLedger || paymentBusy || isProcessingPrepay}
                                             value={paymentAmounts[m] !== undefined ? paymentAmounts[m] : requiredAmt.toFixed(2)}
@@ -334,13 +334,13 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                                              showNotification(`Payment recorded for ${m} ${filterYear}: ${inputAmt.toFixed(2)}`, 'success');
                                            } catch (error) { showNotification(error instanceof Error ? error.message : 'Payment was not recorded.', 'error'); }
                                           }}
-                                          className="px-3.5 py-1.5 min-h-[32px] bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 rounded-[6px] text-[10px] font-bold uppercase tracking-widest transition-colors shadow-xs cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
+                                          className="px-3.5 py-1.5 min-h-[32px] bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 rounded-[6px] text-micro font-bold uppercase tracking-widest transition-colors shadow-xs cursor-pointer active:scale-95 touch-manipulation flex items-center justify-center pointer-coarse:min-h-11" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
                                         >
                                           Mark Paid
                                         </button>
                                       )}
                                       {!isPaid && isReadOnlyLedger && (
-                                        <span className="text-[9px] font-mono text-neutral-500 uppercase">View Only</span>
+                                        <span className="text-micro font-mono text-neutral-500 uppercase">View Only</span>
                                       )}
                                       {(isPaid || payment?.verifiedCollection) && (
                                         <button
@@ -350,7 +350,7 @@ export function StudentTuitionDialog({ activeStudentProfile, filterYear, setStud
                                             year: filterYear,
                                             amount: payment?.amountUsd !== undefined ? payment.amountUsd : requiredAmt
                                           })}
-                                          className="px-3.5 py-1.5 min-h-[32px] bg-[#1A1A1A] hover:bg-[#262626] border border-[#333] hover:border-[#444] text-[#E4E4E4] hover:text-white rounded-[6px] text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
+                                          className="px-3.5 py-1.5 min-h-[32px] bg-[#1A1A1A] hover:bg-[#262626] border border-[#333] hover:border-[#444] text-[#E4E4E4] hover:text-white rounded-[6px] text-micro font-bold uppercase tracking-widest transition-colors flex items-center gap-1.5 cursor-pointer active:scale-95 touch-manipulation pointer-coarse:min-h-11"
                                         >
                                           <FileText className="w-3.5 h-3.5"/> E-Receipt
                                         </button>

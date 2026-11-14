@@ -50,7 +50,7 @@ export function RenewalDayDialog({ selectedCalendarDay, calendarData, setSelecte
                       <h2 className="text-sm font-bold text-neutral-900 dark:text-white tracking-tight flex items-center gap-2">
                         <span>Renewal Cohort - {selectedCalendarDay.month} {selectedCalendarDay.day}, {selectedCalendarDay.year}</span>
                       </h2>
-                      <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono tracking-widest mt-0.5 font-semibold">
+                      <p className="text-micro text-neutral-500 dark:text-[#888] font-mono tracking-widest mt-0.5 font-semibold">
                         {calendarData.dayMap[selectedCalendarDay.day]?.length || 0} Students Scheduled For Billing Renewal
                       </p>
                     </div>
@@ -93,7 +93,7 @@ export function RenewalDayDialog({ selectedCalendarDay, calendarData, setSelecte
                       return (
                         <div className="py-12 text-center text-neutral-500 dark:text-[#666]">
                           <p className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white mb-1">No matching students found</p>
-                          <p className="text-[10px] font-mono">Try adjusting your search criteria</p>
+                          <p className="text-micro font-mono">Try adjusting your search criteria</p>
                         </div>
                       );
                     }
@@ -114,28 +114,28 @@ export function RenewalDayDialog({ selectedCalendarDay, calendarData, setSelecte
                               <div className="flex items-center gap-2">
                                 <button type="button" onClick={() => {setSelectedCalendarDay(null);setStudentDetailsId(student.id);setPaymentAmounts({});}} className="text-xs font-bold text-neutral-900 hover:text-brand-ink dark:text-white tracking-tight text-left">{student.englishName}</button>
                                 {billingStatus === 'Paid' && (
-                                  <span className="px-2 py-0.5 rounded-[8px] bg-green-500/10 text-green-600 dark:text-green-400 font-bold uppercase text-[9px] border border-green-500/30 flex items-center gap-1">
+                                  <span className="px-2 py-0.5 rounded-[8px] bg-green-500/10 text-green-600 dark:text-green-400 font-bold uppercase text-micro border border-green-500/30 flex items-center gap-1">
                                     <CheckCircle className="w-2.5 h-2.5" /> Paid
                                   </span>
                                 )}
                                 {billingStatus === 'Overdue' && (
-                                  <span className="px-2 py-0.5 rounded-[8px] bg-red-500/10 text-red-600 dark:text-red-400 font-bold uppercase text-[9px] border border-red-500/30 flex items-center gap-1">
+                                  <span className="px-2 py-0.5 rounded-[8px] bg-red-500/10 text-red-600 dark:text-red-400 font-bold uppercase text-micro border border-red-500/30 flex items-center gap-1">
                                     <Warning className="w-2.5 h-2.5" /> Overdue
                                   </span>
                                 )}
                                 {['Due Soon','Due today','Within grace'].includes(billingStatus) && (
-                                  <span className="px-2 py-0.5 rounded-[8px] bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold uppercase text-[9px] border border-amber-500/30 flex items-center gap-1">
+                                  <span className="px-2 py-0.5 rounded-[8px] bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold uppercase text-micro border border-amber-500/30 flex items-center gap-1">
                                     <Clock className="w-2.5 h-2.5" /> {billingStatus}
                                   </span>
                                 )}
                                 {billingStatus === 'Waived' && (
-                                  <span className="px-2 py-0.5 rounded-[8px] bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold uppercase text-[9px] border border-purple-500/30">
+                                  <span className="px-2 py-0.5 rounded-[8px] bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold uppercase text-micro border border-purple-500/30">
                                     Waived (100%)
                                   </span>
                                 )}
                               </div>
 
-                              <div className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 flex items-center gap-2 flex-wrap">
+                              <div className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 flex items-center gap-2 flex-wrap">
                                 <span>ID: {student.id}</span>
                                 <span>•</span>
                                 <span>{branchName}</span>
@@ -149,7 +149,7 @@ export function RenewalDayDialog({ selectedCalendarDay, calendarData, setSelecte
                           {/* Right Action & Amount */}
                           <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 w-full sm:w-auto pt-2 sm:pt-0 border-t border-neutral-200/60 dark:border-[#1E1E1E] sm:border-t-0">
                             <div className="text-left sm:text-right">
-                              <span className="text-[9px] text-neutral-500 dark:text-[#666] font-mono uppercase block font-semibold">Monthly Fee</span>
+                              <span className="text-micro text-neutral-500 dark:text-[#666] font-mono uppercase block font-semibold">Monthly Fee</span>
                               <div className="text-xs font-bold font-mono text-neutral-900 dark:text-white">
                                 {discountPct === 100 ? (
                                   <span className="text-purple-600 dark:text-purple-400">$0.00</span>
@@ -157,7 +157,7 @@ export function RenewalDayDialog({ selectedCalendarDay, calendarData, setSelecte
                                   <span>${amountOwed.toFixed(2)}</span>
                                 )}
                                 {discountPct > 0 && discountPct < 100 && (
-                                  <span className="text-[9px] text-green-600 dark:text-green-400 font-mono ml-1 font-bold">({discountPct}% Off)</span>
+                                  <span className="text-micro text-green-600 dark:text-green-400 font-mono ml-1 font-bold">({discountPct}% Off)</span>
                                 )}
                               </div>
                             </div>
@@ -174,12 +174,12 @@ export function RenewalDayDialog({ selectedCalendarDay, calendarData, setSelecte
                                       showNotification("Failed to record payment.", 'error');
                                     }
                                   }}
-                                  className="px-3 py-1.5 bg-brand hover:bg-brand-strong text-white font-bold uppercase tracking-wider text-[10px] rounded-[8px] transition-colors flex items-center gap-1 shadow-md cursor-pointer" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
+                                  className="px-3 py-1.5 bg-brand hover:bg-brand-strong text-white font-bold uppercase tracking-wider text-micro rounded-[8px] transition-colors flex items-center gap-1 shadow-md cursor-pointer" disabled={paymentBusy || isReadOnlyLedger} aria-busy={paymentBusy}
                                 >
                                   Record Payment
                                 </button>
                               ) : (
-                                <span className="text-[10px] font-mono text-neutral-400 dark:text-[#666] italic">View Only</span>
+                                <span className="text-micro font-mono text-neutral-400 dark:text-[#666] italic">View Only</span>
                               )
                             ) : billingStatus === 'Paid' ? (
                               <button
@@ -189,12 +189,12 @@ export function RenewalDayDialog({ selectedCalendarDay, calendarData, setSelecte
                                   year: selectedCalendarDay.year,
                                   amount: amountOwed
                                 })}
-                                className="px-3 py-1.5 bg-neutral-200 hover:bg-neutral-300 dark:bg-[#1F1F1F] dark:hover:bg-[#2A2A2A] border border-neutral-300 dark:border-[#333] text-neutral-900 dark:text-white font-bold uppercase tracking-wider text-[10px] rounded-[8px] transition-colors flex items-center gap-1 cursor-pointer"
+                                className="px-3 py-1.5 bg-neutral-200 hover:bg-neutral-300 dark:bg-[#1F1F1F] dark:hover:bg-[#2A2A2A] border border-neutral-300 dark:border-[#333] text-neutral-900 dark:text-white font-bold uppercase tracking-wider text-micro rounded-[8px] transition-colors flex items-center gap-1 cursor-pointer"
                               >
                                 <Receipt className="w-3.5 h-3.5 text-brand-ink" /> E-Receipt
                               </button>
                             ) : (
-                              <span className="text-[10px] font-mono text-neutral-400 dark:text-[#666] italic">No payment needed</span>
+                              <span className="text-micro font-mono text-neutral-400 dark:text-[#666] italic">No payment needed</span>
                             )}
                           </div>
                         </div>
@@ -204,7 +204,7 @@ export function RenewalDayDialog({ selectedCalendarDay, calendarData, setSelecte
                 </div>
 
                 {/* Modal Footer */}
-                <div className="p-3 bg-neutral-50 dark:bg-[#0F0F0F] border-t border-neutral-200 dark:border-[#262626] flex items-center justify-between text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">
+                <div className="p-3 bg-neutral-50 dark:bg-[#0F0F0F] border-t border-neutral-200 dark:border-[#262626] flex items-center justify-between text-micro text-neutral-500 dark:text-neutral-400 font-mono">
                   <span>Anniversary Due Date: Day {selectedCalendarDay.day}</span>
                   <button
                     onClick={() => setSelectedCalendarDay(null)}

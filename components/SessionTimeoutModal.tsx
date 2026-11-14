@@ -114,7 +114,7 @@ export function SessionTimeoutModal() {
 
         <div className="py-3 bg-neutral-100 dark:bg-[#1C1C1C] rounded-[8px] border border-neutral-200 dark:border-[#262626]">
           <span className="text-2xl font-black font-mono text-brand-ink">{formattedTime}</span>
-          <span className="block text-[9px] uppercase font-bold tracking-widest text-neutral-400 mt-0.5">
+          <span className="block text-micro uppercase font-bold tracking-widest text-neutral-400 mt-0.5">
             Time Remaining
           </span>
         </div>

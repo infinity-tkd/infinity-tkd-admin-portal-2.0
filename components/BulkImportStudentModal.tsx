@@ -1,4 +1,5 @@
 'use client';
+import { pressable } from '@/components/ui/pressable';
 import { ModalA11y } from '@/components/ui/ModalA11y';
 import { copyText } from '@/lib/clipboard';
 
@@ -699,13 +700,13 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
               <FileCsv className="w-6 h-6 text-red-500" />
               <div>
                 <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-white">{t('dir_bulk_import')}</h2>
-                <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">{t('bulk_desc')}</p>
+                <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">{t('bulk_desc')}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowHelp(true)}
-                className="p-1.5 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-[8px] text-neutral-600 dark:text-[#999] hover:text-neutral-950 dark:hover:text-white hover:border-neutral-300 dark:hover:border-[#444] transition-all flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider px-3"
+                className="p-1.5 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-[8px] text-neutral-600 dark:text-[#999] hover:text-neutral-950 dark:hover:text-white hover:border-neutral-300 dark:hover:border-[#444] transition-all flex items-center gap-1.5 text-micro uppercase font-bold tracking-wider px-3"
               >
                 <Question className="w-3.5 h-3.5" /> {t('bulk_tutorial_btn')}
               </button>
@@ -728,7 +729,8 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                 {/* Drag and Drop File Selector */}
                 <div
-                  onClick={() => fileInputRef.current?.click()}
+                  {...pressable(() => fileInputRef.current?.click())}
+                  aria-label="Choose a CSV file to import"
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
@@ -751,12 +753,12 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                   {fileName ? (
                     <div>
                       <p className="text-sm font-bold text-neutral-900 dark:text-white font-mono truncate max-w-[280px]">{fileName}</p>
-                      <p className="text-[10px] text-green-600 dark:text-green-500 font-mono mt-1 uppercase tracking-widest font-black">{t('bulk_file_loaded')}</p>
+                      <p className="text-micro text-green-600 dark:text-green-500 font-mono mt-1 uppercase tracking-widest font-black">{t('bulk_file_loaded')}</p>
                     </div>
                   ) : (
                     <div>
                       <p className="text-sm font-bold text-neutral-900 dark:text-white mb-1">{t('bulk_drag_drop_click')}</p>
-                      <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono leading-relaxed">{t('bulk_drag_drop_desc')}</p>
+                      <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono leading-relaxed">{t('bulk_drag_drop_desc')}</p>
                     </div>
                   )}
 
@@ -777,8 +779,8 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                 {/* Paste Area */}
                 <div className="flex flex-col space-y-2">
-                  <label className="block text-[11px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('bulk_or_paste')}</label>
-                  <textarea
+                  <label htmlFor="bulk-import-student-modal-bulk_or_paste" className="block text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('bulk_or_paste')}</label>
+                  <textarea id="bulk-import-student-modal-bulk_or_paste"
                     value={csvText}
                     onChange={handlePasteChange}
                     placeholder={`English Name,Khmer Name,Gender,Date of Birth\nChan Dara,ចាន់ ដារ៉ា,Male,2010-08-12\nSophal Phalla,សុផល ផាឡា,Female,2012-05-19`}
@@ -794,7 +796,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                     </div>
                     <div className="text-left">
                       <p className="text-sm font-bold text-white">Manual Spreadsheet Roster</p>
-                      <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">Don&apos;t have a CSV file? Start with a blank Excel-like grid to type in student rows manually!</p>
+                      <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono">Don&apos;t have a CSV file? Start with a blank Excel-like grid to type in student rows manually!</p>
                     </div>
                   </div>
                   <button
@@ -823,24 +825,24 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                     >
                       + Add Row
                     </button>
-                    <span className="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 px-2.5 py-0.5 rounded-[8px]">
+                    <span className="text-micro font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 px-2.5 py-0.5 rounded-[8px]">
                       {totalValid} {t('bulk_ready_to_import')}
                     </span>
                     {totalErrors > 0 && (
-                      <span className="text-[10px] font-mono font-bold bg-red-50 text-red-700 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 px-2.5 py-0.5 rounded-[8px] animate-pulse">
+                      <span className="text-micro font-mono font-bold bg-red-50 text-red-700 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 px-2.5 py-0.5 rounded-[8px] animate-pulse">
                         {t('bulk_malformed_rows').replace('{count}', String(totalErrors))}
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="text-[11px] text-neutral-500 dark:text-neutral-400 flex items-center gap-1 font-mono font-bold italic">
+                <div className="text-micro text-neutral-500 dark:text-neutral-400 flex items-center gap-1 font-mono font-bold italic">
                   <PencilSimple className="w-3.5 h-3.5 text-brand-ink" /> Double-click or select any cell to fix typos and validation errors inline!
                 </div>
 
                 <div className="border border-neutral-200 dark:border-[#262626] rounded-[8px] max-h-[350px] overflow-auto">
                   <table className="w-full text-left text-xs border-collapse min-w-max">
-                    <thead className="bg-neutral-100 dark:bg-[#141414] text-neutral-700 dark:text-neutral-300 uppercase tracking-wider font-mono text-[10px] sticky top-0 z-10">
+                    <thead className="bg-neutral-100 dark:bg-[#141414] text-neutral-700 dark:text-neutral-300 uppercase tracking-wider font-mono text-micro sticky top-0 z-10">
                       <tr className="border-b border-neutral-200 dark:border-[#262626]">
                         <th className="px-4 py-3 w-16 text-center">Row</th>
                         <th className="px-4 py-3 min-w-[160px]">{t('stu_english_name')}</th>
@@ -874,7 +876,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* English Name Input */}
                           <td className="px-3 py-2 min-w-[160px]">
-                            <input
+                            <input aria-label={`English name, row ${row.index + 1}`}
                               type="text"
                               value={row.data.englishName}
                               onChange={e => handleEditRow(row.index, 'englishName', e.target.value)}
@@ -886,7 +888,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Khmer Name Input */}
                           <td className="px-3 py-2 min-w-[160px]">
-                            <input
+                            <input aria-label={`Khmer name, row ${row.index + 1}`}
                               type="text"
                               value={row.data.khmerName}
                               onChange={e => handleEditRow(row.index, 'khmerName', e.target.value)}
@@ -898,7 +900,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Gender Select */}
                           <td className="px-3 py-2 min-w-[100px] w-28">
-                            <select
+                            <select aria-label={`Gender, row ${row.index + 1}`}
                               value={row.data.gender}
                               onChange={e => handleEditRow(row.index, 'gender', e.target.value)}
                               data-row-index={row.index}
@@ -980,7 +982,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Current Belt Input */}
                           <td className="px-3 py-2 min-w-[120px] w-32">
-                            <input
+                            <input aria-label={`Current belt, row ${row.index + 1}`}
                               type="text"
                               value={row.data.currentBelt}
                               onChange={e => handleEditRow(row.index, 'currentBelt', e.target.value)}
@@ -992,7 +994,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
 
                           {/* Nationality Input */}
                           <td className="px-3 py-2 min-w-[120px] w-32">
-                            <input
+                            <input aria-label={`Nationality, row ${row.index + 1}`}
                               type="text"
                               value={row.data.nationality}
                               onChange={e => handleEditRow(row.index, 'nationality', e.target.value)}
@@ -1060,13 +1062,13 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                           {/* Validation Status */}
                           <td className="px-4 py-3 min-w-[160px]">
                             {row.isValid ? (
-                              <span className="dark:bg-emerald-500/15 dark:text-emerald-400 bg-emerald-50 text-emerald-700 border border-emerald-500/20 dark:border-emerald-500/30 px-2.5 py-0.5 rounded-[8px] font-bold text-[10px] uppercase tracking-wider inline-flex items-center gap-1">
+                              <span className="dark:bg-emerald-500/15 dark:text-emerald-400 bg-emerald-50 text-emerald-700 border border-emerald-500/20 dark:border-emerald-500/30 px-2.5 py-0.5 rounded-[8px] font-bold text-micro uppercase tracking-wider inline-flex items-center gap-1">
                                 <Checks className="w-3.5 h-3.5 text-green-600 dark:text-green-500" /> {t('bulk_status_validated')}
                               </span>
                             ) : (
                               <div className="text-red-600 dark:text-red-400 flex flex-col space-y-0.5 max-w-[280px]">
                                 {row.errors.map((err, errIdx) => (
-                                  <span key={errIdx} className="flex items-start gap-1 font-mono text-[9px] leading-tight dark:bg-red-950/40 dark:text-red-300 bg-red-50 text-red-800 px-1.5 py-0.5 rounded border border-red-200 dark:border-red-900/30">
+                                  <span key={errIdx} className="flex items-start gap-1 font-mono text-micro leading-tight dark:bg-red-950/40 dark:text-red-300 bg-red-50 text-red-800 px-1.5 py-0.5 rounded border border-red-200 dark:border-red-900/30">
                                     <Warning className="w-3 h-3 text-red-500 shrink-0 mt-0.5" /> {err}
                                   </span>
                                 ))}
@@ -1130,17 +1132,17 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                 <div className="grid grid-cols-2 gap-4 w-full">
                   <div className="bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 text-center">
                     <span className="block text-2xl font-black text-green-500 font-mono">{importSummary.success}</span>
-                    <span className="text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('bulk_success')}</span>
+                    <span className="text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('bulk_success')}</span>
                   </div>
                   <div className="bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 text-center">
                     <span className="block text-2xl font-black text-red-500 font-mono">{importSummary.failed}</span>
-                    <span className="text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('bulk_failed')}</span>
+                    <span className="text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">{t('bulk_failed')}</span>
                   </div>
                 </div>
 
                 <button
                   disabled={isProcessing} onClick={onClose}
-                  className="w-full py-2.5 bg-white text-black font-bold uppercase tracking-widest text-[10px] rounded-[8px] hover:bg-gray-200 transition-colors"
+                  className="w-full py-2.5 bg-white text-black font-bold uppercase tracking-widest text-micro rounded-[8px] hover:bg-gray-200 transition-colors"
                 >
                   {t('act_close')}
                 </button>
@@ -1170,7 +1172,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
               <div className="flex gap-3">
                 <button
                   disabled={isProcessing} onClick={onClose}
-                  className="px-4 py-2 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#999] hover:text-neutral-950 dark:hover:text-white rounded-[8px] text-[10px] font-bold uppercase tracking-widest transition-all"
+                  className="px-4 py-2 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-[#999] hover:text-neutral-950 dark:hover:text-white rounded-[8px] text-micro font-bold uppercase tracking-widest transition-all"
                 >
                   {t('act_cancel')}
                 </button>
@@ -1178,7 +1180,7 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                   disabled={totalValid === 0}
                   onClick={handleStartImport}
                   className={cn(
-                    "px-5 py-2 rounded-[8px] text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-1.5 shadow-lg shadow-black/20",
+                    "px-5 py-2 rounded-[8px] text-micro font-bold uppercase tracking-widest transition-all flex items-center gap-1.5 shadow-lg shadow-black/20",
                     totalValid > 0
                       ? "bg-brand text-white hover:bg-red-600 active:scale-95 cursor-pointer"
                       : "bg-neutral-100 text-neutral-400 dark:bg-[#1E1E1E] dark:text-[#666] border border-neutral-200 dark:border-neutral-800 cursor-not-allowed"
@@ -1207,24 +1209,24 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                   <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white flex items-center gap-1.5">
                     <Info className="w-4 h-4 text-red-500" /> {t('bulk_tutorial_title')}
                   </h3>
-                  <button onClick={() => setShowHelp(false)} className="p-1 text-neutral-400 hover:text-neutral-800 dark:text-[#666] dark:hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+                  <button aria-label="Close" onClick={() => setShowHelp(false)} className="p-1 text-neutral-400 hover:text-neutral-800 dark:text-[#666] dark:hover:text-white transition-colors min-h-6 min-w-6 inline-flex items-center justify-center"><X className="w-5 h-5" /></button>
                 </div>
 
                 <div className="p-6 overflow-y-auto space-y-5 text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed">
 
                   <div>
-                    <h4 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider mb-1.5 text-[10px]">{t('bulk_tutorial_req_title')}</h4>
+                    <h4 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider mb-1.5 text-micro">{t('bulk_tutorial_req_title')}</h4>
                     <p>{t('bulk_tutorial_req_desc')}</p>
                   </div>
 
                   <div>
-                    <h4 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider mb-2 text-[10px]">{t('bulk_tutorial_mappings_title')}</h4>
+                    <h4 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider mb-2 text-micro">{t('bulk_tutorial_mappings_title')}</h4>
                     {renderTutorialList()}
                   </div>
 
                   <div>
-                    <h4 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider mb-2 text-[10px]">{t('bulk_tutorial_sample_title')}</h4>
-                    <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 font-mono text-[9px] text-neutral-500 dark:text-[#666] overflow-x-auto whitespace-pre space-y-2">
+                    <h4 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider mb-2 text-micro">{t('bulk_tutorial_sample_title')}</h4>
+                    <div className="bg-neutral-50 dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-3 font-mono text-micro text-neutral-500 dark:text-[#666] overflow-x-auto whitespace-pre space-y-2">
                       <div className="text-neutral-900 dark:text-white font-bold">{csvHeaders}</div>
                       <div>{csvExampleRow}</div>
                     </div>
@@ -1235,14 +1237,14 @@ export function BulkImportStudentModal({ onClose }: BulkImportStudentModalProps)
                 <div className="p-4 border-t border-neutral-200 dark:border-[#262626] bg-neutral-50 dark:bg-[#0A0A0A] flex justify-end gap-3">
                   <button
                     onClick={handleCopyTemplate}
-                    className="px-4 py-2 bg-neutral-100 dark:bg-[#1A1A1A] hover:bg-neutral-200 dark:hover:bg-[#262626] border border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-white rounded-[8px] text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="px-4 py-2 bg-neutral-100 dark:bg-[#1A1A1A] hover:bg-neutral-200 dark:hover:bg-[#262626] border border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-white rounded-[8px] text-micro font-bold uppercase tracking-widest transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
                     {copied ? <Checks className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
                     {copied ? t('bulk_copied_success') : t('bulk_copy_template')}
                   </button>
                   <button
                     onClick={() => setShowHelp(false)}
-                    className="px-4 py-2 bg-brand hover:bg-red-600 text-white font-bold uppercase tracking-widest text-[10px] rounded-[8px] transition-colors cursor-pointer"
+                    className="px-4 py-2 bg-brand hover:bg-red-600 text-white font-bold uppercase tracking-widest text-micro rounded-[8px] transition-colors cursor-pointer"
                   >
                     {t('bulk_got_it')}
                   </button>

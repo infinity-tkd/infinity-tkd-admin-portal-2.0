@@ -135,7 +135,7 @@ export function StudentAttendanceDialog({ studentAttendanceRecords, state, t, st
                  />
                  <div>
                    <h2 id="attendance-student-title" className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-[#E4E4E4] leading-tight">{statsStudent.englishName}</h2>
-                   <p className="text-[10px] text-neutral-600 dark:text-neutral-400 font-mono tracking-widest mt-0.5">{t('att_insights_title')}</p>
+                   <p className="text-micro text-neutral-600 dark:text-neutral-400 font-mono tracking-widest mt-0.5">{t('att_insights_title')}</p>
                  </div>
                </div>
                <button type="button" aria-label="Close attendance details" disabled={calendarBusy} onClick={() => setStatsStudentId(null)} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-neutral-200 dark:hover:bg-[#262626] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer disabled:opacity-40">
@@ -156,15 +156,15 @@ export function StudentAttendanceDialog({ studentAttendanceRecords, state, t, st
                <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
                  <div className="bg-white dark:bg-[#141414] border border-emerald-500/30 p-2.5 sm:p-4 rounded-[8px] text-center shadow-sm">
                    <p className="text-xl sm:text-2xl font-mono text-emerald-700 dark:text-emerald-400 font-bold mb-0.5 sm:mb-1">{presentCount}</p>
-                   <p className="text-[9px] sm:text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest">{t('att_present')}</p>
+                   <p className="text-micro sm:text-micro text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest">{t('att_present')}</p>
                  </div>
                  <div className="bg-white dark:bg-[#141414] border border-amber-500/30 p-2.5 sm:p-4 rounded-[8px] text-center shadow-sm">
                    <p className="text-xl sm:text-2xl font-mono text-amber-700 dark:text-amber-400 font-bold mb-0.5 sm:mb-1">{lateCount}</p>
-                   <p className="text-[9px] sm:text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest">{t('att_late')}</p>
+                   <p className="text-micro sm:text-micro text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest">{t('att_late')}</p>
                  </div>
                  <div className="bg-white dark:bg-[#141414] border border-rose-500/30 p-2.5 sm:p-4 rounded-[8px] text-center shadow-sm">
                    <p className="text-xl sm:text-2xl font-mono text-rose-700 dark:text-rose-400 font-bold mb-0.5 sm:mb-1">{absentCount}</p>
-                   <p className="text-[9px] sm:text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest">{t('att_absent')}</p>
+                   <p className="text-micro sm:text-micro text-neutral-600 dark:text-neutral-400 uppercase font-bold tracking-widest">{t('att_absent')}</p>
                  </div>
                </div>
 
@@ -172,11 +172,11 @@ export function StudentAttendanceDialog({ studentAttendanceRecords, state, t, st
                <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 space-y-4 shadow-sm">
                  <div className="flex items-center justify-between">
                    <div>
-                     <h4 className="text-[10px] text-indigo-600 dark:text-indigo-400 uppercase font-bold tracking-widest">{t('att_training_progress')}</h4>
-                     <p className="text-[9px] text-neutral-600 dark:text-neutral-400 font-mono mt-0.5">{t('att_active_milestones')}</p>
+                     <h4 className="text-micro text-indigo-600 dark:text-indigo-400 uppercase font-bold tracking-widest">{t('att_training_progress')}</h4>
+                     <p className="text-micro text-neutral-600 dark:text-neutral-400 font-mono mt-0.5">{t('att_active_milestones')}</p>
                    </div>
                    {currentStreak > 0 && (
-                     <span className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-[8px] animate-pulse">
+                     <span className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-micro font-black uppercase tracking-wider px-2 py-0.5 rounded-[8px] animate-pulse">
                        {t('att_class_streak').replace('{count}', String(currentStreak))}
                      </span>
                    )}
@@ -184,7 +184,7 @@ export function StudentAttendanceDialog({ studentAttendanceRecords, state, t, st
 
                  {/* Promotion milestone bar */}
                  <div className="space-y-1.5 pt-1">
-                   <div className="flex justify-between items-center text-[10px] text-neutral-500 dark:text-[#888] font-mono">
+                   <div className="flex justify-between items-center text-micro text-neutral-500 dark:text-[#888] font-mono">
                      <span>{t('att_belt_threshold').replace('{belt}', formatBeltLocalized(statsStudent.currentBelt, statsStudent.dob, t))}</span>
                      <span className="font-bold text-neutral-900 dark:text-white">{accumulatedSessions} / {requiredSessions} {t('att_classes_suffix')} ({progressPercent}%)</span>
                    </div>
@@ -198,15 +198,15 @@ export function StudentAttendanceDialog({ studentAttendanceRecords, state, t, st
                      />
                    </div>
                    {progressPercent >= 100 ? (
-                     <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-medium">{t('lms_target_attendance_achieved')}</p>
+                     <p className="text-micro text-emerald-600 dark:text-emerald-400 font-medium">{t('lms_target_attendance_achieved')}</p>
                    ) : (
-                     <p className="text-[9px] text-neutral-600 dark:text-neutral-400">{t('lms_req_more_sessions').replace('{count}', String(requiredSessions - accumulatedSessions))}</p>
+                     <p className="text-micro text-neutral-600 dark:text-neutral-400">{t('lms_req_more_sessions').replace('{count}', String(requiredSessions - accumulatedSessions))}</p>
                    )}
                  </div>
 
                  {/* Last 15 Sessions Grid */}
                  <div className="border-t border-neutral-200 dark:border-[#262626]/40 pt-3.5">
-                   <p className="text-[10px] text-neutral-500 dark:text-[#888] font-mono uppercase tracking-wider mb-2">{t('att_checkin_history')}</p>
+                   <p className="text-micro text-neutral-500 dark:text-[#888] font-mono uppercase tracking-wider mb-2">{t('att_checkin_history')}</p>
                    <div className="flex flex-wrap gap-1.5">
                      {Array.from({ length: 15 }).map((_, i) => {
                        const rec = recentRecords[i];
@@ -214,7 +214,7 @@ export function StudentAttendanceDialog({ studentAttendanceRecords, state, t, st
                          return (
                            <div
                              key={i}
-                             className="w-6 h-6 rounded-[4px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center text-[9px] font-mono text-neutral-400 dark:text-[#444] select-none"
+                             className="w-6 h-6 rounded-[4px] bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] flex items-center justify-center text-micro font-mono text-neutral-400 dark:text-[#444] select-none"
                              title={t('att_no_training_record')}
                            >
                              -
@@ -225,7 +225,7 @@ export function StudentAttendanceDialog({ studentAttendanceRecords, state, t, st
                          <div
                            key={i}
                            className={cn(
-                             "w-6 h-6 rounded-[4px] flex items-center justify-center text-[9px] font-black uppercase shadow-sm cursor-help transition-all duration-200 hover:scale-110",
+                             "w-6 h-6 rounded-[4px] flex items-center justify-center text-micro font-black uppercase shadow-sm cursor-help transition-all duration-200 hover:scale-110",
                              rec.status === 'Present' ? "bg-emerald-500/20 border border-emerald-500/50 text-emerald-800 dark:text-emerald-300" :
                              rec.status === 'Late' ? "bg-amber-500/20 border border-amber-500/50 text-amber-800 dark:text-amber-300" :
                              "bg-rose-500/20 border border-rose-500/50 text-rose-800 dark:text-rose-300"
@@ -241,11 +241,11 @@ export function StudentAttendanceDialog({ studentAttendanceRecords, state, t, st
                </div>
 
                <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] p-4 shadow-sm">
-                 <h4 className="text-[10px] text-rose-700 dark:text-rose-400 uppercase font-bold tracking-widest border-b border-neutral-200 dark:border-[#262626] pb-2 mb-4">{t('att_discipline_metrics')}</h4>
+                 <h4 className="text-micro text-rose-700 dark:text-rose-400 uppercase font-bold tracking-widest border-b border-neutral-200 dark:border-[#262626] pb-2 mb-4">{t('att_discipline_metrics')}</h4>
                  <div className="space-y-4">
                    <div>
                      <div className="flex justify-between items-center mb-1">
-                       <p className="text-[10px] text-neutral-600 dark:text-neutral-400 uppercase font-bold">{t('att_status')}</p>
+                       <p className="text-micro text-neutral-600 dark:text-neutral-400 uppercase font-bold">{t('att_status')}</p>
                        <p className="text-xs font-mono text-neutral-900 dark:text-white font-bold">{totalCount > 0 ? Math.round(((presentCount + lateCount) / totalCount) * 100) : 0}%</p>
                      </div>
                      <div className="h-2 w-full bg-neutral-100 dark:bg-[#0F0F0F] rounded-full overflow-hidden border border-neutral-200 dark:border-[#262626]/40">
@@ -256,7 +256,7 @@ export function StudentAttendanceDialog({ studentAttendanceRecords, state, t, st
 
                  {/* Smart Analyze Box */}
                  <div className="mt-6 p-4 rounded-[8px] bg-rose-500/10 border border-rose-500/20">
-                   <p className="text-[10px] font-bold uppercase tracking-widest text-rose-700 dark:text-rose-400 mb-2">{t('att_smart_analysis')}</p>
+                   <p className="text-micro font-bold uppercase tracking-widest text-rose-700 dark:text-rose-400 mb-2">{t('att_smart_analysis')}</p>
                    {totalCount === 0 ? (
                      <p className="text-xs text-neutral-700 dark:text-[#E4E4E4]">{t('att_no_records_to_analyze').replace('{name}', statsStudent.englishName)}</p>
                    ) : ((presentCount + lateCount) / totalCount) > 0.85 ? (
@@ -277,7 +277,7 @@ export function StudentAttendanceDialog({ studentAttendanceRecords, state, t, st
 
                <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-[#262626] rounded-[8px] overflow-hidden shadow-sm">
                  <table className="w-full text-left">
-                   <thead className="bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626] text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 tracking-widest">
+                   <thead className="bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626] text-micro uppercase font-bold text-neutral-600 dark:text-neutral-400 tracking-widest">
                      <tr>
                        <th className="px-4 py-3 font-medium">{t('att_date')}</th>
                        <th className="px-4 py-3 font-medium text-right">{t('att_status')}</th>
@@ -300,13 +300,13 @@ export function StudentAttendanceDialog({ studentAttendanceRecords, state, t, st
                               </div>
                             </td>
                             <td className="px-4 py-3 text-right">
-                              <select
+                              <select aria-label={`Attendance status for ${r.date}`}
                                 key={`${r.id || r.date}-${r.status}-${updateTrigger}`}
                                 value={r.status}
                                 disabled={!canMarkAttendance}
                                 onChange={(e) => handleStatusChange(r, e.target.value as 'Present' | 'Late' | 'Absent')}
                                 className={cn(
-                                  "border text-[10px] font-black uppercase tracking-wider rounded-[6px] px-2.5 py-1 focus:outline-none transition-all cursor-pointer font-sans appearance-none text-center pr-6 relative inline-block select-none disabled:opacity-50 disabled:cursor-not-allowed shadow-sm",
+                                  "border text-micro font-black uppercase tracking-wider rounded-[6px] px-2.5 py-1 focus:outline-none transition-all cursor-pointer font-sans appearance-none text-center pr-6 relative inline-block select-none disabled:opacity-50 disabled:cursor-not-allowed shadow-sm",
                                   r.status === 'Present' ? "border-emerald-500/30 text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20" :
                                   r.status === 'Late' ? "border-amber-500/30 text-amber-700 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20" :
                                   "border-rose-500/30 text-rose-700 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20"

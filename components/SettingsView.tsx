@@ -50,6 +50,7 @@ import { LockKey } from '@phosphor-icons/react/dist/csr/LockKey';
 import { Pulse } from '@phosphor-icons/react/dist/csr/Pulse';
 import { cn } from '@/lib/utils';
 import { Portal } from '@/components/Portal';
+import { useModalFocus } from '@/hooks/use-modal-focus';
 import { useT } from '@/hooks/useTranslation';
 import { SafeImage } from '@/components/SafeImage';
 import { AccountSecurityPanel } from '@/components/AccountSecurityPanel';
@@ -129,26 +130,12 @@ export function SettingsView() {
 
   const modalRef = useRef<HTMLDivElement>(null);
   const modalBusy = useRef(false); modalBusy.current = isSavingUser || isResettingPassword;
-  const activeModal = showUserModal ? 'account' : passwordTargetUser ? 'password' : showPurgeConfirm ? 'cache' : null;
-  useEffect(() => {
-    if (!activeModal) return;
-    const previous = document.activeElement as HTMLElement | null;
-    const frame = requestAnimationFrame(() => modalRef.current?.querySelector<HTMLElement>('input:not(:disabled),button:not(:disabled)')?.focus());
-    const keyboard = (event: KeyboardEvent) => {
-      if (document.querySelector('[role="alertdialog"]:not([inert])')) return;
-      if (event.key === 'Escape' && !modalBusy.current) {
-        setShowUserModal(null); setPasswordTargetUser(null); setTargetNewPassword(''); setShowPurgeConfirm(false);
-      }
-      if (event.key !== 'Tab') return;
-      const items = Array.from(modalRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href]') || []).filter(element => element.getClientRects().length);
-      if (!items.length) { event.preventDefault(); return; }
-      const first = items[0]; const last = items[items.length - 1];
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-    };
-    document.addEventListener('keydown', keyboard);
-    return () => { cancelAnimationFrame(frame); document.removeEventListener('keydown', keyboard); previous?.focus(); };
-  }, [activeModal]);
+  // The account editor, the password reset and the cache-clear confirmation share one ref (only one is open at a time). Their panels
+  // render through <Portal>, which mounts a frame late, so useModalFocus does the waiting, the Tab trap, Escape and the focus restore.
+  useModalFocus(modalRef, () => {
+    if (modalBusy.current) return;
+    setShowUserModal(null); setPasswordTargetUser(null); setTargetNewPassword(''); setShowPurgeConfirm(false);
+  }, Boolean(showUserModal || passwordTargetUser || showPurgeConfirm));
 
   // Filters & Search
   const [memberSearch, setMemberSearch] = useState('');
@@ -367,12 +354,12 @@ export function SettingsView() {
               />
               <div className="flex flex-col min-w-0">
                 <span className="text-sm font-bold text-neutral-900 dark:text-white truncate">{u.displayName}</span>
-                <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono truncate">@{u.username}</span>
+                <span className="text-micro text-neutral-500 dark:text-neutral-400 font-mono truncate">@{u.username}</span>
               </div>
             </div>
 
             <span className={cn(
-              "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider font-mono shrink-0 border",
+              "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-micro font-bold uppercase tracking-wider font-mono shrink-0 border",
               u.isActive
                 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                 : "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20"
@@ -385,9 +372,9 @@ export function SettingsView() {
           {/* Role & Linked Entity Badges */}
           <div className="space-y-2 border-t border-neutral-100 dark:border-[#262626] pt-2.5">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono uppercase font-bold">Role:</span>
+              <span className="text-micro text-neutral-500 dark:text-neutral-400 font-mono uppercase font-bold">Role:</span>
               <span className={cn(
-                "px-2 py-0.5 rounded-[8px] text-[10px] font-bold uppercase tracking-widest border font-mono",
+                "px-2 py-0.5 rounded-[8px] text-micro font-bold uppercase tracking-widest border font-mono",
                 u.role === 'Root' || u.role === 'Super Root' ? "bg-red-500/15 text-red-700 dark:text-brand-ink border-red-500/40" :
                 u.role === 'Admin' ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30" :
                 u.role === 'Student' ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30" :
@@ -398,12 +385,12 @@ export function SettingsView() {
             </div>
 
             <div className="flex items-center justify-between gap-2 text-xs">
-              <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono uppercase font-bold shrink-0">Linked:</span>
+              <span className="text-micro text-neutral-500 dark:text-neutral-400 font-mono uppercase font-bold shrink-0">Linked:</span>
               <div className="truncate">
                 {(() => {
                   if (u.role === 'Student' || u.studentId) {
                     return (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] text-[10px] font-bold font-mono bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 truncate">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] text-micro font-bold font-mono bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 truncate">
                         <span>🎓</span>
                         <span className="truncate">{student ? `${student.englishName} (${student.id})` : (u.studentId || 'Portal Linked')}</span>
                       </span>
@@ -411,14 +398,14 @@ export function SettingsView() {
                   }
                   if (u.role === 'Root' || u.role === 'Super Root') {
                     return (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] text-[10px] font-bold font-mono bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] text-micro font-bold font-mono bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
                         <span>⚡</span>
                         <span>System Root</span>
                       </span>
                     );
                   }
                   return (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] text-[10px] font-bold font-mono bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 truncate">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] text-micro font-bold font-mono bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 truncate">
                       <span>🥋</span>
                       <span className="truncate">Staff: {u.englishName || u.displayName}</span>
                     </span>
@@ -427,12 +414,12 @@ export function SettingsView() {
               </div>
             </div>
 
-            <div className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono truncate" title={u.email}>
+            <div className="text-micro text-neutral-500 dark:text-neutral-400 font-mono truncate" title={u.email}>
               {u.email}
             </div>
 
             {u.phone && (
-              <div className="flex items-center gap-1 text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">
+              <div className="flex items-center gap-1 text-micro text-neutral-500 dark:text-neutral-400 font-mono">
                 <Phone className="w-3 h-3 text-emerald-500" />
                 <span>{u.phone}</span>
               </div>
@@ -442,7 +429,7 @@ export function SettingsView() {
 
         {/* Action Toolbar */}
         <div className="flex items-center justify-between pt-3 border-t border-neutral-100 dark:border-[#262626]">
-          <span className="text-[10px] text-neutral-400 font-mono">
+          <span className="text-micro text-neutral-400 font-mono">
             {isManageable ? 'Manageable' : 'Protected'}
           </span>
           {isManageable && (
@@ -613,7 +600,7 @@ export function SettingsView() {
                   <Sun className="w-4 h-4 text-amber-500" weight="fill" />
                   <div className="text-left">
                     <span className="block">{t('set_theme_light')}</span>
-                    <span className="text-[10px] text-neutral-400 font-mono block">Bright Day</span>
+                    <span className="text-micro text-neutral-400 font-mono block">Bright Day</span>
                   </div>
                   {state.theme === 'light' && <Check className="w-3.5 h-3.5 ml-auto text-amber-600" weight="bold" />}
                 </button>
@@ -632,7 +619,7 @@ export function SettingsView() {
                   <Moon className="w-4 h-4 text-indigo-400" weight="fill" />
                   <div className="text-left">
                     <span className="block">{t('set_theme_dark')}</span>
-                    <span className="text-[10px] text-neutral-400 font-mono block">Night Ops</span>
+                    <span className="text-micro text-neutral-400 font-mono block">Night Ops</span>
                   </div>
                   {state.theme === 'dark' && <Check className="w-3.5 h-3.5 ml-auto text-red-500" weight="bold" />}
                 </button>
@@ -658,8 +645,8 @@ export function SettingsView() {
                       : "bg-neutral-50 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700"
                   )}
                 >
-                  <span className="w-5 h-5 rounded-[6px] bg-brand/10 text-brand-strong dark:text-brand-ink text-[10px] font-black flex items-center justify-center font-mono shrink-0">EN</span>
-                  <span className="truncate">English</span>
+                  <span className="hidden min-[400px]:flex w-5 h-5 rounded-[6px] bg-brand/10 text-brand-strong dark:text-brand-ink text-micro font-black items-center justify-center font-mono shrink-0">EN</span>
+                  <span>English</span>
                 </button>
 
                 <button
@@ -673,8 +660,8 @@ export function SettingsView() {
                       : "bg-neutral-50 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700"
                   )}
                 >
-                  <span className="w-5 h-5 rounded-[6px] bg-blue-500/10 text-blue-700 dark:text-blue-400 text-[10px] font-black flex items-center justify-center font-mono shrink-0">KM</span>
-                  <span className="truncate">ខ្មែរ</span>
+                  <span className="hidden min-[400px]:flex w-5 h-5 rounded-[6px] bg-blue-500/10 text-blue-700 dark:text-blue-400 text-micro font-black items-center justify-center font-mono shrink-0">KM</span>
+                  <span>ខ្មែរ</span>
                 </button>
 
                 <button
@@ -688,8 +675,8 @@ export function SettingsView() {
                       : "bg-neutral-50 dark:bg-[#1C1C1C] border-neutral-200 dark:border-[#262626] text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700"
                   )}
                 >
-                  <span className="w-5 h-5 rounded-[6px] bg-amber-500/10 text-amber-800 dark:text-amber-400 text-[10px] font-black flex items-center justify-center font-mono shrink-0">ZH</span>
-                  <span className="truncate">中文</span>
+                  <span className="hidden min-[400px]:flex w-5 h-5 rounded-[6px] bg-amber-500/10 text-amber-800 dark:text-amber-400 text-micro font-black items-center justify-center font-mono shrink-0">ZH</span>
+                  <span>中文</span>
                 </button>
               </div>
             </div>
@@ -700,7 +687,7 @@ export function SettingsView() {
                 <div className="flex items-center gap-2 mb-1">
                   <p className="text-sm font-bold text-neutral-900 dark:text-white">{t('set_audio_feedback')}</p>
                   <span className={cn(
-                    "px-2 py-0.5 text-[9px] font-bold font-mono rounded-[8px] uppercase tracking-wider",
+                    "px-2 py-0.5 text-micro font-bold font-mono rounded-[8px] uppercase tracking-wider",
                     soundActive
                       ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                       : "bg-neutral-200 dark:bg-[#262626] text-neutral-500"
@@ -817,7 +804,7 @@ export function SettingsView() {
               )}
             >
               <div className="min-w-0">
-                <p className="text-[10px] font-mono uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider truncate">
+                <p className="text-micro font-mono uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider truncate">
                   {t('set_kpi_total')}
                 </p>
                 <p className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white font-mono mt-0.5">{totalUsersCount}</p>
@@ -839,7 +826,7 @@ export function SettingsView() {
               )}
             >
               <div className="min-w-0">
-                <p className="text-[10px] font-mono uppercase font-bold text-orange-600 dark:text-orange-400 tracking-wider truncate">
+                <p className="text-micro font-mono uppercase font-bold text-orange-600 dark:text-orange-400 tracking-wider truncate">
                   {t('set_kpi_staff')}
                 </p>
                 <p className="text-xl sm:text-2xl font-black text-orange-600 dark:text-orange-400 font-mono mt-0.5">{staffUsersCount}</p>
@@ -861,7 +848,7 @@ export function SettingsView() {
               )}
             >
               <div className="min-w-0">
-                <p className="text-[10px] font-mono uppercase font-bold text-blue-600 dark:text-blue-400 tracking-wider truncate">
+                <p className="text-micro font-mono uppercase font-bold text-blue-600 dark:text-blue-400 tracking-wider truncate">
                   {t('set_kpi_students')}
                 </p>
                 <p className="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400 font-mono mt-0.5">{studentUsersCount}</p>
@@ -883,7 +870,7 @@ export function SettingsView() {
               )}
             >
               <div className="min-w-0">
-                <p className="text-[10px] font-mono uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider truncate">
+                <p className="text-micro font-mono uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider truncate">
                   {t('set_kpi_active')}
                 </p>
                 <p className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono mt-0.5">{activeUsersCount}</p>
@@ -903,7 +890,7 @@ export function SettingsView() {
               <button
                 type="button"
                 onClick={() => handleKpiClick(activeKpiFilter)}
-                className="text-[10px] text-brand-ink hover:underline uppercase font-bold cursor-pointer"
+                className="text-micro text-brand-ink hover:underline uppercase font-bold cursor-pointer"
               >
                 Clear Filter
               </button>
@@ -922,10 +909,10 @@ export function SettingsView() {
                 className="w-full bg-transparent border-none text-neutral-900 dark:text-white text-xs py-1.5 focus:outline-none placeholder:text-neutral-400 dark:placeholder:text-neutral-500 font-mono pr-6"
               />
               {memberSearch && (
-                <button
+                <button aria-label="Clear search"
                   type="button"
                   onClick={() => setMemberSearch('')}
-                  className="p-1 text-neutral-400 hover:text-neutral-600 dark:hover:text-white cursor-pointer"
+                  className="p-1 text-neutral-400 hover:text-neutral-600 dark:hover:text-white cursor-pointer min-h-6 min-w-6 inline-flex items-center justify-center"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -936,7 +923,7 @@ export function SettingsView() {
             <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto md:justify-end">
               {/* Role Filter */}
               <div className="flex items-center gap-1.5 flex-1 sm:flex-none">
-                <select
+                <select aria-label="Filter members by role"
                   value={memberRoleFilter}
                   onChange={(e) => {
                     setMemberRoleFilter(e.target.value);
@@ -957,7 +944,7 @@ export function SettingsView() {
 
               {/* Status Filter */}
               <div className="flex items-center gap-1.5 flex-1 sm:flex-none">
-                <select
+                <select aria-label="Filter members by status"
                   value={memberStatusFilter}
                   onChange={(e) => {
                     setMemberStatusFilter(e.target.value as any);
@@ -1002,7 +989,7 @@ export function SettingsView() {
               </div>
 
               {/* Counter Badge */}
-              <div className="text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] px-3 py-2.5 rounded-[8px] shrink-0">
+              <div className="text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 font-mono bg-neutral-100 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] px-3 py-2.5 rounded-[8px] shrink-0">
                 {t('stf_total')}: <span className="text-neutral-900 dark:text-white font-bold">{filteredUsers.length}</span>
               </div>
             </div>
@@ -1049,11 +1036,11 @@ export function SettingsView() {
                 <table className="w-full text-left border-collapse min-w-[700px]">
                   <thead>
                     <tr className="bg-neutral-50 dark:bg-[#0F0F0F] border-b border-neutral-200 dark:border-[#262626]">
-                      <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest font-mono">{t('usr_account_details')}</th>
-                      <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest font-mono">{t('usr_role_snapshot')}</th>
-                      <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest font-mono">Linked Entity / Record</th>
-                      <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest text-center font-mono">{t('usr_system_access')}</th>
-                      <th className="px-4 py-3 text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest text-right font-mono">{t('act_actions')}</th>
+                      <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest font-mono">{t('usr_account_details')}</th>
+                      <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest font-mono">{t('usr_role_snapshot')}</th>
+                      <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest font-mono">Linked Entity / Record</th>
+                      <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest text-center font-mono">{t('usr_system_access')}</th>
+                      <th className="px-4 py-3 text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-widest text-right font-mono">{t('act_actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-200 dark:divide-[#262626]">
@@ -1070,13 +1057,13 @@ export function SettingsView() {
                               />
                               <div className="flex flex-col min-w-0">
                                 <span className="text-sm font-bold text-neutral-900 dark:text-white truncate">{u.displayName}</span>
-                                <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono truncate">@{u.username} • {u.email}</span>
+                                <span className="text-micro text-neutral-500 dark:text-neutral-400 font-mono truncate">@{u.username} • {u.email}</span>
                               </div>
                             </div>
                           </td>
                           <td className="px-4 py-3">
                             <span className={cn(
-                              "px-2.5 py-0.5 rounded-[8px] text-[10px] font-bold uppercase tracking-widest border font-mono whitespace-nowrap",
+                              "px-2.5 py-0.5 rounded-[8px] text-micro font-bold uppercase tracking-widest border font-mono whitespace-nowrap",
                               u.role === 'Root' || u.role === 'Super Root' ? "bg-red-500/15 text-red-700 dark:text-brand-ink border-red-500/40" :
                               u.role === 'Admin' ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30" :
                               u.role === 'Student' ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30" :
@@ -1093,7 +1080,7 @@ export function SettingsView() {
                                   s.profileId === u.id
                                 );
                                 return (
-                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] text-[10px] font-bold font-mono bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] text-micro font-bold font-mono bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
                                     <span>🎓</span>
                                     <span className="truncate">Student: {student ? `${student.englishName} (${student.id})` : (u.studentId || 'Portal Linked')}</span>
                                   </span>
@@ -1101,14 +1088,14 @@ export function SettingsView() {
                               }
                               if (u.role === 'Root' || u.role === 'Super Root') {
                                 return (
-                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] text-[10px] font-bold font-mono bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] text-micro font-bold font-mono bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
                                     <span>⚡</span>
                                     <span>System Root / Superadmin</span>
                                   </span>
                                 );
                               }
                               return (
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] text-[10px] font-bold font-mono bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] text-micro font-bold font-mono bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                                   <span>🥋</span>
                                   <span className="truncate">Staff: {u.englishName || u.displayName}</span>
                                 </span>
@@ -1117,11 +1104,11 @@ export function SettingsView() {
                           </td>
                           <td className="px-4 py-3 text-center">
                             {u.isActive ? (
-                              <span className="text-emerald-600 dark:text-emerald-400 flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-widest font-mono">
+                              <span className="text-emerald-600 dark:text-emerald-400 flex items-center justify-center gap-1 text-micro font-bold uppercase tracking-widest font-mono">
                                 <Checks className="w-3.5 h-3.5" weight="bold"/> {t('usr_active_access')}
                               </span>
                             ) : (
-                              <span className="text-red-500 flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-widest font-mono">
+                              <span className="text-red-500 flex items-center justify-center gap-1 text-micro font-bold uppercase tracking-widest font-mono">
                                 <XCircle className="w-3.5 h-3.5" weight="bold"/> {t('usr_locked_access')}
                               </span>
                             )}
@@ -1175,7 +1162,7 @@ export function SettingsView() {
                                   </button>
                                 </>
                               ) : (
-                                <span className="text-[10px] text-neutral-400 font-mono italic">{t('usr_protected')}</span>
+                                <span className="text-micro text-neutral-400 font-mono italic">{t('usr_protected')}</span>
                               )}
                             </div>
                           </td>
@@ -1221,36 +1208,36 @@ export function SettingsView() {
                 <h3 className="text-xs text-brand-ink uppercase font-bold tracking-widest font-mono flex items-center gap-2">
                   <Database className="w-4 h-4" /> Loaded application data
                 </h3>
-                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">Records loaded in this session. Counts reflect your access and are not a database health check.</p>
+                <p className="text-micro text-neutral-500 dark:text-neutral-400 mt-0.5">Records loaded in this session. Counts reflect your access and are not a database health check.</p>
               </div>
-              <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold font-mono rounded-[8px] border border-emerald-500/20 w-fit">
+              <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-micro font-bold font-mono rounded-[8px] border border-emerald-500/20 w-fit">
                 {state.isLoading ? 'Loading' : state.dataLoadErrors?.length ? 'Partial data' : 'Session data'}
               </span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 font-mono">
               <div className="p-3 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                <p className="text-[10px] text-neutral-500 uppercase font-bold">Students</p>
+                <p className="text-micro text-neutral-500 uppercase font-bold">Students</p>
                 <p className="text-lg font-black text-neutral-900 dark:text-white mt-1">{state.students.length}</p>
               </div>
               <div className="p-3 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                <p className="text-[10px] text-neutral-500 uppercase font-bold">Branches</p>
+                <p className="text-micro text-neutral-500 uppercase font-bold">Branches</p>
                 <p className="text-lg font-black text-neutral-900 dark:text-white mt-1">{state.branches.length}</p>
               </div>
               <div className="p-3 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                <p className="text-[10px] text-neutral-500 uppercase font-bold">Classes</p>
+                <p className="text-micro text-neutral-500 uppercase font-bold">Classes</p>
                 <p className="text-lg font-black text-neutral-900 dark:text-white mt-1">{state.classSessions.length}</p>
               </div>
               <div className="p-3 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                <p className="text-[10px] text-neutral-500 uppercase font-bold">Attendance</p>
+                <p className="text-micro text-neutral-500 uppercase font-bold">Attendance</p>
                 <p className="text-lg font-black text-neutral-900 dark:text-white mt-1">{state.attendanceRecords.length}</p>
               </div>
               <div className="p-3 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                <p className="text-[10px] text-neutral-500 uppercase font-bold">Payments</p>
+                <p className="text-micro text-neutral-500 uppercase font-bold">Payments</p>
                 <p className="text-lg font-black text-neutral-900 dark:text-white mt-1">{state.payments.length}</p>
               </div>
               <div className="p-3 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
-                <p className="text-[10px] text-neutral-500 uppercase font-bold">Users</p>
+                <p className="text-micro text-neutral-500 uppercase font-bold">Users</p>
                 <p className="text-lg font-black text-neutral-900 dark:text-white mt-1">{state.users.length}</p>
               </div>
             </div>
@@ -1346,7 +1333,7 @@ export function SettingsView() {
                   <ArrowSquareOut className="w-4 h-4 text-neutral-400 dark:text-neutral-400 group-hover:text-brand-ink transition-colors"/>
                 </div>
                 <h4 className="font-bold text-xs text-neutral-900 dark:text-white uppercase tracking-wider mb-1">{t('set_student_portal')}</h4>
-                <p className="text-[11px] font-mono text-neutral-500 dark:text-neutral-400">{t('set_student_portal_desc')}</p>
+                <p className="text-micro font-mono text-neutral-500 dark:text-neutral-400">{t('set_student_portal_desc')}</p>
               </a>
 
               <a
@@ -1362,7 +1349,7 @@ export function SettingsView() {
                   <ArrowSquareOut className="w-4 h-4 text-neutral-400 dark:text-neutral-400 group-hover:text-brand-ink transition-colors"/>
                 </div>
                 <h4 className="font-bold text-xs text-neutral-900 dark:text-white uppercase tracking-wider mb-1">{t('set_official_web')}</h4>
-                <p className="text-[11px] font-mono text-neutral-500 dark:text-neutral-400">{t('set_official_web_desc')}</p>
+                <p className="text-micro font-mono text-neutral-500 dark:text-neutral-400">{t('set_official_web_desc')}</p>
               </a>
 
               <div className="flex flex-col p-4 bg-neutral-50 dark:bg-[#0F0F0F] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
@@ -1370,15 +1357,15 @@ export function SettingsView() {
                   <div className="w-8 h-8 rounded-[8px] bg-white dark:bg-[#1A1A1A] border border-neutral-200 dark:border-transparent flex items-center justify-center text-neutral-900 dark:text-white">
                     <Sparkle className="w-4 h-4 text-emerald-500"/>
                   </div>
-                  <span className="text-[9px] font-mono uppercase font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-[8px]">Active PWA</span>
+                  <span className="text-micro font-mono uppercase font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-[8px]">Active PWA</span>
                 </div>
                 <h4 className="font-bold text-xs text-neutral-900 dark:text-white uppercase tracking-wider mb-1">Architecture</h4>
-                <p className="text-[11px] font-mono text-neutral-500 dark:text-neutral-400">Next.js 15 · React 19 · Serwist PWA · Tailwind 4</p>
+                <p className="text-micro font-mono text-neutral-500 dark:text-neutral-400">Next.js 15 · React 19 · Serwist PWA · Tailwind 4</p>
               </div>
             </div>
 
             <div className="pt-3 border-t border-neutral-100 dark:border-[#262626] flex flex-col sm:flex-row items-center justify-between gap-3 text-neutral-500 text-xs font-mono">
-              <span className="text-[11px]">Infinity Taekwondo v2.4.0 Production Build</span>
+              <span className="text-micro">Infinity Taekwondo v2.4.0 Production Build</span>
               <div className="flex items-center gap-2">
                 <span>{t('set_developed_by')} Keo Moni</span>
                 <a href="https://github.com/monikeo" target="_blank" rel="noopener noreferrer" className="p-1 hover:text-brand-ink transition-colors" title="GitHub">
@@ -1416,7 +1403,7 @@ export function SettingsView() {
                         <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-white font-sans">
                           {showUserModal === 'new' ? t('usr_provision_account') : t('usr_edit_account')}
                         </h3>
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">Infinity TKD RBAC Authentication</p>
+                        <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono">Infinity TKD RBAC Authentication</p>
                       </div>
                     </div>
                     <button
@@ -1434,10 +1421,10 @@ export function SettingsView() {
                     {/* Display Name & Khmer Name */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
+                        <label htmlFor="settings-view-usr_display_name" className="block text-micro uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
                           {t('usr_display_name')} <span className="text-red-500">*</span>
                         </label>
-                        <input
+                        <input id="settings-view-usr_display_name"
                           aria-label="Display name"
                           type="text"
                           value={userForm.displayName}
@@ -1447,10 +1434,10 @@ export function SettingsView() {
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
+                        <label htmlFor="settings-view-set_khmer_name" className="block text-micro uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
                           {t('set_khmer_name')}
                         </label>
-                        <input
+                        <input id="settings-view-set_khmer_name"
                           aria-label="Khmer name"
                           type="text"
                           value={userForm.khmerName}
@@ -1463,11 +1450,11 @@ export function SettingsView() {
 
                     {/* Profile Picture URL + Preview */}
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
+                      <label htmlFor="settings-view-panel_profile_pic_link" className="block text-micro uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
                         {t('panel_profile_pic_link')}
                       </label>
                       <div className="flex gap-3 items-center">
-                        <input
+                        <input id="settings-view-panel_profile_pic_link"
                           aria-label="Profile image URL"
                           type="text"
                           value={userForm.profilePicturePath}
@@ -1481,7 +1468,7 @@ export function SettingsView() {
                               src={userForm.profilePicturePath}
                               alt="Preview"
                               containerClassName="w-10 h-10 rounded-[8px] bg-neutral-100 dark:bg-[#1A1A1A] border border-neutral-300 dark:border-[#262626] overflow-hidden flex items-center justify-center shadow-md"
-                              fallback={<span className="text-[9px] text-red-500 uppercase font-black bg-red-500/10 px-1 py-0.5 rounded-[8px]">{t('set_err_private')}</span>}
+                              fallback={<span className="text-micro text-red-500 uppercase font-black bg-red-500/10 px-1 py-0.5 rounded-[8px]">{t('set_err_private')}</span>}
                             />
                           </div>
                         )}
@@ -1491,10 +1478,10 @@ export function SettingsView() {
                     {/* Username, Email, Phone */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
+                        <label htmlFor="settings-view-usr_username" className="block text-micro uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
                           {t('usr_username')} <span className="text-red-500">*</span>
                         </label>
-                        <input
+                        <input id="settings-view-usr_username"
                           aria-label="Username"
                           type="text"
                           value={userForm.username}
@@ -1505,10 +1492,10 @@ export function SettingsView() {
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
+                        <label htmlFor="settings-view-stu_email" className="block text-micro uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
                           {t('stu_email')}
                         </label>
-                        <input
+                        <input id="settings-view-stu_email"
                           aria-label="Account email"
                           type="email"
                           value={userForm.email}
@@ -1518,10 +1505,10 @@ export function SettingsView() {
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
+                        <label htmlFor="settings-view-set_phone" className="block text-micro uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
                           {t('set_phone')}
                         </label>
-                        <input
+                        <input id="settings-view-set_phone"
                           aria-label="Account phone"
                           type="tel"
                           value={userForm.phone}
@@ -1534,10 +1521,10 @@ export function SettingsView() {
 
                     {/* Role Selector */}
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
+                      <label htmlFor="settings-view-usr_role" className="block text-micro uppercase font-bold text-neutral-600 dark:text-neutral-400 mb-1 font-mono">
                         {t('usr_role')}
                       </label>
-                      <select
+                      <select id="settings-view-usr_role"
                         aria-label="Account role"
                           value={userForm.role}
                         onChange={(e) => {
@@ -1557,10 +1544,10 @@ export function SettingsView() {
                     {/* Student Record Linker (if Student role) */}
                     {userForm.role === 'Student' && (
                       <div className="p-3 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-[8px] space-y-2">
-                        <label className="block text-[10px] uppercase font-bold text-blue-700 dark:text-blue-400 font-mono flex items-center gap-1.5">
+                        <label htmlFor="settings-view-link-to-student-record" className="block text-micro uppercase font-bold text-blue-700 dark:text-blue-400 font-mono flex items-center gap-1.5">
                           <span>🎓</span> Link To Student Record
                         </label>
-                        <select
+                        <select id="settings-view-link-to-student-record"
                           aria-label="Linked student"
                           value={userForm.studentId}
                           onChange={(e) => {
@@ -1589,7 +1576,7 @@ export function SettingsView() {
                             </option>
                           ))}
                         </select>
-                        <p className="text-[10px] text-blue-600/80 dark:text-blue-400/70 font-mono">
+                        <p className="text-micro text-blue-600/80 dark:text-blue-400/70 font-mono">
                           Linking connects this auth account to the student profile. Student accounts can only access the Student Portal.
                         </p>
                       </div>
@@ -1599,7 +1586,7 @@ export function SettingsView() {
                     {showUserModal === 'new' && (
                       <div>
                         <div className="flex justify-between items-center mb-1">
-                          <label className="block text-[10px] uppercase font-bold text-neutral-600 dark:text-neutral-400 font-mono">
+                          <label className="block text-micro uppercase font-bold text-neutral-600 dark:text-neutral-400 font-mono">
                             Initial Password <span className="text-red-500">*</span>
                           </label>
                           <button
@@ -1608,7 +1595,7 @@ export function SettingsView() {
                               ...prev,
                               password: generatePassword()
                             }))}
-                            className="text-[10px] text-brand-ink hover:underline font-mono cursor-pointer"
+                            className="text-micro text-brand-ink hover:underline font-mono cursor-pointer"
                           >
                             Generate Password
                           </button>
@@ -1637,7 +1624,7 @@ export function SettingsView() {
                     <div className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-[#1A1A1A] border border-neutral-200 dark:border-[#262626] rounded-[8px]">
                       <div>
                         <span className="text-xs font-bold text-neutral-900 dark:text-white block">System Access Active</span>
-                        <span className="text-[10px] text-neutral-500 font-mono">Allow user to sign in to system</span>
+                        <span className="text-micro text-neutral-500 font-mono">Allow user to sign in to system</span>
                       </div>
                       <input
                         type="checkbox"
@@ -1687,7 +1674,7 @@ export function SettingsView() {
                     </div>
                     <div>
                       <h3 className="text-sm font-black text-neutral-900 dark:text-white uppercase tracking-wider">Set Account Password</h3>
-                      <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono">@{passwordTargetUser.username} • {passwordTargetUser.displayName}</p>
+                      <p className="text-micro text-neutral-500 dark:text-neutral-400 font-mono">@{passwordTargetUser.username} • {passwordTargetUser.displayName}</p>
                     </div>
                   </div>
                   <button
@@ -1707,11 +1694,11 @@ export function SettingsView() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider font-mono">
+                    <label htmlFor="settings-view-new-password" className="text-micro uppercase font-bold text-neutral-500 dark:text-neutral-400 tracking-wider font-mono">
                       New Password <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                      <input
+                      <input id="settings-view-new-password"
                         type={showTargetPasswordText ? "text" : "password"}
                         value={targetNewPassword}
                         onChange={e => {
@@ -1801,7 +1788,7 @@ export function SettingsView() {
                   </div>
                   <div>
                     <h3 className="text-sm font-bold uppercase tracking-wider font-sans">{t('set_purge_confirm_title')}</h3>
-                    <p className="text-[10px] text-neutral-500 font-mono">Local Storage Cleanup</p>
+                    <p className="text-micro text-neutral-500 font-mono">Local Storage Cleanup</p>
                   </div>
                 </div>
 
